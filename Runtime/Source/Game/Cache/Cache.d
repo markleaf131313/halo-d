@@ -85,7 +85,9 @@ pragma(inline, true) static @nogc
 
 ~this()
 {
-    destroyFree(buffer);
+    import core.sys.windows.windows : VirtualFree, MEM_RELEASE;
+
+    VirtualFree(buffer, 0, MEM_RELEASE);
 }
 
 void load(in string filename)
