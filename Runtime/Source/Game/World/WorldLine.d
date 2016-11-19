@@ -80,7 +80,7 @@ private:
             float endDistance   = d + v * end;
 
             bool front = startDistance >= 0.0f || endDistance >= 0.0f;
-            bool back  = startDistance <= 0.0f || endDistance <= 0.0f;
+            bool back  = startDistance <  0.0f || endDistance <  0.0f;
 
             if(!front || !back)
             {
@@ -88,10 +88,15 @@ private:
             }
             else
             {
-                bool facing = v < 0.0f;
+                bool facing = v > 0.0f;
                 float distancePercent = -d / v;
 
-                if(doNode3d(facing ? node.frontChild : node.backChild, start, distancePercent))
+                if(v == 0.0f)
+                {
+                    distancePercent = 0.0f;
+                }
+
+                if(doNode3d(facing ? node.backChild : node.frontChild, start, distancePercent))
                 {
                     return true;
                 }
@@ -103,7 +108,7 @@ private:
 
                 lineLastPlane = node.plane;
 
-                return doNode3d(facing ? node.backChild : node.frontChild, distancePercent, end);
+                return doNode3d(facing ? node.frontChild : node.backChild, distancePercent, end);
             }
         }
 
