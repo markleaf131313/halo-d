@@ -8,7 +8,7 @@ import Game.Core;
 private struct ReadBuffer
 {
     const(void)* ptr;
-    int length;
+    size_t length;
 
     this(const(void)[] buffer)
     {
@@ -33,8 +33,8 @@ private struct ReadBuffer
 private struct WriteBuffer
 {
     const(void)* ptr;
-    int length;
-    int writtenLength;
+    size_t length;
+    size_t writtenLength;
 
     this(void[] buffer)
     {
@@ -75,7 +75,7 @@ enum int[16] indexTable =
     -1, -1, -1, -1, 2, 4, 6, 8
 ];
 
-int decodedAdpcmSize(int compressedSize, int numChannels)
+size_t decodedAdpcmSize(size_t compressedSize, int numChannels)
 {
     return (compressedSize / (numChannels * 36)) * (numChannels * 130);
 }
@@ -98,7 +98,7 @@ body
 
     numChannels = clamp(numChannels, 0, 2);
 
-    int blockCount = input.length / (numChannels * 36);
+    diff_t blockCount = input.length / (numChannels * 36);
 
     ReadBuffer  inBuffer  = input;
     WriteBuffer outBuffer = output;

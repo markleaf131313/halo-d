@@ -25,7 +25,7 @@ mixin template GbxmodelRegionBlock()
     {
         int count = 0;
 
-        foreach(i, ref permutation ; permutations)
+        foreach(int i, ref permutation ; permutations)
         {
             if(!permutation.flags.cannotBeChosenRandomly)
             {

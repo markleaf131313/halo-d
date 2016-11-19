@@ -11,7 +11,7 @@ template TagIdToType(string id)
     mixin("alias TagIdToType = Tag" ~ toUpper(id[0]) ~ id[1 .. $] ~ ";");
 }
 
-auto InvokeByTag(alias invoker, Args...)(TagId id, ref Args args)
+auto InvokeByTag(alias invoker, Args...)(TagId id, auto ref Args args)
 {
     template impl(types...)
     {

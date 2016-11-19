@@ -12,7 +12,7 @@ mixin template TagScenarioStructureBsp()
         static int binarySearch(alias tri, T, V)(T[] range, V value)
         {
             int min = 0;
-            int max = range.length - 1;
+            int max = cast(int)range.length - 1;
 
             int result = 0;
 

@@ -79,7 +79,7 @@ void bind()
     uint[attachments.length] buffers;
     uint count;
 
-    foreach(i, attachment ; attachments)
+    foreach(int i, attachment ; attachments)
     {
         if(attachment != 0)
         {

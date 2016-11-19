@@ -697,7 +697,7 @@ Weapon* currentWeapon()
 
 int findAvailableWeaponIndex()
 {
-    foreach(i, weapon ; weapons)
+    foreach(int i, weapon ; weapons)
     {
         if(weapon is null)
         {
@@ -1139,15 +1139,15 @@ bool setSeat(const(char)[] seat, const(char)[] weapon, bool setState)
     bool isUnarmed = weapon ? !icmp("unarmed", weapon) : false;
     bool found;
 
-    foreach(i, ref animUnit ; tagAnimations.units)
+    foreach(int i, ref animUnit ; tagAnimations.units)
     {
         if(seat && icmp(seat, animUnit.label))
         {
             continue;
         }
 
-        foreach(j, ref animWeap ; animUnit.weapons)
-        foreach(k, ref animWeapType ; animWeap.weaponTypes)
+        foreach(int j, ref animWeap ; animUnit.weapons)
+        foreach(int k, ref animWeapType ; animWeap.weaponTypes)
         if(weapon is null || (isUnarmed && animWeapType.label.isEmpty()) || !icmp(animWeapType.label, weapon))
         {
             found = true;

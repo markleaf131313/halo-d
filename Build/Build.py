@@ -62,7 +62,7 @@ def doBuild(buildTarget):
 
     args = [
         'dmd',
-        '-m32mscoff',
+        '-m64',
         # '-w',           # warnings
         '-de',          # treat deprecation as errors
         '-gc',          # debug symbols (C format)
@@ -70,9 +70,9 @@ def doBuild(buildTarget):
         *dflags,
         *dsrcs,
         '-L/LIBPATH:../build/lib/',
-        '-L/LIBPATH:/D/dmd2/windows/lib32mscoff/',
-        '-L/LIBPATH:\"/Program Files (x86)/Windows Kits/10/Lib/10.0.14393.0/um/x86\"',
-        '-L/LIBPATH:\"/Program Files (x86)/Windows Kits/10/Lib/10.0.14393.0/ucrt/x86\"',
+        '-L/LIBPATH:/D/dmd2/windows/lib64/',
+        '-L/LIBPATH:\"/Program Files (x86)/Windows Kits/10/Lib/10.0.14393.0/um/x64\"',
+        '-L/LIBPATH:\"/Program Files (x86)/Windows Kits/10/Lib/10.0.14393.0/ucrt/x64\"',
         *lflags,
         *libs,
     ]

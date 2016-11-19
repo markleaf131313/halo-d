@@ -568,7 +568,7 @@ bool collideObjectLine(GObject* object, Vec3 position, Vec3 segment, SurfaceOpti
 
     auto tagCollision = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel);
 
-    foreach(i, ref node ; tagCollision.nodes)
+    foreach(int i, ref node ; tagCollision.nodes)
     {
         if(node.region == indexNone) continue;
         if(node.bsps.size == 0)      continue;

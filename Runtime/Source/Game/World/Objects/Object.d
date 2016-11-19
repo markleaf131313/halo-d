@@ -811,7 +811,7 @@ int findMarker(const(char)[] name)
 
     auto tagModel = Cache.get!TagGbxmodel(Cache.get!TagObject(tagIndex).model);
 
-    foreach(i, ref marker ; tagModel.markers)
+    foreach(int i, ref marker ; tagModel.markers)
     {
         if(icmp(marker.name, name) == 0)
         {

@@ -53,9 +53,9 @@ struct Meta
     TagId[2] parentTypes;
 
     DatumIndex index;
-    const(char)* path;
 
-    void* data;
+    mixin exactPointer32!(const(char), "path");
+    mixin exactPointer32!(void, "data");
 
     bool external;
     int pad0;
@@ -235,7 +235,7 @@ T* fixPointer(T)(T* ptr)
     return ptr is null ? null : cast(T*)(cast(size_t)buffer + (cast(size_t)ptr - 0x4044_0000));
 }
 
-byte[] allocateFromBuffer(uint size)
+byte[] allocateFromBuffer(size_t size)
 {
     byte* result = buffer + bufferSize;
     bufferSize += size;
@@ -397,10 +397,12 @@ void loadTagSound(ref Meta meta, ref SharedLoadData sharedLoadData)
             switch(tagSound.encoding)
             {
             case TagEnums.SoundEncoding.mono:
-                alBufferData(permutation.cacheBufferIndex, AL_FORMAT_MONO16, decoded.ptr, decoded.length, sampleRate);
+                alBufferData(permutation.cacheBufferIndex, AL_FORMAT_MONO16,
+                    decoded.ptr, cast(int)decoded.length, sampleRate);
                 break;
             case TagEnums.SoundEncoding.stereo:
-                alBufferData(permutation.cacheBufferIndex, AL_FORMAT_STEREO16, decoded.ptr, decoded.length, sampleRate);
+                alBufferData(permutation.cacheBufferIndex, AL_FORMAT_STEREO16,
+                    decoded.ptr, cast(int)decoded.length, sampleRate);
                 break;
             default:
             }

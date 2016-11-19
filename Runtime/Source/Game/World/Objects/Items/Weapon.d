@@ -351,7 +351,7 @@ bool implUpdateLogic()
         magazineRequestReload(0);
     }
 
-    foreach(i, ref tagMagazine ; tagWeapon.magazines)
+    foreach(int i, ref tagMagazine ; tagWeapon.magazines)
     {
         auto magazine = &magazines[i];
 
@@ -386,7 +386,7 @@ bool implUpdateLogic()
         }
     }
 
-    foreach(i, ref tagTrigger ; tagWeapon.triggers)
+    foreach(int i, ref tagTrigger ; tagWeapon.triggers)
     {
         auto trigger = &triggers[i];
         bool triggered = triggersPulled[i];

@@ -58,7 +58,7 @@ void load()
 
         foreach(j, ref material ; lightmap.materials)
         {
-            structureVertexIndexOffsets[i][j] = bspVertices.length;
+            structureVertexIndexOffsets[i][j] = cast(int)bspVertices.length;
 
             uint vertexCount       = material.vertexBuffers[0].count;
             TagBspVertex* vertices = material.uncompressedVertices.dataAs!TagBspVertex;
@@ -159,7 +159,7 @@ void load()
         .createBuffer(0, vertices.length * SimpleWorldVertex.sizeof, vertices.ptr, GL_STATIC_DRAW)
         .vertexBuffer(0, 0, 0, SimpleWorldVertex.sizeof);
 
-    sphereVertexCount = vertices.length;
+    sphereVertexCount = cast(int)vertices.length;
 
 }
 
@@ -204,7 +204,7 @@ void render(ref World world, ref Camera camera)
 
     sbspVertexArray.bind();
 
-    foreach(i, ref lightmap ; sbsp.lightmaps)
+    foreach(int i, ref lightmap ; sbsp.lightmaps)
     {
         if(lightmap.bitmap != indexNone)
         {
@@ -706,7 +706,7 @@ void renderObject(ref Camera camera, int[] permutations, GObject.Lighting* light
                 bindTextureCube(3, shader.reflectionCubeMap.index, 0, DefaultTexture.vector);
 
                 glDrawElementsBaseVertex(GL_TRIANGLE_STRIP, part.indexCount + 2, GL_UNSIGNED_SHORT,
-                    cast(void*)part.indexOffset, part.vertexOffset / TagModelVertex.sizeof);
+                    cast(void*)part.indexOffset, part.vertexOffset / cast(int)TagModelVertex.sizeof);
 
                 break;
             case TagEnums.ShaderType.chicago:
@@ -754,7 +754,7 @@ void renderObject(ref Camera camera, int[] permutations, GObject.Lighting* light
                 Vec4i colorFunc;
                 Vec4i alphaFunc;
 
-                foreach(s, ref stage ; shader.fourStageMaps)
+                foreach(int s, ref stage ; shader.fourStageMaps)
                 {
                     colorFunc[s] = stage.colorFunction;
                     alphaFunc[s] = stage.alphaFunction;
@@ -785,7 +785,7 @@ void renderObject(ref Camera camera, int[] permutations, GObject.Lighting* light
                 glDisable(GL_DEPTH_TEST);
 
                 glDrawElementsBaseVertex(GL_TRIANGLE_STRIP, part.indexCount + 2, GL_UNSIGNED_SHORT,
-                    cast(void*)part.indexOffset, part.vertexOffset / TagModelVertex.sizeof);
+                    cast(void*)part.indexOffset, part.vertexOffset / cast(int)TagModelVertex.sizeof);
 
                 glDisable(GL_BLEND);
                 glEnable(GL_DEPTH_TEST);

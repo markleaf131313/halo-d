@@ -570,9 +570,9 @@ struct Vehicle
 
         static void modelSetPermutation(TagGbxmodel* model, Vehicle* vehicle, const(char)[] name, bool doset)
         {
-            foreach(i, ref region ; model.regions)
+            foreach(int i, ref region ; model.regions)
             {
-                foreach(j, ref permutation ; region.permutations)
+                foreach(int j, ref permutation ; region.permutations)
                 {
                     if(!icmp(name, permutation.name))
                     {

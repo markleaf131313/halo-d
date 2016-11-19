@@ -73,7 +73,6 @@ static assert(this.sizeof == 4);
 union
 {
     uint  bits;
-    void* ptr;
 }
 
 @property @nogc nothrow

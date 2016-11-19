@@ -18,8 +18,6 @@ import Game.Tags;
 import Game.World;
 import Game.World.Player;
 
-static assert((void*).sizeof == 4, "Only 32-bit is supported.");
-
 
 mixin SimpleDllMain;
 
@@ -31,7 +29,7 @@ __gshared Duration accumulator;
 
 void loadCacheTagPaths()
 {
-    foreach(i, ref meta ; Cache.inst.getMetas())
+    foreach(int i, ref meta ; Cache.inst.getMetas())
     {
         if(meta.path)
         {
@@ -385,7 +383,7 @@ void setView(T)(void* f, ref int[] tags)
                 igBeginChild("Scroll");
                 igColumns(2);
 
-                foreach(j, ref meta ; Cache.inst.getMetas())
+                foreach(int j, ref meta ; Cache.inst.getMetas())
                 {
                     igPushIdInt(j);
                     if(igSelectable(meta.path, selectedIndex == j,
@@ -612,7 +610,7 @@ try
         igEnd();
 
         int removeIndex = indexNone;
-        foreach(j, int i ; openedTags)
+        foreach(int j, int i ; openedTags)
         {
             auto meta = &Cache.inst.metaAt(i);
             bool opened = true;

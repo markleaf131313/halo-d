@@ -38,24 +38,24 @@ void bind()
     glBindVertexArray(object);
 }
 
-ref auto attribFormat(uint attrib, uint binding, uint size, uint type, uint offset, bool normalized = false)
+ref auto attribFormat(uint attrib, uint binding, size_t size, uint type, size_t offset, bool normalized = false)
 {
     glEnableVertexArrayAttrib(object, attrib);
     glVertexArrayAttribBinding(object, attrib, binding);
-    glVertexArrayAttribFormat(object, attrib, size, type, normalized, offset);
+    glVertexArrayAttribFormat(object, attrib, cast(uint)size, type, normalized, cast(uint)offset);
     return this;
 }
 
-ref auto attribIFormat(uint attrib, uint binding, uint size, uint type, uint offset)
+ref auto attribIFormat(uint attrib, uint binding, size_t size, uint type, size_t offset)
 {
     glEnableVertexArrayAttrib(object, attrib);
     glVertexArrayAttribBinding(object, attrib, binding);
-    glVertexArrayAttribIFormat(object, attrib, size, type, offset);
+    glVertexArrayAttribIFormat(object, attrib, cast(uint)size, type, cast(uint)offset);
     return this;
 }
 
 
-ref auto createBuffer(int index, uint size, const(void)* data, uint usage)
+ref auto createBuffer(int index, size_t size, const(void)* data, uint usage)
 {
     if(buffers[index])
     {
@@ -78,16 +78,16 @@ ref auto createBuffer(int index)
     return this;
 }
 
-ref auto bufferData(int index, uint size, const(void)* data, uint usage)
+ref auto bufferData(int index, size_t size, const(void)* data, uint usage)
 {
     assert(buffers[index] != 0);
     glNamedBufferData(buffers[index], size, data, usage);
     return this;
 }
 
-ref auto vertexBuffer(int bufferIndex, int bindedIndex, uint offset, uint stride)
+ref auto vertexBuffer(int bufferIndex, int bindedIndex, size_t offset, size_t stride)
 {
-    glVertexArrayVertexBuffer(object, bindedIndex, buffers[bufferIndex], offset, stride);
+    glVertexArrayVertexBuffer(object, bindedIndex, buffers[bufferIndex], cast(uint)offset, cast(uint)stride);
     return this;
 }
 

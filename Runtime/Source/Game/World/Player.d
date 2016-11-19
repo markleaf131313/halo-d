@@ -129,7 +129,7 @@ struct Player
 
             Orientation[TagConstants.Animation.maxNodes] orientations;
 
-            foreach(i, ref seat ; tagVehicle.seats)
+            foreach(int i, ref seat ; tagVehicle.seats)
             {
                 const(char)[] seatLabel = seat.label;
 

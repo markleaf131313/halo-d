@@ -121,7 +121,7 @@ DatumIndex add()
 
     DatumIndex result = { i: index, salt: (element.selfIndex.salt + 1) | short.min };
 
-    emplace(&element); // NOTE: careful here, selfIndex gets overwritten as part of the initializer
+    emplace(element); // NOTE: careful here, selfIndex gets overwritten as part of the initializer
     element.selfIndex = result;
 
     return result;

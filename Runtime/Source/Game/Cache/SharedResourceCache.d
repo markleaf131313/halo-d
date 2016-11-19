@@ -23,7 +23,7 @@ struct SharedResourceCache
         rawRead(file, &header);
     }
 
-    void read(uint offset, void* buffer, uint size)
+    void read(size_t offset, void* buffer, size_t size)
     {
         file.seek(offset);
         file.rawRead(buffer[0 .. size]);

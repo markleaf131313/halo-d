@@ -52,9 +52,9 @@ mixin template exactPointer32(T, string name)
 
         private uint valuePtr__;
 
-        mixin("@property @nogc nothrow inout(T)* " ~name~ "() inout { return cast(T*)valuePtr__; }");
-        mixin("@property @nogc nothrow void " ~name~ "(const T* p)" ~
-            "in { assert(GC.addrOf(p) is null && cast(ulong)p <= 0xFFFF_FFFF) }" ~
+        mixin("@property @nogc nothrow inout(T)* " ~name~ "() inout { return cast(inout(T)*)valuePtr__; }");
+        mixin("@property @nogc nothrow void " ~name~ "(const(T)* p)" ~
+            "in   { assert(cast(ulong)p <= 0xFFFF_FFFF); }" ~ // assert(GC.addrOf(cast(void*)p) is null &&  TODO, too many problems right with it
             "body { valuePtr__ = cast(uint)p; }");
     }
 }

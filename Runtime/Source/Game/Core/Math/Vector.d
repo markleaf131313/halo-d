@@ -80,7 +80,7 @@ pragma(inline, true) @nogc nothrow pure:
         }
     }
 
-    ref inout(Type) opIndex(int i) inout
+    ref inout(Type) opIndex(size_t i) inout
     {
         return values[i];
     }

@@ -54,7 +54,7 @@ private void setValues(in Type* values, int length)
     }
     else static if(is(Type == ColorArgb))
     {
-        foreach(i, ref color ; values[0 .. length])
+        foreach(int i, ref color ; values[0 .. length])
         {
             glUniform4f(location + i, color.r, color.g, color.b, color.a);
         }
@@ -92,7 +92,7 @@ static GLShader make(string debugName, string vertexSource, string fragmentSourc
         uint shader = glCreateShader(type);
 
         const(char*) p = cast(const(char*))source.ptr;
-        int sourceLength = source.length;
+        int sourceLength = cast(int)source.length;
 
         glShaderSource(shader, 1, &p, &sourceLength);
         glCompileShader(shader);
