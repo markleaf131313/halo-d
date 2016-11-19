@@ -1,0 +1,100 @@
+{
+    "name": "meter",
+    "type": "metr",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "meter",
+            "sizeof": 172,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": ""
+                },
+                {
+                    "name": "stencil bitmaps",
+                    "comment": "two bitmaps specifying the mask and the meter levels",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "source bitmap",
+                    "comment": "optional bitmap to draw into the unmasked regions of the meter (modulated by the colors below)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "stencil sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "source sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "interpolate colors...",
+                    "type": "enum",
+                    "index": 34
+                },
+                {
+                    "name": "anchor colors...",
+                    "type": "enum",
+                    "index": 35
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "empty color",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "full color",
+                    "type": "rgbaf"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "unmask distance",
+                    "unit": "meter units",
+                    "comment": "fade from fully masked to fully unmasked this distance beyond full (and below empty)",
+                    "type": "float"
+                },
+                {
+                    "name": "mask distance",
+                    "unit": "meter units",
+                    "comment": "fade from fully unmasked to fully masked this distance below full (and beyond empty)",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "encoded stencil",
+                    "type": "data"
+                }
+            ]
+        }
+    ]
+}

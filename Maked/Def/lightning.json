@@ -1,0 +1,221 @@
+{
+    "name": "lightning",
+    "type": "elec",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "lightning_marker_block",
+            "sizeof": 228,
+            "fields": [
+                {
+                    "name": "attachment marker",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "not connected to next marker"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "octaves to next marker",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 76
+                },
+                {
+                    "name": "random position bounds",
+                    "unit": "world units",
+                    "type": "vec3"
+                },
+                {
+                    "name": "random jitter",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "thickness",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "tint",
+                    "comment": "alpha is brightness",
+                    "type": "rgbaf"
+                },
+                {
+                    "type": "pad",
+                    "size": 76
+                }
+            ]
+        },
+        {
+            "name": "lightning_shader_block",
+            "sizeof": 180,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "shader flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "sort bias"
+                        },
+                        {
+                            "name": "nonlinear tint"
+                        },
+                        {
+                            "name": "don't overdraw fp weapon"
+                        }
+                    ]
+                },
+                {
+                    "name": "framebuffer blend function",
+                    "type": "enum",
+                    "index": 47
+                },
+                {
+                    "name": "framebuffer fade mode",
+                    "type": "enum",
+                    "index": 48
+                },
+                {
+                    "name": "map flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 56
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                }
+            ]
+        },
+        {
+            "name": "lightning",
+            "sizeof": 264,
+            "fields": [
+                {
+                    "name": "lightning",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "count",
+                    "comment": "number of overlapping lightning effects to render; 0 defaults to 1",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "near fade distance",
+                    "unit": "world units",
+                    "comment": "distance at which lightning is at full brightness",
+                    "type": "float"
+                },
+                {
+                    "name": "far fade distance",
+                    "unit": "world units",
+                    "comment": "distance at which lightning is at zero brightness",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "jitter scale source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "thickness scale source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "tint modulation source",
+                    "type": "enum",
+                    "index": 106
+                },
+                {
+                    "name": "brightness scale source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 84
+                },
+                {
+                    "name": "markers",
+                    "type": "block",
+                    "block_name": "lightning_marker_block"
+                },
+                {
+                    "name": "shader",
+                    "type": "block",
+                    "block_name": "lightning_shader_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 88
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,28 @@
+{
+    "name": "tag_collection",
+    "type": "tagc",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "tag reference",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "tag",
+                    "type": "tagref"
+                }
+            ]
+        },
+        {
+            "name": "tag_collection",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "tag references",
+                    "type": "block",
+                    "block_name": "tag reference"
+                }
+            ]
+        }
+    ]
+}

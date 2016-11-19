@@ -1,0 +1,115 @@
+{
+    "name": "antenna",
+    "type": "ant!",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "antenna_vertex_block",
+            "sizeof": 128,
+            "fields": [
+                {
+                    "name": "spring strength coefficient",
+                    "comment": "strength of the spring (larger values make the spring stronger)",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "angles",
+                    "comment": "direction toward next vertex",
+                    "type": "angles2"
+                },
+                {
+                    "name": "length",
+                    "unit": "world units",
+                    "comment": "distance between this vertex and the next",
+                    "type": "float"
+                },
+                {
+                    "name": "sequence index",
+                    "comment": "bitmap group sequence index for this vertex's texture",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "color",
+                    "comment": "color at this vertex",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "LOD color",
+                    "comment": "color at this vertex for the low-LOD line primitives",
+                    "type": "rgbaf"
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "antenna",
+            "sizeof": 208,
+            "fields": [
+                {
+                    "name": "attachment marker name",
+                    "comment": "the marker name where the antenna should be attached",
+                    "type": "string"
+                },
+                {
+                    "name": "bitmaps",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "physics",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "pphy"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 80
+                },
+                {
+                    "name": "spring strength coefficient",
+                    "comment": "strength of the spring (larger values make the spring stronger)",
+                    "type": "fraction"
+                },
+                {
+                    "name": "falloff pixels",
+                    "type": "float"
+                },
+                {
+                    "name": "cutoff pixels",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "vertices",
+                    "type": "block",
+                    "block_name": "antenna_vertex_block"
+                }
+            ]
+        }
+    ]
+}

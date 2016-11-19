@@ -1,0 +1,151 @@
+{
+    "name": "font",
+    "type": "font",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "font_character_table",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "name": "character index",
+                    "type": "index16",
+                    "block_name": "character"
+                }
+            ]
+        },
+        {
+            "name": "font_character_tables",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "character table",
+                    "type": "block",
+                    "block_name": "font_character_table"
+                }
+            ]
+        },
+        {
+            "name": "character",
+            "sizeof": 20,
+            "fields": [
+                {
+                    "name": "character",
+                    "type": "short"
+                },
+                {
+                    "name": "character width",
+                    "type": "short"
+                },
+                {
+                    "name": "bitmap width",
+                    "type": "short"
+                },
+                {
+                    "name": "bitmap height",
+                    "type": "short"
+                },
+                {
+                    "name": "bitmap origin x",
+                    "type": "short"
+                },
+                {
+                    "name": "bitmap origin y",
+                    "type": "short"
+                },
+                {
+                    "name": "hardware character index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "pixels offset",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "font",
+            "sizeof": 156,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "int"
+                },
+                {
+                    "name": "ascending height",
+                    "type": "short"
+                },
+                {
+                    "name": "decending height",
+                    "type": "short"
+                },
+                {
+                    "name": "leading height",
+                    "type": "short"
+                },
+                {
+                    "name": "leadin width",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                },
+                {
+                    "name": "character tables",
+                    "type": "block",
+                    "block_name": "font_character_tables"
+                },
+                {
+                    "name": "bold",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "font"
+                        }
+                    ]
+                },
+                {
+                    "name": "italic",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "font"
+                        }
+                    ]
+                },
+                {
+                    "name": "condense",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "font"
+                        }
+                    ]
+                },
+                {
+                    "name": "underline",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "font"
+                        }
+                    ]
+                },
+                {
+                    "name": "characters",
+                    "type": "block",
+                    "block_name": "character"
+                },
+                {
+                    "name": "pixels",
+                    "type": "data"
+                }
+            ]
+        }
+    ]
+}

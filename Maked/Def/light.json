@@ -1,0 +1,262 @@
+{
+    "name": "light",
+    "type": "ligh",
+    "version": 3,
+    "blocks": [
+        {
+            "name": "light",
+            "sizeof": 352,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "dynamic",
+                            "comment": "dynamically illuminate interiors"
+                        },
+                        {
+                            "name": "no specular",
+                            "comment": "for dynamic lights, cast only diffuse light."
+                        },
+                        {
+                            "name": "don't light own object",
+                            "comment": "for dynamic lights, don't light the object that the light is attached to."
+                        },
+                        {
+                            "name": "supersize in first person",
+                            "comment": "for dynamic lights, light every environment surface if this light is on the gun of the current window."
+                        },
+                        {
+                            "name": "first person flashlight"
+                        },
+                        {
+                            "name": "don't fade active camouflage"
+                        }
+                    ]
+                },
+                {
+                    "name": "SHAPE",
+                    "type": "explanation",
+                    "explanation": "the size and shape of the light"
+                },
+                {
+                    "name": "radius",
+                    "comment": "the radius where illumination is zero. (lens flare only if this is 0)",
+                    "type": "float"
+                },
+                {
+                    "name": "radius modifer",
+                    "comment": "how the radius changes with external scale",
+                    "type": "bound float"
+                },
+                {
+                    "name": "falloff angle",
+                    "comment": "the angle at which the light begins to fade.",
+                    "type": "angle"
+                },
+                {
+                    "name": "cutoff angle",
+                    "comment": "the angle at which the illumination is zero.",
+                    "type": "angle"
+                },
+                {
+                    "name": "lens flare only radius",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "COLOR",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "interpolation flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "blend in hsv",
+                            "comment": "blends colors in hsv rather than rgb space"
+                        },
+                        {
+                            "name": "...more colors",
+                            "comment": "blends colors through more hues (goes the long way around the color wheel)"
+                        }
+                    ]
+                },
+                {
+                    "name": "color lower bound",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "color upper bound",
+                    "type": "rgbaf"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "GEL",
+                    "type": "explanation",
+                    "explanation": "the gel map tints the light per-pixel of cube map"
+                },
+                {
+                    "name": "primary cube map",
+                    "comment": "used for diffuse and specular light",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "texture animation function",
+                    "comment": "a function to control texture animation",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "texture animation period",
+                    "unit": "seconds",
+                    "comment": "time between repeats",
+                    "type": "float"
+                },
+                {
+                    "name": "secondary cube map",
+                    "comment": "used for specular light",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "yaw function",
+                    "comment": "a function to control rotation of the gel in yaw",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "yaw period",
+                    "unit": "seconds",
+                    "comment": "time between repeats",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "roll function",
+                    "comment": "a function to control rotation of the gel in roll",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "roll period",
+                    "unit": "seconds",
+                    "comment": "time between repeats",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "pitch function",
+                    "comment": "a function to control rotation of the gel in pitch",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "pitch period",
+                    "unit": "seconds",
+                    "comment": "time between repeats",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "LENS FLARE",
+                    "type": "explanation",
+                    "explanation": "optional lens flare associated with this light"
+                },
+                {
+                    "name": "lens flare",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "lens"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "RADIOSITY",
+                    "type": "explanation",
+                    "explanation": "how the light affects the lightmaps (ignored for dynamic lights)"
+                },
+                {
+                    "name": "intensity",
+                    "type": "float"
+                },
+                {
+                    "name": "color",
+                    "type": "rgbf"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "EFFECT PARAMETERS",
+                    "type": "explanation",
+                    "explanation": "if the light is created by an effect, it will animate itself as follows"
+                },
+                {
+                    "name": "duration",
+                    "unit": "seconds",
+                    "comment": "the light will last this long when created by an effect",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "falloff function",
+                    "comment": "the scale of the light will diminish over time according to this function",
+                    "type": "enum",
+                    "index": 125
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 92
+                }
+            ]
+        }
+    ]
+}

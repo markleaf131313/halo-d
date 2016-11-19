@@ -1,0 +1,56 @@
+{
+    "name": "multiplayer_scenario_description",
+    "type": "mply",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "scenario_description_block",
+            "sizeof": 68,
+            "fields": [
+                {
+                    "name": "net map info",
+                    "type": "explanation",
+                    "explanation": "these provide the info required by the UI to load a net map"
+                },
+                {
+                    "name": "descriptive bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "displayed map name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "ustr"
+                        }
+                    ]
+                },
+                {
+                    "name": "scenario tag directory path",
+                    "comment": "this is the path to the directory containing the scenario tag file of the same name",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                }
+            ]
+        },
+        {
+            "name": "multiplayer_scenario_description",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "multiplayer scenarios",
+                    "type": "block",
+                    "block_name": "scenario_description_block"
+                }
+            ]
+        }
+    ]
+}

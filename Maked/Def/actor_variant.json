@@ -1,0 +1,611 @@
+{
+    "name": "actor_variant",
+    "type": "actv",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "actor_variant_change_colors_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "color lower bound",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "color upper bound",
+                    "type": "rgbf"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        },
+        {
+            "name": "actor_variant",
+            "sizeof": 568,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "can shoot while flying"
+                        },
+                        {
+                            "name": "interpolate color in HSV"
+                        },
+                        {
+                            "name": "has unlimited grenades"
+                        },
+                        {
+                            "name": "moveswitch stay w/ friends"
+                        },
+                        {
+                            "name": "active camouflage"
+                        },
+                        {
+                            "name": "super active camouflage"
+                        },
+                        {
+                            "name": "cannot use ranged weapons"
+                        },
+                        {
+                            "name": "prefer passenger seat"
+                        }
+                    ]
+                },
+                {
+                    "name": "actor definition",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "actr"
+                        }
+                    ]
+                },
+                {
+                    "name": "unit",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "unit"
+                        }
+                    ]
+                },
+                {
+                    "name": "major variant",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "actv"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "movement switching",
+                    "type": "explanation",
+                    "explanation": "note: only the flood combat forms will ever try to switch movement types voluntarily during combat"
+                },
+                {
+                    "name": "movement type",
+                    "comment": "when we have a choice of movement types, which type we will use",
+                    "type": "enum",
+                    "index": 44
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "initial crouch chance",
+                    "unit": "[0,1]",
+                    "comment": "actors that start their movement try to maintain this fraction of crouched actors",
+                    "type": "float"
+                },
+                {
+                    "name": "crouch time",
+                    "unit": "seconds",
+                    "comment": "when switching movement types, how long we will stay crouched for before running",
+                    "type": "bound float"
+                },
+                {
+                    "name": "run time",
+                    "unit": "seconds",
+                    "comment": "when switching movement types, how long we will run for before slowing to a crouch",
+                    "type": "bound float"
+                },
+                {
+                    "name": "ranged combat",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "weap"
+                        }
+                    ]
+                },
+                {
+                    "name": "maximum firing distance",
+                    "unit": "world units",
+                    "comment": "we can only fire our weapon at targets within this distance",
+                    "type": "float"
+                },
+                {
+                    "name": "rate of fire",
+                    "comment": "how many times per second we pull the trigger (zero = continuously held down)",
+                    "type": "float"
+                },
+                {
+                    "name": "projectile error",
+                    "unit": "degrees",
+                    "comment": "error added to every projectile we fire",
+                    "type": "angle"
+                },
+                {
+                    "name": "first burst delay time",
+                    "unit": "seconds",
+                    "type": "bound float"
+                },
+                {
+                    "name": "new-target firing pattern time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "surprise delay time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "surprise fire-wildly time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "death fire-wildly chance",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "death fire-wildly time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "desired combat range",
+                    "unit": "world units",
+                    "type": "bound float"
+                },
+                {
+                    "name": "custom stand gun offset",
+                    "comment": "custom standing gun offset for overriding the default in the base actor",
+                    "type": "vec3"
+                },
+                {
+                    "name": "custom crouch gun offset",
+                    "comment": "custom crouching gun offset for overriding the default in the base actor",
+                    "type": "vec3"
+                },
+                {
+                    "name": "target tracking",
+                    "unit": "[0,1]",
+                    "comment": "how well our bursts track moving targets. 0.0= fire at the position they were standing when we started the burst. 1.0= fire at current position",
+                    "type": "float"
+                },
+                {
+                    "name": "target leading",
+                    "unit": "[0,1]",
+                    "comment": "how much we lead moving targets. 0.0= no prediction. 1.0= predict completely.",
+                    "type": "float"
+                },
+                {
+                    "name": "weapon damage modifier",
+                    "comment": "what fraction of its normal damage our weapon inflicts (zero = no modifier)",
+                    "type": "float"
+                },
+                {
+                    "name": "damage per second",
+                    "comment": "only used if weapon damage modifier is zero... how much damage we should deliver to the target per second while firing a burst at them (zero = use weapon default)",
+                    "type": "float"
+                },
+                {
+                    "name": "burst geometry",
+                    "type": "explanation",
+                    "explanation": "at the start of every burst we pick a random point near the target to fire at, on either the left or the right side.\nthe burst origin angle controls whether this error is exactly horizontal or might have some vertical component.\n\nover the course of the burst we move our projectiles back in the opposite direction towards the target. this return motion is also controlled by an angle that specifies how close to the horizontal it is.\n\nfor example if the burst origin angle and the burst return angle were both zero, and the return length was the same as the burst length, every burst would start the same amount away from the target (on either the left or right) and move back to exactly over the target at the end of the burst."
+                },
+                {
+                    "name": "burst origin radius",
+                    "unit": "world units",
+                    "comment": "how far away from the target the starting point is",
+                    "type": "float"
+                },
+                {
+                    "name": "burst origin angle",
+                    "unit": "degrees",
+                    "comment": "the range from the horizontal that our starting error can be",
+                    "type": "angle"
+                },
+                {
+                    "name": "burst return length",
+                    "unit": "world units",
+                    "comment": "how far the burst point moves back towards the target (could be negative)",
+                    "type": "bound float"
+                },
+                {
+                    "name": "burst return angle",
+                    "unit": "degrees",
+                    "comment": "the range from the horizontal that the return direction can be",
+                    "type": "angle"
+                },
+                {
+                    "name": "burst duration",
+                    "unit": "seconds",
+                    "comment": "how long each burst we fire is",
+                    "type": "bound float"
+                },
+                {
+                    "name": "burst separation",
+                    "unit": "seconds",
+                    "comment": "how long we wait between bursts",
+                    "type": "bound float"
+                },
+                {
+                    "name": "burst angular velocity",
+                    "unit": "degrees per second",
+                    "comment": "the maximum rate at which we can sweep our fire (zero = unlimited)",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "special damage modifier",
+                    "unit": "[0,1]",
+                    "comment": "damage modifier for special weapon fire (applied in addition to the normal damage modifier. zero = no change)",
+                    "type": "float"
+                },
+                {
+                    "name": "special projectile error",
+                    "unit": "degrees",
+                    "comment": "projectile error angle for special weapon fire (applied in addition to the normal error)",
+                    "type": "angle"
+                },
+                {
+                    "name": "firing patterns",
+                    "type": "explanation",
+                    "explanation": "a firing pattern lets you modify the properties of an actor's burst geometry. actors choose which firing pattern to use based on their current state:\n     'new-target' when the target just appeared\n     'moving' when the actor is moving\n     'berserk' if the actor is berserk\nif none of these apply, no firing pattern is used.\n\nthe default values in the burst geometry are multiplied by any non-zero modifiers in the firing pattern."
+                },
+                {
+                    "name": "new-target burst duration",
+                    "comment": "burst duration multiplier for newly appeared targets (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "name": "new-target burst separation",
+                    "comment": "burst separation multiplier for newly appeared targets (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "name": "new-target rate of fire",
+                    "comment": "rate-of-fire multiplier for newly appeared targets (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "name": "new-target projectile error",
+                    "comment": "error multiplier for newly appeared targets (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "moving burst duration",
+                    "comment": "burst duration multiplier when the actor is moving (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "name": "moving burst separation",
+                    "comment": "burst separation multiplier when the actor is moving (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "name": "moving rate of fire",
+                    "comment": "rate-of-fire multiplier when the actor is moving (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "name": "moving projectile error",
+                    "comment": "error multiplier when the actor is moving (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "berserk burst duration",
+                    "comment": "burst duration multiplier when the actor is berserk (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "name": "berserk burst separation",
+                    "comment": "burst separation multiplier when the actor is berserk (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "name": "berserk rate of fire",
+                    "comment": "rate-of-fire multiplier when the actor is berserk (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "name": "berserk projectile error",
+                    "comment": "error multiplier when the actor is berserk (zero = unchanged)",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "special-case firing properties",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "super-ballistic range",
+                    "comment": "we try to aim our shots super-ballistically if target is outside this range (zero = never)",
+                    "type": "float"
+                },
+                {
+                    "name": "bombardment range",
+                    "comment": "we offset our burst targets randomly by this range when firing at non-visible enemies (zero = never)",
+                    "type": "float"
+                },
+                {
+                    "name": "modified vision range",
+                    "comment": "any custom vision range that this actor variant has (zero = normal)",
+                    "type": "float"
+                },
+                {
+                    "name": "special-fire mode",
+                    "comment": "the type of special weapon fire that we can use",
+                    "type": "enum",
+                    "index": 45
+                },
+                {
+                    "name": "special-fire situation",
+                    "comment": "when we will decide to use our special weapon fire mode",
+                    "type": "enum",
+                    "index": 46
+                },
+                {
+                    "name": "special-fire chance",
+                    "unit": "[0,1]",
+                    "comment": "how likely we are to use our special weapon fire mode",
+                    "type": "float"
+                },
+                {
+                    "name": "special-fire delay",
+                    "unit": "seconds",
+                    "comment": "how long we must wait between uses of our special weapon fire mode",
+                    "type": "float"
+                },
+                {
+                    "name": "berserking and melee",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "melee range",
+                    "unit": "world units",
+                    "comment": "how close an enemy target must get before triggering a melee charge",
+                    "type": "float"
+                },
+                {
+                    "name": "melee abort range",
+                    "unit": "world units",
+                    "comment": "if our target gets this far away from us, we stop trying to melee them",
+                    "type": "float"
+                },
+                {
+                    "name": "berserk firing ranges",
+                    "unit": "world units",
+                    "comment": "if we are outside maximum range, we advance towards target, stopping when we reach minimum range",
+                    "type": "bound float"
+                },
+                {
+                    "name": "berserk melee range",
+                    "unit": "world units",
+                    "comment": "while berserking, how close an enemy target must get before triggering a melee charge",
+                    "type": "float"
+                },
+                {
+                    "name": "berserk melee abort range",
+                    "unit": "world units",
+                    "comment": "while berserking, if our target gets this far away from us, we stop trying to melee them",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "grenades",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "grenade type",
+                    "comment": "type of grenades that we throw",
+                    "type": "enum",
+                    "index": 92
+                },
+                {
+                    "name": "trajectory type",
+                    "comment": "how we throw our grenades",
+                    "type": "enum",
+                    "index": 42
+                },
+                {
+                    "name": "grenade stimulus",
+                    "comment": "what causes us to consider throwing a grenade",
+                    "type": "enum",
+                    "index": 43
+                },
+                {
+                    "name": "minimum enemy count",
+                    "comment": "how many enemies must be within the radius of the grenade before we will consider throwing there",
+                    "type": "short"
+                },
+                {
+                    "name": "enemy radius",
+                    "unit": "world units",
+                    "comment": "we consider enemies within this radius when determining where to throw",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "grenade velocity",
+                    "unit": "world units per second",
+                    "comment": "how fast we can throw our grenades",
+                    "type": "float"
+                },
+                {
+                    "name": "grenade ranges",
+                    "unit": "world units",
+                    "comment": "ranges within which we will consider throwing a grenade",
+                    "type": "bound float"
+                },
+                {
+                    "name": "collateral damage radius",
+                    "unit": "world units",
+                    "comment": "we won't throw if there are friendlies around our target within this range",
+                    "type": "float"
+                },
+                {
+                    "name": "grenade chance",
+                    "unit": "[0,1]",
+                    "comment": "how likely we are to throw a grenade",
+                    "type": "fraction"
+                },
+                {
+                    "name": "grenade check time",
+                    "unit": "seconds",
+                    "comment": "for continuous stimuli (e.g. visible target), how often we check to see if we want to throw a grenade",
+                    "type": "float"
+                },
+                {
+                    "name": "encounter grenade timeout",
+                    "unit": "seconds",
+                    "comment": "we cannot throw grenades if someone else in our encounter threw one this recently",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "items",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "equipment",
+                    "comment": "equipment item to drop when we die",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "eqip"
+                        }
+                    ]
+                },
+                {
+                    "name": "grenade count",
+                    "comment": "number of grenades that we start with",
+                    "type": "bound short"
+                },
+                {
+                    "name": "dont drop grenades chance",
+                    "unit": "[0,1]",
+                    "comment": "how likely we are not to drop any grenades when we die, even if we still have some",
+                    "type": "float"
+                },
+                {
+                    "name": "drop weapon loaded",
+                    "comment": "amount of ammo loaded into the weapon that we drop (in fractions of a clip, e.g. 0.3 to 0.5)",
+                    "type": "bound float"
+                },
+                {
+                    "name": "drop weapon ammo",
+                    "comment": "total number of rounds in the weapon that we drop (ignored for energy weapons)",
+                    "type": "bound short"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "unit",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "body vitality",
+                    "comment": "maximum body vitality of our unit",
+                    "type": "float"
+                },
+                {
+                    "name": "shield vitality",
+                    "comment": "maximum shield vitality of our unit",
+                    "type": "float"
+                },
+                {
+                    "name": "shield sapping radius",
+                    "unit": "world units",
+                    "comment": "how far away we can drain the player's shields",
+                    "type": "float"
+                },
+                {
+                    "name": "forced shader permutation",
+                    "comment": "if nonzero, overrides the unit's shader permutation",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "change colors",
+                    "type": "block",
+                    "block_name": "actor_variant_change_colors_block"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,514 @@
+{
+    "name": "model_collision_geometry",
+    "type": "coll",
+    "version": 10,
+    "blocks": [
+        {
+            "name": "damage_materials_block",
+            "sizeof": 72,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "head"
+                        }
+                    ]
+                },
+                {
+                    "name": "material type",
+                    "type": "enum",
+                    "index": 94
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "shield leak percentage",
+                    "comment": "the percent [0,1] damage the shield always leaks through to the body",
+                    "type": "fraction"
+                },
+                {
+                    "name": "shield damage multiplier",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "body damage multiplier",
+                    "comment": "multiplier to body damage against this material (1.0 is normal)",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        },
+        {
+            "name": "damage_permutations_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "damage_regions_block",
+            "sizeof": 84,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "lives until object dies"
+                        },
+                        {
+                            "name": "forces object to die"
+                        },
+                        {
+                            "name": "dies when object dies"
+                        },
+                        {
+                            "name": "dies when object is damaged"
+                        },
+                        {
+                            "name": "disappears when shield is off"
+                        },
+                        {
+                            "name": "inhibits melee attack"
+                        },
+                        {
+                            "name": "inhibits weapon attack"
+                        },
+                        {
+                            "name": "inhibits walking"
+                        },
+                        {
+                            "name": "forces drop weapon"
+                        },
+                        {
+                            "name": "causes head-maimed scream"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "damage threshold",
+                    "comment": "if this region takes this amount of damage, it will be destroyed",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "destroyed effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "permutations",
+                    "type": "block",
+                    "block_name": "damage_permutations_block"
+                }
+            ]
+        },
+        {
+            "name": "damage_modifiers_block",
+            "sizeof": 52,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 52
+                }
+            ]
+        },
+        {
+            "name": "sphere",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "node",
+                    "type": "index16",
+                    "block_name": "node"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "center",
+                    "type": "point3"
+                },
+                {
+                    "name": "radius",
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "node",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "region",
+                    "type": "index16",
+                    "block_name": "damage_regions_block"
+                },
+                {
+                    "name": "parent node",
+                    "type": "index16",
+                    "block_name": "node"
+                },
+                {
+                    "name": "next sibling node",
+                    "type": "index16",
+                    "block_name": "node"
+                },
+                {
+                    "name": "first child node",
+                    "type": "index16",
+                    "block_name": "node"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "bsps",
+                    "type": "block",
+                    "block_name": "bsp"
+                }
+            ]
+        },
+        {
+            "name": "model_collision_geometry",
+            "sizeof": 664,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "takes shield damage for children"
+                        },
+                        {
+                            "name": "takes body damage for children"
+                        },
+                        {
+                            "name": "always shields friendly damage"
+                        },
+                        {
+                            "name": "passes area damage to children"
+                        },
+                        {
+                            "name": "parent never takes body damage for us"
+                        },
+                        {
+                            "name": "only damaged by explosives"
+                        },
+                        {
+                            "name": "only damaged while occupied"
+                        }
+                    ]
+                },
+                {
+                    "name": "indirect damage material",
+                    "comment": "the material we use when shielding child objects or getting hit by area of effect damage",
+                    "type": "index16",
+                    "block_name": "damage_materials_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "body",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "maximum body vitality",
+                    "comment": "the default initial and maximum body vitality of this object",
+                    "type": "float"
+                },
+                {
+                    "name": "body system shock",
+                    "comment": "anything that kills us (body depleted) doing more than this amount of damage also destroys us",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "friendly damage resistance",
+                    "unit": "[0,1]",
+                    "comment": "the fraction of damage caused by friendly units ignored by this object (zero means full damage)",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "localized damage effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "area damage effect threshold",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "area damage effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "body damaged threshold",
+                    "comment": "when passing this vitality the 'body damaged' effect, below, is created",
+                    "type": "float"
+                },
+                {
+                    "name": "body damaged effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "body depleted effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "body destroyed threshold",
+                    "comment": "when passing this vitality (usually negative) the object is deleted",
+                    "type": "float"
+                },
+                {
+                    "name": "body destroyed effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "shield",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "maximum shield vitality",
+                    "comment": "the default initial and maximum shield vitality of this object",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "shield material type",
+                    "comment": "the material type used when projectiles impact the shield (instead of the body)",
+                    "type": "enum",
+                    "index": 94
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "shield failure function",
+                    "comment": "how fast the shield begins to leak",
+                    "type": "enum",
+                    "index": 125
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "shield failure threshold",
+                    "comment": "when the shield begins to leak (0.5 would cause the shield to begin to fail after taking half damage)",
+                    "type": "fraction"
+                },
+                {
+                    "name": "failing shield leak fraction",
+                    "comment": "the maximum percent [0,1] damage a failing shield will leak to the body",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "minimum stun damage",
+                    "comment": "the minimum damage required to stun this object's shields",
+                    "type": "float"
+                },
+                {
+                    "name": "stun time",
+                    "unit": "seconds",
+                    "comment": "the length of time the shields stay stunned (do not recharge) after taking damage",
+                    "type": "float"
+                },
+                {
+                    "name": "recharge time",
+                    "unit": "seconds",
+                    "comment": "the length of time it would take for the shields to fully recharge after being completely depleted",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 96
+                },
+                {
+                    "name": "shield damaged threshold",
+                    "type": "float"
+                },
+                {
+                    "name": "shield damaged effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "shield depleted effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "shield recharging effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "type": "pad",
+                    "size": 112
+                },
+                {
+                    "name": "materials",
+                    "type": "block",
+                    "block_name": "damage_materials_block"
+                },
+                {
+                    "name": "regions",
+                    "type": "block",
+                    "block_name": "damage_regions_block"
+                },
+                {
+                    "name": "modifiers",
+                    "type": "block",
+                    "block_name": "damage_modifiers_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "pathfinding box",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "x",
+                    "type": "bound float"
+                },
+                {
+                    "name": "y",
+                    "type": "bound float"
+                },
+                {
+                    "name": "z",
+                    "type": "bound float"
+                },
+                {
+                    "name": "pathfinding spheres",
+                    "type": "block",
+                    "block_name": "sphere"
+                },
+                {
+                    "name": "nodes",
+                    "type": "block",
+                    "block_name": "node"
+                }
+            ]
+        }
+    ]
+}

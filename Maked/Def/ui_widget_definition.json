@@ -1,0 +1,522 @@
+{
+    "name": "ui_widget_definition",
+    "type": "DeLa",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "game_data_input_references_block",
+            "sizeof": 36,
+            "fields": [
+                {
+                    "name": "function",
+                    "type": "enum",
+                    "index": 140
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "event_handler_references_block",
+            "sizeof": 72,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "close current widget"
+                        },
+                        {
+                            "name": "close other widget"
+                        },
+                        {
+                            "name": "close all widgets"
+                        },
+                        {
+                            "name": "open widget"
+                        },
+                        {
+                            "name": "reload self"
+                        },
+                        {
+                            "name": "reload other widget"
+                        },
+                        {
+                            "name": "give focus to widget"
+                        },
+                        {
+                            "name": "run function"
+                        },
+                        {
+                            "name": "replace self w/ widget"
+                        },
+                        {
+                            "name": "go back to previous widget"
+                        },
+                        {
+                            "name": "run scenario script"
+                        },
+                        {
+                            "name": "try to branch on failure"
+                        }
+                    ]
+                },
+                {
+                    "name": "event type",
+                    "type": "enum",
+                    "index": 14
+                },
+                {
+                    "name": "function",
+                    "type": "enum",
+                    "index": 138
+                },
+                {
+                    "name": "widget tag",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "DeLa"
+                        }
+                    ]
+                },
+                {
+                    "name": "sound effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "script",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "search_and_replace_reference_block",
+            "sizeof": 34,
+            "fields": [
+                {
+                    "name": "search string",
+                    "type": "string"
+                },
+                {
+                    "name": "replace function",
+                    "type": "enum",
+                    "index": 139
+                }
+            ]
+        },
+        {
+            "name": "conditional_widget_reference_block",
+            "sizeof": 80,
+            "fields": [
+                {
+                    "name": "widget tag",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "DeLa"
+                        }
+                    ]
+                },
+                {
+                    "name": "name (unused)",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "load if event handler function fails"
+                        }
+                    ]
+                },
+                {
+                    "name": "custom controller index (unused)",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 26
+                }
+            ]
+        },
+        {
+            "name": "child_widget_reference_block",
+            "sizeof": 80,
+            "fields": [
+                {
+                    "name": "widget tag",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "DeLa"
+                        }
+                    ]
+                },
+                {
+                    "name": "name (unused)",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "use custom controller index"
+                        }
+                    ]
+                },
+                {
+                    "name": "custom controller index",
+                    "type": "short"
+                },
+                {
+                    "name": "vertical offset",
+                    "type": "short"
+                },
+                {
+                    "name": "horizontal offset",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 22
+                }
+            ]
+        },
+        {
+            "name": "ui_widget_definition",
+            "sizeof": 1004,
+            "fields": [
+                {
+                    "name": "widget type",
+                    "type": "enum",
+                    "index": 13
+                },
+                {
+                    "name": "controller index",
+                    "type": "enum",
+                    "index": 12
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "bounds",
+                    "type": "rect2 short"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "pass unhandled events to focused child"
+                        },
+                        {
+                            "name": "pause game time"
+                        },
+                        {
+                            "name": "flash background bitmap"
+                        },
+                        {
+                            "name": "dpad up/down tabs thru children"
+                        },
+                        {
+                            "name": "dpad left/right tabs thru children"
+                        },
+                        {
+                            "name": "dpad up/down tabs thru list items"
+                        },
+                        {
+                            "name": "dpad left/right tabs thru list items"
+                        },
+                        {
+                            "name": "dont focus a specific child widget"
+                        },
+                        {
+                            "name": "pass unhandled events to all children"
+                        },
+                        {
+                            "name": "render regardless of controller index"
+                        },
+                        {
+                            "name": "pass handled events to all children"
+                        },
+                        {
+                            "name": "return to main menu if no history"
+                        },
+                        {
+                            "name": "always use tag controller index"
+                        },
+                        {
+                            "name": "always use nifty render fx"
+                        },
+                        {
+                            "name": "don't push history"
+                        },
+                        {
+                            "name": "force handle mouse"
+                        }
+                    ]
+                },
+                {
+                    "name": "milliseconds to auto close",
+                    "comment": "<=0 to never auto-close",
+                    "type": "int"
+                },
+                {
+                    "name": "milliseconds auto close fade time",
+                    "comment": "<= 0 for immediate close",
+                    "type": "int"
+                },
+                {
+                    "name": "background bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "game data input fxns",
+                    "type": "explanation",
+                    "explanation": "These functions use current game data to modify the appearance of\nthe widget. These functions are called every time the widget is\nrendered."
+                },
+                {
+                    "name": "game data inputs",
+                    "type": "block",
+                    "block_name": "game_data_input_references_block"
+                },
+                {
+                    "name": "event handlers",
+                    "type": "explanation",
+                    "explanation": "These allow actions to be tied to certain ui events.\nThe event handler is run every time the widget receives the specified event.\nBy default, the 'back' and 'B' buttons will take you to the previous screen."
+                },
+                {
+                    "name": "event handlers",
+                    "type": "block",
+                    "block_name": "event_handler_references_block"
+                },
+                {
+                    "name": "search-and-replace",
+                    "type": "explanation",
+                    "explanation": "These are used to run a search-and-replace on the specified\nword in the text-box text, replacing all occurrences of the word\nwith the output of the replace-function. These are invoked each\ntime the text box is rendered (after any game data input functions\nhave been run). The searching is case-sensitive."
+                },
+                {
+                    "name": "search and replace functions",
+                    "type": "block",
+                    "block_name": "search_and_replace_reference_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 128
+                },
+                {
+                    "name": "text box",
+                    "type": "explanation",
+                    "explanation": "parameters specific to text box widgets\nNOTE: the string list tag can also be used for lists whose items come from a string list tag"
+                },
+                {
+                    "name": "text label unicode strings list",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "ustr"
+                        }
+                    ]
+                },
+                {
+                    "name": "text font",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "font"
+                        }
+                    ]
+                },
+                {
+                    "name": "text color",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "justification",
+                    "type": "enum",
+                    "index": 15
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "editable"
+                        },
+                        {
+                            "name": "password"
+                        },
+                        {
+                            "name": "flashing"
+                        },
+                        {
+                            "name": "don't do that weird focus test"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "more text box parameters",
+                    "type": "explanation",
+                    "explanation": "blah blah blah"
+                },
+                {
+                    "name": "string list index",
+                    "comment": "default is 0",
+                    "type": "short"
+                },
+                {
+                    "name": "horiz offset",
+                    "comment": "offsets text position in its bounding area",
+                    "type": "short"
+                },
+                {
+                    "name": "vert offset",
+                    "comment": "offsets the text position in its bounding area",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 26
+                },
+                {
+                    "name": "list items",
+                    "type": "explanation",
+                    "explanation": "These options affect list items for both spinner and column lists\n* child widgets are used to define the visible list items\n* for lists with code-generated list items, the child widgets are used\n  as templated for visible list item placement\nIMPORTANT: for list widgets, the ONLY thing you can have as child widgets are the list item widgets!"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "list items generated in code"
+                        },
+                        {
+                            "name": "list items from string list tag"
+                        },
+                        {
+                            "name": "list items only one tooltip"
+                        },
+                        {
+                            "name": "list single preview no scroll"
+                        }
+                    ]
+                },
+                {
+                    "name": "spinner list",
+                    "type": "explanation",
+                    "explanation": "parameters specific to spinner list widgets\nchild widgets are the list items"
+                },
+                {
+                    "name": "list header bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "list footer bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "header bounds",
+                    "type": "rect2 short"
+                },
+                {
+                    "name": "footer bounds",
+                    "type": "rect2 short"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "column list",
+                    "type": "explanation",
+                    "explanation": "parameters specific to column list widgets\nchild widgets are the list items"
+                },
+                {
+                    "name": "extended description widget",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "DeLa"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "type": "pad",
+                    "size": 256
+                },
+                {
+                    "name": "conditional widgets",
+                    "type": "explanation",
+                    "explanation": "use this to attach widgets that are loaded only\nif some internal criteria is met while processing a widget event"
+                },
+                {
+                    "name": "conditional widgets",
+                    "type": "block",
+                    "block_name": "conditional_widget_reference_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 128
+                },
+                {
+                    "type": "pad",
+                    "size": 128
+                },
+                {
+                    "name": "child widgets",
+                    "type": "explanation",
+                    "explanation": "use this to attach widgets that are loaded as 'children'\nof this widget (children are always loaded as part of the parent widget)"
+                },
+                {
+                    "name": "child widgets",
+                    "type": "block",
+                    "block_name": "child_widget_reference_block"
+                }
+            ]
+        }
+    ]
+}

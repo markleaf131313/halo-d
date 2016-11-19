@@ -1,0 +1,1948 @@
+{
+    "name": "dialogue",
+    "type": "udlg",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "dialogue",
+            "sizeof": 4112,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "idle",
+                    "type": "explanation",
+                    "explanation": "vocalizations generated at intervals when nothing else is happening."
+                },
+                {
+                    "name": "idle noncombat",
+                    "comment": "played randomly and intermittently whenever we aren't in combat",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "idle combat",
+                    "comment": "played randomly and intermittently whenever we're in combat",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "idle flee",
+                    "comment": "played continuously while we are fleeing",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "involuntary",
+                    "type": "explanation",
+                    "explanation": "vocalizations generated automatically when damaged; interrupt everything except scripted dialogue."
+                },
+                {
+                    "name": "pain body minor",
+                    "comment": "took body damage",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "pain body major",
+                    "comment": "took a significant amount of body damage",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "pain shield",
+                    "comment": "took shield damage",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "pain falling",
+                    "comment": "took damage from falling",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "scream fear",
+                    "comment": "screaming in fear (falling to your death, explosive stuck to you)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "scream pain",
+                    "comment": "screaming in pain (being flamed)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "maimed limb",
+                    "comment": "limb body part (arm or leg) was destroyed",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "maimed head",
+                    "comment": "head body part was destroyed",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "death quiet",
+                    "comment": "died from minor damage, or was unprepared",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "death violent",
+                    "comment": "died from violent trauma",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "death falling",
+                    "comment": "died from falling",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "death agonizing",
+                    "comment": "died in a horribly painful fashion (burnt to death)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "death instant",
+                    "comment": "died instantly",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "death flying",
+                    "comment": "died and was blown up into the air",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "hurting people",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "damaged friend",
+                    "comment": "hurt a friendly AI",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "damaged friend player",
+                    "comment": "hurt a friendly player",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "damaged enemy",
+                    "comment": "hurt an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "damaged enemy cm",
+                    "unit": " comment to friend",
+                    "comment": "hurt an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "being hurt",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "hurt friend",
+                    "comment": "hurt by a friendly AI",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt friend re",
+                    "unit": " response from that friend",
+                    "comment": "hurt by a friendly AI",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt friend player",
+                    "comment": "hurt by a friendly player",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy",
+                    "comment": "hurt by an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy re",
+                    "unit": " response from the enemy that hurt us ('you like that?')",
+                    "comment": "hurt by an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy cm",
+                    "unit": " comment from a friend of ours",
+                    "comment": "hurt by an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy bullet",
+                    "comment": "hurt by an enemy with bullets",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy needler",
+                    "comment": "hurt by an enemy with needles",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy plasma",
+                    "comment": "hurt by an enemy with a plasma bolt",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy sniper",
+                    "comment": "hurt by an enemy with a sniper weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy grenade",
+                    "comment": "a grenade is stuck to us",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy explosion",
+                    "comment": "hurt by an enemy with an explosive weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy melee",
+                    "comment": "hurt by an enemy with a melee weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy flame",
+                    "comment": "hurt by an enemy with flamethrower",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy shotgun",
+                    "comment": "hurt by an enemy with a shotgun",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy vehicle",
+                    "comment": "hurt by an enemy with a vehicle",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hurt enemy mountedweapon",
+                    "comment": "hurt by an enemy with a fixed weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "killing people",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "killed friend",
+                    "comment": "killed a friendly AI",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed friend cm",
+                    "unit": " comment from a friend",
+                    "comment": "killed a friendly AI",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed friend player",
+                    "comment": "killed a friendly player",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed friend player cm",
+                    "unit": " comment from a friend",
+                    "comment": "killed a friendly player",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy",
+                    "comment": "killed an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy cm",
+                    "unit": " comment from a friend",
+                    "comment": "killed an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy player",
+                    "comment": "killed an enemy player",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy player cm",
+                    "unit": " comment from a friend",
+                    "comment": "killed an enemy player",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy covenant",
+                    "comment": "killed an enemy covenant",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy covenant cm",
+                    "unit": " comment from a friend",
+                    "comment": "killed an enemy covenant",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy floodcombat",
+                    "comment": "killed an enemy flood combat form",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy floodcombat cm",
+                    "unit": " comment from a friend",
+                    "comment": "killed an enemy flood combat form",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy floodcarrier",
+                    "comment": "killed an enemy flood carrier form",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy floodcarrier cm",
+                    "unit": " comment from a friend",
+                    "comment": "killed an enemy flood carrier form",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy sentinel",
+                    "comment": "killed an enemy sentinel",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy sentinel cm",
+                    "unit": " comment from a friend",
+                    "comment": "killed an enemy sentinel",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy bullet",
+                    "comment": "killed an enemy with bullets",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy needler",
+                    "comment": "killed an enemy with needles",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy plasma",
+                    "comment": "killed an enemy with a plasma bolt",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy sniper",
+                    "comment": "killed an enemy with a sniper weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy grenade",
+                    "comment": "killed an enemy with a grenade",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy explosion",
+                    "comment": "killed an enemy with an explosive weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy melee",
+                    "comment": "killed an enemy with a melee weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy flame",
+                    "comment": "killed an enemy with flamethrower",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy shotgun",
+                    "comment": "killed an enemy with a shotgun",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy vehicle",
+                    "comment": "killed an enemy by hitting them with a vehicle",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killed enemy mountedweapon",
+                    "comment": "killed an enemy with a fixed weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "killing spree",
+                    "comment": "we are on a killing spree",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "player kill responses",
+                    "type": "explanation",
+                    "explanation": "responses to a friendly player killing an enemy nearby"
+                },
+                {
+                    "name": "player kill cm",
+                    "comment": "response to the player killing an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player kill bullet cm",
+                    "comment": "response to the player killing an enemy with bullets",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player kill needler cm",
+                    "comment": "response to the player killing an enemy with needles",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player kill plasma cm",
+                    "comment": "response to the player killing an enemy with a plasma bolt",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player kill sniper cm",
+                    "comment": "response to the player killing an enemy with a sniper weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "anyone kill grenade cm",
+                    "comment": "response to _anyone_ killing an enemy with a grenade",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player kill explosion cm",
+                    "comment": "response to the player killing an enemy with an explosive weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player kill melee cm",
+                    "comment": "response to the player killing an enemy with a melee weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player kill flame cm",
+                    "comment": "response to the player killing an enemy with flamethrower",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player kill shotgun cm",
+                    "comment": "response to the player killing an enemy with a shotgun",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player kill vehicle cm",
+                    "comment": "response to the player killing an enemy by hitting them with a vehicle",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player kill mountedweapon cm",
+                    "comment": "response to the player killing an enemy with a fixed weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "player killling spree cm",
+                    "comment": "response to the player going on a killing spree",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "friends dying",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "friend died",
+                    "comment": "a friendly AI died",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "friend player died",
+                    "comment": "a friendly player died",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "friend killed by friend",
+                    "comment": "a friend died from friendly fire",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "friend killed by friendly player",
+                    "comment": " friend died from player's friendly fire",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "friend killed by enemy",
+                    "comment": "a friend died from enemy fire",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "friend killed by enemy player",
+                    "comment": " friend died from an enemy player",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "friend killed by covenant",
+                    "comment": "a friend died from covenant fire",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "friend killed by flood",
+                    "comment": "a friend died from the flood",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "friend killed by sentinel",
+                    "comment": "a friend died from sentinel fire",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "friend betrayed",
+                    "comment": "a friend was deliberately killed by an ally that we don't trust (e.g. player killed a marine)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "shouting",
+                    "type": "explanation",
+                    "explanation": "vocalizations that can be played even if a friend is talking"
+                },
+                {
+                    "name": "new combat alone",
+                    "comment": "see an enemy and we have not previously been in combat",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "new enemy recent combat",
+                    "comment": "see a new enemy and we have recently been in combat",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "old enemy sighted",
+                    "comment": "see an enemy that we are currently looking for",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "unexpected enemy",
+                    "comment": "unexpectedly encounters enemy (behind or to the side)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "dead friend found",
+                    "comment": "unexpectedly finds a dead body of a friend",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "alliance broken",
+                    "comment": "we decide that a former ally is now a traitor",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "alliance reformed",
+                    "comment": "we forgive a traitor and make him our friend again",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "grenade throwing",
+                    "comment": "throwing a grenade",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "grenade sighted",
+                    "comment": "see an enemy grenade",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "grenade startle",
+                    "comment": "alerted by a grenade bouncing near us",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "grenade danger enemy",
+                    "comment": "in danger from an enemy grenade",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "grenade danger self",
+                    "comment": "in danger from your own grenade",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "grenade danger friend",
+                    "comment": "in danger from a friendly grenade (not our own)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "group communication",
+                    "type": "explanation",
+                    "explanation": "vocalizations that require friends"
+                },
+                {
+                    "name": "new combat group re",
+                    "comment": "reply to a nearby friend who alerted us to an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "new combat nearby re",
+                    "comment": "reply to a distant friend who alerted us to an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "alert friend",
+                    "comment": "alert a friend who is in a noncombat state",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "alert friend re",
+                    "comment": "alerted by a friend when in a noncombat state",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "alert lost contact",
+                    "comment": "alert friends that target was not at expected location",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "alert lost contact re",
+                    "unit": " response",
+                    "comment": "alert friends that target was not at expected location",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "blocked",
+                    "comment": "friend is blocking us from moving or firing",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "blocked re",
+                    "unit": " response",
+                    "comment": "friend is blocking us from moving or firing",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "search start",
+                    "comment": "starting to search",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "search query",
+                    "comment": "asking searchers whether they have found anything",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "search query re",
+                    "unit": " response",
+                    "comment": "asking searchers whether they have found anything",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "search report",
+                    "comment": "searcher reporting that an area is clear",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "search abandon",
+                    "comment": "searcher giving up on search",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "search group abandon",
+                    "comment": "search coordinator giving up on search",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "group uncover",
+                    "comment": "starting to uncover target with friend",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "group uncover re",
+                    "unit": " response",
+                    "comment": "starting to uncover target",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "advance",
+                    "comment": "our platoon starts to attack or advance",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "advance re",
+                    "unit": " response",
+                    "comment": "our platoon starts to attack or advance",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "retreat",
+                    "comment": "our platoon starts to defend or retreat",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "retreat re",
+                    "unit": " response",
+                    "comment": "our platoon starts to defend or retreat",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "cover",
+                    "comment": "telling friends to seek cover",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "actions",
+                    "type": "explanation",
+                    "explanation": "vocalizations that don't require friends"
+                },
+                {
+                    "name": "sighted friend player",
+                    "comment": "sighted a new friendly player",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "shooting",
+                    "comment": "shooting at an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "shooting vehicle",
+                    "comment": "shooting from a vehicle at an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "shooting berserk",
+                    "comment": "shooting at an enemy while berserk",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "shooting group",
+                    "comment": "shooting at a group of enemies",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "shooting traitor",
+                    "comment": "shooting at a traitorous player",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "taunt",
+                    "comment": "taunting the enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "taunt re",
+                    "unit": " response",
+                    "comment": "taunted by an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "flee",
+                    "comment": "fleeing in panic",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "flee re",
+                    "unit": " response",
+                    "comment": "fleeing in panic",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "flee leader died",
+                    "comment": "fleeing in panic because our leaders are all dead",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "attempted flee",
+                    "comment": "unable to flee because a leader is nearby",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "attempted flee re",
+                    "comment": "unable to flee because a leader is nearby - response",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "lost contact",
+                    "comment": "target was not at expected location",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "hiding finished",
+                    "comment": "stops hiding and pursues target",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "vehicle entry",
+                    "comment": "enters vehicle",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "vehicle exit",
+                    "comment": "exits vehicle",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "vehicle woohoo",
+                    "comment": "excited while in vehicle (big air, etc)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "vehicle scared",
+                    "comment": "scared while in vehicle (imminent crash)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "vehicle collision",
+                    "comment": "riding in a vehicle and the driver collides with something",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "partially sighted",
+                    "comment": "saw something suspicious but not sure it was an enemy",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "nothing there",
+                    "comment": "decided that a suspicious sighting was nothing after all",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "pleading",
+                    "comment": "pleading for the player to spare our pitiable lives",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "exclamations",
+                    "type": "explanation",
+                    "explanation": "vocalizations that interrupt our talking"
+                },
+                {
+                    "name": "surprise",
+                    "comment": "surprised by an enemy, noise, body or weapon impact",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "berserk",
+                    "comment": "went berserk",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "melee attack",
+                    "comment": "attacked an enemy in melee",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "dive",
+                    "comment": "dove away from danger or into cover",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "uncover exclamation",
+                    "comment": "leapt out of corner to uncover a suspected target",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "leap attack",
+                    "comment": "begin a leap attack",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "resurrection",
+                    "comment": "arise and return to life",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "post-combat actions",
+                    "type": "explanation",
+                    "explanation": "vocalizations that immediately follow combat"
+                },
+                {
+                    "name": "celebration",
+                    "comment": "all enemies defeated",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "check body enemy",
+                    "comment": "post-combat checking an enemy's dead body",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "check body friend",
+                    "comment": "post-combat checking a friend's dead body",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "shooting dead enemy",
+                    "comment": "post-combat shooting an enemy's dead body",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "shooting dead enemy player",
+                    "comment": "post-combat shooting an enemy player's dead body",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "post-combat chatter",
+                    "type": "explanation",
+                    "explanation": "vocalizations that immediately follow combat"
+                },
+                {
+                    "name": "alone",
+                    "comment": "post-combat all friends killed",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "unscathed",
+                    "comment": "post-combat we were not hurt",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "seriously wounded",
+                    "comment": "post-combat we were badly hurt",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "seriously wounded re",
+                    "comment": "post-combat replying to a friend who was badly hurt",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "massacre",
+                    "comment": "post-combat our friends took heavy casualties",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "massacre re",
+                    "unit": " our friends took heavy casualties",
+                    "comment": "post-combat reply",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "rout",
+                    "comment": "post-combat our friends kicked alien ass",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "rout re",
+                    "unit": " our friends kicked alien ass",
+                    "comment": "post-combat reply",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 752
+                }
+            ]
+        }
+    ]
+}

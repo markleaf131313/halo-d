@@ -1,0 +1,390 @@
+{
+    "name": "projectile",
+    "type": "proj",
+    "version": 5,
+    "parent": "obje",
+    "blocks": [
+        {
+            "name": "projectile_material_response_block",
+            "sizeof": 160,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "cannot be overpenetrated"
+                        }
+                    ]
+                },
+                {
+                    "name": "default result",
+                    "type": "explanation",
+                    "explanation": "(if the potential result, below, fails to happen)"
+                },
+                {
+                    "name": "response",
+                    "type": "enum",
+                    "index": 78
+                },
+                {
+                    "name": "effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "potential result",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "response",
+                    "type": "enum",
+                    "index": 78
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "only against units"
+                        }
+                    ]
+                },
+                {
+                    "name": "skip fraction",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "between",
+                    "unit": "degrees",
+                    "type": "bound angle"
+                },
+                {
+                    "name": "1and",
+                    "unit": "world units per second",
+                    "type": "bound float"
+                },
+                {
+                    "name": "effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "misc",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "scale effects by",
+                    "type": "enum",
+                    "index": 77
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "angular noise",
+                    "unit": "degrees",
+                    "comment": "the angle of incidence is randomly perturbed by at most this amount to simulate irregularity.",
+                    "type": "angle"
+                },
+                {
+                    "name": "velocity noise",
+                    "unit": "world units per second",
+                    "comment": "the velocity is randomly perturbed by at most this amount to simulate irregularity.",
+                    "type": "float"
+                },
+                {
+                    "name": "detonation effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "penetration",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "initial friction",
+                    "comment": "the fraction of the projectile's velocity lost on penetration",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum distance",
+                    "comment": "the maximum distance the projectile can travel through on object of this material",
+                    "type": "float"
+                },
+                {
+                    "name": "reflection",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "parallel friction",
+                    "comment": "the fraction of the projectile's velocity parallel to the surface lost on impact",
+                    "type": "float"
+                },
+                {
+                    "name": "perpendicular friction",
+                    "comment": "the fraction of the projectile's velocity perpendicular to the surface lost on impact",
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "projectile",
+            "sizeof": 208,
+            "fields": [
+                {
+                    "name": "$$$ PROJECTILE $$$",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "oriented along velocity"
+                        },
+                        {
+                            "name": "AI must use ballistic aiming"
+                        },
+                        {
+                            "name": "detonation max time if attached"
+                        },
+                        {
+                            "name": "has super combining explosion"
+                        },
+                        {
+                            "name": "combine initial velocity with parent velocity"
+                        },
+                        {
+                            "name": "random attached detonation time"
+                        },
+                        {
+                            "name": "minimum unattached detonation time"
+                        }
+                    ]
+                },
+                {
+                    "name": "detonation timer starts",
+                    "type": "enum",
+                    "index": 79
+                },
+                {
+                    "name": "impact noise",
+                    "type": "enum",
+                    "index": 126
+                },
+                {
+                    "name": "A in",
+                    "type": "enum",
+                    "index": 80
+                },
+                {
+                    "name": "B in",
+                    "type": "enum",
+                    "index": 80
+                },
+                {
+                    "name": "C in",
+                    "type": "enum",
+                    "index": 80
+                },
+                {
+                    "name": "D in",
+                    "type": "enum",
+                    "index": 80
+                },
+                {
+                    "name": "super detonation",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "AI perception radius",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "collision radius",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "detonation",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "arming time",
+                    "unit": "seconds",
+                    "comment": "won't detonate before this time elapses",
+                    "type": "float"
+                },
+                {
+                    "name": "danger radius",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "timer",
+                    "unit": "seconds",
+                    "comment": "detonation countdown (zero is untimed)",
+                    "type": "bound float"
+                },
+                {
+                    "name": "minimum velocity",
+                    "unit": "world units per second",
+                    "comment": "detonates when slowed below this velocity",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum range",
+                    "unit": "world units",
+                    "comment": "detonates after travelling this distance",
+                    "type": "float"
+                },
+                {
+                    "name": "physics",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "air gravity scale",
+                    "comment": "the proportion of normal gravity applied to the projectile when in air.",
+                    "type": "float"
+                },
+                {
+                    "name": "air damage range",
+                    "unit": "world units",
+                    "comment": "the range over which damage is scaled when the projectile is in air.",
+                    "type": "bound float"
+                },
+                {
+                    "name": "water gravity scale",
+                    "comment": "the proportion of normal gravity applied to the projectile when in water.",
+                    "type": "float"
+                },
+                {
+                    "name": "water damage range",
+                    "unit": "world units",
+                    "comment": "the range over which damage is scaled when the projectile is in water.",
+                    "type": "bound float"
+                },
+                {
+                    "name": "initial velocity",
+                    "unit": "world units per second",
+                    "comment": "bullet's velocity when inflicting maximum damage",
+                    "type": "float"
+                },
+                {
+                    "name": "final velocity",
+                    "unit": "world units per second",
+                    "comment": "bullet's velocity when inflicting minimum damage",
+                    "type": "float"
+                },
+                {
+                    "name": "guided angular velocity",
+                    "unit": "degrees per second",
+                    "type": "angle"
+                },
+                {
+                    "name": "detonation noise",
+                    "type": "enum",
+                    "index": 126
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "detonation started",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "flyby sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "attached detonation damage",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        }
+                    ]
+                },
+                {
+                    "name": "impact damage",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "material responses",
+                    "type": "block",
+                    "block_name": "projectile_material_response_block"
+                }
+            ]
+        }
+    ]
+}

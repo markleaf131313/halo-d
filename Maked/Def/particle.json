@@ -1,0 +1,373 @@
+{
+    "name": "particle",
+    "type": "part",
+    "version": 2,
+    "blocks": [
+        {
+            "name": "particle",
+            "sizeof": 356,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "can animate backwards"
+                        },
+                        {
+                            "name": "animation stops at rest"
+                        },
+                        {
+                            "name": "animation starts on random frame"
+                        },
+                        {
+                            "name": "animate once per frame"
+                        },
+                        {
+                            "name": "dies at rest"
+                        },
+                        {
+                            "name": "dies on contact with structure"
+                        },
+                        {
+                            "name": "tint from diffuse texture"
+                        },
+                        {
+                            "name": "dies on contact with water"
+                        },
+                        {
+                            "name": "dies on contact with air"
+                        },
+                        {
+                            "name": "self-illuminated",
+                            "comment": "don't cast world-lights onto this particle"
+                        },
+                        {
+                            "name": "random horizontal mirroring"
+                        },
+                        {
+                            "name": "random vertical mirroring"
+                        }
+                    ]
+                },
+                {
+                    "name": "bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "physics",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "pphy"
+                        }
+                    ]
+                },
+                {
+                    "name": "marty traded his kids for this",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "foot"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "lifespan",
+                    "unit": "seconds",
+                    "type": "bound float"
+                },
+                {
+                    "name": "fade in time",
+                    "type": "float"
+                },
+                {
+                    "name": "fade out time",
+                    "type": "float"
+                },
+                {
+                    "name": "collision effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "death effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "minimum size",
+                    "unit": "pixels",
+                    "comment": "in the distance, don't get any smaller than this size on the screen",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "radius animation",
+                    "comment": "when created, the radius is multiplied by the first number. at the end of the lifetime, the radius is multiplied by the second number.",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "animation rate",
+                    "unit": "frames per second",
+                    "comment": "rate at which the particle animates",
+                    "type": "bound float"
+                },
+                {
+                    "name": "contact deterioration",
+                    "comment": "the decrease in the frame rate caused by a collision",
+                    "type": "float"
+                },
+                {
+                    "name": "fade start size",
+                    "unit": "pixels",
+                    "comment": "begin fading the particle out when it's smaller than this size on the screen",
+                    "type": "float"
+                },
+                {
+                    "name": "fade end size",
+                    "unit": "pixels",
+                    "comment": "kill the particle when it's smaller than this size on the screen",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "first sequence index",
+                    "comment": "the index of the first sequence in the bitmap group used by this particle",
+                    "type": "short"
+                },
+                {
+                    "name": "initial sequence count",
+                    "type": "short"
+                },
+                {
+                    "name": "looping sequence count",
+                    "type": "short"
+                },
+                {
+                    "name": "final sequence count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "orientation",
+                    "type": "enum",
+                    "index": 143
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                },
+                {
+                    "name": "shader type",
+                    "type": "enum",
+                    "index": 145
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "shader flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "sort bias"
+                        },
+                        {
+                            "name": "nonlinear tint"
+                        },
+                        {
+                            "name": "don't overdraw fp weapon"
+                        }
+                    ]
+                },
+                {
+                    "name": "framebuffer blend function",
+                    "type": "enum",
+                    "index": 47
+                },
+                {
+                    "name": "framebuffer fade mode",
+                    "type": "enum",
+                    "index": 48
+                },
+                {
+                    "name": "map flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "Secondary Map",
+                    "type": "explanation",
+                    "explanation": "Optional multitextured second map"
+                },
+                {
+                    "name": "bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "anchor",
+                    "type": "enum",
+                    "index": 55
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "name": "u-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "u-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "u-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "v-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "v-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "rotation-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "rotation-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation scale",
+                    "unit": "degrees",
+                    "comment": "0 defaults to 360",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation center",
+                    "type": "point2"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "zsprite radius scale",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                }
+            ]
+        }
+    ]
+}

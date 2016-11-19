@@ -1,0 +1,23 @@
+{
+    "name": "device_light_fixture",
+    "type": "lifi",
+    "version": 1,
+    "parent": "devi",
+    "blocks": [
+        {
+            "name": "device_light_fixture",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "$$$ LIGHT FIXTURE $$$",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "type": "pad",
+                    "size": 64
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,1117 @@
+{
+    "name": "weapon_hud_interface",
+    "type": "wphi",
+    "version": 2,
+    "blocks": [
+        {
+            "name": "weapon_hud_static_block",
+            "sizeof": 180,
+            "fields": [
+                {
+                    "name": "state attached to",
+                    "type": "enum",
+                    "index": 29
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "can use on map type",
+                    "type": "enum",
+                    "index": 19
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "interface bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "multitex overlay",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                }
+            ]
+        },
+        {
+            "name": "weapon_hud_meter_block",
+            "sizeof": 180,
+            "fields": [
+                {
+                    "name": "state attached to",
+                    "type": "enum",
+                    "index": 29
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "can use on map type",
+                    "type": "enum",
+                    "index": 19
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "meter bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "color at meter minimum",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "color at meter maximum",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "flash color",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "empty color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "use min/max for state changes"
+                        },
+                        {
+                            "name": "interpolate between min/max flash colors as state changes"
+                        },
+                        {
+                            "name": "interpolate color along hsv space"
+                        },
+                        {
+                            "name": "...more colors for hsv interpolation"
+                        },
+                        {
+                            "name": "invert interpolation"
+                        }
+                    ]
+                },
+                {
+                    "name": "minumum meter value",
+                    "type": "byte"
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "alpha multiplier",
+                    "type": "byte"
+                },
+                {
+                    "name": "alpha bias",
+                    "type": "byte"
+                },
+                {
+                    "name": "value scale",
+                    "comment": "used for non-integral values, i.e. health and shields",
+                    "type": "short"
+                },
+                {
+                    "name": "opacity",
+                    "type": "float"
+                },
+                {
+                    "name": "translucency",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                }
+            ]
+        },
+        {
+            "name": "weapon_hud_number_block",
+            "sizeof": 160,
+            "fields": [
+                {
+                    "name": "state attached to",
+                    "type": "enum",
+                    "index": 29
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "can use on map type",
+                    "type": "enum",
+                    "index": 19
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "maximum number of digits",
+                    "type": "byte"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "show leading zeros"
+                        },
+                        {
+                            "name": "only show when zoomed"
+                        },
+                        {
+                            "name": "draw a trailing m"
+                        }
+                    ]
+                },
+                {
+                    "name": "number of fractional digits",
+                    "type": "byte"
+                },
+                {
+                    "type": "pad",
+                    "size": 1
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "weapon specific flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "divide number by clip size"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                }
+            ]
+        },
+        {
+            "name": "weapon_hud_crosshair_item_block",
+            "sizeof": 108,
+            "fields": [
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "frame rate",
+                    "type": "short"
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "flashes when active"
+                        },
+                        {
+                            "name": "not a sprite"
+                        },
+                        {
+                            "name": "show only when zoomed"
+                        },
+                        {
+                            "name": "show sniper data"
+                        },
+                        {
+                            "name": "hide area outside reticle"
+                        },
+                        {
+                            "name": "one zoom level"
+                        },
+                        {
+                            "name": "don't show when zoomed"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "weapon_hud_crosshair_block",
+            "sizeof": 104,
+            "fields": [
+                {
+                    "name": "crosshair type",
+                    "type": "enum",
+                    "index": 30
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "can use on map type",
+                    "type": "enum",
+                    "index": 19
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "Crosshair bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "Crosshair overlays",
+                    "type": "block",
+                    "block_name": "weapon_hud_crosshair_item_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                }
+            ]
+        },
+        {
+            "name": "weapon_hud_overlay_block",
+            "sizeof": 136,
+            "fields": [
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "frame rate",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "type",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "show on flashing"
+                        },
+                        {
+                            "name": "show on empty"
+                        },
+                        {
+                            "name": "show on reload/overheating"
+                        },
+                        {
+                            "name": "show on default"
+                        },
+                        {
+                            "name": "show always"
+                        }
+                    ]
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "flashes when active"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                }
+            ]
+        },
+        {
+            "name": "weapon_hud_overlays_block",
+            "sizeof": 104,
+            "fields": [
+                {
+                    "name": "state attached to",
+                    "type": "enum",
+                    "index": 29
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "can use on map type",
+                    "type": "enum",
+                    "index": 19
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "Overlay bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "Overlays",
+                    "type": "block",
+                    "block_name": "weapon_hud_overlay_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                }
+            ]
+        },
+        {
+            "name": "global_hud_screen_effect_definition",
+            "sizeof": 184,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "mask",
+                    "type": "explanation",
+                    "explanation": "Mask bitmap overlay. Use either a 2D bitmap or an interface bitmap."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "only when zoomed"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "mask (fullscreen)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "mask (splitscreen)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "convolution",
+                    "type": "explanation",
+                    "explanation": "Warp effect like in 'Pitch-Black', sort of."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "only when zoomed"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "FOV in bounds",
+                    "unit": "degrees",
+                    "type": "bound angle"
+                },
+                {
+                    "name": "radius out bounds",
+                    "unit": "pixels",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "night-vision",
+                    "type": "explanation",
+                    "explanation": "Real-time gamma correction to make dark objects appear brighter."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "only when zoomed"
+                        },
+                        {
+                            "name": "connect to flashlight"
+                        },
+                        {
+                            "name": "masked"
+                        }
+                    ]
+                },
+                {
+                    "name": "script source",
+                    "unit": "[0,3]",
+                    "type": "short"
+                },
+                {
+                    "name": "intensity",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "desaturation",
+                    "type": "explanation",
+                    "explanation": "Real-time monochromatic color filter."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "only when zoomed"
+                        },
+                        {
+                            "name": "connect to flashlight"
+                        },
+                        {
+                            "name": "additive"
+                        },
+                        {
+                            "name": "masked"
+                        }
+                    ]
+                },
+                {
+                    "name": "script source",
+                    "unit": "[0,3]",
+                    "type": "short"
+                },
+                {
+                    "name": "intensity",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "tint",
+                    "type": "rgbf"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                }
+            ]
+        },
+        {
+            "name": "weapon_hud_interface",
+            "sizeof": 380,
+            "fields": [
+                {
+                    "name": "child hud",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "wphi"
+                        }
+                    ]
+                },
+                {
+                    "name": "Flash cutoffs",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "use parent hud flashing parameters"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "total ammo cutoff",
+                    "type": "short"
+                },
+                {
+                    "name": "loaded ammo cutoff",
+                    "type": "short"
+                },
+                {
+                    "name": "heat cutoff",
+                    "type": "short"
+                },
+                {
+                    "name": "age cutoff",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "Weapon hud screen alignment",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor",
+                    "type": "enum",
+                    "index": 18
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "static elements",
+                    "type": "block",
+                    "block_name": "weapon_hud_static_block"
+                },
+                {
+                    "name": "meter elements",
+                    "type": "block",
+                    "block_name": "weapon_hud_meter_block"
+                },
+                {
+                    "name": "number elements",
+                    "type": "block",
+                    "block_name": "weapon_hud_number_block"
+                },
+                {
+                    "name": "Crosshairs",
+                    "type": "explanation",
+                    "explanation": "Crosshairs always go in the center of the screen.\nCrosshairs can be attached to one of four different states:\n\n* Aim: Default crosshair. Frame 0 is the default state, frame 1 is the auto-aim state (frame rate ignored)\n* Zoom: Zoom overlay. Each zoom level has a corresponding frame (frame rate ignored)\n* Charge: Charging overlay. If you wish to display an animation for charging, put it here.\n* Flash: Similar to charging, but for low ammo/batter/heat states\n* Reload/Overheat: Similar to charging, but for reloading/overheating\n"
+                },
+                {
+                    "name": "crosshairs",
+                    "type": "block",
+                    "block_name": "weapon_hud_crosshair_block"
+                },
+                {
+                    "name": "overlay elements",
+                    "type": "block",
+                    "block_name": "weapon_hud_overlays_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "screen effect",
+                    "type": "block",
+                    "block_name": "global_hud_screen_effect_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 132
+                },
+                {
+                    "name": "Messaging information",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "sequence index",
+                    "comment": "sequence index into the global hud icon bitmap",
+                    "type": "short"
+                },
+                {
+                    "name": "width offset",
+                    "comment": "extra spacing beyond bitmap width for text alignment",
+                    "type": "short"
+                },
+                {
+                    "name": "offset from reference corner",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "override icon color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "frame rate [0,30]",
+                    "type": "byte"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "use text from string_list instead"
+                        },
+                        {
+                            "name": "override default color"
+                        },
+                        {
+                            "name": "width offset is absolute icon width"
+                        }
+                    ]
+                },
+                {
+                    "name": "text index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                }
+            ]
+        }
+    ]
+}

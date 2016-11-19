@@ -1,0 +1,17 @@
+{
+    "name": "spheroid",
+    "type": "boom",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "spheroid",
+            "sizeof": 4,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                }
+            ]
+        }
+    ]
+}

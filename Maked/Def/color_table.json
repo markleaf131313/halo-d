@@ -1,0 +1,32 @@
+{
+    "name": "color_table",
+    "type": "colo",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "color_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "color",
+                    "type": "rgbaf"
+                }
+            ]
+        },
+        {
+            "name": "color_table",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "colors",
+                    "type": "block",
+                    "block_name": "color_block"
+                }
+            ]
+        }
+    ]
+}

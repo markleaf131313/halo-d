@@ -1,0 +1,42 @@
+{
+    "name": "equipment",
+    "type": "eqip",
+    "version": 2,
+    "parent": "item",
+    "blocks": [
+        {
+            "name": "equipment",
+            "sizeof": 168,
+            "fields": [
+                {
+                    "name": "powerup type",
+                    "type": "enum",
+                    "index": 93
+                },
+                {
+                    "name": "grenade type",
+                    "type": "enum",
+                    "index": 92
+                },
+                {
+                    "name": "powerup time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "pickup sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 144
+                }
+            ]
+        }
+    ]
+}

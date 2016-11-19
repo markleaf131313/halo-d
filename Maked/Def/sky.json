@@ -1,0 +1,250 @@
+{
+    "name": "sky",
+    "type": "sky ",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "sky_shader_function_block",
+            "sizeof": 36,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "global function name",
+                    "comment": "the global function that controls this shader value",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "sky_animation_block",
+            "sizeof": 36,
+            "fields": [
+                {
+                    "name": "animation index",
+                    "comment": "the index of the animation in the animation graph",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "period",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                }
+            ]
+        },
+        {
+            "name": "sky_light_block",
+            "sizeof": 116,
+            "fields": [
+                {
+                    "name": "LENS FLARE",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "lens flare",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "lens"
+                        }
+                    ]
+                },
+                {
+                    "name": "lens flare marker name",
+                    "comment": "the lens flare for this light will be attached to the specified marker in the model",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "RADIOSITY",
+                    "type": "explanation",
+                    "explanation": "these parameters control how the light illuminates the world."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "affects exteriors"
+                        },
+                        {
+                            "name": "affects interiors"
+                        }
+                    ]
+                },
+                {
+                    "name": "color",
+                    "comment": "light color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "power",
+                    "comment": "light power from 0 to infinity",
+                    "type": "float"
+                },
+                {
+                    "name": "test distance",
+                    "comment": "the length of the ray for shadow testing.",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "direction",
+                    "comment": "direction toward the light source in the sky.",
+                    "type": "angles2"
+                },
+                {
+                    "name": "diameter",
+                    "comment": "angular diameter of the light source in the sky.",
+                    "type": "angle"
+                }
+            ]
+        },
+        {
+            "name": "sky",
+            "sizeof": 208,
+            "fields": [
+                {
+                    "name": "model",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "mod2"
+                        }
+                    ]
+                },
+                {
+                    "name": "animation_graph",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "antr"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "indoor ambient radiosity color",
+                    "comment": "the indoor ambient light color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "indoor ambient radiosity power",
+                    "comment": "the indoor ambient light power from 0 to infinity",
+                    "type": "float"
+                },
+                {
+                    "name": "outdoor ambient radiosity color",
+                    "comment": "the outdoor ambient light color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "outdoor ambient radiosity power",
+                    "comment": "the outdoor ambient light power from 0 to infinity",
+                    "type": "float"
+                },
+                {
+                    "name": "outdoor fog color",
+                    "type": "rgbf"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "outdoor fog maximum density",
+                    "unit": "[0,1]",
+                    "comment": "density at opaque distance - 0 defaults to 1",
+                    "type": "fraction"
+                },
+                {
+                    "name": "outdoor fog start distance",
+                    "unit": "world units",
+                    "comment": "below this distance there is no fog",
+                    "type": "float"
+                },
+                {
+                    "name": "outdoor fog opaque distance",
+                    "unit": "world units",
+                    "comment": "beyond this distance surfaces are completely fogged",
+                    "type": "float"
+                },
+                {
+                    "name": "indoor fog color",
+                    "type": "rgbf"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "indoor fog maximum density",
+                    "unit": "[0,1]",
+                    "comment": "density at opaque distance - 0 defaults to 1",
+                    "type": "fraction"
+                },
+                {
+                    "name": "indoor fog start distance",
+                    "unit": "world units",
+                    "comment": "below this distance there is no fog",
+                    "type": "float"
+                },
+                {
+                    "name": "indoor fog opaque distance",
+                    "unit": "world units",
+                    "comment": "beyond this distance surfaces are completely fogged",
+                    "type": "float"
+                },
+                {
+                    "name": "indoor fog screen",
+                    "comment": "used for FOG SCREEN only; not used for planar fog",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "fog "
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "shader functions",
+                    "type": "block",
+                    "block_name": "sky_shader_function_block"
+                },
+                {
+                    "name": "animations",
+                    "type": "block",
+                    "block_name": "sky_animation_block"
+                },
+                {
+                    "name": "lights",
+                    "type": "block",
+                    "block_name": "sky_light_block"
+                }
+            ]
+        }
+    ]
+}

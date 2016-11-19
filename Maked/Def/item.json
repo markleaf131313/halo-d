@@ -1,0 +1,132 @@
+{
+    "name": "item",
+    "type": "item",
+    "version": 2,
+    "parent": "obje",
+    "blocks": [
+        {
+            "name": "item",
+            "sizeof": 396,
+            "fields": [
+                {
+                    "name": "$$$ ITEM $$$",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "always maintains z up"
+                        },
+                        {
+                            "name": "destroyed by explosions"
+                        },
+                        {
+                            "name": "unaffected by gravity"
+                        }
+                    ]
+                },
+                {
+                    "name": "message-index",
+                    "type": "explanation",
+                    "explanation": "This sets which string from tags\\ui\\hud\\hud_item_messages.unicode_string_list to display."
+                },
+                {
+                    "name": "message index",
+                    "type": "short"
+                },
+                {
+                    "name": "sort order",
+                    "type": "short"
+                },
+                {
+                    "name": "scale",
+                    "type": "float"
+                },
+                {
+                    "name": "hud message value scale",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "A in",
+                    "type": "enum",
+                    "index": 31
+                },
+                {
+                    "name": "B in",
+                    "type": "enum",
+                    "index": 31
+                },
+                {
+                    "name": "C in",
+                    "type": "enum",
+                    "index": 31
+                },
+                {
+                    "name": "D in",
+                    "type": "enum",
+                    "index": 31
+                },
+                {
+                    "type": "pad",
+                    "size": 164
+                },
+                {
+                    "name": "material effects",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "foot"
+                        }
+                    ]
+                },
+                {
+                    "name": "collision sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 120
+                },
+                {
+                    "name": "detonation delay",
+                    "unit": "seconds",
+                    "type": "bound float"
+                },
+                {
+                    "name": "detonating effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "detonation effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

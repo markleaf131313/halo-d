@@ -1,0 +1,201 @@
+{
+    "name": "decal",
+    "type": "deca",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "decal",
+            "sizeof": 268,
+            "fields": [
+                {
+                    "name": "decal",
+                    "type": "explanation",
+                    "explanation": "A 'compound decal' is a chain of decals which are instantiated simultaneously. Compound decals are created by choosing a <next_decal_in_chain> below. NOTE: Do not attempt to create a circularly linked decal chain, i.e. A->B->C->A! Also, do not reference a decal from an effect if it is not the 'head' of the chain; for example an effect should not instantiate decal B if the chain was A->B->C. Compound decals can have seperate bitmaps, seperate framebuffer blend functions, and can be drawn in seperate layers. In addition, each decal in the chain can either inherit its parent's <radius>, rotation, <color>, <fade>, and <sequence> - or it can randomly choose its own. This behavior is controlled by the 'geometry_inherited_by_next_decal_in_chain' flag, below. \n\nThe decal <type> (or layer) determines the drawing order of the decal with respect to the rest of the environment. Decals in the primary layer are drawn after the environment diffuse texture, hence they affect the already-lit texture of the surface. Decals in the secondary layer are drawn immediately after decals in the primary layer, so they 'cover up' the primary decals. Decals in the 'light' layer are drawn before the environment diffuse texture, hence they affect the accumulated diffuse light and only indirectly affect the lit texture."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "geometry inherited by next decal in chain"
+                        },
+                        {
+                            "name": "interpolate color in hsv"
+                        },
+                        {
+                            "name": "...more colors"
+                        },
+                        {
+                            "name": "no random rotation"
+                        },
+                        {
+                            "name": "water effect"
+                        },
+                        {
+                            "name": "SAPIEN- snap to axis"
+                        },
+                        {
+                            "name": "SAPIEN- incremental counter"
+                        },
+                        {
+                            "name": "animation loop"
+                        },
+                        {
+                            "name": "preserve aspect"
+                        }
+                    ]
+                },
+                {
+                    "name": "type",
+                    "comment": "controls how the decal wraps onto surface geometry",
+                    "type": "enum",
+                    "index": 32
+                },
+                {
+                    "name": "layer",
+                    "type": "enum",
+                    "index": 33
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "next decal in chain",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "deca"
+                        }
+                    ]
+                },
+                {
+                    "name": "radius and color",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "radius",
+                    "unit": "world units",
+                    "comment": "0 defaults to 0.125",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "intensity",
+                    "unit": "[0,1]",
+                    "comment": "1 is fully visible, 0 is invisible",
+                    "type": "bound fraction"
+                },
+                {
+                    "name": "color lower bounds",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "color upper bounds",
+                    "type": "rgbf"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "animation",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "animation loop frame",
+                    "type": "short"
+                },
+                {
+                    "name": "animation speed",
+                    "unit": "[1,120] ticks per frame",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "lifetime",
+                    "unit": "seconds",
+                    "type": "bound float"
+                },
+                {
+                    "name": "decay time",
+                    "unit": "seconds",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "shader",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "framebuffer blend function",
+                    "type": "enum",
+                    "index": 47
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "sprite info",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "maximum sprite extent",
+                    "unit": "pixels",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        }
+    ]
+}

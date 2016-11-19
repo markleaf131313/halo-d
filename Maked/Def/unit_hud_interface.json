@@ -1,0 +1,1407 @@
+{
+    "name": "unit_hud_interface",
+    "type": "unhi",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "unit_hud_auxilary_overlay_block",
+            "sizeof": 132,
+            "fields": [
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "interface bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "multitex overlay",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 28
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "use team color"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                }
+            ]
+        },
+        {
+            "name": "unit_hud_sound_block",
+            "sizeof": 56,
+            "fields": [
+                {
+                    "name": "sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "lsnd"
+                        }
+                    ]
+                },
+                {
+                    "name": "latched to",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "shield recharging"
+                        },
+                        {
+                            "name": "shield damaged"
+                        },
+                        {
+                            "name": "shield low"
+                        },
+                        {
+                            "name": "shield empty"
+                        },
+                        {
+                            "name": "health low"
+                        },
+                        {
+                            "name": "health empty"
+                        },
+                        {
+                            "name": "health minor damage"
+                        },
+                        {
+                            "name": "health major damage"
+                        }
+                    ]
+                },
+                {
+                    "name": "scale",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "unit_hud_auxilary_panel_block",
+            "sizeof": 324,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 27
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "BACKGROUND",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "interface bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "multitex overlay",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "METER",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "meter bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "color at meter minimum",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "color at meter maximum",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "flash color",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "empty color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "use min/max for state changes"
+                        },
+                        {
+                            "name": "interpolate between min/max flash colors as state changes"
+                        },
+                        {
+                            "name": "interpolate color along hsv space"
+                        },
+                        {
+                            "name": "...more colors for hsv interpolation"
+                        },
+                        {
+                            "name": "invert interpolation"
+                        }
+                    ]
+                },
+                {
+                    "name": "minumum meter value",
+                    "type": "byte"
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "alpha multiplier",
+                    "type": "byte"
+                },
+                {
+                    "name": "alpha bias",
+                    "type": "byte"
+                },
+                {
+                    "name": "value scale",
+                    "comment": "used for non-integral values, i.e. health and shields",
+                    "type": "short"
+                },
+                {
+                    "name": "opacity",
+                    "type": "float"
+                },
+                {
+                    "name": "translucency",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "minimum fraction cutoff",
+                    "type": "float"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "show only when active"
+                        },
+                        {
+                            "name": "flash once if activated while disabled"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "type": "pad",
+                    "size": 64
+                }
+            ]
+        },
+        {
+            "name": "unit_hud_interface",
+            "sizeof": 1388,
+            "fields": [
+                {
+                    "name": "Weapon hud screen alignment",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor",
+                    "type": "enum",
+                    "index": 18
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "Unit hud background",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "interface bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "multitex overlay",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "Shield panel background",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "interface bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "multitex overlay",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "Shield panel meter",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "meter bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "color at meter minimum",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "color at meter maximum",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "flash color",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "empty color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "use min/max for state changes"
+                        },
+                        {
+                            "name": "interpolate between min/max flash colors as state changes"
+                        },
+                        {
+                            "name": "interpolate color along hsv space"
+                        },
+                        {
+                            "name": "...more colors for hsv interpolation"
+                        },
+                        {
+                            "name": "invert interpolation"
+                        }
+                    ]
+                },
+                {
+                    "name": "minumum meter value",
+                    "type": "byte"
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "alpha multiplier",
+                    "type": "byte"
+                },
+                {
+                    "name": "alpha bias",
+                    "type": "byte"
+                },
+                {
+                    "name": "value scale",
+                    "comment": "used for non-integral values, i.e. health and shields",
+                    "type": "short"
+                },
+                {
+                    "name": "opacity",
+                    "type": "float"
+                },
+                {
+                    "name": "translucency",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "overcharge minimum color",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "overcharge maximum color",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "overcharge flash color",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "overcharge empty color",
+                    "type": "rgb8"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "Health panel background",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "interface bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "multitex overlay",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "Health panel meter",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "meter bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "color at meter minimum",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "color at meter maximum",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "flash color",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "empty color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "use min/max for state changes"
+                        },
+                        {
+                            "name": "interpolate between min/max flash colors as state changes"
+                        },
+                        {
+                            "name": "interpolate color along hsv space"
+                        },
+                        {
+                            "name": "...more colors for hsv interpolation"
+                        },
+                        {
+                            "name": "invert interpolation"
+                        }
+                    ]
+                },
+                {
+                    "name": "minumum meter value",
+                    "type": "byte"
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "alpha multiplier",
+                    "type": "byte"
+                },
+                {
+                    "name": "alpha bias",
+                    "type": "byte"
+                },
+                {
+                    "name": "value scale",
+                    "comment": "used for non-integral values, i.e. health and shields",
+                    "type": "short"
+                },
+                {
+                    "name": "opacity",
+                    "type": "float"
+                },
+                {
+                    "name": "translucency",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "medium health left color",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "max color health fraction cutoff",
+                    "type": "float"
+                },
+                {
+                    "name": "min color health fraction cutoff",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "Motion sensor background",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "interface bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "multitex overlay",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "Motion sensor foreground",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "interface bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "multitex overlay",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "Motion sensor center",
+                    "type": "explanation",
+                    "explanation": "The blips use this as a reference point"
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "Auxilary overlays",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor",
+                    "type": "enum",
+                    "index": 18
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "overlays",
+                    "type": "block",
+                    "block_name": "unit_hud_auxilary_overlay_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "Hud warning sounds",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "sounds",
+                    "type": "block",
+                    "block_name": "unit_hud_sound_block"
+                },
+                {
+                    "name": "Auxilary hud meters",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "meters",
+                    "type": "block",
+                    "block_name": "unit_hud_auxilary_panel_block"
+                },
+                {
+                    "name": "Vehicle hud",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "type": "pad",
+                    "size": 356
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                }
+            ]
+        }
+    ]
+}

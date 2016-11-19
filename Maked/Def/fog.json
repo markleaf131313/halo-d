@@ -1,0 +1,245 @@
+{
+    "name": "fog",
+    "type": "fog ",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "fog",
+            "sizeof": 396,
+            "fields": [
+                {
+                    "name": "FLAGS",
+                    "type": "explanation",
+                    "explanation": "Setting <atmosphere dominant> prevents polygon popping when the atmospheric fog maximum density (in the sky tag) is 1 and the atmospheric fog opaque distance is less than the diameter of the map. However, this flag will cause artifacts when the camera goes below the fog plane - so it should only be used when the fog plane is close to the ground."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "is water"
+                        },
+                        {
+                            "name": "atmosphere dominant"
+                        },
+                        {
+                            "name": "fog screen only"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 76
+                },
+                {
+                    "name": "DENSITY",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "maximum density",
+                    "unit": "[0,1]",
+                    "comment": "planar fog density is clamped to this value",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "opaque distance",
+                    "unit": "world units",
+                    "comment": "the fog becomes opaque at this distance from the viewer",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "opaque depth",
+                    "unit": "world units",
+                    "comment": "the fog becomes opaque at this distance from its surface",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "distance to water plane",
+                    "unit": "world units",
+                    "comment": "the fog becomes water at this distance from its surface",
+                    "type": "float"
+                },
+                {
+                    "name": "COLOR",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "SCREEN LAYERS",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "no environment multipass"
+                        },
+                        {
+                            "name": "no model multipass"
+                        },
+                        {
+                            "name": "no texture-based falloff"
+                        }
+                    ]
+                },
+                {
+                    "name": "layer count",
+                    "unit": "[0,4]",
+                    "comment": "0 layers disables the effect",
+                    "type": "short"
+                },
+                {
+                    "name": "distance gradient",
+                    "unit": "world units",
+                    "type": "bound float"
+                },
+                {
+                    "name": "density gradient",
+                    "unit": "[0,1]",
+                    "type": "bound fraction"
+                },
+                {
+                    "name": "start distance from fog plane",
+                    "unit": "world units",
+                    "comment": "do NOT set this to the same value as maximum_depth",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "color",
+                    "comment": "0 defaults to planar fog color",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "rotation multiplier",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "strafing multiplier",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "zoom multiplier",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "map scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "SCREEN LAYER ANIMATION",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "animation period",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "wind velocity",
+                    "unit": "world units per second",
+                    "type": "bound float"
+                },
+                {
+                    "name": "wind period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "bound float"
+                },
+                {
+                    "name": "wind acceleration weight",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "wind perpendicular weight",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "SOUND",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "background sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "lsnd"
+                        }
+                    ]
+                },
+                {
+                    "name": "sound environment",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snde"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 120
+                }
+            ]
+        }
+    ]
+}

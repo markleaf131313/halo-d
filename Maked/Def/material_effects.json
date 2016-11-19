@@ -1,0 +1,65 @@
+{
+    "name": "material_effects",
+    "type": "foot",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "material_effect_material_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "material_effect_block",
+            "sizeof": 28,
+            "fields": [
+                {
+                    "name": "materials",
+                    "type": "block",
+                    "block_name": "material_effect_material_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "material_effects",
+            "sizeof": 140,
+            "fields": [
+                {
+                    "name": "effects",
+                    "type": "block",
+                    "block_name": "material_effect_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 128
+                }
+            ]
+        }
+    ]
+}

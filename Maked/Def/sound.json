@@ -1,0 +1,272 @@
+{
+    "name": "sound",
+    "type": "snd!",
+    "version": 4,
+    "blocks": [
+        {
+            "name": "sound_permutations_block",
+            "sizeof": 124,
+            "fields": [
+                {
+                    "name": "name",
+                    "comment": "name of the file from which this sample was imported",
+                    "type": "string"
+                },
+                {
+                    "name": "skip fraction",
+                    "comment": "fraction of requests to play this permutation that are ignored (a different permutation is selected.)",
+                    "type": "fraction"
+                },
+                {
+                    "name": "gain",
+                    "comment": "fraction of recorded volume to play at.",
+                    "type": "fraction"
+                },
+                {
+                    "name": "compression",
+                    "type": "enum",
+                    "index": 4
+                },
+                {
+                    "name": "next permutation index",
+                    "type": "short"
+                },
+                {
+                    "name": "cache buffer index",
+                    "type": "int",
+                    "comment": "runtime value, index to stored loaded sample data"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "samples",
+                    "comment": "sampled sound data",
+                    "type": "data"
+                },
+                {
+                    "name": "mouth data",
+                    "type": "data"
+                },
+                {
+                    "name": "subtitle data",
+                    "type": "data"
+                }
+            ]
+        },
+        {
+            "name": "sound_pitch_range_block",
+            "sizeof": 72,
+            "fields": [
+                {
+                    "name": "name",
+                    "comment": "the name of the imported pitch range directory",
+                    "type": "string"
+                },
+                {
+                    "name": "pitch control",
+                    "type": "explanation",
+                    "explanation": "these settings control what pitches this set of samples represents. if there is only one pitch range, all three values are ignored."
+                },
+                {
+                    "name": "natural pitch",
+                    "comment": "the apparent pitch when these samples are played at their recorded pitch.",
+                    "type": "float"
+                },
+                {
+                    "name": "bend bounds",
+                    "comment": "the range of pitches that will be represented using this sample. this should always contain the natural pitch.",
+                    "type": "bound float"
+                },
+                {
+                    "name": "actual permutation count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "permutations",
+                    "comment": "permutations represent equivalent variations of this sound.",
+                    "type": "block",
+                    "block_name": "sound_permutations_block"
+                }
+            ]
+        },
+        {
+            "name": "sound",
+            "sizeof": 164,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "fit to adpcm blocksize"
+                        },
+                        {
+                            "name": "split long sound into permutations"
+                        }
+                    ]
+                },
+                {
+                    "name": "sound class",
+                    "type": "enum",
+                    "index": 7
+                },
+                {
+                    "name": "sample rate",
+                    "type": "enum",
+                    "index": 6
+                },
+                {
+                    "name": "minimum distance",
+                    "unit": "world units",
+                    "comment": "the distance below which this sound no longer gets louder",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum distance",
+                    "unit": "world units",
+                    "comment": "the distance beyond which this sound is no longer audible",
+                    "type": "float"
+                },
+                {
+                    "name": "skip fraction",
+                    "comment": "fraction of requests to play this sound that will be ignored (0 means always play.)",
+                    "type": "fraction"
+                },
+                {
+                    "name": "randomization",
+                    "type": "explanation",
+                    "explanation": "these settings control random variation of volume and pitch."
+                },
+                {
+                    "name": "random pitch bounds",
+                    "comment": "the sound's pitch will be randomly selected and will be in this range. (1.0 is the recorded pitch.)",
+                    "type": "bound float"
+                },
+                {
+                    "name": "inner cone angle",
+                    "unit": "degrees",
+                    "comment": "within the cone defined by this angle and the sound's direction, the sound plays with a gain of 1.0.",
+                    "type": "angle"
+                },
+                {
+                    "name": "outer cone angle",
+                    "unit": "degrees",
+                    "comment": "outside the cone defined by this angle and the sound's direction, the sound plays with a gain of OUTER CONE GAIN. (0 means the sound does not attenuate with direction.)",
+                    "type": "angle"
+                },
+                {
+                    "name": "outer cone gain",
+                    "comment": "the gain to use when the sound is directed away from the listener",
+                    "type": "fraction"
+                },
+                {
+                    "name": "gain modifier",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum bend per second",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "when scale is ZERO",
+                    "type": "explanation",
+                    "explanation": "as the sound's input scale changes from zero to one, these modifiers move between the two values specified here. the sound will play using the current scale modifier multiplied by the value specified above. (0 values are ignored.)"
+                },
+                {
+                    "name": "skip fraction modifier",
+                    "type": "float"
+                },
+                {
+                    "name": "gain modifier",
+                    "type": "float"
+                },
+                {
+                    "name": "pitch modifier",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "when scale is ONE",
+                    "type": "explanation",
+                    "explanation": "as the sound's input scale changes from zero to one, these modifiers move between the two values specified here. the sound will play using the current scale modifier multiplied by the value specified above. (0 values are ignored.)"
+                },
+                {
+                    "name": "skip fraction modifier",
+                    "type": "float"
+                },
+                {
+                    "name": "gain modifier",
+                    "type": "float"
+                },
+                {
+                    "name": "pitch modifier",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "import properties",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "encoding",
+                    "type": "enum",
+                    "index": 5
+                },
+                {
+                    "name": "compression",
+                    "type": "enum",
+                    "index": 4
+                },
+                {
+                    "name": "promotion sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "promotion count",
+                    "comment": "when there are this many instances of the sound, promote to the new sound.",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "pitch ranges",
+                    "comment": "pitch ranges allow multiple samples to represent the same sound at different pitches",
+                    "type": "block",
+                    "block_name": "sound_pitch_range_block"
+                }
+            ]
+        }
+    ]
+}

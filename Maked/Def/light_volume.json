@@ -1,0 +1,221 @@
+{
+    "name": "light_volume",
+    "type": "mgs2",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "light_volume_frame_block",
+            "sizeof": 176,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "offset from marker",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "offset exponent",
+                    "comment": "0 defaults to 1; >1 compresses light near marker, <1 compresses light near far end",
+                    "type": "float"
+                },
+                {
+                    "name": "length",
+                    "unit": "world units",
+                    "comment": "0 causes light volume not to render",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "radius hither",
+                    "unit": "world units",
+                    "comment": "radius near the marker",
+                    "type": "float"
+                },
+                {
+                    "name": "radius yon",
+                    "unit": "world units",
+                    "comment": "radius at far end of light volume",
+                    "type": "float"
+                },
+                {
+                    "name": "radius exponent",
+                    "comment": "0 defaults to 1; >1 values are more teardrop-shaped, <1 values are more pill-shaped",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "tint color hither",
+                    "comment": "tint color near the marker (alpha is brightness)",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "tint color yon",
+                    "comment": "tint color at far end of light volume (alpha is brightness)",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "tint color exponent",
+                    "comment": "0 defaults to 1; affects tint color only, not brightness",
+                    "type": "float"
+                },
+                {
+                    "name": "brightness exponent",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "light_volume",
+            "sizeof": 332,
+            "fields": [
+                {
+                    "name": "light volume",
+                    "type": "explanation",
+                    "explanation": "Draws a sequence of glow bitmaps along a line. Can be used for contrail-type effects as well as volumetric lights."
+                },
+                {
+                    "name": "attachment marker",
+                    "comment": "the marker name that the light volume should be attached to",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "interpolate color in hsv"
+                        },
+                        {
+                            "name": "...more colors"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "brightness scale",
+                    "type": "explanation",
+                    "explanation": "Fades the effect in and out with distance, viewer angle, and external source."
+                },
+                {
+                    "name": "near fade distance",
+                    "unit": "world units",
+                    "comment": "distance at which light volume is full brightness",
+                    "type": "float"
+                },
+                {
+                    "name": "far fade distance",
+                    "unit": "world units",
+                    "comment": "distance at which light volume is zero brightness",
+                    "type": "float"
+                },
+                {
+                    "name": "perpendicular brightness scale",
+                    "unit": "[0,1]",
+                    "comment": "brightness scale when viewed at a 90-degree angle",
+                    "type": "fraction"
+                },
+                {
+                    "name": "parallel brightness scale",
+                    "unit": "[0,1]",
+                    "comment": "brightness scale when viewed directly",
+                    "type": "fraction"
+                },
+                {
+                    "name": "brightness scale source",
+                    "comment": "scales brightness based on external value",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "bitmaps",
+                    "type": "explanation",
+                    "explanation": "Bitmap tag used to draw the light volume, repeated <count> times. Default is 'tags\\rasterizer_textures\\glow'. Note that sprite plates are not valid for light volumes."
+                },
+                {
+                    "name": "map",
+                    "comment": "NOT A SPRITE PLATE",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "count",
+                    "comment": "number of bitmaps to draw (0 causes light volume not to render)",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 72
+                },
+                {
+                    "name": "frame animation",
+                    "type": "explanation",
+                    "explanation": "Frames are descriptions of the light volume at a particular point in time, interpolated by an external source. For example, a bolt of energy can be made to stretch out and grow thinner as it is fired from a weapon."
+                },
+                {
+                    "name": "frame animation source",
+                    "comment": "interpolates between frames based on external value",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                },
+                {
+                    "type": "pad",
+                    "size": 64
+                },
+                {
+                    "name": "frames",
+                    "type": "block",
+                    "block_name": "light_volume_frame_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,525 @@
+{
+    "name": "particle_system",
+    "type": "pctl",
+    "version": 4,
+    "blocks": [
+        {
+            "name": "particle_system_type_states_block",
+            "sizeof": 192,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "duration bounds",
+                    "unit": "seconds",
+                    "comment": "Time in this state.",
+                    "type": "bound float"
+                },
+                {
+                    "name": "transition time bounds",
+                    "unit": "seconds",
+                    "comment": "Time spent in transition to next state.",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "scale multiplier",
+                    "comment": "This value will be multiplied into the scale computed by the particles' state.",
+                    "type": "float"
+                },
+                {
+                    "name": "animation_rate_multiplier",
+                    "comment": "This value will be multiplied into the animation rate computed by the particles' state.",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation rate multiplier",
+                    "comment": "This value will be multiplied into the rotation rate computed by the particles' state.",
+                    "type": "float"
+                },
+                {
+                    "name": "color multiplier",
+                    "comment": "This value will be multiplied into the color computed by the particles' state.",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "radius multiplier",
+                    "comment": "This value will be multiplied into the radius computed by the type.",
+                    "type": "float"
+                },
+                {
+                    "name": "minimum particle count",
+                    "type": "float"
+                },
+                {
+                    "name": "particle creation rate",
+                    "unit": "particles per second",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 84
+                },
+                {
+                    "name": "particle creation physics",
+                    "comment": "This controls the placement of particles created during this state.",
+                    "type": "enum",
+                    "index": 81
+                },
+                {
+                    "name": "particle update physics",
+                    "comment": "This controls the motion of particles during this state.",
+                    "type": "enum",
+                    "index": 82
+                },
+                {
+                    "name": "physics constants",
+                    "type": "block",
+                    "block_name": "particle_system_physics_constants_block"
+                }
+            ]
+        },
+        {
+            "name": "particle_system_type_particle_states_block",
+            "sizeof": 376,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "duration bounds",
+                    "unit": "seconds",
+                    "comment": "Time in this state.",
+                    "type": "bound float"
+                },
+                {
+                    "name": "transition time bounds",
+                    "unit": "seconds",
+                    "comment": "Time spent in transition to next state.",
+                    "type": "bound float"
+                },
+                {
+                    "name": "bitmaps",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "scale",
+                    "unit": "world units per pixel",
+                    "comment": "Apparent size of the particles.",
+                    "type": "bound float"
+                },
+                {
+                    "name": "animation rate",
+                    "unit": "frames per second",
+                    "comment": "Rate of sprite animation.",
+                    "type": "bound float"
+                },
+                {
+                    "name": "rotation rate",
+                    "unit": "degrees per second",
+                    "comment": "Rate of texture rotation.",
+                    "type": "bound angle"
+                },
+                {
+                    "name": "color 1",
+                    "comment": "Particle will have a random color in the range determined by these two colors.",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "color 2",
+                    "comment": "Particle will have a random color in the range determined by these two colors.",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "radius multiplier",
+                    "comment": "This value will be multiplied into the radius computed by the type.",
+                    "type": "float"
+                },
+                {
+                    "name": "point physics",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "pphy"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "shader flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "sort bias"
+                        },
+                        {
+                            "name": "nonlinear tint"
+                        },
+                        {
+                            "name": "don't overdraw fp weapon"
+                        }
+                    ]
+                },
+                {
+                    "name": "framebuffer blend function",
+                    "type": "enum",
+                    "index": 47
+                },
+                {
+                    "name": "framebuffer fade mode",
+                    "type": "enum",
+                    "index": 48
+                },
+                {
+                    "name": "map flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "Secondary Map",
+                    "type": "explanation",
+                    "explanation": "Optional multitextured second map"
+                },
+                {
+                    "name": "bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "anchor",
+                    "type": "enum",
+                    "index": 55
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "name": "u-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "u-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "u-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "v-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "v-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "rotation-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "rotation-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation scale",
+                    "unit": "degrees",
+                    "comment": "0 defaults to 360",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation center",
+                    "type": "point2"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "zsprite radius scale",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "physics constants",
+                    "type": "block",
+                    "block_name": "particle_system_physics_constants_block"
+                }
+            ]
+        },
+        {
+            "name": "particle_system_types_block",
+            "sizeof": 128,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "type states loop"
+                        },
+                        {
+                            "name": "... forward/backward"
+                        },
+                        {
+                            "name": "particle states loop"
+                        },
+                        {
+                            "name": "... forward/backward"
+                        },
+                        {
+                            "name": "particles die in water"
+                        },
+                        {
+                            "name": "particles die in air"
+                        },
+                        {
+                            "name": "particles die on ground"
+                        },
+                        {
+                            "name": "rotational sprites animate sideways",
+                            "comment": "if the complex sprite mode is rotational and this flag is set, the sideways sequence is contains an animation rather than a set of permutations."
+                        },
+                        {
+                            "name": "disabled"
+                        },
+                        {
+                            "name": "tint by effect color"
+                        },
+                        {
+                            "name": "initial count scales with effect"
+                        },
+                        {
+                            "name": "minimum count scales with effect"
+                        },
+                        {
+                            "name": "creation rate scales with effect"
+                        },
+                        {
+                            "name": "scale scales with effect"
+                        },
+                        {
+                            "name": "animation rate scales with effect"
+                        },
+                        {
+                            "name": "rotation rate scales with effect"
+                        },
+                        {
+                            "name": "don't draw in first person"
+                        },
+                        {
+                            "name": "don't draw in third person"
+                        }
+                    ]
+                },
+                {
+                    "name": "initial particle count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "complex sprite render modes",
+                    "type": "enum",
+                    "index": 84
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "radius",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                },
+                {
+                    "name": "particle creation physics",
+                    "comment": "This controls the initial placement of particles.",
+                    "type": "enum",
+                    "index": 81
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "physics flags",
+                    "type": "flag32",
+                    "flags": ""
+                },
+                {
+                    "name": "physics constants",
+                    "type": "block",
+                    "block_name": "particle_system_physics_constants_block"
+                },
+                {
+                    "name": "states",
+                    "type": "block",
+                    "block_name": "particle_system_type_states_block"
+                },
+                {
+                    "name": "particle states",
+                    "type": "block",
+                    "block_name": "particle_system_type_particle_states_block"
+                }
+            ]
+        },
+        {
+            "name": "particle_system",
+            "sizeof": 104,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 52
+                },
+                {
+                    "name": "system behavior",
+                    "type": "explanation",
+                    "explanation": "These settings affect the behavior of the system's origin."
+                },
+                {
+                    "name": "point physics",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "pphy"
+                        }
+                    ]
+                },
+                {
+                    "name": "system update physics",
+                    "type": "enum",
+                    "index": 83
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "physics flags",
+                    "type": "flag32",
+                    "flags": ""
+                },
+                {
+                    "name": "physics constants",
+                    "type": "block",
+                    "block_name": "particle_system_physics_constants_block"
+                },
+                {
+                    "name": "particle types",
+                    "type": "block",
+                    "block_name": "particle_system_types_block"
+                }
+            ]
+        }
+    ]
+}

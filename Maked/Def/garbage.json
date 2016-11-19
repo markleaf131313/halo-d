@@ -1,0 +1,18 @@
+{
+    "name": "garbage",
+    "type": "garb",
+    "version": 1,
+    "parent": "item",
+    "blocks": [
+        {
+            "name": "garbage",
+            "sizeof": 168,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 168
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,358 @@
+{
+    "name": "weather_particle_system",
+    "type": "rain",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "weather_particle_type_block",
+            "sizeof": 604,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "interpolate colors in hsv"
+                        },
+                        {
+                            "name": "... along long hue path"
+                        },
+                        {
+                            "name": "random rotation"
+                        }
+                    ]
+                },
+                {
+                    "name": "fade-in start distance",
+                    "unit": "world units",
+                    "comment": "Particles begin to fade into visibility beyond this distance",
+                    "type": "float"
+                },
+                {
+                    "name": "fade-in end distance",
+                    "unit": "world units",
+                    "comment": "Particles become fully visible beyond this distance",
+                    "type": "float"
+                },
+                {
+                    "name": "fade-out start distance",
+                    "unit": "world units",
+                    "comment": "Particles begin to fade out of visibility beyond this distance",
+                    "type": "float"
+                },
+                {
+                    "name": "fade-out end distance",
+                    "unit": "world units",
+                    "comment": "Particles become fully invisible beyond this distance",
+                    "type": "float"
+                },
+                {
+                    "name": "fade-in start height",
+                    "unit": "world units",
+                    "comment": "Particles begin to fade into visibility above this height",
+                    "type": "float"
+                },
+                {
+                    "name": "fade-in end height",
+                    "unit": "world units",
+                    "comment": "Particles become fully visible above this height",
+                    "type": "float"
+                },
+                {
+                    "name": "fade-out start height",
+                    "unit": "world units",
+                    "comment": "Particles begin to fade out of visibility above this height",
+                    "type": "float"
+                },
+                {
+                    "name": "fade-out end height",
+                    "unit": "world units",
+                    "comment": "Particles become fully invisible above this height",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 96
+                },
+                {
+                    "name": "particle count",
+                    "unit": "particles per cubic world unit",
+                    "type": "bound float"
+                },
+                {
+                    "name": "physics",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "pphy"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "acceleration magnitude",
+                    "type": "bound float"
+                },
+                {
+                    "name": "acceleration turning rate",
+                    "type": "fraction"
+                },
+                {
+                    "name": "acceleration change rate",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "particle radius",
+                    "unit": "world units",
+                    "type": "bound float"
+                },
+                {
+                    "name": "animation rate",
+                    "unit": "frames per second",
+                    "type": "bound float"
+                },
+                {
+                    "name": "rotation rate",
+                    "unit": "degrees per second",
+                    "type": "bound angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "color lower bound",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "color upper bound",
+                    "type": "rgbaf"
+                },
+                {
+                    "type": "pad",
+                    "size": 64
+                },
+                {
+                    "name": "SHADER",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "sprite bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "render mode",
+                    "type": "enum",
+                    "index": 143
+                },
+                {
+                    "name": "render direction source",
+                    "comment": "Render modes that depend on an direction will use this vector.",
+                    "type": "enum",
+                    "index": 89
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "shader flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "sort bias"
+                        },
+                        {
+                            "name": "nonlinear tint"
+                        },
+                        {
+                            "name": "don't overdraw fp weapon"
+                        }
+                    ]
+                },
+                {
+                    "name": "framebuffer blend function",
+                    "type": "enum",
+                    "index": 47
+                },
+                {
+                    "name": "framebuffer fade mode",
+                    "type": "enum",
+                    "index": 48
+                },
+                {
+                    "name": "map flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "Secondary Map",
+                    "type": "explanation",
+                    "explanation": "Optional multitextured second map"
+                },
+                {
+                    "name": "bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "anchor",
+                    "type": "enum",
+                    "index": 55
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "name": "u-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "u-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "u-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "v-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "v-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "rotation-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "rotation-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation scale",
+                    "unit": "degrees",
+                    "comment": "0 defaults to 360",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation center",
+                    "type": "point2"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "zsprite radius scale",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                }
+            ]
+        },
+        {
+            "name": "weather_particle_system",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": ""
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "particle types",
+                    "type": "block",
+                    "block_name": "weather_particle_type_block"
+                }
+            ]
+        }
+    ]
+}

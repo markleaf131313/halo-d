@@ -1,0 +1,191 @@
+
+module Game.Tags.Types;
+
+import std.string : fromStringz;
+
+public import Game.Core.Math
+    : Vec2s, Vec2, Vec3, Vec4, Quat, Plane2, Plane3
+    , ColorRgb, ColorArgb, ColorRgb8, ColorArgb8;
+
+public import Game.Tags.Generated.Meta;
+
+import Game.Core.Containers.DatumArray : DatumIndex;
+import Game.Core.Memory : exactPointer32;
+
+mixin template TagPad(int size)
+{
+    private ubyte[size] pad__;
+}
+
+struct TagField
+{
+    string comment;
+}
+
+struct TagRef
+{
+@nogc:
+
+    static assert(this.sizeof == 0x10);
+
+    @disable this();
+    @disable this(this);
+
+    alias isValid this;
+
+    TagId id;
+    mixin exactPointer32!(const(char), "path");
+    uint length;
+    DatumIndex index;
+
+    bool isValid() const
+    {
+        return index != DatumIndex.none;
+    }
+
+    bool isIndexNone() const
+    {
+        return index == DatumIndex.none;
+    }
+}
+
+struct TagBlock(T)
+{
+@nogc:
+    static assert(this.sizeof == 0xC);
+
+    @disable this();
+    @disable this(this);
+
+    int size;
+    mixin exactPointer32!(T, "ptr");
+    int debugIndex; // this is normally only used in editors, but we repurpose it
+
+    alias ptr this;
+
+    bool inUpperBound(int i) const
+    {
+        return i < size;
+    }
+
+    pragma(inline, true)
+    ref auto opIndex(int i) inout
+    in
+    {
+        assert(i >= 0 && i < size);
+    }
+    body
+    {
+        return ptr[i];
+    }
+
+    pragma(inline, true)
+    inout(T[]) opSlice() inout
+    {
+        return ptr ? ptr[0 .. size] : ptr[0 .. 0];
+    }
+
+    pragma(inline, true)
+    int opDollar() const
+    {
+        return size;
+    }
+
+}
+
+struct TagData
+{
+@nogc:
+    static assert(this.sizeof == 0x14);
+
+    @disable this();
+    @disable this(this);
+
+    int size;
+    bool external;
+    int offset;
+
+    mixin exactPointer32!(void, "data");
+
+    int pad2;
+
+    @property T* dataAs(T)() const
+    {
+        return cast(T*)data;
+    }
+}
+
+// TODO(REFACTOR) nothing really "tag" about this, could just rename to "Bounds" or "BoundedValue" etc...
+struct TagBounds(T)
+{
+    T lower;
+    T upper;
+
+    static if(is(T == float))
+    {
+        float mix(float a) const
+        {
+            return (upper - lower) * a + lower;
+        }
+    }
+}
+
+struct TagString
+{
+@nogc:
+    static assert(this.sizeof == 32);
+
+    @disable this(this);
+
+    alias toString this;
+
+    @property const(char)[] toString() const
+    {
+        return fromStringz(buffer.ptr);
+    }
+
+    @property bool isEmpty() const
+    {
+        return buffer[0] == '\0';
+    }
+
+private:
+
+    char[32] buffer;
+
+}
+
+struct TagModelVertex
+{
+    static assert(this.sizeof == 0x44);
+
+    Vec3 position;
+    Vec3 normal;
+    Vec3 binormal;
+    Vec3 tangent;
+
+    Vec2 uv;
+
+    short node0, node1;
+    Vec2 weight;
+}
+
+struct TagBspVertex
+{
+    static assert(this.sizeof == 0x38);
+
+    Vec3 position;
+    Vec3 normal;
+    Vec3 binormal;
+    Vec3 tangent;
+
+    Vec2 coord;
+}
+
+struct TagBspLightmapVertex
+{
+    static assert(this.sizeof == 0x14);
+
+    Vec3 normal;
+    Vec2 coord;
+}

@@ -1,0 +1,481 @@
+{
+    "name": "object",
+    "type": "obje",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "object_attachment_block",
+            "sizeof": 72,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "ligh"
+                        },
+                        {
+                            "type": "mgs2"
+                        },
+                        {
+                            "type": "cont"
+                        },
+                        {
+                            "type": "pctl"
+                        },
+                        {
+                            "type": "effe"
+                        },
+                        {
+                            "type": "lsnd"
+                        }
+                    ]
+                },
+                {
+                    "name": "marker",
+                    "type": "string"
+                },
+                {
+                    "name": "primary scale",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "secondary scale",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "change color",
+                    "type": "enum",
+                    "index": 106
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "object_widget_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "reference",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "flag"
+                        },
+                        {
+                            "type": "ant!"
+                        },
+                        {
+                            "type": "glw!"
+                        },
+                        {
+                            "type": "mgs2"
+                        },
+                        {
+                            "type": "elec"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "object_function_block",
+            "sizeof": 360,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "invert",
+                            "comment": "result of function is one minus actual result"
+                        },
+                        {
+                            "name": "additive"
+                        },
+                        {
+                            "name": "always active",
+                            "comment": "function does not deactivate when at or below lower bound"
+                        }
+                    ]
+                },
+                {
+                    "name": "period",
+                    "unit": "seconds",
+                    "comment": "this is the period for the above function (lower values make the function oscillate quickly, higher values make it oscillate slowly)",
+                    "type": "float"
+                },
+                {
+                    "name": "scale period by",
+                    "comment": "multiply this function by the above period",
+                    "type": "enum",
+                    "index": 108
+                },
+                {
+                    "name": "function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "scale function by",
+                    "comment": "multiply this function by the result of the above function",
+                    "type": "enum",
+                    "index": 108
+                },
+                {
+                    "name": "wobble function",
+                    "comment": "the curve used for the wobble",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "wobble period",
+                    "unit": "seconds",
+                    "comment": "the length of time it takes for the magnitude of this function to complete a wobble",
+                    "type": "float"
+                },
+                {
+                    "name": "wobble magnitude",
+                    "unit": "percent",
+                    "comment": "the amount of random wobble in the magnitude",
+                    "type": "float"
+                },
+                {
+                    "name": "square wave threshold",
+                    "comment": "if non-zero, all values above the square wave threshold are snapped to 1.0, and all values below it are snapped to 0.0 to create a square wave.",
+                    "type": "fraction"
+                },
+                {
+                    "name": "step count",
+                    "comment": "the number of discrete values to snap to (e.g., a step count of 5 would snap the function to 0.00,0.25,0.50,0.75 or 1.00)",
+                    "type": "short"
+                },
+                {
+                    "name": "map to",
+                    "type": "enum",
+                    "index": 125
+                },
+                {
+                    "name": "sawtooth count",
+                    "comment": "the number of times this function should repeat (e.g., a sawtooth count of 5 would give the function a value of 1.0 at each of 0.25,0.50,0.75 as well as at 1.0",
+                    "type": "short"
+                },
+                {
+                    "name": "add",
+                    "comment": "add this function to the final result of all of the above math",
+                    "type": "enum",
+                    "index": 108
+                },
+                {
+                    "name": "scale result by",
+                    "comment": "multiply this function (from a weapon, vehicle, etc.) final result of all of the above math",
+                    "type": "enum",
+                    "index": 108
+                },
+                {
+                    "name": "bounds mode",
+                    "comment": "controls how the bounds, below, are used",
+                    "type": "enum",
+                    "index": 109
+                },
+                {
+                    "name": "bounds",
+                    "type": "bound fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "turn off with",
+                    "comment": "if the specified function is off, so is this function",
+                    "type": "index16",
+                    "block_name": "object_function_block"
+                },
+                {
+                    "name": "scale by",
+                    "comment": "applied before clip, ignored if zero",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 252
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "usage",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "object_change_color_permutations",
+            "sizeof": 28,
+            "fields": [
+                {
+                    "name": "weight",
+                    "type": "float"
+                },
+                {
+                    "name": "color lower bound",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "color upper bound",
+                    "type": "rgbf"
+                }
+            ]
+        },
+        {
+            "name": "object_change_colors",
+            "sizeof": 44,
+            "fields": [
+                {
+                    "name": "darken by",
+                    "type": "enum",
+                    "index": 108
+                },
+                {
+                    "name": "scale by",
+                    "type": "enum",
+                    "index": 108
+                },
+                {
+                    "name": "scale flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "blend in hsv",
+                            "comment": "blends colors in hsv rather than rgb space"
+                        },
+                        {
+                            "name": "...more colors",
+                            "comment": "blends colors through more hues (goes the long way around the color wheel)"
+                        }
+                    ]
+                },
+                {
+                    "name": "color lower bound",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "color upper bound",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "permutations",
+                    "type": "block",
+                    "block_name": "object_change_color_permutations"
+                }
+            ]
+        },
+        {
+            "name": "object",
+            "sizeof": 380,
+            "fields": [
+                {
+                    "name": "object type",
+                    "type": "enum",
+                    "index": 144
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "does not cast shadow"
+                        },
+                        {
+                            "name": "transparent self-occlusion"
+                        },
+                        {
+                            "name": "brighter than it should be"
+                        },
+                        {
+                            "name": "not a pathfinding obstacle"
+                        }
+                    ]
+                },
+                {
+                    "name": "bounding radius",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "bounding offset",
+                    "type": "point3"
+                },
+                {
+                    "name": "origin offset",
+                    "type": "point3"
+                },
+                {
+                    "name": "acceleration scale",
+                    "unit": "[0,+inf]",
+                    "comment": "marine 1.0, grunt 1.4, elite 0.9, hunter 0.5, etc.",
+                    "type": "float"
+                },
+                {
+                    "name": "unknown color flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "unknown color change related",
+                            "comment": "used in object creation function, color change related"
+                        }
+                    ]
+                },
+                {
+                    "name": "model",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "mod2"
+                        }
+                    ]
+                },
+                {
+                    "name": "animation graph",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "antr"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "collision model",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "coll"
+                        }
+                    ]
+                },
+                {
+                    "name": "physics",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "phys"
+                        }
+                    ]
+                },
+                {
+                    "name": "modifier shader",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "shdr"
+                        }
+                    ]
+                },
+                {
+                    "name": "creation effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 84
+                },
+                {
+                    "name": "render bounding radius",
+                    "unit": "world units",
+                    "comment": "if set, this radius is used to determine if the object is visible. set it for the pelican.",
+                    "type": "float"
+                },
+                {
+                    "name": "export to functions",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "A in",
+                    "type": "enum",
+                    "index": 110
+                },
+                {
+                    "name": "B in",
+                    "type": "enum",
+                    "index": 110
+                },
+                {
+                    "name": "C in",
+                    "type": "enum",
+                    "index": 110
+                },
+                {
+                    "name": "D in",
+                    "type": "enum",
+                    "index": 110
+                },
+                {
+                    "type": "pad",
+                    "size": 44
+                },
+                {
+                    "name": "hud text message index",
+                    "type": "short"
+                },
+                {
+                    "name": "forced shader permuation index",
+                    "type": "short"
+                },
+                {
+                    "name": "attachments",
+                    "type": "block",
+                    "block_name": "object_attachment_block"
+                },
+                {
+                    "name": "widgets",
+                    "type": "block",
+                    "block_name": "object_widget_block"
+                },
+                {
+                    "name": "functions",
+                    "type": "block",
+                    "block_name": "object_function_block"
+                },
+                {
+                    "name": "change colors",
+                    "type": "block",
+                    "block_name": "object_change_colors"
+                },
+                {
+                    "name": "predicted resources",
+                    "type": "block",
+                    "block_name": "predicted_resource_block"
+                }
+            ]
+        }
+    ]
+}

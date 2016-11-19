@@ -1,0 +1,289 @@
+{
+    "name": "lens_flare",
+    "type": "lens",
+    "version": 2,
+    "blocks": [
+        {
+            "name": "lens_flare_reflection_block",
+            "sizeof": 128,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "align rotation with screen center"
+                        },
+                        {
+                            "name": "radius NOT scaled by distance"
+                        },
+                        {
+                            "name": "radius scaled by occlusion factor"
+                        },
+                        {
+                            "name": "occluded by solid objects"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "bitmap index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "position",
+                    "unit": "along flare axis",
+                    "comment": "0 is on top of light, 1 is opposite light, 0.5 is the center of the screen, etc.",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation offset",
+                    "unit": "degrees",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "radius",
+                    "unit": "world units",
+                    "comment": "interpolated by light scale",
+                    "type": "bound float"
+                },
+                {
+                    "name": "radius scaled by",
+                    "type": "enum",
+                    "index": 36
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "brightness",
+                    "unit": "[0,1]",
+                    "comment": "interpolated by light scale",
+                    "type": "bound fraction"
+                },
+                {
+                    "name": "brightness scaled by",
+                    "type": "enum",
+                    "index": 36
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "tint color",
+                    "type": "explanation",
+                    "explanation": "Tinting and modulating are not the same; 'tinting' a reflection will color the darker regions but leave the white highlights, while 'modulating' will color everything uniformly (as in most games). The tint alpha controls how much the reflection is tinted as opposed to modulated (0 is modulated, 1 is tinted). If all components are zero, the reflection is fully tinted by the light color."
+                },
+                {
+                    "name": "tint color",
+                    "comment": "if a=r=g=b=0 use light color instead; alpha blends between modulation and tinting",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "animation",
+                    "type": "explanation",
+                    "explanation": "Causes lens flare reflection to flicker, pulse, or whatever. Animated color modulates tint color, above, while animated alpha modulates brightness. Animation is ignored if tint color is BLACK or the animation function is ONE or ZERO."
+                },
+                {
+                    "name": "color lower bound",
+                    "comment": "if a=r=g=b=0, default to a=r=g=b=1",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "color upper bound",
+                    "comment": "if a=r=g=b=0, default to a=r=g=b=1",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "interpolate color in hsv"
+                        },
+                        {
+                            "name": "...more colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "animation phase",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                }
+            ]
+        },
+        {
+            "name": "lens_flare",
+            "sizeof": 240,
+            "fields": [
+                {
+                    "name": "lens flare",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "falloff angle",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "cutoff angle",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "occlusion",
+                    "type": "explanation",
+                    "explanation": "Occlusion factor affects overall lens flare brightness and can also affect scale. Occlusion never affects rotation."
+                },
+                {
+                    "name": "occlusion radius",
+                    "unit": "world units",
+                    "comment": "radius of the square used to test occlusion",
+                    "type": "float"
+                },
+                {
+                    "name": "occlusion offset direction",
+                    "type": "enum",
+                    "index": 37
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "near fade distance",
+                    "unit": "world units",
+                    "comment": "distance at which the lens flare brightness is maximum",
+                    "type": "float"
+                },
+                {
+                    "name": "far fade distance",
+                    "unit": "world units",
+                    "comment": "distance at which the lens flare brightness is minimum; set to zero to disable distance fading",
+                    "type": "float"
+                },
+                {
+                    "name": "bitmaps",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "bitmap",
+                    "comment": "used by reflections",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "sun"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 76
+                },
+                {
+                    "name": "corona rotation",
+                    "type": "explanation",
+                    "explanation": "Controls how corona rotation is affected by viewer and light angles."
+                },
+                {
+                    "name": "rotation function",
+                    "type": "enum",
+                    "index": 38
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "rotation function scale",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "corona radius scale",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "horizontal scale",
+                    "comment": "amount to stretch the corona along the horizontal axis; 0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "vertical scale",
+                    "comment": "amount to stretch the corona along the vertical axis; 0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "reflections",
+                    "type": "block",
+                    "block_name": "lens_flare_reflection_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        }
+    ]
+}

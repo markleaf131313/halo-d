@@ -1,0 +1,146 @@
+{
+    "name": "shader_transparent_meter",
+    "type": "smet",
+    "version": 1,
+    "parent": "shdr",
+    "blocks": [
+        {
+            "name": "shader_transparent_meter",
+            "sizeof": 220,
+            "fields": [
+                {
+                    "name": "meter shader",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "decal"
+                        },
+                        {
+                            "name": "two-sided"
+                        },
+                        {
+                            "name": "flash color is negative"
+                        },
+                        {
+                            "name": "tint mode-2"
+                        },
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "colors",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "gradient min color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "gradient max color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "background color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "flash color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "tint color",
+                    "comment": "modulates framebuffer color unless map alpha is zero",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "meter transparency",
+                    "unit": "[0,1]",
+                    "comment": "used only when 'tint mode-2' is set",
+                    "type": "fraction"
+                },
+                {
+                    "name": "background transparency",
+                    "unit": "[0,1]",
+                    "comment": "used only when 'tint mode-2' is set",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "external function sources",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "meter brightness source",
+                    "comment": "overall meter brightness (default is 1)",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "flash brightness source",
+                    "comment": "brightness of flash (default is 1)",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "value source",
+                    "comment": "position of flash leading edge (default is 1)",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "gradient source",
+                    "comment": "high color leading edge (default is 1)",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "flash-extension source",
+                    "comment": "position of flash extension leading edge (default is 1)",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        }
+    ]
+}

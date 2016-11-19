@@ -1,0 +1,125 @@
+{
+    "name": "shader_transparent_chicago",
+    "type": "schi",
+    "version": 1,
+    "parent": "shdr",
+    "blocks": [
+        {
+            "name": "shader_transparent_chicago",
+            "sizeof": 68,
+            "fields": [
+                {
+                    "name": "chicago shader",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "numeric counter limit",
+                    "unit": "[0,255]",
+                    "type": "byte"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "alpha-tested"
+                        },
+                        {
+                            "name": "decal"
+                        },
+                        {
+                            "name": "two-sided"
+                        },
+                        {
+                            "name": "first map is in screenspace"
+                        },
+                        {
+                            "name": "draw before water"
+                        },
+                        {
+                            "name": "ignore effect"
+                        },
+                        {
+                            "name": "scale first map with distance"
+                        },
+                        {
+                            "name": "numeric"
+                        }
+                    ]
+                },
+                {
+                    "name": "first map type",
+                    "type": "enum",
+                    "index": 65
+                },
+                {
+                    "name": "framebuffer blend function",
+                    "type": "enum",
+                    "index": 47
+                },
+                {
+                    "name": "framebuffer fade mode",
+                    "type": "enum",
+                    "index": 48
+                },
+                {
+                    "name": "framebuffer fade source",
+                    "comment": "fade is multiplied by this external value",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "lens flares",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "lens flare spacing",
+                    "unit": "world units",
+                    "comment": "0 places a single lens flare",
+                    "type": "float"
+                },
+                {
+                    "name": "lens flare",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "lens"
+                        }
+                    ]
+                },
+                {
+                    "name": "extra layers",
+                    "type": "block",
+                    "block_name": "shader_transparent_layer_block"
+                },
+                {
+                    "name": "maps",
+                    "type": "block",
+                    "block_name": "shader_transparent_chicago_map_block"
+                },
+                {
+                    "name": "extra flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "don't fade active-camouflage"
+                        },
+                        {
+                            "name": "numeric countdown timer"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        }
+    ]
+}

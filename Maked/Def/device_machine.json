@@ -1,0 +1,66 @@
+{
+    "name": "device_machine",
+    "type": "mach",
+    "version": 1,
+    "parent": "devi",
+    "blocks": [
+        {
+            "name": "device_machine",
+            "sizeof": 148,
+            "fields": [
+                {
+                    "name": "$$$ MACHINE $$$",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 73
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "pathfinding obstacle"
+                        },
+                        {
+                            "name": "...but not when open"
+                        },
+                        {
+                            "name": "elevator",
+                            "comment": "lighting based on what's around, rather than what's below"
+                        }
+                    ]
+                },
+                {
+                    "name": "door open time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 80
+                },
+                {
+                    "name": "collision response",
+                    "type": "enum",
+                    "index": 74
+                },
+                {
+                    "name": "elevator node",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 52
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                }
+            ]
+        }
+    ]
+}

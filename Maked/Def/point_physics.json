@@ -1,0 +1,91 @@
+{
+    "name": "point_physics",
+    "type": "pphy",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "point_physics",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "flamethrower particle collision"
+                        },
+                        {
+                            "name": "collides with structures"
+                        },
+                        {
+                            "name": "collides with water surface"
+                        },
+                        {
+                            "name": "uses simple wind",
+                            "comment": "the wind on this point won't have high-frequency variations"
+                        },
+                        {
+                            "name": "uses damped wind",
+                            "comment": "the wind on this point will be artificially slow"
+                        },
+                        {
+                            "name": "no gravity",
+                            "comment": "the point is not affected by gravity"
+                        }
+                    ]
+                },
+                {
+                    "name": "density in world units",
+                    "type": "float",
+                    "comment": "effectively equal to (118613 * density), some magic constant conversion"
+                },
+                {
+                    "name": "gravity scale in water",
+                    "type": "float",
+                    "comment": "compile time value"
+                },
+                {
+                    "name": "gravity scale in air",
+                    "type": "float",
+                    "comment": "compile time value"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "density",
+                    "unit": "g/mL",
+                    "type": "float"
+                },
+                {
+                    "name": "air friction",
+                    "type": "float"
+                },
+                {
+                    "name": "water friction",
+                    "type": "float"
+                },
+                {
+                    "name": "surface friction",
+                    "comment": "when hitting the ground or interior, percentage of velocity lost in one collision",
+                    "type": "float"
+                },
+                {
+                    "name": "elasticity",
+                    "comment": "0.0 is inelastic collisions (no bounce) 1.0 is perfectly elastic (reflected velocity equals incoming velocity)",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "Densities (g/mL)",
+                    "type": "explanation",
+                    "explanation": "air        0.0011 (g/mL)\nsnow       0.128\ncork       0.24\ncedar      0.43\noak        0.866\nice        0.897\nwater      1.0\nsoil       1.1\ncotton     1.491\ndry earth  1.52\nsand       1.7\ngranite    2.4\nglass      2.5\niron       7.65\nsteel      7.77\nlead       11.37\nuranium    18.74\ngold       19.3\n"
+                }
+            ]
+        }
+    ]
+}

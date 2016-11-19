@@ -1,0 +1,637 @@
+{
+    "name": "hud_globals",
+    "type": "hudg",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "hud_button_icon_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "sequence index",
+                    "comment": "sequence index into the global hud icon bitmap",
+                    "type": "short"
+                },
+                {
+                    "name": "width offset",
+                    "comment": "extra spacing beyond bitmap width for text alignment",
+                    "type": "short"
+                },
+                {
+                    "name": "offset from reference corner",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "override icon color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "frame rate [0,30]",
+                    "type": "byte"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "use text from string_list instead"
+                        },
+                        {
+                            "name": "override default color"
+                        },
+                        {
+                            "name": "width offset is absolute icon width"
+                        }
+                    ]
+                },
+                {
+                    "name": "text index",
+                    "type": "short"
+                }
+            ]
+        },
+        {
+            "name": "hud_waypoint_arrow_block",
+            "sizeof": 104,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "color",
+                    "type": "rgb8"
+                },
+                {
+                    "name": "opacity",
+                    "type": "float"
+                },
+                {
+                    "name": "translucency",
+                    "type": "float"
+                },
+                {
+                    "name": "on screen sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "off screen sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "occluded sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "don't rotate when pointing offscreen"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                }
+            ]
+        },
+        {
+            "name": "hud_globals",
+            "sizeof": 1104,
+            "fields": [
+                {
+                    "name": "Messaging parameters",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor",
+                    "type": "enum",
+                    "index": 18
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "single player font",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "font"
+                        }
+                    ]
+                },
+                {
+                    "name": "multi player font",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "font"
+                        }
+                    ]
+                },
+                {
+                    "name": "up time",
+                    "type": "float"
+                },
+                {
+                    "name": "fade time",
+                    "type": "float"
+                },
+                {
+                    "name": "icon color",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "text color",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "text spacing",
+                    "type": "float"
+                },
+                {
+                    "name": "item message text",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "ustr"
+                        }
+                    ]
+                },
+                {
+                    "name": "icon bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "alternate icon text",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "ustr"
+                        }
+                    ]
+                },
+                {
+                    "name": "button icons",
+                    "type": "block",
+                    "block_name": "hud_button_icon_block"
+                },
+                {
+                    "name": "HUD HELP TEXT COLOR",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "Other hud messaging data",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "hud messages",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "hmt "
+                        }
+                    ]
+                },
+                {
+                    "name": "Objective colors",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "uptime ticks",
+                    "type": "short"
+                },
+                {
+                    "name": "fade ticks",
+                    "type": "short"
+                },
+                {
+                    "name": "Waypoint parameters",
+                    "type": "explanation",
+                    "explanation": "The offset values are how much the waypoint rectangle border is offset from the safe camera bounds"
+                },
+                {
+                    "name": "top offset",
+                    "type": "float"
+                },
+                {
+                    "name": "bottom offset",
+                    "type": "float"
+                },
+                {
+                    "name": "left offset",
+                    "type": "float"
+                },
+                {
+                    "name": "right offset",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "arrow bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "waypoint arrows",
+                    "type": "block",
+                    "block_name": "hud_waypoint_arrow_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 80
+                },
+                {
+                    "name": "Multiplayer parameters",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "hud scale in multiplayer",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 256
+                },
+                {
+                    "name": "Hud globals",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "default weapon hud",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "wphi"
+                        }
+                    ]
+                },
+                {
+                    "name": "motion sensor range",
+                    "type": "float"
+                },
+                {
+                    "name": "motion sensor velocity sensitivity",
+                    "comment": "how fast something moves to show up on the motion sensor",
+                    "type": "float"
+                },
+                {
+                    "name": "motion sensor scale [DON'T TOUCH EVER]",
+                    "type": "float"
+                },
+                {
+                    "name": "default chapter title bounds",
+                    "type": "rect2 short"
+                },
+                {
+                    "type": "pad",
+                    "size": 44
+                },
+                {
+                    "name": "Hud damage indicators",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "top offset",
+                    "type": "short"
+                },
+                {
+                    "name": "bottom offset",
+                    "type": "short"
+                },
+                {
+                    "name": "left offset",
+                    "type": "short"
+                },
+                {
+                    "name": "right offset",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "indicator bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "multiplayer sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "Hud timer definitions",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "Not much time left flash color",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "Time out flash color",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "carnage report bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "Hud crap that wouldn't fit anywhere else",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "loading begin text",
+                    "type": "short"
+                },
+                {
+                    "name": "loading end text",
+                    "type": "short"
+                },
+                {
+                    "name": "checkpoint begin text",
+                    "type": "short"
+                },
+                {
+                    "name": "checkpoint end text",
+                    "type": "short"
+                },
+                {
+                    "name": "checkpoint sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 96
+                }
+            ]
+        }
+    ]
+}

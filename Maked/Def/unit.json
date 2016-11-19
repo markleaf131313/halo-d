@@ -1,0 +1,579 @@
+{
+    "name": "unit",
+    "type": "unit",
+    "version": 2,
+    "parent": "obje",
+    "blocks": [
+        {
+            "name": "dialogue_variant_block",
+            "sizeof": 24,
+            "fields": [
+                {
+                    "name": "variant number",
+                    "comment": "variant number to use this dialogue with (must match the suffix in the permutations on the unit's model)",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "dialogue",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "udlg"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "powered_seat_block",
+            "sizeof": 68,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "driver powerup time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "driver powerdown time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 56
+                }
+            ]
+        },
+        {
+            "name": "unit_weapon_block",
+            "sizeof": 36,
+            "fields": [
+                {
+                    "name": "weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "weap"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                }
+            ]
+        },
+        {
+            "name": "unit_seat_block",
+            "sizeof": 284,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "invisible"
+                        },
+                        {
+                            "name": "locked"
+                        },
+                        {
+                            "name": "driver"
+                        },
+                        {
+                            "name": "gunner"
+                        },
+                        {
+                            "name": "third person camera"
+                        },
+                        {
+                            "name": "allows weapons"
+                        },
+                        {
+                            "name": "third person on enter"
+                        },
+                        {
+                            "name": "first person camera slaved to gun."
+                        },
+                        {
+                            "name": "allow vehicle communication animations"
+                        },
+                        {
+                            "name": "not valid without driver"
+                        },
+                        {
+                            "name": "allow AI noncombatants"
+                        }
+                    ]
+                },
+                {
+                    "name": "label",
+                    "type": "string"
+                },
+                {
+                    "name": "marker name",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "acceleration scale",
+                    "type": "vec3"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "yaw rate",
+                    "unit": "degrees per second",
+                    "type": "float"
+                },
+                {
+                    "name": "pitch rate",
+                    "unit": "degrees per second",
+                    "type": "float"
+                },
+                {
+                    "name": "camera marker name",
+                    "type": "string"
+                },
+                {
+                    "name": "camera submerged marker name",
+                    "type": "string"
+                },
+                {
+                    "name": "pitch auto-level",
+                    "type": "angle"
+                },
+                {
+                    "name": "pitch range",
+                    "type": "bound angle"
+                },
+                {
+                    "name": "camera tracks",
+                    "type": "block",
+                    "block_name": "unit_camera_track_block"
+                },
+                {
+                    "name": "unit hud interface",
+                    "type": "block",
+                    "block_name": "unit_hud_reference_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "hud text message index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "yaw minimum",
+                    "type": "angle"
+                },
+                {
+                    "name": "yaw maximum",
+                    "type": "angle"
+                },
+                {
+                    "name": "built-in gunner",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "actv"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                }
+            ]
+        },
+        {
+            "name": "unit",
+            "sizeof": 372,
+            "fields": [
+                {
+                    "name": "$$$ UNIT $$$",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "circular aiming"
+                        },
+                        {
+                            "name": "destroyed after dying"
+                        },
+                        {
+                            "name": "half-speed interpolation"
+                        },
+                        {
+                            "name": "fires from camera"
+                        },
+                        {
+                            "name": "entrance inside bounding sphere"
+                        },
+                        {
+                            "name": "unused"
+                        },
+                        {
+                            "name": "causes passenger dialogue"
+                        },
+                        {
+                            "name": "resists pings"
+                        },
+                        {
+                            "name": "melee attack is fatal"
+                        },
+                        {
+                            "name": "don't reface during pings"
+                        },
+                        {
+                            "name": "has no aiming"
+                        },
+                        {
+                            "name": "simple creature"
+                        },
+                        {
+                            "name": "impact melee attaches to unit"
+                        },
+                        {
+                            "name": "impact melee dies on shields"
+                        },
+                        {
+                            "name": "cannot open doors automatically"
+                        },
+                        {
+                            "name": "melee attackers cannot attach"
+                        },
+                        {
+                            "name": "not instantly killed by melee"
+                        },
+                        {
+                            "name": "shield sapping"
+                        },
+                        {
+                            "name": "runs around flaming"
+                        },
+                        {
+                            "name": "inconsequential"
+                        },
+                        {
+                            "name": "special cinematic unit"
+                        },
+                        {
+                            "name": "ignored by autoaiming"
+                        },
+                        {
+                            "name": "shields fry infection forms"
+                        },
+                        {
+                            "name": "integrated light cntrls weapon"
+                        },
+                        {
+                            "name": "integrated light lasts forever"
+                        }
+                    ]
+                },
+                {
+                    "name": "default team",
+                    "type": "enum",
+                    "index": 116
+                },
+                {
+                    "name": "constant sound volume",
+                    "type": "enum",
+                    "index": 126
+                },
+                {
+                    "name": "rider damage fraction",
+                    "unit": "[0,+inf]",
+                    "comment": "what percent damage applied to us gets applied to our children (i.e., riders)",
+                    "type": "float"
+                },
+                {
+                    "name": "integrated light toggle",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "A in",
+                    "type": "enum",
+                    "index": 115
+                },
+                {
+                    "name": "B in",
+                    "type": "enum",
+                    "index": 115
+                },
+                {
+                    "name": "C in",
+                    "type": "enum",
+                    "index": 115
+                },
+                {
+                    "name": "D in",
+                    "type": "enum",
+                    "index": 115
+                },
+                {
+                    "name": "camera field of view",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "camera stiffness",
+                    "type": "float"
+                },
+                {
+                    "name": "camera marker name",
+                    "type": "string"
+                },
+                {
+                    "name": "camera submerged marker name",
+                    "type": "string"
+                },
+                {
+                    "name": "pitch auto-level",
+                    "type": "angle"
+                },
+                {
+                    "name": "pitch range",
+                    "type": "bound angle"
+                },
+                {
+                    "name": "camera tracks",
+                    "type": "block",
+                    "block_name": "unit_camera_track_block"
+                },
+                {
+                    "name": "seat acceleration scale",
+                    "type": "vec3"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "soft ping threshold",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "soft ping interrupt time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "hard ping threshold",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "hard ping interrupt time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "hard death threshold",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "feign death threshold",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "feign death time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "distance of evade anim",
+                    "unit": "world units",
+                    "comment": "this must be set to tell the AI how far it should expect our evade animation to move us",
+                    "type": "float"
+                },
+                {
+                    "name": "distance of dive anim",
+                    "unit": "world units",
+                    "comment": "this must be set to tell the AI how far it should expect our dive animation to move us",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "stunned movement threshold",
+                    "unit": "[0,1]",
+                    "comment": "if we take this much damage in a short space of time we will play our 'stunned movement' animations",
+                    "type": "float"
+                },
+                {
+                    "name": "feign death chance",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "feign repeat chance",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "spawned actor",
+                    "comment": "actor variant which we spawn when we are destroyed or self-destruct",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "actv"
+                        }
+                    ]
+                },
+                {
+                    "name": "spawned actor count",
+                    "comment": "number of actors which we spawn",
+                    "type": "bound short"
+                },
+                {
+                    "name": "spawned velocity",
+                    "comment": "velocity at which we throw spawned actors",
+                    "type": "float"
+                },
+                {
+                    "name": "aiming velocity maximum",
+                    "unit": "degrees per second",
+                    "type": "angle"
+                },
+                {
+                    "name": "aiming acceleration maximum",
+                    "unit": "degrees per second squared",
+                    "type": "angle"
+                },
+                {
+                    "name": "casual aiming modifier",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "looking velocity maximum",
+                    "unit": "degrees per second",
+                    "type": "angle"
+                },
+                {
+                    "name": "looking acceleration maximum",
+                    "unit": "degrees per second squared",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "AI vehicle radius",
+                    "comment": "radius around this unit that the AI tries to avoid when entering it as a vehicle (zero = use bounding sphere radius)",
+                    "type": "float"
+                },
+                {
+                    "name": "AI danger radius",
+                    "comment": "danger radius around this unit that the AI tries to avoid",
+                    "type": "float"
+                },
+                {
+                    "name": "melee damage",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        }
+                    ]
+                },
+                {
+                    "name": "motion sensor blip size",
+                    "type": "enum",
+                    "index": 20
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "NEW HUD INTERFACES",
+                    "type": "block",
+                    "block_name": "unit_hud_reference_block"
+                },
+                {
+                    "name": "dialogue variants",
+                    "type": "block",
+                    "block_name": "dialogue_variant_block"
+                },
+                {
+                    "name": "grenade velocity",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "grenade type",
+                    "type": "enum",
+                    "index": 92
+                },
+                {
+                    "name": "grenade count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "powered seats",
+                    "type": "block",
+                    "block_name": "powered_seat_block"
+                },
+                {
+                    "name": "weapons",
+                    "type": "block",
+                    "block_name": "unit_weapon_block"
+                },
+                {
+                    "name": "seats",
+                    "type": "block",
+                    "block_name": "unit_seat_block"
+                }
+            ]
+        }
+    ]
+}

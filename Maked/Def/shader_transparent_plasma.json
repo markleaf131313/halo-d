@@ -1,0 +1,197 @@
+{
+    "name": "shader_transparent_plasma",
+    "type": "spla",
+    "version": 1,
+    "parent": "shdr",
+    "blocks": [
+        {
+            "name": "shader_transparent_plasma",
+            "sizeof": 292,
+            "fields": [
+                {
+                    "name": "plasma shader",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "intensity",
+                    "type": "explanation",
+                    "explanation": "Controls how bright the plasma is."
+                },
+                {
+                    "name": "intensity source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "intensity exponent",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "offset",
+                    "type": "explanation",
+                    "explanation": "Controls how far the plasma energy extends from the model geometry."
+                },
+                {
+                    "name": "offset source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "offset amount",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "offset exponent",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "color",
+                    "type": "explanation",
+                    "explanation": "Controls the tint color and Fresnel brightness effects."
+                },
+                {
+                    "name": "perpendicular brightness",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "perpendicular tint color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "parallel brightness",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "parallel tint color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "tint color source",
+                    "comment": "modulates perpendicular and parallel colors above",
+                    "type": "enum",
+                    "index": 106
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "primary noise map",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "primary animation period",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "primary animation direction",
+                    "type": "vec3"
+                },
+                {
+                    "name": "primary noise map scale",
+                    "type": "float"
+                },
+                {
+                    "name": "primary noise map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "secondary noise map",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "secondary animation period",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "secondary animation direction",
+                    "type": "vec3"
+                },
+                {
+                    "name": "secondary noise map scale",
+                    "type": "float"
+                },
+                {
+                    "name": "secondary noise map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        }
+    ]
+}

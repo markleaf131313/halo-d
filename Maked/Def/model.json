@@ -1,0 +1,299 @@
+{
+    "name": "model",
+    "type": "mode",
+    "version": 4,
+    "blocks": [
+        {
+            "name": "model_region_permutation_block",
+            "sizeof": 88,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "cannot be chosen randomly"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "super low",
+                    "type": "index16",
+                    "block_name": "model_geometry_block"
+                },
+                {
+                    "name": "low",
+                    "type": "index16",
+                    "block_name": "model_geometry_block"
+                },
+                {
+                    "name": "medium",
+                    "type": "index16",
+                    "block_name": "model_geometry_block"
+                },
+                {
+                    "name": "high",
+                    "type": "index16",
+                    "block_name": "model_geometry_block"
+                },
+                {
+                    "name": "super high",
+                    "type": "index16",
+                    "block_name": "model_geometry_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "markers",
+                    "type": "block",
+                    "block_name": "model_region_permutation_marker_block"
+                }
+            ]
+        },
+        {
+            "name": "model_region_block",
+            "sizeof": 76,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "permutations",
+                    "type": "block",
+                    "block_name": "model_region_permutation_block"
+                }
+            ]
+        },
+        {
+            "name": "model_geometry_part_block",
+            "sizeof": 104,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "stripped (INTERNAL)"
+                        },
+                        {
+                            "name": "ZONER"
+                        }
+                    ]
+                },
+                {
+                    "name": "shader index",
+                    "type": "index16",
+                    "block_name": "model_shader_reference_block"
+                },
+                {
+                    "name": "prev filthy part index",
+                    "type": "byte"
+                },
+                {
+                    "name": "next filthy part index",
+                    "type": "byte"
+                },
+                {
+                    "name": "centroid primary node",
+                    "type": "short"
+                },
+                {
+                    "name": "centroid secondary node",
+                    "type": "short"
+                },
+                {
+                    "name": "centroid primary weight",
+                    "type": "fraction"
+                },
+                {
+                    "name": "centroid secondary weight",
+                    "type": "fraction"
+                },
+                {
+                    "name": "centroid",
+                    "type": "point3"
+                },
+                {
+                    "name": "uncompressed vertices",
+                    "type": "block",
+                    "block_name": "model_vertex_uncompressed_block"
+                },
+                {
+                    "name": "compressed vertices",
+                    "type": "block",
+                    "block_name": "model_vertex_compressed_block"
+                },
+                {
+                    "name": "triangles",
+                    "type": "block",
+                    "block_name": "model_triangle_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "model_geometry_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": ""
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "parts",
+                    "type": "block",
+                    "block_name": "model_geometry_part_block"
+                }
+            ]
+        },
+        {
+            "name": "model",
+            "sizeof": 232,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "blend shared normals"
+                        },
+                        {
+                            "name": "parts have local nodes"
+                        },
+                        {
+                            "name": "ignore skinning"
+                        }
+                    ]
+                },
+                {
+                    "name": "node list checksum",
+                    "type": "int"
+                },
+                {
+                    "name": "super-high detail cutoff",
+                    "unit": "pixels",
+                    "type": "float"
+                },
+                {
+                    "name": "high detail cutoff",
+                    "unit": "pixels",
+                    "type": "float"
+                },
+                {
+                    "name": "medium detail cutoff",
+                    "unit": "pixels",
+                    "type": "float"
+                },
+                {
+                    "name": "low detail cutoff",
+                    "unit": "pixels",
+                    "type": "float"
+                },
+                {
+                    "name": "super-low cutoff",
+                    "unit": "pixels",
+                    "type": "float"
+                },
+                {
+                    "name": "super-high detail node count",
+                    "unit": "nodes",
+                    "type": "short"
+                },
+                {
+                    "name": "high detail node count",
+                    "unit": "nodes",
+                    "type": "short"
+                },
+                {
+                    "name": "medium detail node count",
+                    "unit": "nodes",
+                    "type": "short"
+                },
+                {
+                    "name": "low detail node count",
+                    "unit": "nodes",
+                    "type": "short"
+                },
+                {
+                    "name": "super-low detail node count",
+                    "unit": "nodes",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "base map u-scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "base map v-scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 116
+                },
+                {
+                    "name": "markers",
+                    "type": "block",
+                    "block_name": "model_markers_block"
+                },
+                {
+                    "name": "nodes",
+                    "type": "block",
+                    "block_name": "model_node_block"
+                },
+                {
+                    "name": "regions",
+                    "type": "block",
+                    "block_name": "model_region_block"
+                },
+                {
+                    "name": "geometries",
+                    "type": "block",
+                    "block_name": "model_geometry_block"
+                },
+                {
+                    "name": "shaders",
+                    "type": "block",
+                    "block_name": "model_shader_reference_block"
+                }
+            ]
+        }
+    ]
+}

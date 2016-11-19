@@ -1,0 +1,18 @@
+{
+    "name": "sound_scenery",
+    "type": "ssce",
+    "version": 1,
+    "parent": "obje",
+    "blocks": [
+        {
+            "name": "sound_scenery",
+            "sizeof": 128,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 128
+                }
+            ]
+        }
+    ]
+}

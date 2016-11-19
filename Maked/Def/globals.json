@@ -1,0 +1,1891 @@
+{
+    "name": "globals",
+    "type": "matg",
+    "version": 3,
+    "blocks": [
+        {
+            "name": "sound_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "camera_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "default unit camera track",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "trak"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "look_function_block",
+            "sizeof": 4,
+            "fields": [
+                {
+                    "name": "scale",
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "player_control_block",
+            "sizeof": 128,
+            "fields": [
+                {
+                    "name": "magnetism friction",
+                    "comment": "how much the crosshair slows over enemies",
+                    "type": "fraction"
+                },
+                {
+                    "name": "magnetism adhesion",
+                    "comment": "how much the crosshair sticks to enemies",
+                    "type": "fraction"
+                },
+                {
+                    "name": "inconsequential target scale",
+                    "comment": "scales magnetism level for inconsequential targets like infection forms",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 52
+                },
+                {
+                    "name": "look acceleration time",
+                    "unit": "seconds",
+                    "comment": "time for a pegged look to reach maximum effect",
+                    "type": "float"
+                },
+                {
+                    "name": "look acceleration scale",
+                    "comment": "maximum effect of a pegged look (scales last value in the look function below)",
+                    "type": "float"
+                },
+                {
+                    "name": "look peg threshold [0,1]",
+                    "comment": "magnitude of yaw for pegged acceleration to kick in",
+                    "type": "fraction"
+                },
+                {
+                    "name": "look default pitch rate",
+                    "unit": "degrees",
+                    "type": "float"
+                },
+                {
+                    "name": "look default yaw rate",
+                    "unit": "degrees",
+                    "type": "float"
+                },
+                {
+                    "name": "look autolevelling scale",
+                    "comment": "1 is fast, 0 is none, >1 will probably be really fast",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "minimum weapon swap ticks",
+                    "comment": "amount of time player needs to hold down ACTION to pick up a new weapon",
+                    "type": "short"
+                },
+                {
+                    "name": "minimum autolevelling ticks",
+                    "comment": "amount of time player needs to move and not look up or down for autolevelling to kick in",
+                    "type": "short"
+                },
+                {
+                    "name": "minimum angle for vehicle flipping",
+                    "unit": "degrees",
+                    "comment": "0 means the vehicle's up vector is along the ground, 90 means the up vector is pointing straight up",
+                    "type": "angle"
+                },
+                {
+                    "name": "look function",
+                    "type": "block",
+                    "block_name": "look_function_block"
+                }
+            ]
+        },
+        {
+            "name": "difficulty_block",
+            "sizeof": 644,
+            "fields": [
+                {
+                    "name": "health",
+                    "type": "explanation",
+                    "explanation": "scale values for enemy health and damage settings"
+                },
+                {
+                    "name": "easy enemy damage",
+                    "comment": "enemy damage multiplier on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal enemy damage",
+                    "comment": "enemy damage multiplier on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard enemy damage",
+                    "comment": "enemy damage multiplier on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. enemy damage",
+                    "comment": "enemy damage multiplier on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy enemy vitality",
+                    "comment": "enemy maximum body vitality scale on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal enemy vitality",
+                    "comment": "enemy maximum body vitality scale on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard enemy vitality",
+                    "comment": "enemy maximum body vitality scale on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. enemy vitality",
+                    "comment": "enemy maximum body vitality scale on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy enemy shield",
+                    "comment": "enemy maximum shield vitality scale on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal enemy shield",
+                    "comment": "enemy maximum shield vitality scale on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard enemy shield",
+                    "comment": "enemy maximum shield vitality scale on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. enemy shield",
+                    "comment": "enemy maximum shield vitality scale on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy enemy recharge",
+                    "comment": "enemy shield recharge scale on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal enemy recharge",
+                    "comment": "enemy shield recharge scale on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard enemy recharge",
+                    "comment": "enemy shield recharge scale on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. enemy recharge",
+                    "comment": "enemy shield recharge scale on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy friend damage",
+                    "comment": "friend damage multiplier on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal friend damage",
+                    "comment": "friend damage multiplier on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard friend damage",
+                    "comment": "friend damage multiplier on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. friend damage",
+                    "comment": "friend damage multiplier on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy friend vitality",
+                    "comment": "friend maximum body vitality scale on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal friend vitality",
+                    "comment": "friend maximum body vitality scale on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard friend vitality",
+                    "comment": "friend maximum body vitality scale on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. friend vitality",
+                    "comment": "friend maximum body vitality scale on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy friend shield",
+                    "comment": "friend maximum shield vitality scale on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal friend shield",
+                    "comment": "friend maximum shield vitality scale on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard friend shield",
+                    "comment": "friend maximum shield vitality scale on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. friend shield",
+                    "comment": "friend maximum shield vitality scale on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy friend recharge",
+                    "comment": "friend shield recharge scale on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal friend recharge",
+                    "comment": "friend shield recharge scale on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard friend recharge",
+                    "comment": "friend shield recharge scale on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. friend recharge",
+                    "comment": "friend shield recharge scale on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy infection forms",
+                    "comment": "toughness of infection forms (may be negative) on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal infection forms",
+                    "comment": "toughness of infection forms (may be negative) on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard infection forms",
+                    "comment": "toughness of infection forms (may be negative) on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. infection forms",
+                    "comment": "toughness of infection forms (may be negative) on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "ranged fire",
+                    "type": "explanation",
+                    "explanation": "difficulty-affecting values for enemy ranged combat settings"
+                },
+                {
+                    "name": "easy rate of fire",
+                    "comment": "enemy rate of fire scale on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal rate of fire",
+                    "comment": "enemy rate of fire scale on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard rate of fire",
+                    "comment": "enemy rate of fire scale on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. rate of fire",
+                    "comment": "enemy rate of fire scale on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy projectile error",
+                    "comment": "enemy projectile error scale, as a fraction of their base firing error. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal projectile error",
+                    "comment": "enemy projectile error scale, as a fraction of their base firing error. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard projectile error",
+                    "comment": "enemy projectile error scale, as a fraction of their base firing error. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. projectile error",
+                    "comment": "enemy projectile error scale, as a fraction of their base firing error. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy burst error",
+                    "comment": "enemy burst error scale; reduces intra-burst shot distance. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal burst error",
+                    "comment": "enemy burst error scale; reduces intra-burst shot distance. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard burst error",
+                    "comment": "enemy burst error scale; reduces intra-burst shot distance. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. burst error",
+                    "comment": "enemy burst error scale; reduces intra-burst shot distance. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy new target delay",
+                    "comment": "enemy new-target delay scale factor. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal new target delay",
+                    "comment": "enemy new-target delay scale factor. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard new target delay",
+                    "comment": "enemy new-target delay scale factor. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. new target delay",
+                    "comment": "enemy new-target delay scale factor. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy burst separation",
+                    "comment": "delay time between bursts scale factor for enemies. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal burst separation",
+                    "comment": "delay time between bursts scale factor for enemies. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard burst separation",
+                    "comment": "delay time between bursts scale factor for enemies. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. burst separation",
+                    "comment": "delay time between bursts scale factor for enemies. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy target tracking",
+                    "comment": "additional target tracking fraction for enemies. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal target tracking",
+                    "comment": "additional target tracking fraction for enemies. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard target tracking",
+                    "comment": "additional target tracking fraction for enemies. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. target tracking",
+                    "comment": "additional target tracking fraction for enemies. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy target leading",
+                    "comment": "additional target leading fraction for enemies. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal target leading",
+                    "comment": "additional target leading fraction for enemies. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard target leading",
+                    "comment": "additional target leading fraction for enemies. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. target leading",
+                    "comment": "additional target leading fraction for enemies. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy overcharge chance",
+                    "comment": "overcharge chance scale factor for enemies. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal overcharge chance",
+                    "comment": "overcharge chance scale factor for enemies. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard overcharge chance",
+                    "comment": "overcharge chance scale factor for enemies. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. overcharge chance",
+                    "comment": "overcharge chance scale factor for enemies. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy special fire delay",
+                    "comment": "delay between special-fire shots (overcharge, banshee bombs) scale factor for enemies. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal special fire delay",
+                    "comment": "delay between special-fire shots (overcharge, banshee bombs) scale factor for enemies. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard special fire delay",
+                    "comment": "delay between special-fire shots (overcharge, banshee bombs) scale factor for enemies. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. special fire delay",
+                    "comment": "delay between special-fire shots (overcharge, banshee bombs) scale factor for enemies. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy guidance vs player",
+                    "comment": "guidance velocity scale factor for all projectiles targeted on a player. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal guidance vs player",
+                    "comment": "guidance velocity scale factor for all projectiles targeted on a player. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard guidance vs player",
+                    "comment": "guidance velocity scale factor for all projectiles targeted on a player. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. guidance vs player",
+                    "comment": "guidance velocity scale factor for all projectiles targeted on a player. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy melee delay base",
+                    "comment": "delay period added to all melee attacks, even when berserk. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal melee delay base",
+                    "comment": "delay period added to all melee attacks, even when berserk. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard melee delay base",
+                    "comment": "delay period added to all melee attacks, even when berserk. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. melee delay base",
+                    "comment": "delay period added to all melee attacks, even when berserk. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy melee delay scale",
+                    "comment": "multiplier for all existing non-berserk melee delay times. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal melee delay scale",
+                    "comment": "multiplier for all existing non-berserk melee delay times. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard melee delay scale",
+                    "comment": "multiplier for all existing non-berserk melee delay times. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. melee delay scale",
+                    "comment": "multiplier for all existing non-berserk melee delay times. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "grenades",
+                    "type": "explanation",
+                    "explanation": "difficulty-affecting values for enemy grenade behavior"
+                },
+                {
+                    "name": "easy grenade chance scale",
+                    "comment": "scale factor affecting the desicions to throw a grenade. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal grenade chance scale",
+                    "comment": "scale factor affecting the desicions to throw a grenade. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard grenade chance scale",
+                    "comment": "scale factor affecting the desicions to throw a grenade. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. grenade chance scale",
+                    "comment": "scale factor affecting the desicions to throw a grenade. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy grenade timer scale",
+                    "comment": "scale factor affecting the delay period between grenades thrown from the same encounter (lower is more often). on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal grenade timer scale",
+                    "comment": "scale factor affecting the delay period between grenades thrown from the same encounter (lower is more often). on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard grenade timer scale",
+                    "comment": "scale factor affecting the delay period between grenades thrown from the same encounter (lower is more often). on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. grenade timer scale",
+                    "comment": "scale factor affecting the delay period between grenades thrown from the same encounter (lower is more often). on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "placement",
+                    "type": "explanation",
+                    "explanation": "difficulty-affecting values for enemy placement"
+                },
+                {
+                    "name": "easy major upgrade (normal)",
+                    "comment": "fraction of actors upgraded to their major variant. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal major upgrade (normal)",
+                    "comment": "fraction of actors upgraded to their major variant. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard major upgrade (normal)",
+                    "comment": "fraction of actors upgraded to their major variant. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. major upgrade (normal)",
+                    "comment": "fraction of actors upgraded to their major variant. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy major upgrade (few)",
+                    "comment": "fraction of actors upgraded to their major variant when mix = normal. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal major upgrade (few)",
+                    "comment": "fraction of actors upgraded to their major variant when mix = normal. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard major upgrade (few)",
+                    "comment": "fraction of actors upgraded to their major variant when mix = normal. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. major upgrade (few)",
+                    "comment": "fraction of actors upgraded to their major variant when mix = normal. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "easy major upgrade (many)",
+                    "comment": "fraction of actors upgraded to their major variant when mix = many. on easy difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "normal major upgrade (many)",
+                    "comment": "fraction of actors upgraded to their major variant when mix = many. on normal difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "hard major upgrade (many)",
+                    "comment": "fraction of actors upgraded to their major variant when mix = many. on hard difficulty",
+                    "type": "float"
+                },
+                {
+                    "name": "imposs. major upgrade (many)",
+                    "comment": "fraction of actors upgraded to their major variant when mix = many. on impossible difficulty",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 84
+                }
+            ]
+        },
+        {
+            "name": "grenades_block",
+            "sizeof": 68,
+            "fields": [
+                {
+                    "name": "maximum count",
+                    "type": "short"
+                },
+                {
+                    "name": "mp spawn default",
+                    "type": "short"
+                },
+                {
+                    "name": "throwing effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "hud interface",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "grhi"
+                        }
+                    ]
+                },
+                {
+                    "name": "equipment",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "eqip"
+                        }
+                    ]
+                },
+                {
+                    "name": "projectile",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "proj"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "rasterizer_data_block",
+            "sizeof": 428,
+            "fields": [
+                {
+                    "name": "function textures",
+                    "type": "explanation",
+                    "explanation": "Used internally by the rasterizer. (Do not change unless you know what you're doing!)"
+                },
+                {
+                    "name": "distance attenuation",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "vector normalization",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "atmospheric fog density",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "planar fog density",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "linear corner fade",
+                    "comment": "used for shadows",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "active camouflage distortion",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "glow",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 60
+                },
+                {
+                    "name": "default textures",
+                    "type": "explanation",
+                    "explanation": "Used internally by the rasterizer - additive, multiplicative, detail, vector. (Do not change ever, period.)"
+                },
+                {
+                    "name": "default 2D",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default 3D",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default cube map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "experimental textures",
+                    "type": "explanation",
+                    "explanation": "Used internally by the rasterizer. (Used by Bernie's experimental shaders.)"
+                },
+                {
+                    "name": "test 0",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "test 1",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "test 2",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "test 3",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "video effect textures",
+                    "type": "explanation",
+                    "explanation": "Used in cinematics."
+                },
+                {
+                    "name": "video scanline map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "video noise map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 52
+                },
+                {
+                    "name": "active camouflage",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "tint edge density"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "refraction amount",
+                    "unit": "pixels",
+                    "type": "float"
+                },
+                {
+                    "name": "distance falloff",
+                    "type": "float"
+                },
+                {
+                    "name": "tint color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "hyper-stealth refraction",
+                    "unit": "pixels",
+                    "type": "float"
+                },
+                {
+                    "name": "hyper-stealth distance falloff",
+                    "type": "float"
+                },
+                {
+                    "name": "hyper-stealth tint color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "PC textures",
+                    "type": "explanation",
+                    "explanation": "The PC can't use 3D textures, so we use this instead."
+                },
+                {
+                    "name": "distance attenuation 2D",
+                    "comment": "the pc can't use 3d textures, so we use this instead",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "interface_tag_references",
+            "sizeof": 304,
+            "fields": [
+                {
+                    "name": "font system",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "font"
+                        }
+                    ]
+                },
+                {
+                    "name": "font terminal",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "font"
+                        }
+                    ]
+                },
+                {
+                    "name": "screen color table",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "colo"
+                        }
+                    ]
+                },
+                {
+                    "name": "hud color table",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "colo"
+                        }
+                    ]
+                },
+                {
+                    "name": "editor color table",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "colo"
+                        }
+                    ]
+                },
+                {
+                    "name": "dialog color table",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "colo"
+                        }
+                    ]
+                },
+                {
+                    "name": "hud globals",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "hudg"
+                        }
+                    ]
+                },
+                {
+                    "name": "motion sensor sweep bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "motion sensor sweep bitmap mask",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "multiplayer hud bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "localization",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "str#"
+                        }
+                    ]
+                },
+                {
+                    "name": "hud digits definition",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "hud#"
+                        }
+                    ]
+                },
+                {
+                    "name": "motion sensor blip bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "interface goo map1",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "interface goo map2",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "interface goo map3",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                }
+            ]
+        },
+        {
+            "name": "cheat_weapons_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "item"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "cheat_powerups_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "powerup",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "eqip"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "vehicles_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "vehicle",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "vehi"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "sounds_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "multiplayer_information_block",
+            "sizeof": 160,
+            "fields": [
+                {
+                    "name": "flag",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "item"
+                        }
+                    ]
+                },
+                {
+                    "name": "unit",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "unit"
+                        }
+                    ]
+                },
+                {
+                    "name": "vehicles",
+                    "type": "block",
+                    "block_name": "vehicles_block"
+                },
+                {
+                    "name": "hill shader",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "shdr"
+                        }
+                    ]
+                },
+                {
+                    "name": "flag shader",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "shdr"
+                        }
+                    ]
+                },
+                {
+                    "name": "ball",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "item"
+                        }
+                    ]
+                },
+                {
+                    "name": "sounds",
+                    "type": "block",
+                    "block_name": "sounds_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 56
+                }
+            ]
+        },
+        {
+            "name": "player_information_block",
+            "sizeof": 244,
+            "fields": [
+                {
+                    "name": "unit",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "unit"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "walking speed",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "\"double speed\" multiplier",
+                    "unit": "[1.0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "run forward",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "run backward",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "run sideways",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "run acceleration",
+                    "unit": "world units per second squared",
+                    "type": "float"
+                },
+                {
+                    "name": "sneak forward",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "sneak backward",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "sneak sideways",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "sneak acceleration",
+                    "unit": "world units per second squared",
+                    "type": "float"
+                },
+                {
+                    "name": "airborne acceleration",
+                    "unit": "world units per second squared",
+                    "type": "float"
+                },
+                {
+                    "name": "speed multiplier",
+                    "unit": " multiplayer only",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "grenade origin",
+                    "type": "point3"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "stun movement penalty",
+                    "unit": "[0,1]",
+                    "comment": "1.0 prevents moving while stunned",
+                    "type": "float"
+                },
+                {
+                    "name": "stun turning penalty",
+                    "unit": "[0,1]",
+                    "comment": "1.0 prevents turning while stunned",
+                    "type": "float"
+                },
+                {
+                    "name": "stun jumping penalty",
+                    "unit": "[0,1]",
+                    "comment": "1.0 prevents jumping while stunned",
+                    "type": "float"
+                },
+                {
+                    "name": "minimum stun time",
+                    "unit": "seconds",
+                    "comment": "all stunning damage will last for at least this long",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum stun time",
+                    "unit": "seconds",
+                    "comment": "no stunning damage will last for longer than this",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "first person idle time",
+                    "unit": "seconds",
+                    "type": "bound float"
+                },
+                {
+                    "name": "first person skip fraction",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "coop respawn effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 44
+                }
+            ]
+        },
+        {
+            "name": "first_person_interface_block",
+            "sizeof": 192,
+            "fields": [
+                {
+                    "name": "first person hands",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "mod2"
+                        }
+                    ]
+                },
+                {
+                    "name": "base bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "shield meter",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "metr"
+                        }
+                    ]
+                },
+                {
+                    "name": "shield meter origin",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "body meter",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "metr"
+                        }
+                    ]
+                },
+                {
+                    "name": "body meter origin",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "night-vision off to on effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "night-vision on to off effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 88
+                }
+            ]
+        },
+        {
+            "name": "falling_damage_block",
+            "sizeof": 152,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "harmful falling distance",
+                    "unit": "world units",
+                    "type": "bound float"
+                },
+                {
+                    "name": "falling damage",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "maximum falling distance",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "distance damage",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        }
+                    ]
+                },
+                {
+                    "name": "vehicle environemtn collision damage effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        }
+                    ]
+                },
+                {
+                    "name": "vehicle killed unit damage effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        }
+                    ]
+                },
+                {
+                    "name": "vehicle collision damage",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        }
+                    ]
+                },
+                {
+                    "name": "flaming death damage",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                }
+            ]
+        },
+        {
+            "name": "breakable_surface_particle_effect_block",
+            "sizeof": 128,
+            "fields": [
+                {
+                    "name": "particle type",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "part"
+                        }
+                    ]
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "interpolate color in hsv"
+                        },
+                        {
+                            "name": "...more colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "density",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "velocity scale",
+                    "comment": "scales initial velocity",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "angular velocity",
+                    "unit": "degrees per second",
+                    "type": "bound angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "radius",
+                    "unit": "world units",
+                    "comment": "particle radius",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "tint lower bound",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "tint upper bound",
+                    "type": "rgbaf"
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                }
+            ]
+        },
+        {
+            "name": "materials_block",
+            "sizeof": 884,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 100
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                },
+                {
+                    "name": "vehicle terrain parameters",
+                    "type": "explanation",
+                    "explanation": "the following fields modify the way a vehicle drives over terrain of this material type."
+                },
+                {
+                    "name": "ground friction scale",
+                    "comment": "fraction of original velocity parallel to the ground after one tick",
+                    "type": "float"
+                },
+                {
+                    "name": "ground friction normal k1 scale",
+                    "comment": "cosine of angle at which friction falls off",
+                    "type": "float"
+                },
+                {
+                    "name": "ground friction normal k0 scale",
+                    "comment": "cosine of angle at which friction is zero",
+                    "type": "float"
+                },
+                {
+                    "name": "ground depth scale",
+                    "comment": "depth a point mass rests in the ground",
+                    "type": "float"
+                },
+                {
+                    "name": "ground damp fraction scale",
+                    "comment": "fraction of original velocity perpendicular to the ground after one tick",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 76
+                },
+                {
+                    "type": "pad",
+                    "size": 480
+                },
+                {
+                    "name": "breakable surface parameters",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "maximum vitality",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "particle effects",
+                    "type": "block",
+                    "block_name": "breakable_surface_particle_effect_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 60
+                },
+                {
+                    "name": "melee hit sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "playlist_autogenerate_choice_block",
+            "sizeof": 148,
+            "fields": [
+                {
+                    "name": "map name",
+                    "type": "string"
+                },
+                {
+                    "name": "game variant",
+                    "type": "string"
+                },
+                {
+                    "name": "minimum experience",
+                    "type": "int"
+                },
+                {
+                    "name": "maximum experience",
+                    "type": "int"
+                },
+                {
+                    "name": "minimum player count",
+                    "type": "int"
+                },
+                {
+                    "name": "maximum player count",
+                    "type": "int"
+                },
+                {
+                    "name": "rating",
+                    "type": "int"
+                },
+                {
+                    "type": "pad",
+                    "size": 64
+                }
+            ]
+        },
+        {
+            "name": "globals",
+            "sizeof": 428,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 248
+                },
+                {
+                    "name": "sounds",
+                    "type": "block",
+                    "block_name": "sound_block"
+                },
+                {
+                    "name": "camera",
+                    "type": "block",
+                    "block_name": "camera_block"
+                },
+                {
+                    "name": "player control",
+                    "type": "block",
+                    "block_name": "player_control_block"
+                },
+                {
+                    "name": "difficulty",
+                    "type": "block",
+                    "block_name": "difficulty_block"
+                },
+                {
+                    "name": "grenades",
+                    "type": "block",
+                    "block_name": "grenades_block"
+                },
+                {
+                    "name": "rasterizer data",
+                    "type": "block",
+                    "block_name": "rasterizer_data_block"
+                },
+                {
+                    "name": "interface bitmaps",
+                    "type": "block",
+                    "block_name": "interface_tag_references"
+                },
+                {
+                    "name": "weapon list (update _weapon_list enum in game_globals.h)",
+                    "type": "block",
+                    "block_name": "cheat_weapons_block"
+                },
+                {
+                    "name": "cheat powerups",
+                    "type": "block",
+                    "block_name": "cheat_powerups_block"
+                },
+                {
+                    "name": "multiplayer information",
+                    "type": "block",
+                    "block_name": "multiplayer_information_block"
+                },
+                {
+                    "name": "player information",
+                    "type": "block",
+                    "block_name": "player_information_block"
+                },
+                {
+                    "name": "first person interface",
+                    "type": "block",
+                    "block_name": "first_person_interface_block"
+                },
+                {
+                    "name": "falling damage",
+                    "type": "block",
+                    "block_name": "falling_damage_block"
+                },
+                {
+                    "name": "materials",
+                    "type": "block",
+                    "block_name": "materials_block"
+                },
+                {
+                    "name": "playlist members",
+                    "type": "block",
+                    "block_name": "playlist_autogenerate_choice_block"
+                }
+            ]
+        }
+    ]
+}

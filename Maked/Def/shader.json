@@ -1,0 +1,79 @@
+{
+    "name": "shader",
+    "type": "shdr",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "shader",
+            "sizeof": 40,
+            "fields": [
+                {
+                    "name": "radiosity properties",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "simple parameterization",
+                            "comment": "lightmap texture parametrization should correspond to diffuse texture parametrization"
+                        },
+                        {
+                            "name": "ignore normals",
+                            "comment": "light independent of normals (trees)"
+                        },
+                        {
+                            "name": "transparent lit"
+                        }
+                    ]
+                },
+                {
+                    "name": "detail level",
+                    "comment": "affects the density of tesselation (high means slow).",
+                    "type": "enum",
+                    "index": 49
+                },
+                {
+                    "name": "power",
+                    "comment": "power of emitted light from 0 to infinity",
+                    "type": "float"
+                },
+                {
+                    "name": "color of emitted light",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "tint color",
+                    "comment": "light passing through this surface (if it's transparent) will be tinted this color.",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "physics properties",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": ""
+                },
+                {
+                    "name": "material type",
+                    "type": "enum",
+                    "index": 94
+                },
+                {
+                    "name": "shader type",
+                    "type": "enum",
+                    "index": 145
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                }
+            ]
+        }
+    ]
+}

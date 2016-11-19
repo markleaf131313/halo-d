@@ -1,0 +1,1265 @@
+{
+    "name": "scenario_structure_bsp",
+    "type": "sbsp",
+    "version": 5,
+    "blocks": [
+        {
+            "name": "structure_collision_materials_block",
+            "sizeof": 20,
+            "fields": [
+                {
+                    "name": "shader",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "shdr"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "material type",
+                    "type": "enum",
+                    "index": 94
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_node_block",
+            "sizeof": 6,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 6
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_leaf_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 6
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "cluster",
+                    "type": "short"
+                },
+                {
+                    "name": "surface reference count",
+                    "type": "short"
+                },
+                {
+                    "name": "surface references",
+                    "type": "index32",
+                    "block_name": "structure_bsp_surface_reference_block"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_surface_reference_block",
+            "sizeof": 8,
+            "fields": [
+                {
+                    "name": "surface",
+                    "type": "index32",
+                    "block_name": "structure_bsp_surface_block"
+                },
+                {
+                    "name": "node",
+                    "type": "index32",
+                    "block_name": "structure_bsp_node_block"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_surface_block",
+            "sizeof": 6,
+            "fields": [
+                {
+                    "name": "a",
+                    "type": "short"
+                },
+                {
+                    "name": "b",
+                    "type": "short"
+                },
+                {
+                    "name": "c",
+                    "type": "short"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_material_block",
+            "sizeof": 256,
+            "fields": [
+                {
+                    "name": "shader",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "shdr"
+                        }
+                    ]
+                },
+                {
+                    "name": "shader permutation",
+                    "type": "short"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "coplanar"
+                        },
+                        {
+                            "name": "fog plane"
+                        }
+                    ]
+                },
+                {
+                    "name": "surfaces",
+                    "type": "index32",
+                    "block_name": "structure_bsp_surface_block"
+                },
+                {
+                    "name": "surface count",
+                    "type": "int"
+                },
+                {
+                    "name": "centroid",
+                    "type": "point3"
+                },
+                {
+                    "name": "ambient color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "distant light count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "distant light 0 color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "distant light 0 direction",
+                    "type": "vec3"
+                },
+                {
+                    "name": "distant light 1 color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "distant light 1 direction",
+                    "type": "vec3"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "reflection tint",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "shadow vector",
+                    "type": "vec3"
+                },
+                {
+                    "name": "shadow color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "plane",
+                    "type": "plane3"
+                },
+                {
+                    "name": "breakable surface",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "vertex buffers",
+                    "type": "array",
+                    "size": 2,
+                    "fields": [
+                        {
+                            "name": "type",
+                            "type": "int"
+                        },
+                        {
+                            "name": "count",
+                            "type": "int"
+                        },
+                        {
+                            "name": "offset",
+                            "type": "int"
+                        },
+                        {
+                            "type": "pad",
+                            "size": 8
+                        }
+                    ]
+                },
+                {
+                    "name": "uncompressed vertices",
+                    "type": "data"
+                },
+                {
+                    "name": "compressed vertices",
+                    "type": "data"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_lightmap_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "bitmap",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "materials",
+                    "type": "block",
+                    "block_name": "structure_bsp_material_block"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_lens_flare_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "lens flare",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "lens"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_lens_flare_marker_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "direction i-component",
+                    "type": "byte"
+                },
+                {
+                    "name": "direction j-component",
+                    "type": "byte"
+                },
+                {
+                    "name": "direction k-component",
+                    "type": "byte"
+                },
+                {
+                    "name": "lens flare index",
+                    "type": "byte"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_subcluster_surface_index_block",
+            "sizeof": 4,
+            "fields": [
+                {
+                    "name": "index",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_subcluster_block",
+            "sizeof": 36,
+            "fields": [
+                {
+                    "name": "world bounds x",
+                    "type": "bound float"
+                },
+                {
+                    "name": "world bounds y",
+                    "type": "bound float"
+                },
+                {
+                    "name": "world bounds z",
+                    "type": "bound float"
+                },
+                {
+                    "name": "surface indices",
+                    "type": "block",
+                    "block_name": "structure_bsp_subcluster_surface_index_block"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_cluster_surface_index_block",
+            "sizeof": 4,
+            "fields": [
+                {
+                    "name": "index",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_mirror_vertex_block",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "point",
+                    "type": "point3"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_mirror_block",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "plane",
+                    "type": "plane3"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "shader",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "shdr"
+                        }
+                    ]
+                },
+                {
+                    "name": "vertices",
+                    "type": "block",
+                    "block_name": "structure_bsp_mirror_vertex_block"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_cluster_portal_index_block",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "name": "portal",
+                    "type": "short"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_cluster_block",
+            "sizeof": 104,
+            "fields": [
+                {
+                    "name": "sky",
+                    "type": "short"
+                },
+                {
+                    "name": "fog",
+                    "type": "short"
+                },
+                {
+                    "name": "background sound",
+                    "type": "index16",
+                    "block_name": "structure_bsp_background_sound_palette_block"
+                },
+                {
+                    "name": "sound environment",
+                    "type": "index16",
+                    "block_name": "structure_bsp_sound_environment_palette_block"
+                },
+                {
+                    "name": "weather",
+                    "type": "index16",
+                    "block_name": "structure_bsp_weather_palette_block"
+                },
+                {
+                    "name": "transition structure bsp",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "predicted resources",
+                    "type": "block",
+                    "block_name": "predicted_resource_block"
+                },
+                {
+                    "name": "subclusters",
+                    "type": "block",
+                    "block_name": "structure_bsp_subcluster_block"
+                },
+                {
+                    "name": "first lens flare marker index",
+                    "type": "short"
+                },
+                {
+                    "name": "lens flare marker count",
+                    "type": "short"
+                },
+                {
+                    "name": "surface indices",
+                    "type": "block",
+                    "block_name": "structure_bsp_cluster_surface_index_block"
+                },
+                {
+                    "name": "mirrors",
+                    "type": "block",
+                    "block_name": "structure_bsp_mirror_block"
+                },
+                {
+                    "name": "portals",
+                    "type": "block",
+                    "block_name": "structure_bsp_cluster_portal_index_block"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_cluster_portal_vertex_block",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "point",
+                    "type": "point3"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_cluster_portal_block",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "front cluster",
+                    "type": "short"
+                },
+                {
+                    "name": "back cluster",
+                    "type": "short"
+                },
+                {
+                    "name": "plane index",
+                    "type": "int"
+                },
+                {
+                    "name": "centroid",
+                    "type": "point3"
+                },
+                {
+                    "name": "bounding radius",
+                    "type": "float"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "ai can't hear through this shit"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "vertices",
+                    "type": "block",
+                    "block_name": "structure_bsp_cluster_portal_vertex_block"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_breakable_surface_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "centroid",
+                    "type": "point3"
+                },
+                {
+                    "name": "radius",
+                    "type": "float"
+                },
+                {
+                    "name": "collision surface index",
+                    "type": "int"
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_fog_plane_vertex_block",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "point",
+                    "type": "point3"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_fog_plane_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "front region",
+                    "type": "index16",
+                    "block_name": "structure_bsp_fog_region_block"
+                },
+                {
+                    "name": "material type",
+                    "type": "enum",
+                    "index": 94
+                },
+                {
+                    "name": "plane",
+                    "type": "plane3"
+                },
+                {
+                    "name": "vertices",
+                    "type": "block",
+                    "block_name": "structure_bsp_fog_plane_vertex_block"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_fog_region_block",
+            "sizeof": 40,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 36
+                },
+                {
+                    "name": "fog palette",
+                    "type": "index16",
+                    "block_name": "structure_bsp_fog_palette_block"
+                },
+                {
+                    "name": "weather palette",
+                    "type": "index16",
+                    "block_name": "structure_bsp_weather_palette_block"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_fog_palette_block",
+            "sizeof": 136,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "fog",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "fog "
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "fog scale function",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 52
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_weather_palette_block",
+            "sizeof": 240,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "particle system",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "rain"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "particle system scale function",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 44
+                },
+                {
+                    "name": "wind",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "wind"
+                        }
+                    ]
+                },
+                {
+                    "name": "wind direction",
+                    "type": "vec3"
+                },
+                {
+                    "name": "wind magnitude",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "wind scale function",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 44
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_weather_polyhedron_plane_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "plane",
+                    "type": "plane3"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_weather_polyhedron_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "bounding sphere center",
+                    "type": "point3"
+                },
+                {
+                    "name": "bounding sphere radius",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "planes",
+                    "type": "block",
+                    "block_name": "structure_bsp_weather_polyhedron_plane_block"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_pathfinding_surfaces_block",
+            "sizeof": 1,
+            "fields": [
+                {
+                    "name": "data",
+                    "type": "byte"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_pathfinding_edges_block",
+            "sizeof": 1,
+            "fields": [
+                {
+                    "name": "midpoint",
+                    "type": "byte"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_background_sound_palette_block",
+            "sizeof": 116,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "background sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "lsnd"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "scale function",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_sound_environment_palette_block",
+            "sizeof": 80,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "sound environment",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snde"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_marker_block",
+            "sizeof": 60,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "rotation",
+                    "type": "quat"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                }
+            ]
+        },
+        {
+            "name": "global_detail_object_cells_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "type": "short"
+                },
+                {
+                    "type": "short"
+                },
+                {
+                    "type": "short"
+                },
+                {
+                    "type": "short"
+                },
+                {
+                    "type": "int"
+                },
+                {
+                    "type": "int"
+                },
+                {
+                    "type": "int"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "global_detail_object_block",
+            "sizeof": 6,
+            "fields": [
+                {
+                    "type": "byte"
+                },
+                {
+                    "type": "byte"
+                },
+                {
+                    "type": "byte"
+                },
+                {
+                    "type": "byte"
+                },
+                {
+                    "type": "short"
+                }
+            ]
+        },
+        {
+            "name": "global_detail_object_counts_block",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "type": "short"
+                }
+            ]
+        },
+        {
+            "name": "global_z_reference_vector_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "type": "float"
+                },
+                {
+                    "type": "float"
+                },
+                {
+                    "type": "float"
+                },
+                {
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_detail_object_data_block",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "cells",
+                    "type": "block",
+                    "block_name": "global_detail_object_cells_block"
+                },
+                {
+                    "name": "instances",
+                    "type": "block",
+                    "block_name": "global_detail_object_block"
+                },
+                {
+                    "name": "counts",
+                    "type": "block",
+                    "block_name": "global_detail_object_counts_block"
+                },
+                {
+                    "name": "z reference vectors",
+                    "type": "block",
+                    "block_name": "global_z_reference_vector_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "structure_bsp_runtime_decal_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "map_leaf_face_vertex_block",
+            "sizeof": 8,
+            "fields": [
+                {
+                    "name": "vertex",
+                    "type": "point2"
+                }
+            ]
+        },
+        {
+            "name": "map_leaf_face_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "node index",
+                    "type": "int"
+                },
+                {
+                    "name": "vertices",
+                    "type": "block",
+                    "block_name": "map_leaf_face_vertex_block"
+                }
+            ]
+        },
+        {
+            "name": "map_leaf_portal_index_block",
+            "sizeof": 4,
+            "fields": [
+                {
+                    "name": "portal index",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "global_map_leaf_block",
+            "sizeof": 24,
+            "fields": [
+                {
+                    "name": "faces",
+                    "type": "block",
+                    "block_name": "map_leaf_face_block"
+                },
+                {
+                    "name": "portal indices",
+                    "type": "block",
+                    "block_name": "map_leaf_portal_index_block"
+                }
+            ]
+        },
+        {
+            "name": "leaf_portal_vertex_block",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "point",
+                    "type": "point3"
+                }
+            ]
+        },
+        {
+            "name": "global_leaf_portal_block",
+            "sizeof": 24,
+            "fields": [
+                {
+                    "name": "plane index",
+                    "type": "int"
+                },
+                {
+                    "name": "back leaf index",
+                    "type": "int"
+                },
+                {
+                    "name": "front leaf index",
+                    "type": "int"
+                },
+                {
+                    "name": "vertices",
+                    "type": "block",
+                    "block_name": "leaf_portal_vertex_block"
+                }
+            ]
+        },
+        {
+            "name": "scenario_structure_bsp",
+            "sizeof": 648,
+            "fields": [
+                {
+                    "name": "lightmaps bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "vehicle floor",
+                    "unit": "world units",
+                    "comment": "height below which vehicles get pushed up by an unstoppable force",
+                    "type": "float"
+                },
+                {
+                    "name": "vehicle ceiling",
+                    "unit": "world units",
+                    "comment": "height above which vehicles get pushed down by an unstoppable force",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "default ambient color",
+                    "type": "rgbf"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "default distant light 0 color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "default distant light 0 direction",
+                    "type": "vec3"
+                },
+                {
+                    "name": "default distant light 1 color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "default distant light 1 direction",
+                    "type": "vec3"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "default reflection tint",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "default shadow vector",
+                    "type": "vec3"
+                },
+                {
+                    "name": "default shadow color",
+                    "type": "rgbf"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "collision materials",
+                    "type": "block",
+                    "block_name": "structure_collision_materials_block"
+                },
+                {
+                    "name": "collision bsp",
+                    "type": "block",
+                    "block_name": "bsp"
+                },
+                {
+                    "name": "nodes",
+                    "type": "block",
+                    "block_name": "structure_bsp_node_block"
+                },
+                {
+                    "name": "world bounds x",
+                    "type": "bound float"
+                },
+                {
+                    "name": "world bounds y",
+                    "type": "bound float"
+                },
+                {
+                    "name": "world bounds z",
+                    "type": "bound float"
+                },
+                {
+                    "name": "leaves",
+                    "type": "block",
+                    "block_name": "structure_bsp_leaf_block"
+                },
+                {
+                    "name": "leaf surfaces",
+                    "type": "block",
+                    "block_name": "structure_bsp_surface_reference_block"
+                },
+                {
+                    "name": "surfaces",
+                    "type": "block",
+                    "block_name": "structure_bsp_surface_block"
+                },
+                {
+                    "name": "lightmaps",
+                    "type": "block",
+                    "block_name": "structure_bsp_lightmap_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "lens flares",
+                    "type": "block",
+                    "block_name": "structure_bsp_lens_flare_block"
+                },
+                {
+                    "name": "lens flare markers",
+                    "type": "block",
+                    "block_name": "structure_bsp_lens_flare_marker_block"
+                },
+                {
+                    "name": "clusters",
+                    "type": "block",
+                    "block_name": "structure_bsp_cluster_block"
+                },
+                {
+                    "name": "cluster data",
+                    "type": "data"
+                },
+                {
+                    "name": "cluster portals",
+                    "type": "block",
+                    "block_name": "structure_bsp_cluster_portal_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "breakable surfaces",
+                    "type": "block",
+                    "block_name": "structure_bsp_breakable_surface_block"
+                },
+                {
+                    "name": "fog planes",
+                    "type": "block",
+                    "block_name": "structure_bsp_fog_plane_block"
+                },
+                {
+                    "name": "fog regions",
+                    "type": "block",
+                    "block_name": "structure_bsp_fog_region_block"
+                },
+                {
+                    "name": "fog palette",
+                    "type": "block",
+                    "block_name": "structure_bsp_fog_palette_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "weather palette",
+                    "type": "block",
+                    "block_name": "structure_bsp_weather_palette_block"
+                },
+                {
+                    "name": "weather polyhedra",
+                    "type": "block",
+                    "block_name": "structure_bsp_weather_polyhedron_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "pathfinding surfaces",
+                    "type": "block",
+                    "block_name": "structure_bsp_pathfinding_surfaces_block"
+                },
+                {
+                    "name": "pathfinding edges",
+                    "type": "block",
+                    "block_name": "structure_bsp_pathfinding_edges_block"
+                },
+                {
+                    "name": "background sound palette",
+                    "type": "block",
+                    "block_name": "structure_bsp_background_sound_palette_block"
+                },
+                {
+                    "name": "sound environment palette",
+                    "type": "block",
+                    "block_name": "structure_bsp_sound_environment_palette_block"
+                },
+                {
+                    "name": "sound PAS data",
+                    "type": "data"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "markers",
+                    "type": "block",
+                    "block_name": "structure_bsp_marker_block"
+                },
+                {
+                    "name": "detail objects",
+                    "type": "block",
+                    "block_name": "structure_bsp_detail_object_data_block"
+                },
+                {
+                    "name": "runtime decals",
+                    "type": "block",
+                    "block_name": "structure_bsp_runtime_decal_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "leaf map leaves",
+                    "type": "block",
+                    "block_name": "global_map_leaf_block"
+                },
+                {
+                    "name": "leaf map portals",
+                    "type": "block",
+                    "block_name": "global_leaf_portal_block"
+                }
+            ]
+        }
+    ]
+}

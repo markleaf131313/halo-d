@@ -1,0 +1,86 @@
+{
+    "name": "sound_environment",
+    "type": "snde",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "sound_environment",
+            "sizeof": 72,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "priority",
+                    "comment": "when multiple listeners are in different sound environments in split screen, the combined environment will be the one with the highest priority.",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "room intensity",
+                    "comment": "intensity of the room effect",
+                    "type": "fraction"
+                },
+                {
+                    "name": "room intensity hf",
+                    "comment": "intensity of the room effect above the reference high frequency",
+                    "type": "fraction"
+                },
+                {
+                    "name": "room rolloff (0 to 10)",
+                    "comment": "how quickly the room effect rolls off, from 0.0 to 10.0",
+                    "type": "float"
+                },
+                {
+                    "name": "decay time (.1 to 20)",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "decay hf ratio (.1 to 2)",
+                    "type": "float"
+                },
+                {
+                    "name": "reflections intensity",
+                    "type": "fraction"
+                },
+                {
+                    "name": "reflections delay (0 to .3)",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "reverb intensity",
+                    "type": "fraction"
+                },
+                {
+                    "name": "reverb delay (0 to .1)",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "diffusion",
+                    "type": "float"
+                },
+                {
+                    "name": "density",
+                    "type": "float"
+                },
+                {
+                    "name": "hf reference(20 to 20,000)",
+                    "unit": "Hz",
+                    "comment": "for hf values, what frequency defines hf, from 20 to 20,000",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        }
+    ]
+}

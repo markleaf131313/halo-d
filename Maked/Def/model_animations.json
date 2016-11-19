@@ -1,0 +1,722 @@
+{
+    "name": "model_animations",
+    "type": "antr",
+    "version": 4,
+    "blocks": [
+        {
+            "name": "animation_graph_object_overlay",
+            "sizeof": 20,
+            "fields": [
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                },
+                {
+                    "name": "function",
+                    "type": "enum",
+                    "index": 2
+                },
+                {
+                    "name": "function controls",
+                    "type": "enum",
+                    "index": 3
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "unit_seat_animation_block",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                }
+            ]
+        },
+        {
+            "name": "weapon_class_animation_block",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                }
+            ]
+        },
+        {
+            "name": "weapon_type_animation_block",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                }
+            ]
+        },
+        {
+            "name": "animation_graph_weapon_type_block",
+            "sizeof": 60,
+            "fields": [
+                {
+                    "name": "label",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "animations",
+                    "type": "block",
+                    "block_name": "weapon_type_animation_block"
+                }
+            ]
+        },
+        {
+            "name": "animation_graph_weapon_block",
+            "sizeof": 188,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "grip marker",
+                    "comment": "the marker name on the weapon to which the hand is attached (leave blank to use origin)",
+                    "type": "string"
+                },
+                {
+                    "name": "hand marker",
+                    "comment": "the marker name on the unit to which the weapon is attached",
+                    "type": "string"
+                },
+                {
+                    "name": "aiming screen bounds",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "right yaw per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "left yaw per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "right frame count",
+                    "type": "short"
+                },
+                {
+                    "name": "left frame count",
+                    "type": "short"
+                },
+                {
+                    "name": "down pitch per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "up pitch per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "down pitch frame count",
+                    "type": "short"
+                },
+                {
+                    "name": "up pitch frame count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "animations",
+                    "type": "block",
+                    "block_name": "weapon_class_animation_block"
+                },
+                {
+                    "name": "ik points",
+                    "type": "block",
+                    "block_name": "animation_graph_unit_seat_ik_point"
+                },
+                {
+                    "name": "weapon types",
+                    "type": "block",
+                    "block_name": "animation_graph_weapon_type_block"
+                }
+            ]
+        },
+        {
+            "name": "animation_graph_unit_seat_block",
+            "sizeof": 100,
+            "fields": [
+                {
+                    "name": "label",
+                    "type": "string"
+                },
+                {
+                    "name": "looking screen bounds",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "right yaw per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "left yaw per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "right frame count",
+                    "type": "short"
+                },
+                {
+                    "name": "left frame count",
+                    "type": "short"
+                },
+                {
+                    "name": "down pitch per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "up pitch per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "down pitch frame count",
+                    "type": "short"
+                },
+                {
+                    "name": "up pitch frame count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "animations",
+                    "type": "block",
+                    "block_name": "unit_seat_animation_block"
+                },
+                {
+                    "name": "ik points",
+                    "type": "block",
+                    "block_name": "animation_graph_unit_seat_ik_point"
+                },
+                {
+                    "name": "weapons",
+                    "type": "block",
+                    "block_name": "animation_graph_weapon_block"
+                }
+            ]
+        },
+        {
+            "name": "weapon_animation_block",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                }
+            ]
+        },
+        {
+            "name": "animation_graph_weapon_animations_block",
+            "sizeof": 28,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "animations",
+                    "type": "block",
+                    "block_name": "weapon_animation_block"
+                }
+            ]
+        },
+        {
+            "name": "vehicle_animation_block",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                }
+            ]
+        },
+        {
+            "name": "suspension_animation_block",
+            "sizeof": 20,
+            "fields": [
+                {
+                    "name": "mass point index",
+                    "type": "short"
+                },
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                },
+                {
+                    "name": "full extension ground_depth",
+                    "type": "float"
+                },
+                {
+                    "name": "full compression ground_depth",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        },
+        {
+            "name": "animation_graph_vehicle_animations_block",
+            "sizeof": 116,
+            "fields": [
+                {
+                    "name": "steering screen",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "right yaw per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "left yaw per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "right frame count",
+                    "type": "short"
+                },
+                {
+                    "name": "left frame count",
+                    "type": "short"
+                },
+                {
+                    "name": "down pitch per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "up pitch per frame",
+                    "type": "angle"
+                },
+                {
+                    "name": "down pitch frame count",
+                    "type": "short"
+                },
+                {
+                    "name": "up pitch frame count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 68
+                },
+                {
+                    "name": "animations",
+                    "type": "block",
+                    "block_name": "vehicle_animation_block"
+                },
+                {
+                    "name": "suspension animations",
+                    "type": "block",
+                    "block_name": "suspension_animation_block"
+                }
+            ]
+        },
+        {
+            "name": "device_animation_block",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                }
+            ]
+        },
+        {
+            "name": "device_animations",
+            "sizeof": 96,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 84
+                },
+                {
+                    "name": "animations",
+                    "type": "block",
+                    "block_name": "device_animation_block"
+                }
+            ]
+        },
+        {
+            "name": "unit_damage_animations",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                }
+            ]
+        },
+        {
+            "name": "first_person_weapon_block",
+            "sizeof": 2,
+            "fields": [
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                }
+            ]
+        },
+        {
+            "name": "animation_graph_first_person_weapon_animations_block",
+            "sizeof": 28,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "animations",
+                    "type": "block",
+                    "block_name": "first_person_weapon_block"
+                }
+            ]
+        },
+        {
+            "name": "animation_graph_sound_reference_block",
+            "sizeof": 20,
+            "fields": [
+                {
+                    "name": "sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                }
+            ]
+        },
+        {
+            "name": "animation_graph_node_block",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "next sibling node index",
+                    "type": "index16",
+                    "block_name": "animation_graph_node_block"
+                },
+                {
+                    "name": "first child node index",
+                    "type": "index16",
+                    "block_name": "animation_graph_node_block"
+                },
+                {
+                    "name": "parent node index",
+                    "type": "index16",
+                    "block_name": "animation_graph_node_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "Node joint flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "ball-socket"
+                        },
+                        {
+                            "name": "hinge"
+                        },
+                        {
+                            "name": "no movement"
+                        }
+                    ]
+                },
+                {
+                    "name": "base vector",
+                    "type": "vec3"
+                },
+                {
+                    "name": "vector range",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                }
+            ]
+        },
+        {
+            "name": "animation_block",
+            "sizeof": 180,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 0
+                },
+                {
+                    "name": "frame count",
+                    "type": "short"
+                },
+                {
+                    "name": "frame size",
+                    "type": "short"
+                },
+                {
+                    "name": "frame info type",
+                    "type": "enum",
+                    "index": 1
+                },
+                {
+                    "name": "node list checksum",
+                    "type": "int"
+                },
+                {
+                    "name": "node count",
+                    "type": "short"
+                },
+                {
+                    "name": "loop frame index",
+                    "type": "short"
+                },
+                {
+                    "name": "weight",
+                    "type": "fraction"
+                },
+                {
+                    "name": "key frame index",
+                    "type": "short"
+                },
+                {
+                    "name": "second key frame index",
+                    "type": "short"
+                },
+                {
+                    "name": "next animation",
+                    "type": "index16",
+                    "block_name": "animation_block"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "compressed data"
+                        },
+                        {
+                            "name": "world relative"
+                        },
+                        {
+                            "name": "25Hz (PAL)"
+                        }
+                    ]
+                },
+                {
+                    "name": "sound",
+                    "type": "index16",
+                    "block_name": "animation_graph_sound_reference_block"
+                },
+                {
+                    "name": "sound frame index",
+                    "type": "short"
+                },
+                {
+                    "name": "left foot frame index",
+                    "type": "byte"
+                },
+                {
+                    "name": "right foot frame index",
+                    "type": "byte"
+                },
+                {
+                    "name": "block index",
+                    "type": "short"
+                },
+                {
+                    "name": "randomize weight",
+                    "type": "float"
+                },
+                {
+                    "name": "frame info",
+                    "type": "data"
+                },
+                {
+                    "name": "node trans. flag data",
+                    "type": "array",
+                    "size": 2,
+                    "fields": [
+                        {
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "node rotation flag data",
+                    "type": "array",
+                    "size": 2,
+                    "fields": [
+                        {
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "node scale flag data",
+                    "type": "array",
+                    "size": 2,
+                    "fields": [
+                        {
+                            "type": "int"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "offset to compressed data",
+                    "unit": "bytes",
+                    "type": "int"
+                },
+                {
+                    "name": "default data",
+                    "type": "data"
+                },
+                {
+                    "name": "frame data",
+                    "type": "data"
+                }
+            ]
+        },
+        {
+            "name": "model_animations",
+            "sizeof": 128,
+            "fields": [
+                {
+                    "name": "OBJECTS",
+                    "type": "block",
+                    "block_name": "animation_graph_object_overlay"
+                },
+                {
+                    "name": "UNITS",
+                    "type": "block",
+                    "block_name": "animation_graph_unit_seat_block"
+                },
+                {
+                    "name": "WEAPONS",
+                    "type": "block",
+                    "block_name": "animation_graph_weapon_animations_block"
+                },
+                {
+                    "name": "VEHICLES",
+                    "type": "block",
+                    "block_name": "animation_graph_vehicle_animations_block"
+                },
+                {
+                    "name": "DEVICES",
+                    "type": "block",
+                    "block_name": "device_animations"
+                },
+                {
+                    "name": "UNIT DAMAGE",
+                    "type": "block",
+                    "block_name": "unit_damage_animations"
+                },
+                {
+                    "name": "FIRST PERSON WEAPONS",
+                    "type": "block",
+                    "block_name": "animation_graph_first_person_weapon_animations_block"
+                },
+                {
+                    "name": "sound references",
+                    "type": "block",
+                    "block_name": "animation_graph_sound_reference_block"
+                },
+                {
+                    "name": "limp body node radius",
+                    "comment": "0 uses 0.04 default",
+                    "type": "float"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "compress all animations"
+                        },
+                        {
+                            "name": "force idle compression"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "nodes",
+                    "type": "block",
+                    "block_name": "animation_graph_node_block"
+                },
+                {
+                    "name": "animations",
+                    "type": "block",
+                    "block_name": "animation_block"
+                }
+            ]
+        }
+    ]
+}

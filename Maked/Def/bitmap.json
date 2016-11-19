@@ -1,0 +1,336 @@
+{
+    "name": "bitmap",
+    "type": "bitm",
+    "version": 7,
+    "blocks": [
+        {
+            "name": "bitmap_group_sprite_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "bitmap index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "left",
+                    "type": "float"
+                },
+                {
+                    "name": "right",
+                    "type": "float"
+                },
+                {
+                    "name": "top",
+                    "type": "float"
+                },
+                {
+                    "name": "bottom",
+                    "type": "float"
+                },
+                {
+                    "name": "registration point",
+                    "type": "point2"
+                }
+            ]
+        },
+        {
+            "name": "bitmap_group_sequence_block",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "first bitmap index",
+                    "type": "short"
+                },
+                {
+                    "name": "bitmap count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "sprites",
+                    "type": "block",
+                    "block_name": "bitmap_group_sprite_block"
+                }
+            ]
+        },
+        {
+            "name": "bitmap_data_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "signature",
+                    "type": "tag"
+                },
+                {
+                    "name": "width",
+                    "unit": "pixels",
+                    "type": "short"
+                },
+                {
+                    "name": "height",
+                    "unit": "pixels",
+                    "type": "short"
+                },
+                {
+                    "name": "depth",
+                    "unit": "pixels",
+                    "comment": "depth is 1 for 2D textures and cube maps",
+                    "type": "short"
+                },
+                {
+                    "name": "type",
+                    "comment": "determines bitmap 'geometry'",
+                    "type": "enum",
+                    "index": 117
+                },
+                {
+                    "name": "format",
+                    "comment": "determines how pixels are represented internally",
+                    "type": "enum",
+                    "index": 118
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "power of two dimensions"
+                        },
+                        {
+                            "name": "compressed"
+                        },
+                        {
+                            "name": "palettized"
+                        },
+                        {
+                            "name": "swizzled"
+                        },
+                        {
+                            "name": "linear"
+                        },
+                        {
+                            "name": "v16u16"
+                        }
+                    ]
+                },
+                {
+                    "name": "registration point",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "mipmap count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "pixels offset",
+                    "type": "int"
+                },
+                {
+                    "name": "pixels size",
+                    "type": "int"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "gl texture",
+                    "type": "int"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        },
+        {
+            "name": "bitmap",
+            "sizeof": 108,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "explanation",
+                    "explanation": "Type controls bitmap 'geometry'. All dimensions must be a power of two except for SPRITES and INTERFACE BITMAPS:\n\n* 2D TEXTURES: Ordinary, 2D textures will be generated.\n* 3D TEXTURES: Volume textures will be generated from each sequence of 2D texture 'slices'.\n* CUBE MAPS: Cube maps will be generated from each consecutive set of six 2D textures in each sequence, all faces of a cube map must be square and the same size.\n* SPRITES: Sprite texture pages will be generated.\n* INTERFACE BITMAPS: Similar to 2D TEXTURES, but without mipmaps and without the power of two restriction."
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 119
+                },
+                {
+                    "name": "format",
+                    "type": "explanation",
+                    "explanation": "Format controls how pixels will be stored internally:\n\n* COMPRESSED WITH COLOR-KEY TRANSPARENCY: DXT1 compression, uses 4 bits per pixel. 4x4 blocks of pixels are reduced to 2 colors and interpolated, alpha channel uses color-key transparency instead of alpha from the plate (all zero-alpha pixels also have zero-color).\n* COMPRESSED WITH EXPLICIT ALPHA: DXT2/3 compression, uses 8 bits per pixel. Same as DXT1 without the color key transparency, alpha channel uses alpha from plate quantized down to 4 bits per pixel.\n* COMPRESSED WITH INTERPOLATED ALPHA: DXT4/5 compression, uses 8 bits per pixel. Same as DXT2/3, except alpha is smoother. Better for smooth alpha gradients, worse for noisy alpha.\n* 16-BIT COLOR: Uses 16 bits per pixel. Depending on the alpha channel, bitmaps are quantized to either r5g6b5 (no alpha), a1r5g5b5 (1-bit alpha), or a4r4g4b4 (>1-bit alpha).\n* 32-BIT COLOR: Uses 32 bits per pixel. Very high quality, can have alpha at no added cost. This format takes up the most memory, however. Bitmap formats are x8r8g8b8 and a8r8g8b.\n* MONOCHROME: Uses either 8 or 16 bits per pixel. Bitmap formats are a8 (alpha), y8 (intensity), ay8 (combined alpha-intensity) and a8y8 (separate alpha-intensity).\n\nNote: Height maps (a.k.a. bump maps) should use 32-bit color; this is internally converted to a palettized format which takes less memory."
+                },
+                {
+                    "name": "format",
+                    "type": "enum",
+                    "index": 121
+                },
+                {
+                    "name": "usage",
+                    "type": "explanation",
+                    "explanation": "Usage controls how mipmaps are generated:\n\n* ALPHA BLEND: Pixels with zero alpha are ignored in mipmaps, to prevent bleeding the transparent color.\n* DEFAULT: Downsampling works normally, as in Photoshop.\n* HEIGHT MAP: The bitmap (normally grayscale) is a height map which gets converted to a bump map. Uses <bump height> below. Alpha is passed through unmodified.\n* DETAIL MAP: Mipmap color fades to gray, controlled by <detail fade factor> below. Alpha fades to white.\n* LIGHT MAP: Generates no mipmaps. Do not use!\n* VECTOR MAP: Used mostly for special effects; pixels are treated as XYZ vectors and normalized after downsampling. Alpha is passed through unmodified."
+                },
+                {
+                    "name": "usage",
+                    "type": "enum",
+                    "index": 120
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "enable diffusion dithering"
+                        },
+                        {
+                            "name": "disable height map compression"
+                        },
+                        {
+                            "name": "uniform sprite sequences"
+                        },
+                        {
+                            "name": "filthy sprite bug fix"
+                        }
+                    ]
+                },
+                {
+                    "name": "post-processing",
+                    "type": "explanation",
+                    "explanation": "These properties control how mipmaps are post-processed."
+                },
+                {
+                    "name": "detail fade factor",
+                    "unit": "[0,1]",
+                    "comment": "0 means fade to gray by last mipmap, 1 means fade to gray by first mipmap",
+                    "type": "fraction"
+                },
+                {
+                    "name": "sharpen amount",
+                    "unit": "[0,1]",
+                    "comment": "sharpens mipmap after downsampling",
+                    "type": "fraction"
+                },
+                {
+                    "name": "bump height",
+                    "unit": "repeats",
+                    "comment": "the apparent height of the bump map above the triangle it is textured onto, in texture repeats (i.e., 1.0 would be as high as the texture is wide)",
+                    "type": "fraction"
+                },
+                {
+                    "name": "sprite processing",
+                    "type": "explanation",
+                    "explanation": "When creating a sprite group, specify the number and size of textures that the group is allowed to occupy. During importing, you'll receive feedback about how well the alloted space was used."
+                },
+                {
+                    "name": "sprite budget size",
+                    "type": "enum",
+                    "index": 122
+                },
+                {
+                    "name": "sprite budget count",
+                    "type": "short"
+                },
+                {
+                    "name": "color plate",
+                    "type": "explanation",
+                    "explanation": "The original TIFF file used to import the bitmap group."
+                },
+                {
+                    "name": "color plate width",
+                    "unit": "pixels",
+                    "type": "short"
+                },
+                {
+                    "name": "color plate height",
+                    "unit": "pixels",
+                    "type": "short"
+                },
+                {
+                    "name": "compressed color plate data",
+                    "type": "data"
+                },
+                {
+                    "name": "processed pixel data",
+                    "type": "explanation",
+                    "explanation": "Pixel data after being processed by the tool."
+                },
+                {
+                    "name": "processed pixel data",
+                    "type": "data"
+                },
+                {
+                    "name": "miscellaneous",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "blur filter size",
+                    "unit": "[0,10] pixels",
+                    "comment": "blurs the bitmap before generating mipmaps",
+                    "type": "float"
+                },
+                {
+                    "name": "alpha bias",
+                    "unit": "[-1,1]",
+                    "comment": "affects alpha mipmap generation",
+                    "type": "float"
+                },
+                {
+                    "name": "mipmap count",
+                    "unit": "levels",
+                    "comment": "0 defaults to all levels",
+                    "type": "short"
+                },
+                {
+                    "name": "...more sprite processing",
+                    "type": "explanation",
+                    "explanation": "Sprite usage controls the background color of sprite plates."
+                },
+                {
+                    "name": "sprite usage",
+                    "type": "enum",
+                    "index": 123
+                },
+                {
+                    "name": "sprite spacing",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "sequences",
+                    "type": "block",
+                    "block_name": "bitmap_group_sequence_block"
+                },
+                {
+                    "name": "bitmaps",
+                    "type": "block",
+                    "block_name": "bitmap_data_block"
+                }
+            ]
+        }
+    ]
+}

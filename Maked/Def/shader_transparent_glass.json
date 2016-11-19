@@ -1,0 +1,212 @@
+{
+    "name": "shader_transparent_glass",
+    "type": "sgla",
+    "version": 1,
+    "parent": "shdr",
+    "blocks": [
+        {
+            "name": "shader_transparent_glass",
+            "sizeof": 440,
+            "fields": [
+                {
+                    "name": "glass shader",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "alpha-tested"
+                        },
+                        {
+                            "name": "decal"
+                        },
+                        {
+                            "name": "two-sided"
+                        },
+                        {
+                            "name": "bump map is specular mask"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "background tint properties",
+                    "type": "explanation",
+                    "explanation": "Background pixels are multiplied by the tint map and constant tint color."
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "background tint color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "background tint map scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "background tint map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "reflection properties",
+                    "type": "explanation",
+                    "explanation": "Reflection maps are multiplied by fresnel terms (glancing angles cause reflections to disappear) and then added to the background. The primary reflection map is textured normally, while the secondary reflection map is magnified."
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "reflection type",
+                    "type": "enum",
+                    "index": 66
+                },
+                {
+                    "name": "perpendicular brightness",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "perpendicular tint color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "parallel brightness",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "parallel tint color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "reflection map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "bump map scale",
+                    "type": "float"
+                },
+                {
+                    "name": "bump map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 128
+                },
+                {
+                    "name": "diffuse properties",
+                    "type": "explanation",
+                    "explanation": "Diffuse lights are accumulated in monochrome and then alpha-blended with diffuse map and diffuse detail map. The color is determined by double-multiplying both maps and multiplying with the accumulated light, the result being alpha-blended into the framebuffer. The opacity is determined by multiplying both map's alpha channels. Since this effect is alpha-blended, it covers up tinting and reflection on pixels with high opacity."
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "diffuse map scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "diffuse map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "diffuse detail map scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "diffuse detail map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "specular properties",
+                    "type": "explanation",
+                    "explanation": "Specular lights are accumulated in monochrome and then alpha-blended with diffuse map and diffuse detail map. The color is determined by double-multiplying both maps and multiplying with the accumulated light, the result being alpha-blended into the framebuffer. The opacity is determined by multiplying both map's alpha channels. Since this effect is alpha-blended, it covers up tinting, reflection and diffuse texture on pixels with high opacity."
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "specular map scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "specular map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "specular detail map scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "specular detail map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                }
+            ]
+        }
+    ]
+}

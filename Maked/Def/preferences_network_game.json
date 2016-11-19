@@ -1,0 +1,63 @@
+{
+    "name": "preferences_network_game",
+    "type": "ngpr",
+    "version": 2,
+    "blocks": [
+        {
+            "name": "preferences_network_game",
+            "sizeof": 896,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "primary color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "secondary color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "pattern",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "bitmap index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "decal",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "bitmap index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 800
+                }
+            ]
+        }
+    ]
+}

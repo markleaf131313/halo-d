@@ -1,0 +1,375 @@
+{
+    "name": "biped",
+    "type": "bipd",
+    "version": 3,
+    "parent": "unit",
+    "blocks": [
+        {
+            "name": "contact_point_block",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "marker name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "biped",
+            "sizeof": 516,
+            "fields": [
+                {
+                    "name": "$$$ BIPED $$$",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "moving turning speed",
+                    "unit": "degrees per second",
+                    "type": "angle"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "turns without animating"
+                        },
+                        {
+                            "name": "uses player physics"
+                        },
+                        {
+                            "name": "flying"
+                        },
+                        {
+                            "name": "physics pill centered at origin"
+                        },
+                        {
+                            "name": "spherical"
+                        },
+                        {
+                            "name": "passes through other bipeds"
+                        },
+                        {
+                            "name": "can climb any surface"
+                        },
+                        {
+                            "name": "immune to falling damage"
+                        },
+                        {
+                            "name": "rotate while airborne"
+                        },
+                        {
+                            "name": "uses limp body physics"
+                        },
+                        {
+                            "name": "has no dying airborne"
+                        },
+                        {
+                            "name": "random speed increase"
+                        },
+                        {
+                            "name": "unit uses old (NTSC) player physics"
+                        }
+                    ]
+                },
+                {
+                    "name": "stationary turning threshold",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "A in",
+                    "type": "enum",
+                    "index": 114
+                },
+                {
+                    "name": "B in",
+                    "type": "enum",
+                    "index": 114
+                },
+                {
+                    "name": "C in",
+                    "type": "enum",
+                    "index": 114
+                },
+                {
+                    "name": "D in",
+                    "type": "enum",
+                    "index": 114
+                },
+                {
+                    "name": "DON'T USE",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        }
+                    ]
+                },
+                {
+                    "name": "flying",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "bank angle",
+                    "unit": "degrees",
+                    "comment": "angle at which we bank left/right when sidestepping or turning while moving forwards",
+                    "type": "angle"
+                },
+                {
+                    "name": "bank apply time",
+                    "unit": "seconds",
+                    "comment": "time it takes us to apply a bank",
+                    "type": "float"
+                },
+                {
+                    "name": "bank decay time",
+                    "unit": "seconds",
+                    "comment": "time it takes us to recover from a bank",
+                    "type": "float"
+                },
+                {
+                    "name": "pitch ratio",
+                    "comment": "amount that we pitch up/down when moving up or down",
+                    "type": "float"
+                },
+                {
+                    "name": "max velocity",
+                    "unit": "world units per second",
+                    "comment": "max velocity when not crouching",
+                    "type": "float"
+                },
+                {
+                    "name": "max sidestep velocity",
+                    "unit": "world units per second",
+                    "comment": "max sideways or up/down velocity when not crouching",
+                    "type": "float"
+                },
+                {
+                    "name": "acceleration",
+                    "unit": "world units per second squared",
+                    "type": "float"
+                },
+                {
+                    "name": "deceleration",
+                    "unit": "world units per second squared",
+                    "type": "float"
+                },
+                {
+                    "name": "angular velocity maximum",
+                    "unit": "degrees per second",
+                    "comment": "turn rate",
+                    "type": "angle"
+                },
+                {
+                    "name": "angular acceleration maximum",
+                    "unit": "degrees per second squared",
+                    "comment": "turn acceleration rate",
+                    "type": "angle"
+                },
+                {
+                    "name": "crouch velocity modifier",
+                    "unit": "[0,1]",
+                    "comment": "how much slower we fly if crouching (zero = same speed)",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "movement",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "maximum slope angle",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "downhill falloff angle",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "downhill cutoff angle",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "downhill velocity scale",
+                    "type": "float"
+                },
+                {
+                    "name": "uphill falloff angle",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "uphill cutoff angle",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "uphill velocity scale",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "footsteps",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "foot"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "jumping and landing",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "jump velocity",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "maximum soft landing time",
+                    "unit": "seconds",
+                    "comment": "the longest amount of time the biped can take to recover from a soft landing",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum hard landing time",
+                    "unit": "seconds",
+                    "comment": "the longest amount of time the biped can take to recover from a hard landing",
+                    "type": "float"
+                },
+                {
+                    "name": "minimum soft landing velocity",
+                    "unit": "world units per second",
+                    "comment": "below this velocity the biped does not react when landing",
+                    "type": "float"
+                },
+                {
+                    "name": "minimum hard landing velocity",
+                    "unit": "world units per second",
+                    "comment": "below this velocity the biped will not do a soft landing when returning to the ground",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum hard landing velocity",
+                    "unit": "world units per second",
+                    "comment": "the velocity corresponding to the maximum landing time",
+                    "type": "float"
+                },
+                {
+                    "name": "death hard landing velocity",
+                    "unit": "world units per second",
+                    "comment": "the maximum velocity with which a character can strike the ground and live",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "camera, collision, and autoaim",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "standing camera height",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "crouching camera height",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "crouch transition time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "standing collision height",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "crouching collision height",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "collision radius",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "autoaim width",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 108
+                },
+                {
+                    "name": "stationary turning threshold cos",
+                    "type": "float"
+                },
+                {
+                    "name": "crouch transition time compiled",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum slope angle cos",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "contact points",
+                    "comment": "these are the points where the biped touches the ground",
+                    "type": "block",
+                    "block_name": "contact_point_block"
+                }
+            ]
+        }
+    ]
+}

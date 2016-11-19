@@ -1,0 +1,1088 @@
+{
+    "blocks": [
+        {
+            "name": "model_marker_instance_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "region index",
+                    "type": "byte"
+                },
+                {
+                    "name": "permutation index",
+                    "type": "byte"
+                },
+                {
+                    "name": "node index",
+                    "type": "byte"
+                },
+                {
+                    "type": "pad",
+                    "size": 1
+                },
+                {
+                    "name": "translation",
+                    "type": "point3"
+                },
+                {
+                    "name": "rotation",
+                    "type": "quat"
+                }
+            ]
+        },
+        {
+            "name": "model_markers_block",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "magic identifier",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "instances",
+                    "type": "block",
+                    "block_name": "model_marker_instance_block"
+                }
+            ]
+        },
+        {
+            "name": "model_node_block",
+            "sizeof": 156,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "next sibling node index",
+                    "type": "index16",
+                    "block_name": "model_node_block"
+                },
+                {
+                    "name": "first child node index",
+                    "type": "index16",
+                    "block_name": "model_node_block"
+                },
+                {
+                    "name": "parent node index",
+                    "type": "index16",
+                    "block_name": "model_node_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "default translation",
+                    "type": "point3"
+                },
+                {
+                    "name": "default rotation",
+                    "type": "quat"
+                },
+                {
+                    "name": "node distance from parent",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "inverse scale",
+                    "type": "float"
+                },
+                {
+                    "name": "inverse rotation matrix",
+                    "type": "array",
+                    "size": 3,
+                    "fields": [
+                        {
+                            "name": "column",
+                            "type": "point3"
+                        }
+                    ]
+                },
+                {
+                    "name": "inverse translation",
+                    "type": "point3"
+                }
+            ]
+        },
+        {
+            "name": "model_region_permutation_marker_block",
+            "sizeof": 80,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "node index",
+                    "type": "index16",
+                    "block_name": "model_node_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "rotation",
+                    "type": "quat"
+                },
+                {
+                    "name": "translation",
+                    "type": "point3"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "model_vertex_uncompressed_block",
+            "sizeof": 68,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "normal",
+                    "type": "vec3"
+                },
+                {
+                    "name": "binormal",
+                    "type": "vec3"
+                },
+                {
+                    "name": "tangent",
+                    "type": "vec3"
+                },
+                {
+                    "name": "texture coords",
+                    "type": "point2"
+                },
+                {
+                    "name": "node0 index",
+                    "type": "short"
+                },
+                {
+                    "name": "node1 index",
+                    "type": "short"
+                },
+                {
+                    "name": "node0 weight",
+                    "type": "float"
+                },
+                {
+                    "name": "node1 weight",
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "model_vertex_compressed_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "normal[11.11.10-bit]",
+                    "type": "int"
+                },
+                {
+                    "name": "binormal[11.11.10-bit]",
+                    "type": "int"
+                },
+                {
+                    "name": "tangent[11.11.10-bit]",
+                    "type": "int"
+                },
+                {
+                    "name": "texture coordinate u[16-bit]",
+                    "type": "short"
+                },
+                {
+                    "name": "texture coordinate v[16-bit]",
+                    "type": "short"
+                },
+                {
+                    "name": "node0 index(x3)",
+                    "type": "byte"
+                },
+                {
+                    "name": "node1 index(x3)",
+                    "type": "byte"
+                },
+                {
+                    "name": "node0 weight[16-bit]",
+                    "type": "short"
+                }
+            ]
+        },
+        {
+            "name": "model_triangle_block",
+            "sizeof": 6,
+            "fields": [
+                {
+                    "name": "vertex0 index",
+                    "type": "short"
+                },
+                {
+                    "name": "vertex1 index",
+                    "type": "short"
+                },
+                {
+                    "name": "vertex2 index",
+                    "type": "short"
+                }
+            ]
+        },
+        {
+            "name": "model_shader_reference_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "shader",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "shdr"
+                        }
+                    ]
+                },
+                {
+                    "name": "permutation",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "animation_graph_unit_seat_ik_point",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "marker",
+                    "comment": "the marker name on the object being attached",
+                    "type": "string"
+                },
+                {
+                    "name": "attach to marker",
+                    "comment": "the marker name object (weapon, vehicle, etc.) the above marker is being attached to",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "string reference",
+            "sizeof": 20,
+            "fields": [
+                {
+                    "name": "string",
+                    "type": "data"
+                }
+            ]
+        },
+        {
+            "name": "unit_camera_track_block",
+            "sizeof": 28,
+            "fields": [
+                {
+                    "name": "track",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "trak"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "unit_hud_reference_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "unit hud interface",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "unhi"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "predicted_resource_block",
+            "sizeof": 8,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 127
+                },
+                {
+                    "name": "resource index",
+                    "type": "short"
+                },
+                {
+                    "name": "tag index",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "particle_system_physics_constants_block",
+            "sizeof": 4,
+            "fields": [
+                {
+                    "name": "k",
+                    "comment": "The meaning of this constant depends on the selected physics creation/update function.",
+                    "type": "float"
+                }
+            ]
+        },
+        {
+            "name": "bsp3d node",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "plane",
+                    "type": "int"
+                },
+                {
+                    "name": "back child",
+                    "type": "int"
+                },
+                {
+                    "name": "front child",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "plane",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "plane",
+                    "type": "plane3"
+                }
+            ]
+        },
+        {
+            "name": "leaf",
+            "sizeof": 8,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "contains double-sided surfaces"
+                        }
+                    ]
+                },
+                {
+                    "name": "bsp2d reference count",
+                    "type": "short"
+                },
+                {
+                    "name": "first bsp2d reference",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "bsp2d reference",
+            "sizeof": 8,
+            "fields": [
+                {
+                    "name": "plane",
+                    "type": "int"
+                },
+                {
+                    "name": "bsp2d node",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "bsp2d node",
+            "sizeof": 20,
+            "fields": [
+                {
+                    "name": "plane",
+                    "type": "plane2"
+                },
+                {
+                    "name": "left child",
+                    "type": "int"
+                },
+                {
+                    "name": "right child",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "surface",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "plane",
+                    "type": "int"
+                },
+                {
+                    "name": "first edge",
+                    "type": "int"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "two sided"
+                        },
+                        {
+                            "name": "invisible"
+                        },
+                        {
+                            "name": "climbable"
+                        },
+                        {
+                            "name": "breakable"
+                        }
+                    ]
+                },
+                {
+                    "name": "breakable surface",
+                    "type": "byte"
+                },
+                {
+                    "name": "material",
+                    "type": "short"
+                }
+            ]
+        },
+        {
+            "name": "edge",
+            "sizeof": 24,
+            "fields": [
+                {
+                    "name": "start vertex",
+                    "type": "int"
+                },
+                {
+                    "name": "end vertex",
+                    "type": "int"
+                },
+                {
+                    "name": "forward edge",
+                    "type": "int"
+                },
+                {
+                    "name": "reverse edge",
+                    "type": "int"
+                },
+                {
+                    "name": "left surface",
+                    "type": "int"
+                },
+                {
+                    "name": "right surface",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "vertex",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "point",
+                    "type": "point3"
+                },
+                {
+                    "name": "first edge",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "bsp",
+            "sizeof": 96,
+            "fields": [
+                {
+                    "name": "bsp3d nodes",
+                    "type": "block",
+                    "block_name": "bsp3d node"
+                },
+                {
+                    "name": "planes",
+                    "type": "block",
+                    "block_name": "plane"
+                },
+                {
+                    "name": "leaves",
+                    "type": "block",
+                    "block_name": "leaf"
+                },
+                {
+                    "name": "bsp2d references",
+                    "type": "block",
+                    "block_name": "bsp2d reference"
+                },
+                {
+                    "name": "bsp2d nodes",
+                    "type": "block",
+                    "block_name": "bsp2d node"
+                },
+                {
+                    "name": "surfaces",
+                    "type": "block",
+                    "block_name": "surface"
+                },
+                {
+                    "name": "edges",
+                    "type": "block",
+                    "block_name": "edge"
+                },
+                {
+                    "name": "vertices",
+                    "type": "block",
+                    "block_name": "vertex"
+                }
+            ]
+        },
+        {
+            "name": "scenario_players_block",
+            "sizeof": 52,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "facing",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "team index",
+                    "type": "short"
+                },
+                {
+                    "name": "bsp index",
+                    "type": "short"
+                },
+                {
+                    "name": "type 0",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "name": "type 1",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "name": "type 2",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "name": "type 3",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                }
+            ]
+        },
+        {
+            "name": "shader_transparent_layer_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "shader",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "shdr"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "shader_transparent_chicago_map_block",
+            "sizeof": 220,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        },
+                        {
+                            "name": "alpha replicate"
+                        },
+                        {
+                            "name": "u-clamped"
+                        },
+                        {
+                            "name": "v-clamped"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "color function",
+                    "comment": "ignored for last map",
+                    "type": "enum",
+                    "index": 64
+                },
+                {
+                    "name": "alpha function",
+                    "comment": "ignored for last map",
+                    "type": "enum",
+                    "index": 64
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                },
+                {
+                    "name": "map u-scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "map v-scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "map u-offset",
+                    "type": "float"
+                },
+                {
+                    "name": "map v-offset",
+                    "type": "float"
+                },
+                {
+                    "name": "map rotation",
+                    "unit": "degrees",
+                    "type": "float"
+                },
+                {
+                    "name": "mipmap bias",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "2D texture animation",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "u-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "u-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "u-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "v-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "v-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "rotation-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "rotation-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation scale",
+                    "unit": "degrees",
+                    "comment": "0 defaults to 360",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation center",
+                    "type": "point2"
+                }
+            ]
+        },
+        {
+            "name": "global_hud_multitexture_overlay_effector_definition",
+            "sizeof": 220,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 64
+                },
+                {
+                    "name": "source/destination",
+                    "type": "explanation",
+                    "explanation": "These describe the relationship that causes the effect.\n* destination type is the type of variable you want to be effected\n* destination tells which texture map (or geometry offset) to apply it to\n* source says which value to look at when computing the effect"
+                },
+                {
+                    "name": "destination type",
+                    "type": "enum",
+                    "index": 21
+                },
+                {
+                    "name": "destination",
+                    "type": "enum",
+                    "index": 22
+                },
+                {
+                    "name": "source",
+                    "type": "enum",
+                    "index": 23
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "in/out bounds",
+                    "type": "explanation",
+                    "explanation": "When the source is at the lower inbound, the destination ends up the lower outbound and vice-versa applies for the upper values."
+                },
+                {
+                    "name": "in bounds",
+                    "unit": "source units",
+                    "type": "bound float"
+                },
+                {
+                    "name": "out bounds",
+                    "unit": "pixels",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 64
+                },
+                {
+                    "name": "tint color bounds",
+                    "type": "explanation",
+                    "explanation": "If destination is tint, these values are used instead of the out bounds."
+                },
+                {
+                    "name": "tint color lower bound",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "tint color upper bound",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "periodic functions",
+                    "type": "explanation",
+                    "explanation": "If you use a periodic function as the source, this lets you tweak it."
+                },
+                {
+                    "name": "periodic function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "function period",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "function phase",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "global_hud_multitexture_overlay_definition",
+            "sizeof": 480,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "type",
+                    "type": "short"
+                },
+                {
+                    "name": "framebuffer blend func",
+                    "type": "enum",
+                    "index": 47
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "anchors",
+                    "type": "explanation",
+                    "explanation": "where you want the origin of the texture.\n*\"texture\" uses the texture coordinates supplied\n*\"screen\" uses the origin of the screen as the origin of the texture"
+                },
+                {
+                    "name": "primary anchor",
+                    "type": "enum",
+                    "index": 25
+                },
+                {
+                    "name": "secondary anchor",
+                    "type": "enum",
+                    "index": 25
+                },
+                {
+                    "name": "tertiary anchor",
+                    "type": "enum",
+                    "index": 25
+                },
+                {
+                    "name": "blending function",
+                    "type": "explanation",
+                    "explanation": "how to blend the textures together"
+                },
+                {
+                    "name": "blend func 0 to 1",
+                    "type": "enum",
+                    "index": 24
+                },
+                {
+                    "name": "blend func 1 to 2",
+                    "type": "enum",
+                    "index": 24
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "map scales",
+                    "type": "explanation",
+                    "explanation": "how much to scale the textures"
+                },
+                {
+                    "name": "primary scale",
+                    "type": "point2"
+                },
+                {
+                    "name": "secondary scale",
+                    "type": "point2"
+                },
+                {
+                    "name": "tertiary scale",
+                    "type": "point2"
+                },
+                {
+                    "name": "map offsets",
+                    "type": "explanation",
+                    "explanation": "how much to offset the origin of the texture"
+                },
+                {
+                    "name": "primary offset",
+                    "type": "point2"
+                },
+                {
+                    "name": "secondary offset",
+                    "type": "point2"
+                },
+                {
+                    "name": "tertiary offset",
+                    "type": "point2"
+                },
+                {
+                    "name": "map",
+                    "type": "explanation",
+                    "explanation": "which maps to use"
+                },
+                {
+                    "name": "primary",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "secondary",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "tertiary",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "primary wrap mode",
+                    "type": "enum",
+                    "index": 26
+                },
+                {
+                    "name": "secondary wrap mode",
+                    "type": "enum",
+                    "index": 26
+                },
+                {
+                    "name": "tertiary wrap mode",
+                    "type": "enum",
+                    "index": 26
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 184
+                },
+                {
+                    "name": "effectors",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_effector_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 128
+                }
+            ]
+        }
+    ]
+}

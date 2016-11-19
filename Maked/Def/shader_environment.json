@@ -1,0 +1,507 @@
+{
+    "name": "shader_environment",
+    "type": "senv",
+    "version": 2,
+    "parent": "shdr",
+    "blocks": [
+        {
+            "name": "shader_environment",
+            "sizeof": 796,
+            "fields": [
+                {
+                    "name": "environment shader",
+                    "type": "explanation",
+                    "explanation": "Setting <true atmospheric fog> enables per-pixel atmospheric fog (for models) but disables point/spot lights, planar fog, and the ability to control the atmospheric fog density for this shader."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "alpha-tested"
+                        },
+                        {
+                            "name": "bump map is specular mask"
+                        },
+                        {
+                            "name": "true atmospheric fog"
+                        }
+                    ]
+                },
+                {
+                    "name": "environment shader type",
+                    "type": "explanation",
+                    "explanation": "Controls how diffuse maps are combined:\n\nNORMAL:\nSecondary detail map alpha controls blend between primary and secondary detail map. Specular mask is alpha of blended primary and secondary detail map alpha multiplied by alpha of micro detail map.\n\nBLENDED:\nBase map alpha controls blend between primary and secondary detail map. Specular mask is alpha of blended primary and secondary detail map alpha multiplied by alpha of micro detail map.\n\nBLENDED BASE SPECULAR:\nSame as BLENDED, except specular mask is alpha is base map times alpha of micro detail map."
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 50
+                },
+                {
+                    "name": "lens flares",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "lens flare spacing",
+                    "unit": "world units",
+                    "comment": "0 places a single lens flare",
+                    "type": "float"
+                },
+                {
+                    "name": "lens flare",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "lens"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 44
+                },
+                {
+                    "name": "diffuse properties",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "rescale detail maps"
+                        },
+                        {
+                            "name": "rescale bump map"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "base map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "detail map function",
+                    "comment": "affects primary and secondary detail maps",
+                    "type": "enum",
+                    "index": 51
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "primary detail map scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "primary detail map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "secondary detail map scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "secondary detail map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "micro detail map function",
+                    "type": "enum",
+                    "index": 51
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "micro detail map scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "micro detail map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "material color",
+                    "comment": "modulates incoming diffuse light, including lightmaps, but excluding self-illumination and specular effects",
+                    "type": "rgbf"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "bump properties",
+                    "type": "explanation",
+                    "explanation": "Perforated (alpha-tested) shaders use alpha in bump map."
+                },
+                {
+                    "name": "bump map scale",
+                    "type": "float"
+                },
+                {
+                    "name": "bump map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "texture scrolling animation",
+                    "type": "explanation",
+                    "explanation": "Scrolls all 2D maps simultaneously."
+                },
+                {
+                    "name": "u-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "u-animation period",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation scale",
+                    "unit": "base map repeats",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "v-animation period",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation scale",
+                    "unit": "base map repeats",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "self-illumination properties",
+                    "type": "explanation",
+                    "explanation": "There are three self-illumination effects which are added together. Each effect has an <on color>, used when the shader is active, and an <off color>, used when the shader is not active. The self-illumination map is used as follows:\n* RED: primary mask\n* GREEN: secondary mask\n* BLUE: plasma mask\n* ALPHA: plasma animation reference\n\nEach effect also has an animation <function>, <period> and <phase>, used when the shader is active. The primary and secondary effects simply modulate the <on color> by the animation value to produce an animation color, and then blend between the animation color and the <off color> based on the shader's activation level, and finally modulate by the mask.\n\nThe plasma shader compares the animation value with the alpha channel of the map (the plasma animation reference) and produces a high value when they are similar and a dark value when they are different. This value modulates the <plasma on color> to produce a plasma animation color, and the rest proceeds just like the primary and secondary effects."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "primary on color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "primary off color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "primary animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "primary animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "primary animation phase",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "secondary on color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "secondary off color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "secondary animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "secondary animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "secondary animation phase",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "plasma on color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "plasma off color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "plasma animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "plasma animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "plasma animation phase",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "map scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "specular properties",
+                    "type": "explanation",
+                    "explanation": "Controls dynamic specular highlights. The highlight is modulated by <brightness> as well as a blend between <perpendicular color> and <parallel color>.\n\nSet <brightness> to zero to disable."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "overbright"
+                        },
+                        {
+                            "name": "extra-shiny"
+                        },
+                        {
+                            "name": "lightmap is specular"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "brightness",
+                    "unit": "[0,1]",
+                    "comment": "0 is no specular hilights",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "perpendicular color",
+                    "comment": "hilight color when viewed perpendicularly",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "parallel color",
+                    "comment": "hilight color when viewed at a glancing angle",
+                    "type": "rgbf"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "reflection properties",
+                    "type": "explanation",
+                    "explanation": "Controls environment cube map reflections. The color of the cube map is \"tinted\" by a blend between <perpendicular color> and <parallel color> from the SPECULAR PROPERTIES above, and then modulated by a blend between <perpendicular brightness> and <parallel brightness>.\n\nBUMPED CUBE MAP:\nThis type of reflection uses the shader's bump map (if it exists) to affect the reflection, as well as the perpendicular and parallel brightness (i.e. the \"fresnel\" effect).\n\nFLAT CUBE MAP:\nThis is the fastest type of reflection. The bump map is used to attenuate the fresnel effect, but the reflection image itself is not bumped.\n\nClear <reflection cube map> or set both <perpendicular brightness> and <parallel brightness> to zero to disable."
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "dynamic mirror"
+                        }
+                    ]
+                },
+                {
+                    "name": "reflection type",
+                    "type": "enum",
+                    "index": 52
+                },
+                {
+                    "name": "lightmap brightness scale",
+                    "unit": "[0,1]",
+                    "comment": "reflection brightness when lightmap brightness is 1",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "perpendicular brightness",
+                    "unit": "[0,1]",
+                    "comment": "brightness when viewed perpendicularly",
+                    "type": "fraction"
+                },
+                {
+                    "name": "parallel brightness",
+                    "unit": "[0,1]",
+                    "comment": "brightness when viewed at a glancing angle",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "reflection cube map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        }
+    ]
+}

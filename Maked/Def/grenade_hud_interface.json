@@ -1,0 +1,609 @@
+{
+    "name": "grenade_hud_interface",
+    "type": "grhi",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "grenade_hud_overlay_block",
+            "sizeof": 136,
+            "fields": [
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "frame rate",
+                    "type": "float"
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "type",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "show on flashing"
+                        },
+                        {
+                            "name": "show on empty"
+                        },
+                        {
+                            "name": "show on default"
+                        },
+                        {
+                            "name": "show always"
+                        }
+                    ]
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "flashes when active"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                }
+            ]
+        },
+        {
+            "name": "grenade_hud_sound_block",
+            "sizeof": 56,
+            "fields": [
+                {
+                    "name": "sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "lsnd"
+                        }
+                    ]
+                },
+                {
+                    "name": "latched to",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "low grenade count"
+                        },
+                        {
+                            "name": "no grenades left"
+                        },
+                        {
+                            "name": "throw on no grenades"
+                        }
+                    ]
+                },
+                {
+                    "name": "scale",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "grenade_hud_interface",
+            "sizeof": 504,
+            "fields": [
+                {
+                    "name": "Grenade hud screen alignment",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor",
+                    "type": "enum",
+                    "index": 18
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "Grenade hud background",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "interface bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "multitex overlay",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "Total grenades background",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "interface bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "sequence index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "multitex overlay",
+                    "type": "block",
+                    "block_name": "global_hud_multitexture_overlay_definition"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "Total grenades numbers",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "anchor offset",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "width scale",
+                    "type": "float"
+                },
+                {
+                    "name": "height scale",
+                    "type": "float"
+                },
+                {
+                    "name": "scaling flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "don't scale offset"
+                        },
+                        {
+                            "name": "don't scale size"
+                        },
+                        {
+                            "name": "use high res scale"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "default color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flashing color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "flash period",
+                    "type": "float"
+                },
+                {
+                    "name": "flash delay",
+                    "type": "float"
+                },
+                {
+                    "name": "number of flashes",
+                    "type": "short"
+                },
+                {
+                    "name": "flash flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "reverse default/flashing colors"
+                        }
+                    ]
+                },
+                {
+                    "name": "flash length",
+                    "type": "float"
+                },
+                {
+                    "name": "disabled color",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "maximum number of digits",
+                    "type": "byte"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "show leading zeros"
+                        },
+                        {
+                            "name": "only show when zoomed"
+                        },
+                        {
+                            "name": "draw a trailing m"
+                        }
+                    ]
+                },
+                {
+                    "name": "number of fractional digits",
+                    "type": "byte"
+                },
+                {
+                    "type": "pad",
+                    "size": 1
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "flash cutoff",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "Total grenades overlays",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "Overlay bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "Overlays",
+                    "type": "block",
+                    "block_name": "grenade_hud_overlay_block"
+                },
+                {
+                    "name": "Warning sounds",
+                    "type": "block",
+                    "block_name": "grenade_hud_sound_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 68
+                },
+                {
+                    "name": "Messaging information",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "sequence index",
+                    "comment": "sequence index into the global hud icon bitmap",
+                    "type": "short"
+                },
+                {
+                    "name": "width offset",
+                    "comment": "extra spacing beyond bitmap width for text alignment",
+                    "type": "short"
+                },
+                {
+                    "name": "offset from reference corner",
+                    "type": "vec2 short"
+                },
+                {
+                    "name": "override icon color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "frame rate [0,30]",
+                    "type": "byte"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "use text from string_list instead"
+                        },
+                        {
+                            "name": "override default color"
+                        },
+                        {
+                            "name": "width offset is absolute icon width"
+                        }
+                    ]
+                },
+                {
+                    "name": "text index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                }
+            ]
+        }
+    ]
+}

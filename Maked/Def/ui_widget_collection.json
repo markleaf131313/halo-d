@@ -1,0 +1,33 @@
+{
+    "name": "ui_widget_collection",
+    "type": "Soul",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "ui_widget_references_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "ui_widget_definition",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "DeLa"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ui_widget_collection",
+            "sizeof": 12,
+            "fields": [
+                {
+                    "name": "ui widget definitions",
+                    "type": "block",
+                    "block_name": "ui_widget_references_block"
+                }
+            ]
+        }
+    ]
+}

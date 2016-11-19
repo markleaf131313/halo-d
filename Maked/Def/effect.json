@@ -1,0 +1,484 @@
+{
+    "name": "effect",
+    "type": "effe",
+    "version": 4,
+    "blocks": [
+        {
+            "name": "effect_locations_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "marker name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "effect_part_block",
+            "sizeof": 104,
+            "fields": [
+                {
+                    "name": "create in",
+                    "type": "enum",
+                    "index": 96
+                },
+                {
+                    "name": "create in",
+                    "type": "enum",
+                    "index": 95
+                },
+                {
+                    "name": "location",
+                    "type": "index16",
+                    "block_name": "effect_locations_block"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "face down regardless of location (decals)"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "type",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "jpt!"
+                        },
+                        {
+                            "type": "obje"
+                        },
+                        {
+                            "type": "pctl"
+                        },
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "deca"
+                        },
+                        {
+                            "type": "ligh"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "velocity bounds",
+                    "unit": "world units per second",
+                    "comment": "initial velocity along the location's forward",
+                    "type": "bound float"
+                },
+                {
+                    "name": "velocity cone angle",
+                    "unit": "degrees",
+                    "comment": "initial velocity will be inside the cone defined by this angle.",
+                    "type": "angle"
+                },
+                {
+                    "name": "angular velocity bounds",
+                    "unit": "degrees per second",
+                    "type": "bound angle"
+                },
+                {
+                    "name": "radius modifier bounds",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "SCALE MODIFIERS",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "A scales values",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "velocity"
+                        },
+                        {
+                            "name": "velocity delta"
+                        },
+                        {
+                            "name": "velocity cone angle"
+                        },
+                        {
+                            "name": "angular velocity"
+                        },
+                        {
+                            "name": "angular velocity delta"
+                        },
+                        {
+                            "name": "type-specific scale"
+                        }
+                    ]
+                },
+                {
+                    "name": "B scales values",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "velocity"
+                        },
+                        {
+                            "name": "velocity delta"
+                        },
+                        {
+                            "name": "velocity cone angle"
+                        },
+                        {
+                            "name": "angular velocity"
+                        },
+                        {
+                            "name": "angular velocity delta"
+                        },
+                        {
+                            "name": "type-specific scale"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "effect_particles_block",
+            "sizeof": 232,
+            "fields": [
+                {
+                    "name": "create in",
+                    "type": "enum",
+                    "index": 96
+                },
+                {
+                    "name": "create in mode",
+                    "type": "enum",
+                    "index": 95
+                },
+                {
+                    "name": "create",
+                    "type": "enum",
+                    "index": 97
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "location",
+                    "type": "index16",
+                    "block_name": "effect_locations_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "relative direction",
+                    "comment": "particle initial velocity direction relative to the location's forward",
+                    "type": "angles2"
+                },
+                {
+                    "name": "relative offset",
+                    "comment": "particle initial position offset relative to the locatin's forward",
+                    "type": "vec3"
+                },
+                {
+                    "name": "relative direction unit vector",
+                    "comment": "compile time, from relative direction",
+                    "type": "vec3"
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "particle type",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "part"
+                        }
+                    ]
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "stay attached to marker"
+                        },
+                        {
+                            "name": "random initial angle"
+                        },
+                        {
+                            "name": "tint from object color"
+                        },
+                        {
+                            "name": "interpolate tint as HSV"
+                        },
+                        {
+                            "name": "... across the long hue path"
+                        }
+                    ]
+                },
+                {
+                    "name": "distribution function",
+                    "comment": "describes how the part creations are distributed over the event duration",
+                    "type": "enum",
+                    "index": 98
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "count",
+                    "comment": "number of particles created",
+                    "type": "bound short"
+                },
+                {
+                    "name": "distribution radius",
+                    "unit": "world units",
+                    "comment": "initial distance from the location's origin",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "velocity",
+                    "unit": "world units per second",
+                    "comment": "initial velocity along the specified direction",
+                    "type": "bound float"
+                },
+                {
+                    "name": "velocity cone angle",
+                    "unit": "degrees",
+                    "comment": "particle initial velocities will be inside the cone defined by this angle and the specified direction",
+                    "type": "angle"
+                },
+                {
+                    "name": "angular velocity",
+                    "unit": "degrees per second",
+                    "type": "bound angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "radius",
+                    "unit": "world units",
+                    "comment": "particle radius",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "tint lower bound",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "tint upper bound",
+                    "type": "rgbaf"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "SCALE MODIFIERS",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "A scales values",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "velocity"
+                        },
+                        {
+                            "name": "velocity delta"
+                        },
+                        {
+                            "name": "velocity cone angle"
+                        },
+                        {
+                            "name": "angular velocity"
+                        },
+                        {
+                            "name": "angular velocity delta"
+                        },
+                        {
+                            "name": "count"
+                        },
+                        {
+                            "name": "count delta"
+                        },
+                        {
+                            "name": "distribution radius"
+                        },
+                        {
+                            "name": "distribution radius delta"
+                        },
+                        {
+                            "name": "particle radius"
+                        },
+                        {
+                            "name": "particle radius delta"
+                        },
+                        {
+                            "name": "tint"
+                        }
+                    ]
+                },
+                {
+                    "name": "B scales values",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "velocity"
+                        },
+                        {
+                            "name": "velocity delta"
+                        },
+                        {
+                            "name": "velocity cone angle"
+                        },
+                        {
+                            "name": "angular velocity"
+                        },
+                        {
+                            "name": "angular velocity delta"
+                        },
+                        {
+                            "name": "count"
+                        },
+                        {
+                            "name": "count delta"
+                        },
+                        {
+                            "name": "distribution radius"
+                        },
+                        {
+                            "name": "distribution radius delta"
+                        },
+                        {
+                            "name": "particle radius"
+                        },
+                        {
+                            "name": "particle radius delta"
+                        },
+                        {
+                            "name": "tint"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "effect_event_block",
+            "sizeof": 68,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "skip fraction",
+                    "comment": "chance that this event will be skipped entirely",
+                    "type": "fraction"
+                },
+                {
+                    "name": "delay bounds",
+                    "unit": "seconds",
+                    "comment": "delay before this event takes place",
+                    "type": "bound float"
+                },
+                {
+                    "name": "duration bounds",
+                    "unit": "seconds",
+                    "comment": "duration of this event",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "parts",
+                    "type": "block",
+                    "block_name": "effect_part_block"
+                },
+                {
+                    "name": "particles",
+                    "type": "block",
+                    "block_name": "effect_particles_block"
+                }
+            ]
+        },
+        {
+            "name": "effect",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "deleted when attachment deactivates"
+                        },
+                        {
+                            "name": "required for gameplay (cannot optimize out)"
+                        },
+                        {
+                            "name": "unknown compile time flag 2",
+                            "comment": "compile time, causes effec to use a different random seed for some randomization."
+                        }
+                    ]
+                },
+                {
+                    "name": "loop start event",
+                    "type": "index16",
+                    "block_name": "effect_event_block"
+                },
+                {
+                    "name": "loop stop event",
+                    "type": "index16",
+                    "block_name": "effect_event_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "locations",
+                    "type": "block",
+                    "block_name": "effect_locations_block"
+                },
+                {
+                    "name": "events",
+                    "type": "block",
+                    "block_name": "effect_event_block"
+                }
+            ]
+        }
+    ]
+}

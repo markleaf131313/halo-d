@@ -1,0 +1,128 @@
+{
+    "name": "flag",
+    "type": "flag",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "flag_attachment_point_block",
+            "sizeof": 52,
+            "fields": [
+                {
+                    "name": "height_to_next_attachment",
+                    "unit": "vertices",
+                    "comment": "flag vertices between this attachment point and the next",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "marker name",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "flag",
+            "sizeof": 96,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": ""
+                },
+                {
+                    "name": "trailing edge shape",
+                    "type": "enum",
+                    "index": 90
+                },
+                {
+                    "name": "trailing edge shape offset",
+                    "unit": "vertices",
+                    "comment": "zero places the shape exactly on the trailing edge, positive numbers push it off the edge",
+                    "type": "short"
+                },
+                {
+                    "name": "attached edge shape",
+                    "type": "enum",
+                    "index": 91
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "width",
+                    "unit": "vertices",
+                    "comment": "flag size from attached to trailing edge",
+                    "type": "short"
+                },
+                {
+                    "name": "height",
+                    "unit": "vertices",
+                    "comment": "flag size along the direction of attachment (should be odd)",
+                    "type": "short"
+                },
+                {
+                    "name": "cell width",
+                    "unit": "world units",
+                    "comment": "width of the cell between each pair of vertices",
+                    "type": "float"
+                },
+                {
+                    "name": "cell height",
+                    "unit": "world units",
+                    "comment": "height of the cell between each pair of vertices",
+                    "type": "float"
+                },
+                {
+                    "name": "red flag shader",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "shdr"
+                        }
+                    ]
+                },
+                {
+                    "name": "physics",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "pphy"
+                        }
+                    ]
+                },
+                {
+                    "name": "wind noise",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "blue flag shader",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "shdr"
+                        }
+                    ]
+                },
+                {
+                    "name": "attachment points",
+                    "comment": "attachment points determine where the flag is attached",
+                    "type": "block",
+                    "block_name": "flag_attachment_point_block"
+                }
+            ]
+        }
+    ]
+}

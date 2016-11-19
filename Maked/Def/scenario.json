@@ -1,0 +1,3788 @@
+{
+    "name": "scenario",
+    "type": "scnr",
+    "version": 2,
+    "blocks": [
+        {
+            "name": "scenario_sky_reference_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "sky",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "sky "
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "scenario_child_scenario_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "child scenario",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "scnr"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "scenario_function_block",
+            "sizeof": 120,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "scripted",
+                            "comment": "the level script will set this value; the other settings here will be ignored."
+                        },
+                        {
+                            "name": "invert",
+                            "comment": "result of function is one minus actual result"
+                        },
+                        {
+                            "name": "additive"
+                        },
+                        {
+                            "name": "always active",
+                            "comment": "function does not deactivate when at or below lower bound"
+                        }
+                    ]
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "period",
+                    "unit": "seconds",
+                    "comment": "this is the period for the above function (lower values make the function oscillate quickly, higher values make it oscillate slowly)",
+                    "type": "float"
+                },
+                {
+                    "name": "scale period by",
+                    "comment": "multiply this function by the above period",
+                    "type": "index16",
+                    "block_name": "scenario_function_block"
+                },
+                {
+                    "name": "function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "scale function by",
+                    "comment": "multiply this function by the result of the above function",
+                    "type": "index16",
+                    "block_name": "scenario_function_block"
+                },
+                {
+                    "name": "wobble function",
+                    "comment": "the curve used for the wobble",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "wobble period",
+                    "unit": "seconds",
+                    "comment": "the length of time it takes for the magnitude of this function to complete a wobble",
+                    "type": "float"
+                },
+                {
+                    "name": "wobble magnitude",
+                    "unit": "percent",
+                    "comment": "the amount of random wobble in the magnitude",
+                    "type": "float"
+                },
+                {
+                    "name": "square wave threshold",
+                    "comment": "if non-zero, all values above the square wave threshold are snapped to 1.0, and all values below it are snapped to 0.0 to create a square wave.",
+                    "type": "fraction"
+                },
+                {
+                    "name": "step count",
+                    "comment": "the number of discrete values to snap to (e.g., a step count of 5 would snap the function to 0.00,0.25,0.50,0.75 or 1.00)",
+                    "type": "short"
+                },
+                {
+                    "name": "map to",
+                    "type": "enum",
+                    "index": 125
+                },
+                {
+                    "name": "sawtooth count",
+                    "comment": "the number of times this function should repeat (e.g., a sawtooth count of 5 would give the function a value of 1.0 at each of 0.25,0.50,0.75 as well as at 1.0",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "scale result by",
+                    "comment": "multiply this function (from a weapon, vehicle, etc.) final result of all of the above math",
+                    "type": "index16",
+                    "block_name": "scenario_function_block"
+                },
+                {
+                    "name": "bounds mode",
+                    "comment": "controls how the bounds, below, are used",
+                    "type": "enum",
+                    "index": 67
+                },
+                {
+                    "name": "bounds",
+                    "type": "bound fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "turn off with",
+                    "comment": "if the specified function is off, so is this function",
+                    "type": "index16",
+                    "block_name": "scenario_function_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "editor_comment_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "comment",
+                    "type": "data"
+                }
+            ]
+        },
+        {
+            "name": "scenario_object_names_block",
+            "sizeof": 36,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                }
+            ]
+        },
+        {
+            "name": "scenario_scenery_block",
+            "sizeof": 72,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "index16",
+                    "block_name": "scenario_scenery_palette_block"
+                },
+                {
+                    "name": "name",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "not placed",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "automatically"
+                        },
+                        {
+                            "name": "on easy"
+                        },
+                        {
+                            "name": "on normal"
+                        },
+                        {
+                            "name": "on hard"
+                        }
+                    ]
+                },
+                {
+                    "name": "desired permutation",
+                    "comment": "if non-zero, will try to use model permutations with names that end in that number, e.g. 7 would pick \"body-7\" and \"head-7\"",
+                    "type": "short"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "rotation",
+                    "type": "angles3"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        },
+        {
+            "name": "scenario_scenery_palette_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "scen"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "scenario_biped_block",
+            "sizeof": 120,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "index16",
+                    "block_name": "scenario_biped_palette_block"
+                },
+                {
+                    "name": "name",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "not placed",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "automatically"
+                        },
+                        {
+                            "name": "on easy"
+                        },
+                        {
+                            "name": "on normal"
+                        },
+                        {
+                            "name": "on hard"
+                        }
+                    ]
+                },
+                {
+                    "name": "desired permutation",
+                    "comment": "if non-zero, will try to use model permutations with names that end in that number, e.g. 7 would pick \"body-7\" and \"head-7\"",
+                    "type": "short"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "rotation",
+                    "type": "angles3"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "body vitality",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "dead"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "scenario_biped_palette_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bipd"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "scenario_vehicle_block",
+            "sizeof": 120,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "index16",
+                    "block_name": "scenario_vehicle_palette_block"
+                },
+                {
+                    "name": "name",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "not placed",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "automatically"
+                        },
+                        {
+                            "name": "on easy"
+                        },
+                        {
+                            "name": "on normal"
+                        },
+                        {
+                            "name": "on hard"
+                        }
+                    ]
+                },
+                {
+                    "name": "desired permutation",
+                    "comment": "if non-zero, will try to use model permutations with names that end in that number, e.g. 7 would pick \"body-7\" and \"head-7\"",
+                    "type": "short"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "rotation",
+                    "type": "angles3"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "body vitality",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "dead"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "multiplayer team index",
+                    "comment": "on a multiplayer map, this determines which team the vehicle belongs to for custom vehicle sets.",
+                    "type": "byte"
+                },
+                {
+                    "type": "pad",
+                    "size": 1
+                },
+                {
+                    "name": "multiplayer spawn flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "slayer default",
+                            "comment": "vehicle will spawn when default vehicle set is used in a slayer game"
+                        },
+                        {
+                            "name": "ctf default",
+                            "comment": "vehicle will spawn when default vehicle set is used in a ctf game"
+                        },
+                        {
+                            "name": "king default",
+                            "comment": "vehicle will spawn when default vehicle set is used in a king game"
+                        },
+                        {
+                            "name": "oddball default",
+                            "comment": "vehicle will spawn when default vehicle set is used in a oddball game"
+                        },
+                        {
+                            "name": "unused",
+                            "comment": "unused"
+                        },
+                        {
+                            "name": "unused",
+                            "comment": "unused"
+                        },
+                        {
+                            "name": "unused",
+                            "comment": "unused"
+                        },
+                        {
+                            "name": "unused",
+                            "comment": "unused"
+                        },
+                        {
+                            "name": "slayer allowed",
+                            "comment": "vehicle can spawn in a slayer game"
+                        },
+                        {
+                            "name": "ctf allowed",
+                            "comment": "vehicle can spawn in a ctf game"
+                        },
+                        {
+                            "name": "king allowed",
+                            "comment": "vehicle can spawn in a king game"
+                        },
+                        {
+                            "name": "oddball allowed",
+                            "comment": "vehicle can spawn in a oddball game"
+                        },
+                        {
+                            "name": "unused",
+                            "comment": "unused"
+                        },
+                        {
+                            "name": "unused",
+                            "comment": "unused"
+                        },
+                        {
+                            "name": "unused",
+                            "comment": "unused"
+                        },
+                        {
+                            "name": "unused",
+                            "comment": "unused"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                }
+            ]
+        },
+        {
+            "name": "scenario_vehicle_palette_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "vehi"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "scenario_equipment_block",
+            "sizeof": 40,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "index16",
+                    "block_name": "scenario_equipment_palette_block"
+                },
+                {
+                    "name": "name",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "not placed",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "automatically"
+                        },
+                        {
+                            "name": "on easy"
+                        },
+                        {
+                            "name": "on normal"
+                        },
+                        {
+                            "name": "on hard"
+                        }
+                    ]
+                },
+                {
+                    "name": "desired permutation",
+                    "comment": "if non-zero, will try to use model permutations with names that end in that number, e.g. 7 would pick \"body-7\" and \"head-7\"",
+                    "type": "short"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "rotation",
+                    "type": "angles3"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "misc flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "initially at rest (doesn't fall)"
+                        },
+                        {
+                            "name": "obsolete"
+                        },
+                        {
+                            "name": "does accelerate (moves due to explosions)"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                }
+            ]
+        },
+        {
+            "name": "scenario_equipment_palette_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "eqip"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "scenario_weapon_block",
+            "sizeof": 92,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "index16",
+                    "block_name": "scenario_weapon_palette_block"
+                },
+                {
+                    "name": "name",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "not placed",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "automatically"
+                        },
+                        {
+                            "name": "on easy"
+                        },
+                        {
+                            "name": "on normal"
+                        },
+                        {
+                            "name": "on hard"
+                        }
+                    ]
+                },
+                {
+                    "name": "desired permutation",
+                    "comment": "if non-zero, will try to use model permutations with names that end in that number, e.g. 7 would pick \"body-7\" and \"head-7\"",
+                    "type": "short"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "rotation",
+                    "type": "angles3"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "rounds left",
+                    "type": "short"
+                },
+                {
+                    "name": "rounds loaded",
+                    "type": "short"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "initially at rest (doesn't fall)"
+                        },
+                        {
+                            "name": "obsolete"
+                        },
+                        {
+                            "name": "does accelerate (moves due to explosions)"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "scenario_weapon_palette_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "weap"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "device_group_block",
+            "sizeof": 52,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "initial value",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "can change only once"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "scenario_machine_block",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "index16",
+                    "block_name": "scenario_machine_palette_block"
+                },
+                {
+                    "name": "name",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "not placed",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "automatically"
+                        },
+                        {
+                            "name": "on easy"
+                        },
+                        {
+                            "name": "on normal"
+                        },
+                        {
+                            "name": "on hard"
+                        }
+                    ]
+                },
+                {
+                    "name": "desired permutation",
+                    "comment": "if non-zero, will try to use model permutations with names that end in that number, e.g. 7 would pick \"body-7\" and \"head-7\"",
+                    "type": "short"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "rotation",
+                    "type": "angles3"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "power group",
+                    "type": "index16",
+                    "block_name": "device_group_block"
+                },
+                {
+                    "name": "position group",
+                    "type": "index16",
+                    "block_name": "device_group_block"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "initially open (1.0)"
+                        },
+                        {
+                            "name": "initially off (0.0)"
+                        },
+                        {
+                            "name": "can change only once"
+                        },
+                        {
+                            "name": "position reversed"
+                        },
+                        {
+                            "name": "not usable from any side"
+                        }
+                    ]
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "does not operate automatically"
+                        },
+                        {
+                            "name": "one-sided"
+                        },
+                        {
+                            "name": "never appears locked"
+                        },
+                        {
+                            "name": "opened by melee attack"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "scenario_machine_palette_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "mach"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "scenario_control_block",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "index16",
+                    "block_name": "scenario_control_palette_block"
+                },
+                {
+                    "name": "name",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "not placed",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "automatically"
+                        },
+                        {
+                            "name": "on easy"
+                        },
+                        {
+                            "name": "on normal"
+                        },
+                        {
+                            "name": "on hard"
+                        }
+                    ]
+                },
+                {
+                    "name": "desired permutation",
+                    "comment": "if non-zero, will try to use model permutations with names that end in that number, e.g. 7 would pick \"body-7\" and \"head-7\"",
+                    "type": "short"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "rotation",
+                    "type": "angles3"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "power group",
+                    "type": "index16",
+                    "block_name": "device_group_block"
+                },
+                {
+                    "name": "position group",
+                    "type": "index16",
+                    "block_name": "device_group_block"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "initially open (1.0)"
+                        },
+                        {
+                            "name": "initially off (0.0)"
+                        },
+                        {
+                            "name": "can change only once"
+                        },
+                        {
+                            "name": "position reversed"
+                        },
+                        {
+                            "name": "not usable from any side"
+                        }
+                    ]
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "usable from both sides"
+                        }
+                    ]
+                },
+                {
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        },
+        {
+            "name": "scenario_control_palette_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "ctrl"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "scenario_light_fixture_block",
+            "sizeof": 88,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "index16",
+                    "block_name": "scenario_light_fixture_palette_block"
+                },
+                {
+                    "name": "name",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "not placed",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "automatically"
+                        },
+                        {
+                            "name": "on easy"
+                        },
+                        {
+                            "name": "on normal"
+                        },
+                        {
+                            "name": "on hard"
+                        }
+                    ]
+                },
+                {
+                    "name": "desired permutation",
+                    "comment": "if non-zero, will try to use model permutations with names that end in that number, e.g. 7 would pick \"body-7\" and \"head-7\"",
+                    "type": "short"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "rotation",
+                    "type": "angles3"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "power group",
+                    "type": "index16",
+                    "block_name": "device_group_block"
+                },
+                {
+                    "name": "position group",
+                    "type": "index16",
+                    "block_name": "device_group_block"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "initially open (1.0)"
+                        },
+                        {
+                            "name": "initially off (0.0)"
+                        },
+                        {
+                            "name": "can change only once"
+                        },
+                        {
+                            "name": "position reversed"
+                        },
+                        {
+                            "name": "not usable from any side"
+                        }
+                    ]
+                },
+                {
+                    "name": "color",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "intensity",
+                    "type": "float"
+                },
+                {
+                    "name": "falloff angle",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "cutoff angle",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "scenario_light_fixture_palette_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "lifi"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "scenario_sound_scenery_block",
+            "sizeof": 40,
+            "fields": [
+                {
+                    "name": "type",
+                    "type": "index16",
+                    "block_name": "scenario_sound_scenery_palette_block"
+                },
+                {
+                    "name": "name",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "not placed",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "automatically"
+                        },
+                        {
+                            "name": "on easy"
+                        },
+                        {
+                            "name": "on normal"
+                        },
+                        {
+                            "name": "on hard"
+                        }
+                    ]
+                },
+                {
+                    "name": "desired permutation",
+                    "comment": "if non-zero, will try to use model permutations with names that end in that number, e.g. 7 would pick \"body-7\" and \"head-7\"",
+                    "type": "short"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "rotation",
+                    "type": "angles3"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        },
+        {
+            "name": "scenario_sound_scenery_palette_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "ssce"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "scenario_profiles_block",
+            "sizeof": 104,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "starting health modifier",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "starting shield modifier",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "primary weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "weap"
+                        }
+                    ]
+                },
+                {
+                    "name": "rounds loaded",
+                    "type": "short"
+                },
+                {
+                    "name": "rounds total",
+                    "type": "short"
+                },
+                {
+                    "name": "secondary weapon",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "weap"
+                        }
+                    ]
+                },
+                {
+                    "name": "rounds loaded",
+                    "type": "short"
+                },
+                {
+                    "name": "rounds total",
+                    "type": "short"
+                },
+                {
+                    "name": "starting fragmentation grenade count",
+                    "type": "byte"
+                },
+                {
+                    "name": "starting plasma grenade count",
+                    "type": "byte"
+                },
+                {
+                    "name": "starting unknown0 grenade count",
+                    "type": "byte"
+                },
+                {
+                    "name": "starting unknown1 grenade count",
+                    "type": "byte"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                }
+            ]
+        },
+        {
+            "name": "scenario_trigger_volume_block",
+            "sizeof": 96,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "type": "array",
+                    "size": 15,
+                    "fields": [
+                        {
+                            "type": "float"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "recorded_animation_block",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "version",
+                    "type": "byte"
+                },
+                {
+                    "name": "raw animation data",
+                    "type": "byte"
+                },
+                {
+                    "name": "unit control data version",
+                    "type": "byte"
+                },
+                {
+                    "type": "pad",
+                    "size": 1
+                },
+                {
+                    "name": "length of animation",
+                    "unit": "ticks",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "recorded animation event stream",
+                    "type": "data"
+                }
+            ]
+        },
+        {
+            "name": "scenario_netgame_flags_block",
+            "sizeof": 148,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "facing",
+                    "unit": "degress",
+                    "type": "angle"
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 69
+                },
+                {
+                    "name": "team index",
+                    "type": "short"
+                },
+                {
+                    "name": "weapon group",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "itmc"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 112
+                }
+            ]
+        },
+        {
+            "name": "scenario_netgame_equipment_block",
+            "sizeof": 144,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "levitate"
+                        }
+                    ]
+                },
+                {
+                    "name": "type 0",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "name": "type 1",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "name": "type 2",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "name": "type 3",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "name": "team index",
+                    "type": "short"
+                },
+                {
+                    "name": "spawn time (in seconds, 0 = default)",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "facing",
+                    "unit": "degress",
+                    "type": "angle"
+                },
+                {
+                    "name": "item collection",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "itmc"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                }
+            ]
+        },
+        {
+            "name": "scenario_starting_equipment_block",
+            "sizeof": 204,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "no grenades"
+                        },
+                        {
+                            "name": "plasma grenades"
+                        }
+                    ]
+                },
+                {
+                    "name": "type 0",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "name": "type 1",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "name": "type 2",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "name": "type 3",
+                    "type": "enum",
+                    "index": 68
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                },
+                {
+                    "name": "item collection 1",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "itmc"
+                        }
+                    ]
+                },
+                {
+                    "name": "item collection 2",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "itmc"
+                        }
+                    ]
+                },
+                {
+                    "name": "item collection 3",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "itmc"
+                        }
+                    ]
+                },
+                {
+                    "name": "item collection 4",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "itmc"
+                        }
+                    ]
+                },
+                {
+                    "name": "item collection 5",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "itmc"
+                        }
+                    ]
+                },
+                {
+                    "name": "item collection 6",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "itmc"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                }
+            ]
+        },
+        {
+            "name": "scenario_bsp_switch_trigger_volume_block",
+            "sizeof": 8,
+            "fields": [
+                {
+                    "name": "trigger volume",
+                    "type": "index16",
+                    "block_name": "scenario_trigger_volume_block"
+                },
+                {
+                    "name": "source",
+                    "type": "short"
+                },
+                {
+                    "name": "destination",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                }
+            ]
+        },
+        {
+            "name": "scenario_decals_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "decal type",
+                    "type": "index16",
+                    "block_name": "scenario_decal_palette_block"
+                },
+                {
+                    "name": "yaw[-127,127]",
+                    "type": "byte"
+                },
+                {
+                    "name": "pitch[-127,127]",
+                    "type": "byte"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                }
+            ]
+        },
+        {
+            "name": "scenario_decal_palette_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "reference",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "deca"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "scenario_detail_object_collection_palette_block",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "dobc"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "actor_palette_block",
+            "sizeof": 16,
+            "fields": [
+                {
+                    "name": "reference",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "actv"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "move_positions_block",
+            "sizeof": 80,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "facing",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "weight",
+                    "type": "float"
+                },
+                {
+                    "name": "time",
+                    "unit": "seconds",
+                    "type": "bound float"
+                },
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "ai_animation_reference_block"
+                },
+                {
+                    "name": "sequence ID",
+                    "comment": "identifies this move position as belonging to a sequence, only actors whose starting locations match this sequence ID can use it (zero = no sequence)",
+                    "type": "byte"
+                },
+                {
+                    "type": "pad",
+                    "size": 1
+                },
+                {
+                    "type": "pad",
+                    "size": 44
+                },
+                {
+                    "name": "surface index",
+                    "type": "int"
+                }
+            ]
+        },
+        {
+            "name": "actor_starting_locations_block",
+            "sizeof": 28,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "facing",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "sequence ID",
+                    "comment": "which move position sequence we can use (zero = no specific sequences)",
+                    "type": "byte"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "required"
+                        }
+                    ]
+                },
+                {
+                    "name": "return state",
+                    "comment": "state that this actor will return to when it has nothing to do",
+                    "type": "enum",
+                    "index": 129
+                },
+                {
+                    "name": "initial state",
+                    "comment": "state that this actor starts in",
+                    "type": "enum",
+                    "index": 129
+                },
+                {
+                    "name": "actor type",
+                    "type": "index16",
+                    "block_name": "actor_palette_block"
+                },
+                {
+                    "name": "command list",
+                    "type": "index16",
+                    "block_name": "ai_command_list_block"
+                }
+            ]
+        },
+        {
+            "name": "squads_block",
+            "sizeof": 232,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "actor type",
+                    "type": "index16",
+                    "block_name": "actor_palette_block"
+                },
+                {
+                    "name": "platoon",
+                    "type": "index16",
+                    "block_name": "platoons_block"
+                },
+                {
+                    "name": "initial state",
+                    "comment": "state that this actor starts in",
+                    "type": "enum",
+                    "index": 129
+                },
+                {
+                    "name": "return state",
+                    "comment": "state that this actor will return to when it has nothing to do",
+                    "type": "enum",
+                    "index": 129
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "unused"
+                        },
+                        {
+                            "name": "never search"
+                        },
+                        {
+                            "name": "start timer immediately"
+                        },
+                        {
+                            "name": "no timer, delay forever"
+                        },
+                        {
+                            "name": "magic sight after timer"
+                        },
+                        {
+                            "name": "automatic migration"
+                        }
+                    ]
+                },
+                {
+                    "name": "unique leader type",
+                    "comment": "what kind of leader this squad has (e.g. a sarge for marines) - 'normal' is based on the size of the squad, 'random' always creates a leader, or you can specify an individual type",
+                    "type": "enum",
+                    "index": 133
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "maneuver to squad",
+                    "type": "index16",
+                    "block_name": "squads_block"
+                },
+                {
+                    "name": "squad delay time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "attacking",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "A"
+                        },
+                        {
+                            "name": "B"
+                        },
+                        {
+                            "name": "C"
+                        },
+                        {
+                            "name": "D"
+                        },
+                        {
+                            "name": "E"
+                        },
+                        {
+                            "name": "F"
+                        },
+                        {
+                            "name": "G"
+                        },
+                        {
+                            "name": "H"
+                        },
+                        {
+                            "name": "I"
+                        },
+                        {
+                            "name": "J"
+                        },
+                        {
+                            "name": "K"
+                        },
+                        {
+                            "name": "L"
+                        },
+                        {
+                            "name": "M"
+                        },
+                        {
+                            "name": "N"
+                        },
+                        {
+                            "name": "O"
+                        },
+                        {
+                            "name": "P"
+                        },
+                        {
+                            "name": "Q"
+                        },
+                        {
+                            "name": "R"
+                        },
+                        {
+                            "name": "S"
+                        },
+                        {
+                            "name": "T"
+                        },
+                        {
+                            "name": "U"
+                        },
+                        {
+                            "name": "V"
+                        },
+                        {
+                            "name": "W"
+                        },
+                        {
+                            "name": "X"
+                        },
+                        {
+                            "name": "Y"
+                        },
+                        {
+                            "name": "Z"
+                        }
+                    ]
+                },
+                {
+                    "name": "attacking search",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "A"
+                        },
+                        {
+                            "name": "B"
+                        },
+                        {
+                            "name": "C"
+                        },
+                        {
+                            "name": "D"
+                        },
+                        {
+                            "name": "E"
+                        },
+                        {
+                            "name": "F"
+                        },
+                        {
+                            "name": "G"
+                        },
+                        {
+                            "name": "H"
+                        },
+                        {
+                            "name": "I"
+                        },
+                        {
+                            "name": "J"
+                        },
+                        {
+                            "name": "K"
+                        },
+                        {
+                            "name": "L"
+                        },
+                        {
+                            "name": "M"
+                        },
+                        {
+                            "name": "N"
+                        },
+                        {
+                            "name": "O"
+                        },
+                        {
+                            "name": "P"
+                        },
+                        {
+                            "name": "Q"
+                        },
+                        {
+                            "name": "R"
+                        },
+                        {
+                            "name": "S"
+                        },
+                        {
+                            "name": "T"
+                        },
+                        {
+                            "name": "U"
+                        },
+                        {
+                            "name": "V"
+                        },
+                        {
+                            "name": "W"
+                        },
+                        {
+                            "name": "X"
+                        },
+                        {
+                            "name": "Y"
+                        },
+                        {
+                            "name": "Z"
+                        }
+                    ]
+                },
+                {
+                    "name": "attacking guard",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "A"
+                        },
+                        {
+                            "name": "B"
+                        },
+                        {
+                            "name": "C"
+                        },
+                        {
+                            "name": "D"
+                        },
+                        {
+                            "name": "E"
+                        },
+                        {
+                            "name": "F"
+                        },
+                        {
+                            "name": "G"
+                        },
+                        {
+                            "name": "H"
+                        },
+                        {
+                            "name": "I"
+                        },
+                        {
+                            "name": "J"
+                        },
+                        {
+                            "name": "K"
+                        },
+                        {
+                            "name": "L"
+                        },
+                        {
+                            "name": "M"
+                        },
+                        {
+                            "name": "N"
+                        },
+                        {
+                            "name": "O"
+                        },
+                        {
+                            "name": "P"
+                        },
+                        {
+                            "name": "Q"
+                        },
+                        {
+                            "name": "R"
+                        },
+                        {
+                            "name": "S"
+                        },
+                        {
+                            "name": "T"
+                        },
+                        {
+                            "name": "U"
+                        },
+                        {
+                            "name": "V"
+                        },
+                        {
+                            "name": "W"
+                        },
+                        {
+                            "name": "X"
+                        },
+                        {
+                            "name": "Y"
+                        },
+                        {
+                            "name": "Z"
+                        }
+                    ]
+                },
+                {
+                    "name": "defending",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "A"
+                        },
+                        {
+                            "name": "B"
+                        },
+                        {
+                            "name": "C"
+                        },
+                        {
+                            "name": "D"
+                        },
+                        {
+                            "name": "E"
+                        },
+                        {
+                            "name": "F"
+                        },
+                        {
+                            "name": "G"
+                        },
+                        {
+                            "name": "H"
+                        },
+                        {
+                            "name": "I"
+                        },
+                        {
+                            "name": "J"
+                        },
+                        {
+                            "name": "K"
+                        },
+                        {
+                            "name": "L"
+                        },
+                        {
+                            "name": "M"
+                        },
+                        {
+                            "name": "N"
+                        },
+                        {
+                            "name": "O"
+                        },
+                        {
+                            "name": "P"
+                        },
+                        {
+                            "name": "Q"
+                        },
+                        {
+                            "name": "R"
+                        },
+                        {
+                            "name": "S"
+                        },
+                        {
+                            "name": "T"
+                        },
+                        {
+                            "name": "U"
+                        },
+                        {
+                            "name": "V"
+                        },
+                        {
+                            "name": "W"
+                        },
+                        {
+                            "name": "X"
+                        },
+                        {
+                            "name": "Y"
+                        },
+                        {
+                            "name": "Z"
+                        }
+                    ]
+                },
+                {
+                    "name": "defending search",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "A"
+                        },
+                        {
+                            "name": "B"
+                        },
+                        {
+                            "name": "C"
+                        },
+                        {
+                            "name": "D"
+                        },
+                        {
+                            "name": "E"
+                        },
+                        {
+                            "name": "F"
+                        },
+                        {
+                            "name": "G"
+                        },
+                        {
+                            "name": "H"
+                        },
+                        {
+                            "name": "I"
+                        },
+                        {
+                            "name": "J"
+                        },
+                        {
+                            "name": "K"
+                        },
+                        {
+                            "name": "L"
+                        },
+                        {
+                            "name": "M"
+                        },
+                        {
+                            "name": "N"
+                        },
+                        {
+                            "name": "O"
+                        },
+                        {
+                            "name": "P"
+                        },
+                        {
+                            "name": "Q"
+                        },
+                        {
+                            "name": "R"
+                        },
+                        {
+                            "name": "S"
+                        },
+                        {
+                            "name": "T"
+                        },
+                        {
+                            "name": "U"
+                        },
+                        {
+                            "name": "V"
+                        },
+                        {
+                            "name": "W"
+                        },
+                        {
+                            "name": "X"
+                        },
+                        {
+                            "name": "Y"
+                        },
+                        {
+                            "name": "Z"
+                        }
+                    ]
+                },
+                {
+                    "name": "defending guard",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "A"
+                        },
+                        {
+                            "name": "B"
+                        },
+                        {
+                            "name": "C"
+                        },
+                        {
+                            "name": "D"
+                        },
+                        {
+                            "name": "E"
+                        },
+                        {
+                            "name": "F"
+                        },
+                        {
+                            "name": "G"
+                        },
+                        {
+                            "name": "H"
+                        },
+                        {
+                            "name": "I"
+                        },
+                        {
+                            "name": "J"
+                        },
+                        {
+                            "name": "K"
+                        },
+                        {
+                            "name": "L"
+                        },
+                        {
+                            "name": "M"
+                        },
+                        {
+                            "name": "N"
+                        },
+                        {
+                            "name": "O"
+                        },
+                        {
+                            "name": "P"
+                        },
+                        {
+                            "name": "Q"
+                        },
+                        {
+                            "name": "R"
+                        },
+                        {
+                            "name": "S"
+                        },
+                        {
+                            "name": "T"
+                        },
+                        {
+                            "name": "U"
+                        },
+                        {
+                            "name": "V"
+                        },
+                        {
+                            "name": "W"
+                        },
+                        {
+                            "name": "X"
+                        },
+                        {
+                            "name": "Y"
+                        },
+                        {
+                            "name": "Z"
+                        }
+                    ]
+                },
+                {
+                    "name": "pursuing",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "A"
+                        },
+                        {
+                            "name": "B"
+                        },
+                        {
+                            "name": "C"
+                        },
+                        {
+                            "name": "D"
+                        },
+                        {
+                            "name": "E"
+                        },
+                        {
+                            "name": "F"
+                        },
+                        {
+                            "name": "G"
+                        },
+                        {
+                            "name": "H"
+                        },
+                        {
+                            "name": "I"
+                        },
+                        {
+                            "name": "J"
+                        },
+                        {
+                            "name": "K"
+                        },
+                        {
+                            "name": "L"
+                        },
+                        {
+                            "name": "M"
+                        },
+                        {
+                            "name": "N"
+                        },
+                        {
+                            "name": "O"
+                        },
+                        {
+                            "name": "P"
+                        },
+                        {
+                            "name": "Q"
+                        },
+                        {
+                            "name": "R"
+                        },
+                        {
+                            "name": "S"
+                        },
+                        {
+                            "name": "T"
+                        },
+                        {
+                            "name": "U"
+                        },
+                        {
+                            "name": "V"
+                        },
+                        {
+                            "name": "W"
+                        },
+                        {
+                            "name": "X"
+                        },
+                        {
+                            "name": "Y"
+                        },
+                        {
+                            "name": "Z"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "normal diff count",
+                    "comment": "initial number of actors on normal difficulty",
+                    "type": "short"
+                },
+                {
+                    "name": "insane diff count",
+                    "comment": "initial number of actors on insane difficulty (hard difficulty is midway between normal and insane)",
+                    "type": "short"
+                },
+                {
+                    "name": "major upgrade",
+                    "type": "enum",
+                    "index": 132
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "respawn min actors",
+                    "comment": "minimum number of actors alive at once (will spawn instantly if less than this number)",
+                    "type": "short"
+                },
+                {
+                    "name": "respawn max actors",
+                    "comment": "maximum number of actors alive at once (never spawns above this number)",
+                    "type": "short"
+                },
+                {
+                    "name": "respawn total",
+                    "comment": "total number to respawn (zero = infinite)",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "respawn delay",
+                    "unit": "seconds",
+                    "comment": "delay between respawning actors in this squad",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                },
+                {
+                    "name": "move positions",
+                    "type": "block",
+                    "block_name": "move_positions_block"
+                },
+                {
+                    "name": "starting locations",
+                    "type": "block",
+                    "block_name": "actor_starting_locations_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "platoons_block",
+            "sizeof": 172,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "flee when maneuvering"
+                        },
+                        {
+                            "name": "say 'advancing' when maneuver"
+                        },
+                        {
+                            "name": "start in defending state"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "change attacking/defending state when",
+                    "type": "enum",
+                    "index": 131
+                },
+                {
+                    "name": "happens to",
+                    "type": "index16",
+                    "block_name": "platoons_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "maneuver when",
+                    "type": "enum",
+                    "index": 131
+                },
+                {
+                    "name": "happens to",
+                    "type": "index16",
+                    "block_name": "platoons_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 64
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                }
+            ]
+        },
+        {
+            "name": "firing_positions_block",
+            "sizeof": 24,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "group index",
+                    "type": "enum",
+                    "index": 128
+                },
+                {
+                    "type": "pad",
+                    "size": 10
+                }
+            ]
+        },
+        {
+            "name": "encounter_block",
+            "sizeof": 176,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "not initially created"
+                        },
+                        {
+                            "name": "respawn enabled"
+                        },
+                        {
+                            "name": "initially blind"
+                        },
+                        {
+                            "name": "initially deaf"
+                        },
+                        {
+                            "name": "initially braindead"
+                        },
+                        {
+                            "name": "3d firing positions"
+                        },
+                        {
+                            "name": "manual bsp index specified"
+                        }
+                    ]
+                },
+                {
+                    "name": "team index",
+                    "type": "enum",
+                    "index": 135
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "search behavior",
+                    "type": "enum",
+                    "index": 134
+                },
+                {
+                    "name": "manual bsp index",
+                    "comment": "structure bsp index that this encounter belongs to... ignored unless 'manual bsp index' flag is checked. if this flag is not checked, the structure bsp is found automatically (may fail in areas of overlapping geometry)",
+                    "type": "short"
+                },
+                {
+                    "name": "respawn delay",
+                    "unit": "seconds",
+                    "comment": "delay between respawning actors in this encounter",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 76
+                },
+                {
+                    "name": "squads",
+                    "type": "block",
+                    "block_name": "squads_block"
+                },
+                {
+                    "name": "platoons",
+                    "type": "block",
+                    "block_name": "platoons_block"
+                },
+                {
+                    "name": "firing positions",
+                    "type": "block",
+                    "block_name": "firing_positions_block"
+                },
+                {
+                    "name": "player starting locations",
+                    "type": "block",
+                    "block_name": "scenario_players_block"
+                }
+            ]
+        },
+        {
+            "name": "ai_command_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "atom type",
+                    "type": "enum",
+                    "index": 130
+                },
+                {
+                    "name": "atom modifier",
+                    "type": "short"
+                },
+                {
+                    "name": "parameter1",
+                    "type": "float"
+                },
+                {
+                    "name": "parameter2",
+                    "type": "float"
+                },
+                {
+                    "name": "point 1",
+                    "type": "index16",
+                    "block_name": "ai_command_point_block"
+                },
+                {
+                    "name": "point 2",
+                    "type": "index16",
+                    "block_name": "ai_command_point_block"
+                },
+                {
+                    "name": "animation",
+                    "type": "index16",
+                    "block_name": "ai_animation_reference_block"
+                },
+                {
+                    "name": "script",
+                    "type": "index16",
+                    "block_name": "ai_script_reference_block"
+                },
+                {
+                    "name": "recording",
+                    "type": "index16",
+                    "block_name": "ai_recording_reference_block"
+                },
+                {
+                    "name": "command",
+                    "type": "index16",
+                    "block_name": "ai_command_block"
+                },
+                {
+                    "name": "object name",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 6
+                }
+            ]
+        },
+        {
+            "name": "ai_command_point_block",
+            "sizeof": 20,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        },
+        {
+            "name": "ai_command_list_block",
+            "sizeof": 96,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "allow initiative",
+                            "comment": "lets an actor decide to stop following its commands and attack an enemy"
+                        },
+                        {
+                            "name": "allow targeting",
+                            "comment": "lets an actor shoot at enemies while following its commands"
+                        },
+                        {
+                            "name": "disable looking",
+                            "comment": "stops an actor from turning, stopping or looking around in response to stimuli received while following its commands"
+                        },
+                        {
+                            "name": "disable communication",
+                            "comment": "stops an actor from communicating while following its commands"
+                        },
+                        {
+                            "name": "disable falling damage",
+                            "comment": "makes an actor not take any damage from falling while following its commands"
+                        },
+                        {
+                            "name": "manual bsp index",
+                            "comment": "set if the command list is manually attached to a specific bsp"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "manual bsp index",
+                    "comment": "structure bsp index that this encounter belongs to... ignored unless 'manual bsp index' flag is checked. if this flag is not checked, the structure bsp is found automatically (may fail in areas of overlapping geometry)",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "commands",
+                    "type": "block",
+                    "block_name": "ai_command_block"
+                },
+                {
+                    "name": "points",
+                    "type": "block",
+                    "block_name": "ai_command_point_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                }
+            ]
+        },
+        {
+            "name": "ai_animation_reference_block",
+            "sizeof": 60,
+            "fields": [
+                {
+                    "name": "animation name",
+                    "type": "string"
+                },
+                {
+                    "name": "animation graph",
+                    "comment": "leave this blank to use the unit's normal animation graph",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "antr"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "ai_script_reference_block",
+            "sizeof": 40,
+            "fields": [
+                {
+                    "name": "script name",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        },
+        {
+            "name": "ai_recording_reference_block",
+            "sizeof": 40,
+            "fields": [
+                {
+                    "name": "recording name",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                }
+            ]
+        },
+        {
+            "name": "ai_conversation_participant_block",
+            "sizeof": 84,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "optional",
+                            "comment": "the conversation can continue even if nobody for this participant was found"
+                        },
+                        {
+                            "name": "has alternate",
+                            "comment": "if nobody for this participant can be found, we use a participant marked as 'is alternate' instead, e.g. someone from over the radio"
+                        },
+                        {
+                            "name": "is alternate",
+                            "comment": "this participant is only used if some participant in this conversation was marked as 'has alternate' could not be found"
+                        }
+                    ]
+                },
+                {
+                    "name": "selection type",
+                    "type": "enum",
+                    "index": 136
+                },
+                {
+                    "name": "actor type",
+                    "type": "enum",
+                    "index": 39
+                },
+                {
+                    "name": "use this object",
+                    "comment": "if a unit with this name exists, we try to pick them to start the conversation",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "set new name",
+                    "comment": "once we pick a unit, we name it this",
+                    "type": "index16",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "encounter name",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "ai_conversation_line_block",
+            "sizeof": 124,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "addressee look at speaker"
+                        },
+                        {
+                            "name": "everyone look at speaker"
+                        },
+                        {
+                            "name": "everyone look at addressee"
+                        },
+                        {
+                            "name": "wait after until told to advance"
+                        },
+                        {
+                            "name": "wait until speaker nearby"
+                        },
+                        {
+                            "name": "wait until everyone nearby"
+                        }
+                    ]
+                },
+                {
+                    "name": "participant",
+                    "type": "index16",
+                    "block_name": "ai_conversation_participant_block"
+                },
+                {
+                    "name": "addressee",
+                    "type": "enum",
+                    "index": 137
+                },
+                {
+                    "name": "addressee participant",
+                    "comment": "this field is only used if the addressee type is 'participant'",
+                    "type": "index16",
+                    "block_name": "ai_conversation_participant_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "line delay time",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "variant 1",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "variant 2",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "variant 3",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "variant 4",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "variant 5",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "variant 6",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ai_conversation_block",
+            "sizeof": 116,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "stop if death",
+                            "comment": "this conversation will be aborted if any participant dies"
+                        },
+                        {
+                            "name": "stop if damaged",
+                            "comment": "an actor will abort this conversation if they are damaged"
+                        },
+                        {
+                            "name": "stop if visible enemy",
+                            "comment": "an actor will abort this conversation if they see an enemy"
+                        },
+                        {
+                            "name": "stop if alerted to enemy",
+                            "comment": "an actor will abort this conversation if they suspect an enemy"
+                        },
+                        {
+                            "name": "player must be visible",
+                            "comment": "this conversation cannot take place unless the participants can _see_ a nearby player"
+                        },
+                        {
+                            "name": "stop other actions",
+                            "comment": "participants stop doing whatever they were doing in order to perform this conversation"
+                        },
+                        {
+                            "name": "keep trying to play",
+                            "comment": "if this conversation fails initially, it will keep testing to see when it can play"
+                        },
+                        {
+                            "name": "player must be looking",
+                            "comment": "this conversation will not start until the player is looking at one of the participants"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "trigger distance",
+                    "unit": "world units",
+                    "comment": "distance the player must enter before the conversation can trigger",
+                    "type": "float"
+                },
+                {
+                    "name": "run-to-player dist",
+                    "unit": "world units",
+                    "comment": "if the 'involves player' flag is set, when triggered the conversation's participant(s) will run to within this distance of the player",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                },
+                {
+                    "name": "participants",
+                    "type": "block",
+                    "block_name": "ai_conversation_participant_block"
+                },
+                {
+                    "name": "lines",
+                    "type": "block",
+                    "block_name": "ai_conversation_line_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                }
+            ]
+        },
+        {
+            "name": "hs_scripts_block",
+            "sizeof": 92,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "script type",
+                    "type": "enum",
+                    "index": 141
+                },
+                {
+                    "name": "return type",
+                    "type": "enum",
+                    "index": 142
+                },
+                {
+                    "name": "root expression index",
+                    "type": "int"
+                },
+                {
+                    "type": "pad",
+                    "size": 52
+                }
+            ]
+        },
+        {
+            "name": "hs_globals_block",
+            "sizeof": 92,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 142
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "initialization expression index",
+                    "type": "int"
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                }
+            ]
+        },
+        {
+            "name": "hs_references_block",
+            "sizeof": 40,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "reference",
+                    "type": "tagref"
+                }
+            ]
+        },
+        {
+            "name": "hs_source_files_block",
+            "sizeof": 52,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "source",
+                    "type": "data"
+                }
+            ]
+        },
+        {
+            "name": "scenario_cutscene_flag_block",
+            "sizeof": 92,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "facing",
+                    "type": "angles2"
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                }
+            ]
+        },
+        {
+            "name": "scenario_cutscene_camera_point_block",
+            "sizeof": 104,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "position",
+                    "type": "point3"
+                },
+                {
+                    "name": "orientation",
+                    "type": "angles3"
+                },
+                {
+                    "name": "field of view",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                }
+            ]
+        },
+        {
+            "name": "scenario_cutscene_title_block",
+            "sizeof": 96,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "text bounds (on screen)",
+                    "type": "rect2 short"
+                },
+                {
+                    "name": "string index",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "justification",
+                    "type": "enum",
+                    "index": 70
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "text color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "shadow color",
+                    "type": "rgba8"
+                },
+                {
+                    "name": "fade in time [seconds]",
+                    "type": "float"
+                },
+                {
+                    "name": "up time [seconds]",
+                    "type": "float"
+                },
+                {
+                    "name": "fade out time [seconds]",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                }
+            ]
+        },
+        {
+            "name": "scenario_structure_bsps_block",
+            "sizeof": 32,
+            "fields": [
+                {
+                    "name": "offset",
+                    "type": "int"
+                },
+                {
+                    "name": "size",
+                    "type": "int"
+                },
+                {
+                    "name": "ptr",
+                    "type": "int"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "structure bsp",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "sbsp"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "scenario",
+            "sizeof": 1456,
+            "fields": [
+                {
+                    "name": "DON'T USE",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "sbsp"
+                        }
+                    ]
+                },
+                {
+                    "name": "WON'T USE",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "sbsp"
+                        }
+                    ]
+                },
+                {
+                    "name": "CAN'T USE",
+                    "comment": "set me!! me!!!  i do something cool!!!  you'll be happy forever if there this tag reference is filled in!  don't believe the lies!!! LIESSSS!!!!!!!!  YESS, MY PRECIOUSSSSS, LIESSSS...",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "sky "
+                        }
+                    ]
+                },
+                {
+                    "name": "skies",
+                    "type": "block",
+                    "block_name": "scenario_sky_reference_block"
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 71
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "cortana hack",
+                            "comment": "sort cortana in front of other transparent geometry"
+                        },
+                        {
+                            "name": "use demo UI",
+                            "comment": "uses alternate UI collection for demo"
+                        }
+                    ]
+                },
+                {
+                    "name": "child scenarios",
+                    "type": "block",
+                    "block_name": "scenario_child_scenario_block"
+                },
+                {
+                    "name": "local north",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "type": "pad",
+                    "size": 136
+                },
+                {
+                    "name": "predicted resources",
+                    "type": "block",
+                    "block_name": "predicted_resource_block"
+                },
+                {
+                    "name": "functions",
+                    "type": "block",
+                    "block_name": "scenario_function_block"
+                },
+                {
+                    "name": "editor scenario data",
+                    "type": "data"
+                },
+                {
+                    "name": "comments",
+                    "type": "block",
+                    "block_name": "editor_comment_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 224
+                },
+                {
+                    "name": "object names",
+                    "type": "block",
+                    "block_name": "scenario_object_names_block"
+                },
+                {
+                    "name": "scenery",
+                    "type": "block",
+                    "block_name": "scenario_scenery_block"
+                },
+                {
+                    "name": "scenery palette",
+                    "type": "block",
+                    "block_name": "scenario_scenery_palette_block"
+                },
+                {
+                    "name": "bipeds",
+                    "type": "block",
+                    "block_name": "scenario_biped_block"
+                },
+                {
+                    "name": "biped palette",
+                    "type": "block",
+                    "block_name": "scenario_biped_palette_block"
+                },
+                {
+                    "name": "vehicles",
+                    "type": "block",
+                    "block_name": "scenario_vehicle_block"
+                },
+                {
+                    "name": "vehicle palette",
+                    "type": "block",
+                    "block_name": "scenario_vehicle_palette_block"
+                },
+                {
+                    "name": "equipment",
+                    "type": "block",
+                    "block_name": "scenario_equipment_block"
+                },
+                {
+                    "name": "equipment palette",
+                    "type": "block",
+                    "block_name": "scenario_equipment_palette_block"
+                },
+                {
+                    "name": "weapons",
+                    "type": "block",
+                    "block_name": "scenario_weapon_block"
+                },
+                {
+                    "name": "weapon palette",
+                    "type": "block",
+                    "block_name": "scenario_weapon_palette_block"
+                },
+                {
+                    "name": "device groups",
+                    "type": "block",
+                    "block_name": "device_group_block"
+                },
+                {
+                    "name": "machines",
+                    "type": "block",
+                    "block_name": "scenario_machine_block"
+                },
+                {
+                    "name": "machine palette",
+                    "type": "block",
+                    "block_name": "scenario_machine_palette_block"
+                },
+                {
+                    "name": "controls",
+                    "type": "block",
+                    "block_name": "scenario_control_block"
+                },
+                {
+                    "name": "control palette",
+                    "type": "block",
+                    "block_name": "scenario_control_palette_block"
+                },
+                {
+                    "name": "light fixtures",
+                    "type": "block",
+                    "block_name": "scenario_light_fixture_block"
+                },
+                {
+                    "name": "light fixtures palette",
+                    "type": "block",
+                    "block_name": "scenario_light_fixture_palette_block"
+                },
+                {
+                    "name": "sound scenery",
+                    "type": "block",
+                    "block_name": "scenario_sound_scenery_block"
+                },
+                {
+                    "name": "sound scenery palette",
+                    "type": "block",
+                    "block_name": "scenario_sound_scenery_palette_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 84
+                },
+                {
+                    "name": "player starting profile",
+                    "type": "block",
+                    "block_name": "scenario_profiles_block"
+                },
+                {
+                    "name": "player starting locations",
+                    "type": "block",
+                    "block_name": "scenario_players_block"
+                },
+                {
+                    "name": "trigger volumes",
+                    "type": "block",
+                    "block_name": "scenario_trigger_volume_block"
+                },
+                {
+                    "name": "recorded animations",
+                    "type": "block",
+                    "block_name": "recorded_animation_block"
+                },
+                {
+                    "name": "netgame flags",
+                    "type": "block",
+                    "block_name": "scenario_netgame_flags_block"
+                },
+                {
+                    "name": "netgame equipment",
+                    "type": "block",
+                    "block_name": "scenario_netgame_equipment_block"
+                },
+                {
+                    "name": "starting equipment",
+                    "type": "block",
+                    "block_name": "scenario_starting_equipment_block"
+                },
+                {
+                    "name": "bsp switch trigger volumes",
+                    "type": "block",
+                    "block_name": "scenario_bsp_switch_trigger_volume_block"
+                },
+                {
+                    "name": "decals",
+                    "type": "block",
+                    "block_name": "scenario_decals_block"
+                },
+                {
+                    "name": "decal palette",
+                    "type": "block",
+                    "block_name": "scenario_decal_palette_block"
+                },
+                {
+                    "name": "detail object collection palette",
+                    "type": "block",
+                    "block_name": "scenario_detail_object_collection_palette_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 84
+                },
+                {
+                    "name": "actor palette",
+                    "type": "block",
+                    "block_name": "actor_palette_block"
+                },
+                {
+                    "name": "encounters",
+                    "type": "block",
+                    "block_name": "encounter_block"
+                },
+                {
+                    "name": "command lists",
+                    "type": "block",
+                    "block_name": "ai_command_list_block"
+                },
+                {
+                    "name": "ai animation references",
+                    "type": "block",
+                    "block_name": "ai_animation_reference_block"
+                },
+                {
+                    "name": "ai script references",
+                    "type": "block",
+                    "block_name": "ai_script_reference_block"
+                },
+                {
+                    "name": "ai recording references",
+                    "type": "block",
+                    "block_name": "ai_recording_reference_block"
+                },
+                {
+                    "name": "ai conversations",
+                    "type": "block",
+                    "block_name": "ai_conversation_block"
+                },
+                {
+                    "name": "script syntax data",
+                    "type": "data"
+                },
+                {
+                    "name": "script string data",
+                    "type": "data"
+                },
+                {
+                    "name": "scripts",
+                    "type": "block",
+                    "block_name": "hs_scripts_block"
+                },
+                {
+                    "name": "globals",
+                    "type": "block",
+                    "block_name": "hs_globals_block"
+                },
+                {
+                    "name": "references",
+                    "type": "block",
+                    "block_name": "hs_references_block"
+                },
+                {
+                    "name": "source files",
+                    "type": "block",
+                    "block_name": "hs_source_files_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "cutscene flags",
+                    "type": "block",
+                    "block_name": "scenario_cutscene_flag_block"
+                },
+                {
+                    "name": "cutscene camera points",
+                    "type": "block",
+                    "block_name": "scenario_cutscene_camera_point_block"
+                },
+                {
+                    "name": "cutscene titles",
+                    "type": "block",
+                    "block_name": "scenario_cutscene_title_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 108
+                },
+                {
+                    "name": "custom object names",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "ustr"
+                        }
+                    ]
+                },
+                {
+                    "name": "ingame help text",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "ustr"
+                        }
+                    ]
+                },
+                {
+                    "name": "hud messages",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "hmt "
+                        }
+                    ]
+                },
+                {
+                    "name": "structure bsps",
+                    "type": "block",
+                    "block_name": "scenario_structure_bsps_block"
+                }
+            ]
+        }
+    ]
+}

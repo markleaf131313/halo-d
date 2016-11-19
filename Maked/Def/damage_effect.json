@@ -1,0 +1,633 @@
+{
+    "name": "damage_effect",
+    "type": "jpt!",
+    "version": 6,
+    "blocks": [
+        {
+            "name": "damage_effect",
+            "sizeof": 672,
+            "fields": [
+                {
+                    "name": "radius",
+                    "unit": "world units",
+                    "type": "bound float"
+                },
+                {
+                    "name": "cutoff scale",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "don't scale damage by distance"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "screen flash",
+                    "type": "explanation",
+                    "explanation": "There are seven screen flash types:\n\nNONE: DST'= DST\nLIGHTEN: DST'= DST(1 - A) + C\nDARKEN: DST'= DST(1 - A) - C\nMAX: DST'= MAX[DST(1 - C), (C - A)(1-DST)]\nMIN: DST'= MIN[DST(1 - C), (C + A)(1-DST)]\nTINT: DST'= DST(1 - C) + (A*PIN[2C - 1, 0, 1] + A)(1-DST)\nINVERT: DST'= DST(1 - C) + A)\n\nIn the above equations C and A represent the color and alpha of the screen flash, DST represents the color in the framebuffer before the screen flash is applied, and DST' represents the color after the screen flash is applied."
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 8
+                },
+                {
+                    "name": "priority",
+                    "type": "enum",
+                    "index": 9
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "duration",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "fade function",
+                    "type": "enum",
+                    "index": 125
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "maximum intensity",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "color",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "low frequency vibrate",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "frequency",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "duration",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "fade function",
+                    "type": "enum",
+                    "index": 125
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "high frequency vibrate",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "frequency",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "duration",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "fade function",
+                    "type": "enum",
+                    "index": 125
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 16
+                },
+                {
+                    "name": "temporary camera impulse",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "duration",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "fade function",
+                    "type": "enum",
+                    "index": 125
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "rotation",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "name": "pushback",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "jitter",
+                    "unit": "world units",
+                    "type": "bound float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "permanent camera impulse",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "angle",
+                    "unit": "degrees",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "camera shaking",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "duration",
+                    "unit": "seconds",
+                    "comment": "the effect will last for this duration.",
+                    "type": "float"
+                },
+                {
+                    "name": "falloff function",
+                    "comment": "a function to envelope the effect's magnitude over time",
+                    "type": "enum",
+                    "index": 125
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "random translation",
+                    "unit": "world units",
+                    "comment": "random translation in all directions",
+                    "type": "float"
+                },
+                {
+                    "name": "random rotation",
+                    "unit": "degrees",
+                    "comment": "random rotation in all directions",
+                    "type": "angle"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "wobble function",
+                    "comment": "a function to perturb the effect's behavior over time",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "wobble function period",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "wobble weight",
+                    "comment": "a value of 0.0 signifies that the wobble function has no effect; a value of 1.0 signifies that the effect will not be felt when the wobble function's value is zero.",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "sound",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 112
+                },
+                {
+                    "name": "breaking effect",
+                    "type": "explanation",
+                    "explanation": "Controls particle velocities when a damage effect shatters a materal."
+                },
+                {
+                    "name": "forward velocity",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "forward radius",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "forward exponent",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "outward velocity",
+                    "unit": "world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "outward radius",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "outward exponent",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "damage",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "side effect",
+                    "type": "enum",
+                    "index": 10
+                },
+                {
+                    "name": "category",
+                    "type": "enum",
+                    "index": 11
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "does not hurt owner"
+                        },
+                        {
+                            "name": "can cause headshots"
+                        },
+                        {
+                            "name": "pings resistant units"
+                        },
+                        {
+                            "name": "does not hurt friends"
+                        },
+                        {
+                            "name": "does not ping units"
+                        },
+                        {
+                            "name": "detonates explosives"
+                        },
+                        {
+                            "name": "only hurts shields"
+                        },
+                        {
+                            "name": "causes flaming death"
+                        },
+                        {
+                            "name": "damage indicators always point down"
+                        },
+                        {
+                            "name": "skips shields"
+                        },
+                        {
+                            "name": "only hurts one infection form"
+                        },
+                        {
+                            "name": "can cause multiplayer headshots"
+                        },
+                        {
+                            "name": "infection form pop"
+                        }
+                    ]
+                },
+                {
+                    "name": "AOE core radius",
+                    "unit": "world units",
+                    "comment": "if this is area of effect damage",
+                    "type": "float"
+                },
+                {
+                    "name": "damage lower bound",
+                    "type": "float"
+                },
+                {
+                    "name": "damage upper bound",
+                    "type": "bound float"
+                },
+                {
+                    "name": "vehicle passthrough penalty",
+                    "unit": "[0,1]",
+                    "comment": "zero damages passengers in vehicles, one does not",
+                    "type": "float"
+                },
+                {
+                    "name": "active camouflage damage",
+                    "unit": "[0,1]",
+                    "comment": "how much more visible this damage makes a player who is active camouflaged",
+                    "type": "float"
+                },
+                {
+                    "name": "stun",
+                    "unit": "[0,1]",
+                    "comment": "amount of stun added to damaged unit",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum stun",
+                    "unit": "[0,1]",
+                    "comment": "damaged unit's stun will never exceed this amount",
+                    "type": "float"
+                },
+                {
+                    "name": "stun time",
+                    "unit": "seconds",
+                    "comment": "duration of stun due to this damage",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "instantaneous acceleration",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "damage modifiers",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "dirt",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "sand",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "stone",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "snow",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "wood",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "metal (hollow)",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "metal (thin)",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "metal (thick)",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "rubber",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "glass",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "force field",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "grunt",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "hunter armor",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "hunter skin",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "elite",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "jackal",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "jackal energy shield",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "engineer",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "engineer force field",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "flood combat form",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "flood carrier form",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "cyborg",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "cyborg energy shield",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "armored human",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "human",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "sentinel",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "monitor",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "plastic",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "water",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "leaves",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "elite energy shield",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "ice",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "name": "hunter shield",
+                    "unit": "[0,+inf]",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                }
+            ]
+        }
+    ]
+}

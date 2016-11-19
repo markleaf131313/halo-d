@@ -1,0 +1,419 @@
+{
+    "name": "contrail",
+    "type": "cont",
+    "version": 3,
+    "blocks": [
+        {
+            "name": "contrail_point_states_block",
+            "sizeof": 104,
+            "fields": [
+                {
+                    "name": "state timing",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "duration",
+                    "unit": "seconds",
+                    "comment": "the time a point spends in this state",
+                    "type": "bound float"
+                },
+                {
+                    "name": "transition duration",
+                    "unit": "seconds",
+                    "comment": "the time a point takes to transition to the next state",
+                    "type": "bound float"
+                },
+                {
+                    "name": "point variables",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "physics",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "pphy"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "width",
+                    "unit": "world units",
+                    "comment": "contrail width at this point",
+                    "type": "float"
+                },
+                {
+                    "name": "color lower bound",
+                    "comment": "contrail color at this point",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "color upper bound",
+                    "comment": "contrail color at this point",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "scale flags",
+                    "comment": "these flags determine which fields are scaled by the contrail density",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "duration"
+                        },
+                        {
+                            "name": "duration delta"
+                        },
+                        {
+                            "name": "transition duration"
+                        },
+                        {
+                            "name": "transition duration delta"
+                        },
+                        {
+                            "name": "width"
+                        },
+                        {
+                            "name": "color"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "contrail",
+            "sizeof": 324,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "first point unfaded"
+                        },
+                        {
+                            "name": "last point unfaded"
+                        },
+                        {
+                            "name": "points start pinned to media"
+                        },
+                        {
+                            "name": "points start pinned to ground"
+                        },
+                        {
+                            "name": "points always pinned to media"
+                        },
+                        {
+                            "name": "points always pinned to ground"
+                        },
+                        {
+                            "name": "edge effect fades slowly"
+                        }
+                    ]
+                },
+                {
+                    "name": "scale flags",
+                    "comment": "these flags determine which fields are scaled by the contrail density",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "point generation rate"
+                        },
+                        {
+                            "name": "point velocity"
+                        },
+                        {
+                            "name": "point velocity delta"
+                        },
+                        {
+                            "name": "point velocity cone angle"
+                        },
+                        {
+                            "name": "inherited velocity fraction"
+                        },
+                        {
+                            "name": "sequence animation rate"
+                        },
+                        {
+                            "name": "texture scale u"
+                        },
+                        {
+                            "name": "texture scale v"
+                        },
+                        {
+                            "name": "texture animation u"
+                        },
+                        {
+                            "name": "texture animation v"
+                        }
+                    ]
+                },
+                {
+                    "name": "point creation",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "point generation rate",
+                    "unit": "points per second",
+                    "comment": "this many points are generated per second",
+                    "type": "float"
+                },
+                {
+                    "name": "point velocity",
+                    "unit": "world units per second",
+                    "comment": "velocity added to each point's initial velocity",
+                    "type": "bound float"
+                },
+                {
+                    "name": "point velocity cone angle",
+                    "unit": "degrees",
+                    "comment": "initial velocity is inside the cone defined by the marker's forward vector and this angle",
+                    "type": "angle"
+                },
+                {
+                    "name": "inherited velocity fraction",
+                    "comment": "fraction of parent object's velocity that is inherited by contrail points.",
+                    "type": "fraction"
+                },
+                {
+                    "name": "rendering",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "render type",
+                    "comment": "this specifies how the contrail is oriented in space",
+                    "type": "enum",
+                    "index": 105
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "texture repeats u",
+                    "comment": "texture repeats per contrail segment",
+                    "type": "float"
+                },
+                {
+                    "name": "texture repeats v",
+                    "comment": "texture repeats across contrail width",
+                    "type": "float"
+                },
+                {
+                    "name": "texture animation u",
+                    "unit": "repeats per second",
+                    "comment": "the texture along the contrail is animated by this value",
+                    "type": "float"
+                },
+                {
+                    "name": "texture animation v",
+                    "unit": "repeats per second",
+                    "comment": "the texture across the contrail is animated by this value",
+                    "type": "float"
+                },
+                {
+                    "name": "animation rate",
+                    "unit": "frames per second",
+                    "type": "float"
+                },
+                {
+                    "name": "bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "first sequence index",
+                    "type": "short"
+                },
+                {
+                    "name": "sequence count",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 64
+                },
+                {
+                    "type": "pad",
+                    "size": 40
+                },
+                {
+                    "name": "shader flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "sort bias"
+                        },
+                        {
+                            "name": "nonlinear tint"
+                        },
+                        {
+                            "name": "don't overdraw fp weapon"
+                        }
+                    ]
+                },
+                {
+                    "name": "framebuffer blend function",
+                    "type": "enum",
+                    "index": 47
+                },
+                {
+                    "name": "framebuffer fade mode",
+                    "type": "enum",
+                    "index": 48
+                },
+                {
+                    "name": "map flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "name": "Secondary Map",
+                    "type": "explanation",
+                    "explanation": "Optional multitextured second map"
+                },
+                {
+                    "name": "bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "anchor",
+                    "type": "enum",
+                    "index": 55
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        }
+                    ]
+                },
+                {
+                    "name": "u-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "u-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "u-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "v-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "v-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "rotation-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "rotation-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation scale",
+                    "unit": "degrees",
+                    "comment": "0 defaults to 360",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation center",
+                    "type": "point2"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "zsprite radius scale",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 20
+                },
+                {
+                    "name": "point states",
+                    "type": "block",
+                    "block_name": "contrail_point_states_block"
+                }
+            ]
+        }
+    ]
+}

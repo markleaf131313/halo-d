@@ -1,0 +1,259 @@
+{
+    "name": "vehicle",
+    "type": "vehi",
+    "version": 1,
+    "parent": "unit",
+    "blocks": [
+        {
+            "name": "vehicle",
+            "sizeof": 256,
+            "fields": [
+                {
+                    "name": "$$$ VEHICLE $$$",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "speed wakes physics"
+                        },
+                        {
+                            "name": "turn wakes physics"
+                        },
+                        {
+                            "name": "driver power wakes physics"
+                        },
+                        {
+                            "name": "gunner power wakes physics"
+                        },
+                        {
+                            "name": "control opposite speed sets brake"
+                        },
+                        {
+                            "name": "slide wakes physics"
+                        },
+                        {
+                            "name": "kills riders at terminal velocity"
+                        },
+                        {
+                            "name": "causes collision damage"
+                        },
+                        {
+                            "name": "ai weapon cannot rotate"
+                        },
+                        {
+                            "name": "ai does not require driver"
+                        },
+                        {
+                            "name": "ai unused"
+                        },
+                        {
+                            "name": "ai driver enable"
+                        },
+                        {
+                            "name": "ai driver flying"
+                        },
+                        {
+                            "name": "ai driver can-sidestep"
+                        },
+                        {
+                            "name": "ai driver hovering"
+                        }
+                    ]
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 112
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "maximum forward speed",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum reverse speed",
+                    "type": "float"
+                },
+                {
+                    "name": "speed acceleration",
+                    "type": "float"
+                },
+                {
+                    "name": "speed deceleration",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum left turn",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum right turn (negative)",
+                    "type": "float"
+                },
+                {
+                    "name": "wheel circumference",
+                    "type": "float"
+                },
+                {
+                    "name": "turn rate",
+                    "type": "float"
+                },
+                {
+                    "name": "blur speed",
+                    "type": "float"
+                },
+                {
+                    "name": "A in",
+                    "type": "enum",
+                    "index": 113
+                },
+                {
+                    "name": "B in",
+                    "type": "enum",
+                    "index": 113
+                },
+                {
+                    "name": "C in",
+                    "type": "enum",
+                    "index": 113
+                },
+                {
+                    "name": "D in",
+                    "type": "enum",
+                    "index": 113
+                },
+                {
+                    "type": "pad",
+                    "size": 12
+                },
+                {
+                    "name": "maximum left slide",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum right slide",
+                    "type": "float"
+                },
+                {
+                    "name": "slide acceleration",
+                    "type": "float"
+                },
+                {
+                    "name": "slide deceleration",
+                    "type": "float"
+                },
+                {
+                    "name": "minimum flipping angular velocity",
+                    "type": "float"
+                },
+                {
+                    "name": "maximum flipping angular velocity",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "fixed gun yaw",
+                    "type": "float"
+                },
+                {
+                    "name": "fixed gun pitch",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 24
+                },
+                {
+                    "name": "ai sideslip distance",
+                    "type": "float"
+                },
+                {
+                    "name": "ai destination radius",
+                    "type": "float"
+                },
+                {
+                    "name": "ai avoidance distance",
+                    "type": "float"
+                },
+                {
+                    "name": "ai pathfinding radius",
+                    "type": "float"
+                },
+                {
+                    "name": "ai charge repeat timeout",
+                    "type": "float"
+                },
+                {
+                    "name": "ai strafing abort range",
+                    "type": "float"
+                },
+                {
+                    "name": "ai oversteering bounds",
+                    "type": "bound angle"
+                },
+                {
+                    "name": "ai steering maximum",
+                    "type": "angle"
+                },
+                {
+                    "name": "ai throttle maximum",
+                    "type": "float"
+                },
+                {
+                    "name": "ai move-position time",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "suspension sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "crash sound",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        }
+                    ]
+                },
+                {
+                    "name": "material effects",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "foot"
+                        }
+                    ]
+                },
+                {
+                    "name": "effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,187 @@
+{
+    "name": "device",
+    "type": "devi",
+    "version": 1,
+    "parent": "obje",
+    "blocks": [
+        {
+            "name": "device",
+            "sizeof": 276,
+            "fields": [
+                {
+                    "name": "$$$ DEVICE $$$",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "position loops"
+                        },
+                        {
+                            "name": "position not interpolated"
+                        }
+                    ]
+                },
+                {
+                    "name": "power transition time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "power acceleration time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "position transition time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "position acceleration time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "depowered position transition time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "depowered position acceleration time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "name": "A in",
+                    "type": "enum",
+                    "index": 72
+                },
+                {
+                    "name": "B in",
+                    "type": "enum",
+                    "index": 72
+                },
+                {
+                    "name": "C in",
+                    "type": "enum",
+                    "index": 72
+                },
+                {
+                    "name": "D in",
+                    "type": "enum",
+                    "index": 72
+                },
+                {
+                    "name": "open (up)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "close (down)",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "opened",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "closed",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "depowered",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "repowered",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "delay time",
+                    "unit": "seconds",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "delay effect",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "automatic activation radius",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 84
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                }
+            ]
+        }
+    ]
+}

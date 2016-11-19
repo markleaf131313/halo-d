@@ -1,0 +1,134 @@
+{
+    "name": "detail_object_collection",
+    "type": "dobc",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "detail_object_type_block",
+            "sizeof": 96,
+            "fields": [
+                {
+                    "name": "name",
+                    "type": "string"
+                },
+                {
+                    "name": "sequence index",
+                    "unit": "[0,15]",
+                    "type": "byte"
+                },
+                {
+                    "name": "type flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "unused"
+                        },
+                        {
+                            "name": "unused"
+                        },
+                        {
+                            "name": "interpolate color in hsv"
+                        },
+                        {
+                            "name": "...more colors"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "color override factor",
+                    "unit": "[0,1]",
+                    "comment": "fraction of detail object color to use instead of the base map color in the environment",
+                    "type": "fraction"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "near fade distance",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "far fade distance",
+                    "unit": "world units",
+                    "type": "float"
+                },
+                {
+                    "name": "size",
+                    "unit": "world units per pixel",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "minimum color",
+                    "unit": "[0,1]",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "maximum color",
+                    "unit": "[0,1]",
+                    "type": "rgbf"
+                },
+                {
+                    "name": "ambient color",
+                    "unit": "[0,255]",
+                    "type": "rgba8"
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                }
+            ]
+        },
+        {
+            "name": "detail_object_collection",
+            "sizeof": 128,
+            "fields": [
+                {
+                    "name": "collection type",
+                    "type": "enum",
+                    "index": 16
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "global z offset",
+                    "unit": "applied to all detail objects of in this collection so they don't float above the ground",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 44
+                },
+                {
+                    "name": "sprite plate",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "types",
+                    "type": "block",
+                    "block_name": "detail_object_type_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 48
+                }
+            ]
+        }
+    ]
+}

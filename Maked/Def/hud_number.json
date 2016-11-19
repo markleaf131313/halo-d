@@ -1,0 +1,54 @@
+{
+    "name": "hud_number",
+    "type": "hud#",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "hud_number",
+            "sizeof": 100,
+            "fields": [
+                {
+                    "name": "digits bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "bitmap digit width",
+                    "type": "byte"
+                },
+                {
+                    "name": "screen digit width",
+                    "type": "byte"
+                },
+                {
+                    "name": "x offset",
+                    "type": "byte"
+                },
+                {
+                    "name": "y offset",
+                    "type": "byte"
+                },
+                {
+                    "name": "decimal point width",
+                    "type": "byte"
+                },
+                {
+                    "name": "colon width",
+                    "type": "byte"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 76
+                }
+            ]
+        }
+    ]
+}

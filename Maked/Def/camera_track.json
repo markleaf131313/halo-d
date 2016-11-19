@@ -1,0 +1,45 @@
+{
+    "name": "camera_track",
+    "type": "trak",
+    "version": 2,
+    "blocks": [
+        {
+            "name": "camera_track_control_point_block",
+            "sizeof": 60,
+            "fields": [
+                {
+                    "name": "position",
+                    "type": "vec3"
+                },
+                {
+                    "name": "orientation",
+                    "type": "quat"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "camera_track",
+            "sizeof": 48,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag32",
+                    "flags": ""
+                },
+                {
+                    "name": "control points",
+                    "type": "block",
+                    "block_name": "camera_track_control_point_block"
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,74 @@
+{
+    "name": "device_control",
+    "type": "ctrl",
+    "version": 1,
+    "parent": "devi",
+    "blocks": [
+        {
+            "name": "device_control",
+            "sizeof": 136,
+            "fields": [
+                {
+                    "name": "$$$ CONTROL $$$",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "type",
+                    "type": "enum",
+                    "index": 75
+                },
+                {
+                    "name": "triggers when",
+                    "type": "enum",
+                    "index": 76
+                },
+                {
+                    "name": "call value",
+                    "unit": "[0,1]",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 80
+                },
+                {
+                    "name": "on",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "off",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                },
+                {
+                    "name": "deny",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "snd!"
+                        },
+                        {
+                            "type": "effe"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,283 @@
+{
+    "name": "glow",
+    "type": "glw!",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "glow",
+            "sizeof": 340,
+            "fields": [
+                {
+                    "name": "attachment marker",
+                    "comment": "the marker name that the glow should be attached to",
+                    "type": "string"
+                },
+                {
+                    "name": "number of particles",
+                    "comment": "the number of particles that comprise the glow system",
+                    "type": "short"
+                },
+                {
+                    "name": "boundary effect",
+                    "comment": "particles behavior on reaching the end of an object",
+                    "type": "enum",
+                    "index": 85
+                },
+                {
+                    "name": "normal particle distribution",
+                    "comment": "distribution of the normal particles about the object",
+                    "type": "enum",
+                    "index": 86
+                },
+                {
+                    "name": "trailing particle distribution",
+                    "comment": "distribution of the trailing particles about the object",
+                    "type": "enum",
+                    "index": 87
+                },
+                {
+                    "name": "glow flags",
+                    "type": "flag32",
+                    "flags": [
+                        {
+                            "name": "modify particle color in range"
+                        },
+                        {
+                            "name": "particles move backwards"
+                        },
+                        {
+                            "name": "partices move in both directions"
+                        },
+                        {
+                            "name": "trailing particles fade over time"
+                        },
+                        {
+                            "name": "trailing particles shrink over time"
+                        },
+                        {
+                            "name": "trailing particles slow over time"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 28
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 4
+                },
+                {
+                    "name": "attachment",
+                    "type": "enum",
+                    "index": 88
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "particle rotational velocity",
+                    "comment": "radians per second",
+                    "type": "float"
+                },
+                {
+                    "name": "particle rot vel mul low",
+                    "comment": "multiplied by overall velocity; only used if controlled by attachment",
+                    "type": "float"
+                },
+                {
+                    "name": "particle rot vel mul high",
+                    "comment": "multiplied by overall velocity; only used if controlled by attachment",
+                    "type": "float"
+                },
+                {
+                    "name": "attachment",
+                    "type": "enum",
+                    "index": 88
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "effect rotational velocity",
+                    "comment": "in radians per second",
+                    "type": "float"
+                },
+                {
+                    "name": "effect rot vel mul low",
+                    "comment": "multiplied by overall velocity; only used if controlled by attachment",
+                    "type": "float"
+                },
+                {
+                    "name": "effect rot vel mul high",
+                    "comment": "multiplied by overall velocity; only used if controlled by attachment",
+                    "type": "float"
+                },
+                {
+                    "name": "attachment",
+                    "type": "enum",
+                    "index": 88
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "effect translational velocity",
+                    "comment": "in world units per second",
+                    "type": "float"
+                },
+                {
+                    "name": "effect trans vel mul low",
+                    "comment": "multiplied by overall velocity; only used if controlled by attachment",
+                    "type": "float"
+                },
+                {
+                    "name": "effect trans vel mul high",
+                    "comment": "multiplied by overall velocity; only used if controlled by attachment",
+                    "type": "float"
+                },
+                {
+                    "name": "attachment",
+                    "type": "enum",
+                    "index": 88
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "min distance particle to object",
+                    "comment": "in world units",
+                    "type": "float"
+                },
+                {
+                    "name": "max distance particle to object",
+                    "comment": "in world units",
+                    "type": "float"
+                },
+                {
+                    "name": "distance to object mul low",
+                    "comment": "multiplied by particle distance; only used if controlled by attachment",
+                    "type": "float"
+                },
+                {
+                    "name": "distance to object mul high",
+                    "comment": "multiplied by particle distance; only used if controlled by attachment",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 8
+                },
+                {
+                    "name": "attachment",
+                    "type": "enum",
+                    "index": 88
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "particle size bounds",
+                    "unit": "world units",
+                    "comment": "size of particles",
+                    "type": "bound float"
+                },
+                {
+                    "name": "size attachment multiplier",
+                    "comment": "multiplied by particle size; only used if controlled by attachment",
+                    "type": "bound float"
+                },
+                {
+                    "name": "attachment",
+                    "type": "enum",
+                    "index": 88
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "color_bound_0",
+                    "comment": "the color of all particles will vary between color bound 0 and color bound 1",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "color_bound_1",
+                    "comment": "the color of all particles will vary between color bound 0 and color bound 1",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "scale color 0",
+                    "comment": "used to scale the particle color; only used if controlled by attachment",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "scale color 1",
+                    "comment": "used to scale the particle color; only used if controlled by attachment",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "color rate of change",
+                    "comment": "for glow effects that dynamically control particle color; sets rate of change",
+                    "type": "float"
+                },
+                {
+                    "name": "fading percentage of glow",
+                    "comment": "percentage of the glow that is fading at any given time",
+                    "type": "float"
+                },
+                {
+                    "name": "particle generation freq",
+                    "unit": "Hz",
+                    "comment": "frequency in Hz that trailing particles are generated",
+                    "type": "float"
+                },
+                {
+                    "name": "lifetime of trailing particles",
+                    "unit": "s",
+                    "comment": "seconds that a trailing particle remains in existence",
+                    "type": "float"
+                },
+                {
+                    "name": "velocity of trailing particles",
+                    "unit": "wu/s",
+                    "type": "float"
+                },
+                {
+                    "name": "trailing particle minimum t",
+                    "type": "float"
+                },
+                {
+                    "name": "trailing particle maximum t",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 52
+                },
+                {
+                    "name": "texture",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

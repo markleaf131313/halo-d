@@ -1,0 +1,125 @@
+{
+    "name": "virtual_keyboard",
+    "type": "vcky",
+    "version": 2,
+    "blocks": [
+        {
+            "name": "virtual_key_block",
+            "sizeof": 80,
+            "fields": [
+                {
+                    "name": "keyboard key",
+                    "type": "enum",
+                    "index": 17
+                },
+                {
+                    "name": "key codes",
+                    "type": "explanation",
+                    "explanation": "enter unicode character values as integer numbers"
+                },
+                {
+                    "name": "lowercase character",
+                    "type": "short"
+                },
+                {
+                    "name": "shift character",
+                    "type": "short"
+                },
+                {
+                    "name": "caps character",
+                    "type": "short"
+                },
+                {
+                    "name": "symbols character",
+                    "type": "short"
+                },
+                {
+                    "name": "shift+caps character",
+                    "type": "short"
+                },
+                {
+                    "name": "shift+symbols character",
+                    "type": "short"
+                },
+                {
+                    "name": "caps+symbols character",
+                    "type": "short"
+                },
+                {
+                    "name": "unselected background bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "selected background bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "active background bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "sticky background bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "virtual_keyboard",
+            "sizeof": 60,
+            "fields": [
+                {
+                    "name": "display font",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "font"
+                        }
+                    ]
+                },
+                {
+                    "name": "background bitmap",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "special key labels string list",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "ustr"
+                        }
+                    ]
+                },
+                {
+                    "name": "virtual keys",
+                    "type": "block",
+                    "block_name": "virtual_key_block"
+                }
+            ]
+        }
+    ]
+}

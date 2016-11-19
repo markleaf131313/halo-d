@@ -1,0 +1,471 @@
+{
+    "name": "shader_transparent_generic",
+    "type": "sotr",
+    "version": 1,
+    "parent": "shdr",
+    "blocks": [
+        {
+            "name": "shader_transparent_generic_map_block",
+            "sizeof": 100,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unfiltered"
+                        },
+                        {
+                            "name": "u-clamped"
+                        },
+                        {
+                            "name": "v-clamped"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "map u-scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "map v-scale",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "map u-offset",
+                    "type": "float"
+                },
+                {
+                    "name": "map v-offset",
+                    "type": "float"
+                },
+                {
+                    "name": "map rotation",
+                    "unit": "degrees",
+                    "type": "float"
+                },
+                {
+                    "name": "mipmap bias",
+                    "unit": "[0,1]",
+                    "type": "fraction"
+                },
+                {
+                    "name": "map",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "bitm"
+                        }
+                    ]
+                },
+                {
+                    "name": "2D texture animation",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "u-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "u-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "u-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "u-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "v-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "v-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "v-animation scale",
+                    "unit": "repeats",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation source",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "name": "rotation-animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "rotation-animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation phase",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation scale",
+                    "unit": "degrees",
+                    "comment": "0 defaults to 360",
+                    "type": "float"
+                },
+                {
+                    "name": "rotation-animation center",
+                    "type": "point2"
+                }
+            ]
+        },
+        {
+            "name": "shader_transparent_generic_stage_block",
+            "sizeof": 112,
+            "fields": [
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "color mux"
+                        },
+                        {
+                            "name": "alpha mux"
+                        },
+                        {
+                            "name": "A-out controls color0 animation"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "constants and animation",
+                    "type": "explanation",
+                    "explanation": "Constant color 0 is animated in exactly the same way as the self-illumination color of the model shader, except that it has an alpha component in addition to the RGB components. Constant color 1 is just a constant."
+                },
+                {
+                    "name": "color0 source",
+                    "type": "enum",
+                    "index": 106
+                },
+                {
+                    "name": "color0 animation function",
+                    "type": "enum",
+                    "index": 124
+                },
+                {
+                    "name": "color0 animation period",
+                    "unit": "seconds",
+                    "comment": "0 defaults to 1",
+                    "type": "float"
+                },
+                {
+                    "name": "color0 animation lower bound",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "color0 animation upper bound",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "color1",
+                    "type": "rgbaf"
+                },
+                {
+                    "name": "color inputs",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "input A",
+                    "type": "enum",
+                    "index": 56
+                },
+                {
+                    "name": "input A mapping",
+                    "type": "enum",
+                    "index": 58
+                },
+                {
+                    "name": "input B",
+                    "type": "enum",
+                    "index": 56
+                },
+                {
+                    "name": "input B mapping",
+                    "type": "enum",
+                    "index": 58
+                },
+                {
+                    "name": "input C",
+                    "type": "enum",
+                    "index": 56
+                },
+                {
+                    "name": "input C mapping",
+                    "type": "enum",
+                    "index": 58
+                },
+                {
+                    "name": "input D",
+                    "type": "enum",
+                    "index": 56
+                },
+                {
+                    "name": "input D mapping",
+                    "type": "enum",
+                    "index": 58
+                },
+                {
+                    "name": "color outputs",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "output AB",
+                    "type": "enum",
+                    "index": 59
+                },
+                {
+                    "name": "output AB function",
+                    "type": "enum",
+                    "index": 61
+                },
+                {
+                    "name": "output CD",
+                    "type": "enum",
+                    "index": 59
+                },
+                {
+                    "name": "output CD function",
+                    "type": "enum",
+                    "index": 61
+                },
+                {
+                    "name": "output AB CD mux/sum",
+                    "type": "enum",
+                    "index": 59
+                },
+                {
+                    "name": "output mapping",
+                    "type": "enum",
+                    "index": 62
+                },
+                {
+                    "name": "alpha inputs",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "input A",
+                    "type": "enum",
+                    "index": 57
+                },
+                {
+                    "name": "input A mapping",
+                    "type": "enum",
+                    "index": 58
+                },
+                {
+                    "name": "input B",
+                    "type": "enum",
+                    "index": 57
+                },
+                {
+                    "name": "input B mapping",
+                    "type": "enum",
+                    "index": 58
+                },
+                {
+                    "name": "input C",
+                    "type": "enum",
+                    "index": 57
+                },
+                {
+                    "name": "input C mapping",
+                    "type": "enum",
+                    "index": 58
+                },
+                {
+                    "name": "input D",
+                    "type": "enum",
+                    "index": 57
+                },
+                {
+                    "name": "input D mapping",
+                    "type": "enum",
+                    "index": 58
+                },
+                {
+                    "name": "alpha outputs",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "output AB",
+                    "type": "enum",
+                    "index": 60
+                },
+                {
+                    "name": "output CD",
+                    "type": "enum",
+                    "index": 60
+                },
+                {
+                    "name": "output AB CD mux/sum",
+                    "type": "enum",
+                    "index": 60
+                },
+                {
+                    "name": "output mapping",
+                    "type": "enum",
+                    "index": 62
+                }
+            ]
+        },
+        {
+            "name": "shader_transparent_generic",
+            "sizeof": 68,
+            "fields": [
+                {
+                    "name": "generic transparent shader",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "numeric counter limit",
+                    "unit": "[0,255]",
+                    "type": "byte"
+                },
+                {
+                    "name": "flags",
+                    "type": "flag8",
+                    "flags": [
+                        {
+                            "name": "alpha-tested"
+                        },
+                        {
+                            "name": "decal"
+                        },
+                        {
+                            "name": "two-sided"
+                        },
+                        {
+                            "name": "first map is in screenspace"
+                        },
+                        {
+                            "name": "draw before water"
+                        },
+                        {
+                            "name": "ignore effect"
+                        },
+                        {
+                            "name": "scale first map with distance"
+                        },
+                        {
+                            "name": "numeric"
+                        }
+                    ]
+                },
+                {
+                    "name": "first map type",
+                    "type": "enum",
+                    "index": 63
+                },
+                {
+                    "name": "framebuffer blend function",
+                    "type": "enum",
+                    "index": 47
+                },
+                {
+                    "name": "framebuffer fade mode",
+                    "type": "enum",
+                    "index": 48
+                },
+                {
+                    "name": "framebuffer fade source",
+                    "comment": "fade is multiplied by this external value",
+                    "type": "enum",
+                    "index": 107
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "name": "lens flares",
+                    "type": "explanation",
+                    "explanation": ""
+                },
+                {
+                    "name": "lens flare spacing",
+                    "unit": "world units",
+                    "comment": "0 places a single lens flare",
+                    "type": "float"
+                },
+                {
+                    "name": "lens flare",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "lens"
+                        }
+                    ]
+                },
+                {
+                    "name": "extra layers",
+                    "type": "block",
+                    "block_name": "shader_transparent_layer_block"
+                },
+                {
+                    "name": "maps",
+                    "type": "block",
+                    "block_name": "shader_transparent_generic_map_block"
+                },
+                {
+                    "name": "stages",
+                    "type": "block",
+                    "block_name": "shader_transparent_generic_stage_block"
+                }
+            ]
+        }
+    ]
+}

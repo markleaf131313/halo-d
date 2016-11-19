@@ -1,0 +1,5254 @@
+{
+    "enums": [
+        {
+            "index": "0",
+            "name": "animation type",
+            "values": [
+                {
+                    "name": "base"
+                },
+                {
+                    "name": "overlay"
+                },
+                {
+                    "name": "replacement"
+                }
+            ]
+        },
+        {
+            "index": "1",
+            "name": "animation frame info type",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "dx,dy"
+                },
+                {
+                    "name": "dx,dy,dyaw"
+                },
+                {
+                    "name": "dx,dy,dz,dyaw"
+                }
+            ]
+        },
+        {
+            "index": "2",
+            "name": "enum2",
+            "values": [
+                {
+                    "name": "A out"
+                },
+                {
+                    "name": "B out"
+                },
+                {
+                    "name": "C out"
+                },
+                {
+                    "name": "D out"
+                }
+            ]
+        },
+        {
+            "index": "3",
+            "name": "enum3",
+            "values": [
+                {
+                    "name": "frame"
+                },
+                {
+                    "name": "scale"
+                }
+            ]
+        },
+        {
+            "index": "4",
+            "name": "sound compression",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "xbox adpcm"
+                },
+                {
+                    "name": "ima adpcm"
+                },
+                {
+                    "name": "ogg"
+                }
+            ]
+        },
+        {
+            "index": "5",
+            "name": "sound encoding",
+            "values": [
+                {
+                    "name": "mono"
+                },
+                {
+                    "name": "stereo"
+                }
+            ]
+        },
+        {
+            "index": "6",
+            "name": "sound sample rate",
+            "values": [
+                {
+                    "name": "22kHz"
+                },
+                {
+                    "name": "44kHz"
+                }
+            ]
+        },
+        {
+            "index": "7",
+            "name": "sound class",
+            "values": [
+                {
+                    "name": "projectile_impact"
+                },
+                {
+                    "name": "projectile_detonation"
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": "weapon_fire"
+                },
+                {
+                    "name": "weapon_ready"
+                },
+                {
+                    "name": "weapon_reload"
+                },
+                {
+                    "name": "weapon_empty"
+                },
+                {
+                    "name": "weapon_charge"
+                },
+                {
+                    "name": "weapon_overheat"
+                },
+                {
+                    "name": "weapon_idle"
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": "object_impacts"
+                },
+                {
+                    "name": "particle_impacts"
+                },
+                {
+                    "name": "slow_particle_impacts"
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": "unit_footsteps"
+                },
+                {
+                    "name": "unit_dialog"
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": "vehicle_collision"
+                },
+                {
+                    "name": "vehicle_engine"
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": "device_door"
+                },
+                {
+                    "name": "device_force_field"
+                },
+                {
+                    "name": "device_machinery"
+                },
+                {
+                    "name": "device_nature"
+                },
+                {
+                    "name": "device_computers"
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": "music"
+                },
+                {
+                    "name": "ambient_nature"
+                },
+                {
+                    "name": "ambient_machinery"
+                },
+                {
+                    "name": "ambient_computers"
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": "first_person_damage"
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": "scripted_dialog_player"
+                },
+                {
+                    "name": "scripted_effect"
+                },
+                {
+                    "name": "scripted_dialog_other"
+                },
+                {
+                    "name": "scripted_dialog_force_unspatialized"
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": ""
+                },
+                {
+                    "name": "game_event"
+                }
+            ]
+        },
+        {
+            "index": "8",
+            "name": "enum8",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "lighten"
+                },
+                {
+                    "name": "darken"
+                },
+                {
+                    "name": "max"
+                },
+                {
+                    "name": "min"
+                },
+                {
+                    "name": "invert"
+                },
+                {
+                    "name": "tint"
+                }
+            ]
+        },
+        {
+            "index": "9",
+            "name": "enum9",
+            "values": [
+                {
+                    "name": "low"
+                },
+                {
+                    "name": "medium"
+                },
+                {
+                    "name": "high"
+                }
+            ]
+        },
+        {
+            "index": "10",
+            "name": "enum10",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "harmless"
+                },
+                {
+                    "name": "lethal to the unsuspecting"
+                },
+                {
+                    "name": "emp"
+                }
+            ]
+        },
+        {
+            "index": "11",
+            "name": "enum11",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "falling"
+                },
+                {
+                    "name": "bullet"
+                },
+                {
+                    "name": "grenade"
+                },
+                {
+                    "name": "high explosive"
+                },
+                {
+                    "name": "sniper"
+                },
+                {
+                    "name": "melee"
+                },
+                {
+                    "name": "flame"
+                },
+                {
+                    "name": "mounted weapon"
+                },
+                {
+                    "name": "vehicle"
+                },
+                {
+                    "name": "plasma"
+                },
+                {
+                    "name": "needle"
+                },
+                {
+                    "name": "shotgun"
+                }
+            ]
+        },
+        {
+            "index": "12",
+            "name": "enum12",
+            "values": [
+                {
+                    "name": "player 1"
+                },
+                {
+                    "name": "player 2"
+                },
+                {
+                    "name": "player 3"
+                },
+                {
+                    "name": "player 4"
+                },
+                {
+                    "name": "any player"
+                }
+            ]
+        },
+        {
+            "index": "13",
+            "name": "enum13",
+            "values": [
+                {
+                    "name": "container"
+                },
+                {
+                    "name": "text box"
+                },
+                {
+                    "name": "spinner list"
+                },
+                {
+                    "name": "column list"
+                },
+                {
+                    "name": "game model (not implemented)"
+                },
+                {
+                    "name": "movie (not implemented)"
+                },
+                {
+                    "name": "custom (not implemented)"
+                }
+            ]
+        },
+        {
+            "index": "14",
+            "name": "enum14",
+            "values": [
+                {
+                    "name": "A button"
+                },
+                {
+                    "name": "B button"
+                },
+                {
+                    "name": "X button"
+                },
+                {
+                    "name": "Y button"
+                },
+                {
+                    "name": "black button"
+                },
+                {
+                    "name": "white button"
+                },
+                {
+                    "name": "left trigger"
+                },
+                {
+                    "name": "right trigger"
+                },
+                {
+                    "name": "dpad up"
+                },
+                {
+                    "name": "dpad down"
+                },
+                {
+                    "name": "dpad left"
+                },
+                {
+                    "name": "dpad right"
+                },
+                {
+                    "name": "start button"
+                },
+                {
+                    "name": "back button"
+                },
+                {
+                    "name": "left thumb"
+                },
+                {
+                    "name": "right thumb"
+                },
+                {
+                    "name": "left analog stick up"
+                },
+                {
+                    "name": "left analog stick down"
+                },
+                {
+                    "name": "left analog stick left"
+                },
+                {
+                    "name": "left analog stick right"
+                },
+                {
+                    "name": "right analog stick up"
+                },
+                {
+                    "name": "right analog stick down"
+                },
+                {
+                    "name": "right analog stick left"
+                },
+                {
+                    "name": "right analog stick right"
+                },
+                {
+                    "name": "created"
+                },
+                {
+                    "name": "deleted"
+                },
+                {
+                    "name": "get focus"
+                },
+                {
+                    "name": "lose focus"
+                },
+                {
+                    "name": "left mouse"
+                },
+                {
+                    "name": "middle mouse"
+                },
+                {
+                    "name": "right mouse"
+                },
+                {
+                    "name": "double click"
+                },
+                {
+                    "name": "custom activation"
+                },
+                {
+                    "name": "post-render"
+                }
+            ]
+        },
+        {
+            "index": "15",
+            "name": "enum15",
+            "values": [
+                {
+                    "name": "left justify"
+                },
+                {
+                    "name": "right justify"
+                },
+                {
+                    "name": "center justify"
+                }
+            ]
+        },
+        {
+            "index": "16",
+            "name": "enum16",
+            "values": [
+                {
+                    "name": "screen-facing"
+                },
+                {
+                    "name": "viewer-facing"
+                }
+            ]
+        },
+        {
+            "index": "17",
+            "name": "enum17",
+            "values": [
+                {
+                    "name": "1"
+                },
+                {
+                    "name": "2"
+                },
+                {
+                    "name": "3"
+                },
+                {
+                    "name": "4"
+                },
+                {
+                    "name": "5"
+                },
+                {
+                    "name": "6"
+                },
+                {
+                    "name": "7"
+                },
+                {
+                    "name": "8"
+                },
+                {
+                    "name": "9"
+                },
+                {
+                    "name": "0"
+                },
+                {
+                    "name": "A"
+                },
+                {
+                    "name": "B"
+                },
+                {
+                    "name": "C"
+                },
+                {
+                    "name": "D"
+                },
+                {
+                    "name": "E"
+                },
+                {
+                    "name": "F"
+                },
+                {
+                    "name": "G"
+                },
+                {
+                    "name": "H"
+                },
+                {
+                    "name": "I"
+                },
+                {
+                    "name": "J"
+                },
+                {
+                    "name": "K"
+                },
+                {
+                    "name": "L"
+                },
+                {
+                    "name": "M"
+                },
+                {
+                    "name": "N"
+                },
+                {
+                    "name": "O"
+                },
+                {
+                    "name": "P"
+                },
+                {
+                    "name": "Q"
+                },
+                {
+                    "name": "R"
+                },
+                {
+                    "name": "S"
+                },
+                {
+                    "name": "T"
+                },
+                {
+                    "name": "U"
+                },
+                {
+                    "name": "V"
+                },
+                {
+                    "name": "W"
+                },
+                {
+                    "name": "X"
+                },
+                {
+                    "name": "Y"
+                },
+                {
+                    "name": "Z"
+                },
+                {
+                    "name": "DONE"
+                },
+                {
+                    "name": "SHIFT"
+                },
+                {
+                    "name": "CAPS LOCK"
+                },
+                {
+                    "name": "SYMBOLS"
+                },
+                {
+                    "name": "BACKSPACE"
+                },
+                {
+                    "name": "LEFT"
+                },
+                {
+                    "name": "RIGHT"
+                },
+                {
+                    "name": "SPACE"
+                }
+            ]
+        },
+        {
+            "index": "18",
+            "name": "enum18",
+            "values": [
+                {
+                    "name": "top left"
+                },
+                {
+                    "name": "top right"
+                },
+                {
+                    "name": "bottom left"
+                },
+                {
+                    "name": "bottom right"
+                },
+                {
+                    "name": "center"
+                }
+            ]
+        },
+        {
+            "index": "19",
+            "name": "enum19",
+            "values": [
+                {
+                    "name": "any"
+                },
+                {
+                    "name": "solo"
+                },
+                {
+                    "name": "multiplayer"
+                }
+            ]
+        },
+        {
+            "index": "20",
+            "name": "enum20",
+            "values": [
+                {
+                    "name": "medium"
+                },
+                {
+                    "name": "small"
+                },
+                {
+                    "name": "large"
+                }
+            ]
+        },
+        {
+            "index": "21",
+            "name": "enum21",
+            "values": [
+                {
+                    "name": "tint [0,1]"
+                },
+                {
+                    "name": "horizontal offset"
+                },
+                {
+                    "name": "vertical offset"
+                },
+                {
+                    "name": "fade [0,1]"
+                }
+            ]
+        },
+        {
+            "index": "22",
+            "name": "enum22",
+            "values": [
+                {
+                    "name": "geometry offset"
+                },
+                {
+                    "name": "primary map"
+                },
+                {
+                    "name": "secondary map"
+                },
+                {
+                    "name": "tertiary map"
+                }
+            ]
+        },
+        {
+            "index": "23",
+            "name": "enum23",
+            "values": [
+                {
+                    "name": "player pitch"
+                },
+                {
+                    "name": "player pitch tangent"
+                },
+                {
+                    "name": "player yaw"
+                },
+                {
+                    "name": "weapon ammo (total)"
+                },
+                {
+                    "name": "weapon ammo (loaded)"
+                },
+                {
+                    "name": "weapon heat"
+                },
+                {
+                    "name": "explicit (uses low bound)"
+                },
+                {
+                    "name": "weapon zoom level"
+                }
+            ]
+        },
+        {
+            "index": "24",
+            "name": "enum24",
+            "values": [
+                {
+                    "name": "add"
+                },
+                {
+                    "name": "subtract"
+                },
+                {
+                    "name": "multiply"
+                },
+                {
+                    "name": "multiply2x"
+                },
+                {
+                    "name": "dot"
+                }
+            ]
+        },
+        {
+            "index": "25",
+            "name": "enum25",
+            "values": [
+                {
+                    "name": "texture"
+                },
+                {
+                    "name": "screen"
+                }
+            ]
+        },
+        {
+            "index": "26",
+            "name": "enum26",
+            "values": [
+                {
+                    "name": "clamp"
+                },
+                {
+                    "name": "wrap"
+                }
+            ]
+        },
+        {
+            "index": "27",
+            "name": "enum27",
+            "values": [
+                {
+                    "name": "integrated light"
+                }
+            ]
+        },
+        {
+            "index": "28",
+            "name": "enum28",
+            "values": [
+                {
+                    "name": "team icon"
+                }
+            ]
+        },
+        {
+            "index": "29",
+            "name": "enum29",
+            "values": [
+                {
+                    "name": "total ammo"
+                },
+                {
+                    "name": "loaded ammo"
+                },
+                {
+                    "name": "heat"
+                },
+                {
+                    "name": "age"
+                },
+                {
+                    "name": "secondary weapon total ammo"
+                },
+                {
+                    "name": "secondary weapon loaded ammo"
+                },
+                {
+                    "name": "distance to target"
+                },
+                {
+                    "name": "elevation to target"
+                }
+            ]
+        },
+        {
+            "index": "30",
+            "name": "enum30",
+            "values": [
+                {
+                    "name": "aim"
+                },
+                {
+                    "name": "zoom"
+                },
+                {
+                    "name": "charge"
+                },
+                {
+                    "name": "should reload"
+                },
+                {
+                    "name": "flash heat"
+                },
+                {
+                    "name": "flash total ammo"
+                },
+                {
+                    "name": "flash battery"
+                },
+                {
+                    "name": "reload/overheat"
+                },
+                {
+                    "name": "flash when firing and no ammo"
+                },
+                {
+                    "name": "flash when throwing and no grenade"
+                },
+                {
+                    "name": "low ammo and none left to reload"
+                },
+                {
+                    "name": "should reload secondary trigger"
+                },
+                {
+                    "name": "flash secondary total ammo"
+                },
+                {
+                    "name": "flash secondary reload"
+                },
+                {
+                    "name": "flash when firing secondary trigger with no ammo"
+                },
+                {
+                    "name": "low secondary ammo and none left to reload"
+                },
+                {
+                    "name": "primary trigger ready"
+                },
+                {
+                    "name": "secondary trigger ready"
+                },
+                {
+                    "name": "flash when firing with depleted battery"
+                }
+            ]
+        },
+        {
+            "index": "31",
+            "name": "enum31",
+            "values": [
+                {
+                    "name": "none"
+                }
+            ]
+        },
+        {
+            "index": "32",
+            "name": "enum32",
+            "values": [
+                {
+                    "name": "scratch"
+                },
+                {
+                    "name": "splatter"
+                },
+                {
+                    "name": "burn"
+                },
+                {
+                    "name": "painted sign"
+                }
+            ]
+        },
+        {
+            "index": "33",
+            "name": "enum33",
+            "values": [
+                {
+                    "name": "primary"
+                },
+                {
+                    "name": "secondary"
+                },
+                {
+                    "name": "light"
+                },
+                {
+                    "name": "alpha-tested"
+                },
+                {
+                    "name": "water"
+                }
+            ]
+        },
+        {
+            "index": "34",
+            "name": "enum34",
+            "values": [
+                {
+                    "name": "linearly"
+                },
+                {
+                    "name": "faster near empty"
+                },
+                {
+                    "name": "faster near full"
+                },
+                {
+                    "name": "through random noise"
+                }
+            ]
+        },
+        {
+            "index": "35",
+            "name": "enum35",
+            "values": [
+                {
+                    "name": "at both ends"
+                },
+                {
+                    "name": "at empty"
+                },
+                {
+                    "name": "at full"
+                }
+            ]
+        },
+        {
+            "index": "36",
+            "name": "enum36",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "rotation"
+                },
+                {
+                    "name": "rotation and strafing"
+                },
+                {
+                    "name": "distance from center"
+                }
+            ]
+        },
+        {
+            "index": "37",
+            "name": "enum37",
+            "values": [
+                {
+                    "name": "toward viewer"
+                },
+                {
+                    "name": "marker forward"
+                },
+                {
+                    "name": "none"
+                }
+            ]
+        },
+        {
+            "index": "38",
+            "name": "enum38",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "rotation A"
+                },
+                {
+                    "name": "rotation B"
+                },
+                {
+                    "name": "rotation-translation"
+                },
+                {
+                    "name": "translation"
+                }
+            ]
+        },
+        {
+            "index": "39",
+            "name": "enum39",
+            "values": [
+                {
+                    "name": "elite"
+                },
+                {
+                    "name": "jackal"
+                },
+                {
+                    "name": "grunt"
+                },
+                {
+                    "name": "hunter"
+                },
+                {
+                    "name": "engineer"
+                },
+                {
+                    "name": "assassin"
+                },
+                {
+                    "name": "player"
+                },
+                {
+                    "name": "marine"
+                },
+                {
+                    "name": "crew"
+                },
+                {
+                    "name": "combat form"
+                },
+                {
+                    "name": "infection form"
+                },
+                {
+                    "name": "carrier form"
+                },
+                {
+                    "name": "monitor"
+                },
+                {
+                    "name": "sentinel"
+                },
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "mounted weapon"
+                }
+            ]
+        },
+        {
+            "index": "40",
+            "name": "enum40",
+            "values": [
+                {
+                    "name": "never"
+                },
+                {
+                    "name": "danger"
+                },
+                {
+                    "name": "low shields"
+                },
+                {
+                    "name": "hide behind shield"
+                },
+                {
+                    "name": "any target"
+                },
+                {
+                    "name": "flood shamble"
+                }
+            ]
+        },
+        {
+            "index": "41",
+            "name": "enum41",
+            "values": [
+                {
+                    "name": "never"
+                },
+                {
+                    "name": "visible"
+                },
+                {
+                    "name": "shooting"
+                },
+                {
+                    "name": "shooting near us"
+                },
+                {
+                    "name": "damaging us"
+                },
+                {
+                    "name": "unused"
+                },
+                {
+                    "name": "unused"
+                },
+                {
+                    "name": "unused"
+                },
+                {
+                    "name": "unused"
+                },
+                {
+                    "name": "unused"
+                }
+            ]
+        },
+        {
+            "index": "42",
+            "name": "enum42",
+            "values": [
+                {
+                    "name": "toss"
+                },
+                {
+                    "name": "lob"
+                },
+                {
+                    "name": "bounce"
+                }
+            ]
+        },
+        {
+            "index": "43",
+            "name": "enum43",
+            "values": [
+                {
+                    "name": "never"
+                },
+                {
+                    "name": "visible target"
+                },
+                {
+                    "name": "seek cover"
+                }
+            ]
+        },
+        {
+            "index": "44",
+            "name": "enum44",
+            "values": [
+                {
+                    "name": "always run"
+                },
+                {
+                    "name": "always crouch"
+                },
+                {
+                    "name": "switch types"
+                }
+            ]
+        },
+        {
+            "index": "45",
+            "name": "enum45",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "overcharge"
+                },
+                {
+                    "name": "secondary trigger"
+                }
+            ]
+        },
+        {
+            "index": "46",
+            "name": "enum46",
+            "values": [
+                {
+                    "name": "never"
+                },
+                {
+                    "name": "enemy visible"
+                },
+                {
+                    "name": "enemy out of sight"
+                },
+                {
+                    "name": "strafing"
+                }
+            ]
+        },
+        {
+            "index": "47",
+            "name": "framebuffer blend function",
+            "values": [
+                {
+                    "name": "alpha blend"
+                },
+                {
+                    "name": "multiply"
+                },
+                {
+                    "name": "double multiply"
+                },
+                {
+                    "name": "add"
+                },
+                {
+                    "name": "subtract"
+                },
+                {
+                    "name": "component min"
+                },
+                {
+                    "name": "component max"
+                },
+                {
+                    "name": "alpha-multiply add"
+                }
+            ]
+        },
+        {
+            "index": "48",
+            "name": "enum48",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "fade when perpendicular"
+                },
+                {
+                    "name": "fade when parallel"
+                }
+            ]
+        },
+        {
+            "index": "49",
+            "name": "enum49",
+            "values": [
+                {
+                    "name": "high"
+                },
+                {
+                    "name": "medium"
+                },
+                {
+                    "name": "low"
+                },
+                {
+                    "name": "turd"
+                }
+            ]
+        },
+        {
+            "index": "50",
+            "name": "enum50",
+            "values": [
+                {
+                    "name": "normal"
+                },
+                {
+                    "name": "blended"
+                },
+                {
+                    "name": "blended base specular"
+                }
+            ]
+        },
+        {
+            "index": "51",
+            "name": "enum51",
+            "values": [
+                {
+                    "name": "double/biased multiply"
+                },
+                {
+                    "name": "multiply"
+                },
+                {
+                    "name": "double/biased add"
+                }
+            ]
+        },
+        {
+            "index": "52",
+            "name": "shader environment reflection type",
+            "values": [
+                {
+                    "name": "bumped cube-map"
+                },
+                {
+                    "name": "flat cube-map"
+                },
+                {
+                    "name": "bumped radiosity"
+                }
+            ]
+        },
+        {
+            "index": "53",
+            "name": "enum53",
+            "values": [
+                {
+                    "name": "double/biased multiply"
+                },
+                {
+                    "name": "multiply"
+                },
+                {
+                    "name": "double/biased add"
+                }
+            ]
+        },
+        {
+            "index": "54",
+            "name": "enum54",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "reflection mask inverse"
+                },
+                {
+                    "name": "reflection mask"
+                },
+                {
+                    "name": "self-illumination mask inverse"
+                },
+                {
+                    "name": "self-illumination mask"
+                },
+                {
+                    "name": "change-color mask inverse"
+                },
+                {
+                    "name": "change-color mask"
+                },
+                {
+                    "name": "multipurpose map alpha inverse"
+                },
+                {
+                    "name": "multipurpose map alpha"
+                }
+            ]
+        },
+        {
+            "index": "55",
+            "name": "enum55",
+            "values": [
+                {
+                    "name": "with primary"
+                },
+                {
+                    "name": "with screen space"
+                },
+                {
+                    "name": "zsprite"
+                }
+            ]
+        },
+        {
+            "index": "56",
+            "name": "enum56",
+            "values": [
+                {
+                    "name": "zero"
+                },
+                {
+                    "name": "one"
+                },
+                {
+                    "name": "one half"
+                },
+                {
+                    "name": "negative one"
+                },
+                {
+                    "name": "negative one half"
+                },
+                {
+                    "name": "map color 0"
+                },
+                {
+                    "name": "map color 1"
+                },
+                {
+                    "name": "map color 2"
+                },
+                {
+                    "name": "map color 3"
+                },
+                {
+                    "name": "vertex color 0 / diffuse light"
+                },
+                {
+                    "name": "vertex color 1 / fade(perpendicular)"
+                },
+                {
+                    "name": "scratch color 0"
+                },
+                {
+                    "name": "scratch color 1"
+                },
+                {
+                    "name": "constant color 0"
+                },
+                {
+                    "name": "constant color 1"
+                },
+                {
+                    "name": "map alpha 0"
+                },
+                {
+                    "name": "map alpha 1"
+                },
+                {
+                    "name": "map alpha 2"
+                },
+                {
+                    "name": "map alpha 3"
+                },
+                {
+                    "name": "vertex alpha 0 / fade(none)"
+                },
+                {
+                    "name": "vertex alpha 1 / fade(perpendicular)"
+                },
+                {
+                    "name": "scratch alpha 0"
+                },
+                {
+                    "name": "scratch alpha 1"
+                },
+                {
+                    "name": "constant alpha 0"
+                },
+                {
+                    "name": "constant alpha 1"
+                }
+            ]
+        },
+        {
+            "index": "57",
+            "name": "enum57",
+            "values": [
+                {
+                    "name": "zero"
+                },
+                {
+                    "name": "one"
+                },
+                {
+                    "name": "one half"
+                },
+                {
+                    "name": "negative one"
+                },
+                {
+                    "name": "negative one half"
+                },
+                {
+                    "name": "map alpha 0"
+                },
+                {
+                    "name": "map alpha 1"
+                },
+                {
+                    "name": "map alpha 2"
+                },
+                {
+                    "name": "map alpha 3"
+                },
+                {
+                    "name": "vertex alpha 0 / fade(none)"
+                },
+                {
+                    "name": "vertex alpha 1 / fade(perpendicular)"
+                },
+                {
+                    "name": "scratch alpha 0"
+                },
+                {
+                    "name": "scratch alpha 1"
+                },
+                {
+                    "name": "constant alpha 0"
+                },
+                {
+                    "name": "constant alpha 1"
+                },
+                {
+                    "name": "map blue 0"
+                },
+                {
+                    "name": "map blue 1"
+                },
+                {
+                    "name": "map blue 2"
+                },
+                {
+                    "name": "map blue 3"
+                },
+                {
+                    "name": "vertex blue 0 / blue light"
+                },
+                {
+                    "name": "vertex blue 1 / fade(parallel)"
+                },
+                {
+                    "name": "scratch blue 0"
+                },
+                {
+                    "name": "scratch blue 1"
+                },
+                {
+                    "name": "constant blue 0"
+                },
+                {
+                    "name": "constant blue 1"
+                }
+            ]
+        },
+        {
+            "index": "58",
+            "name": "enum58",
+            "values": [
+                {
+                    "name": "clamp(x)"
+                },
+                {
+                    "name": "1 - clamp(x)"
+                },
+                {
+                    "name": "2"
+                },
+                {
+                    "name": "1 - 2"
+                },
+                {
+                    "name": "clamp(x) - 1/2"
+                },
+                {
+                    "name": "1/2 - clamp(x)"
+                },
+                {
+                    "name": "x"
+                },
+                {
+                    "name": "-x"
+                }
+            ]
+        },
+        {
+            "index": "59",
+            "name": "enum59",
+            "values": [
+                {
+                    "name": "discard"
+                },
+                {
+                    "name": "scratch color 0 / final color"
+                },
+                {
+                    "name": "scratch color 1"
+                },
+                {
+                    "name": "vertex color 0"
+                },
+                {
+                    "name": "vertex color 1"
+                },
+                {
+                    "name": "map color 0"
+                },
+                {
+                    "name": "map color 1"
+                },
+                {
+                    "name": "map color 2"
+                },
+                {
+                    "name": "map color 3"
+                }
+            ]
+        },
+        {
+            "index": "60",
+            "name": "enum60",
+            "values": [
+                {
+                    "name": "discard"
+                },
+                {
+                    "name": "scratch alpha 0 / final alpha"
+                },
+                {
+                    "name": "scratch alpha 1"
+                },
+                {
+                    "name": "vertex alpha 0 / fog"
+                },
+                {
+                    "name": "vertex alpha 1"
+                },
+                {
+                    "name": "map alpha 0"
+                },
+                {
+                    "name": "map alpha 1"
+                },
+                {
+                    "name": "map alpha 2"
+                },
+                {
+                    "name": "map alpha 3"
+                }
+            ]
+        },
+        {
+            "index": "61",
+            "name": "enum61",
+            "values": [
+                {
+                    "name": "multiply"
+                },
+                {
+                    "name": "dot product"
+                }
+            ]
+        },
+        {
+            "index": "62",
+            "name": "enum62",
+            "values": [
+                {
+                    "name": "identity"
+                },
+                {
+                    "name": "scale by 1/2"
+                },
+                {
+                    "name": "scale by 2"
+                },
+                {
+                    "name": "scale by 4"
+                },
+                {
+                    "name": "bias by -1/2"
+                },
+                {
+                    "name": "expand normal"
+                }
+            ]
+        },
+        {
+            "index": "63",
+            "name": "enum63",
+            "values": [
+                {
+                    "name": "2D map"
+                },
+                {
+                    "name": "reflection cube map"
+                },
+                {
+                    "name": "object-centered cube map"
+                },
+                {
+                    "name": "viewer-centered cube map"
+                }
+            ]
+        },
+        {
+            "index": "64",
+            "name": "blend function",
+            "values": [
+                {
+                    "name": "current"
+                },
+                {
+                    "name": "next map"
+                },
+                {
+                    "name": "multiply"
+                },
+                {
+                    "name": "double-multiply"
+                },
+                {
+                    "name": "add"
+                },
+                {
+                    "name": "add-signed current"
+                },
+                {
+                    "name": "add-signed next map"
+                },
+                {
+                    "name": "subtract current"
+                },
+                {
+                    "name": "subtract next map"
+                },
+                {
+                    "name": "blend current alpha"
+                },
+                {
+                    "name": "blend current alpha-inverse"
+                },
+                {
+                    "name": "blend next map alpha"
+                },
+                {
+                    "name": "blend next map alpha-inverse"
+                }
+            ]
+        },
+        {
+            "index": "65",
+            "name": "enum65",
+            "values": [
+                {
+                    "name": "2D map"
+                },
+                {
+                    "name": "first map is reflection cube map"
+                },
+                {
+                    "name": "first map is object-centered cube map"
+                },
+                {
+                    "name": "first map is viewer-centered cube map"
+                }
+            ]
+        },
+        {
+            "index": "66",
+            "name": "shader glass reflection type",
+            "values": [
+                {
+                    "name": "bumped cube-map"
+                },
+                {
+                    "name": "flat cube-map"
+                },
+                {
+                    "name": "dynamic mirror"
+                }
+            ]
+        },
+        {
+            "index": "67",
+            "name": "enum67",
+            "values": [
+                {
+                    "name": "clip"
+                },
+                {
+                    "name": "clip and normalize"
+                },
+                {
+                    "name": "scale to fit"
+                }
+            ]
+        },
+        {
+            "index": "68",
+            "name": "enum68",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "ctf"
+                },
+                {
+                    "name": "slayer"
+                },
+                {
+                    "name": "oddball"
+                },
+                {
+                    "name": "king of the hill"
+                },
+                {
+                    "name": "race"
+                },
+                {
+                    "name": "terminator"
+                },
+                {
+                    "name": "stub"
+                },
+                {
+                    "name": "ignored1"
+                },
+                {
+                    "name": "ignored2"
+                },
+                {
+                    "name": "ignored3"
+                },
+                {
+                    "name": "ignored4"
+                },
+                {
+                    "name": "all games"
+                },
+                {
+                    "name": "all except ctf"
+                },
+                {
+                    "name": "all except race & ctf"
+                }
+            ]
+        },
+        {
+            "index": "69",
+            "name": "enum69",
+            "values": [
+                {
+                    "name": "ctf - flag"
+                },
+                {
+                    "name": "ctf - vehicle"
+                },
+                {
+                    "name": "oddball - ball spawn"
+                },
+                {
+                    "name": "race - track"
+                },
+                {
+                    "name": "race - vehicle"
+                },
+                {
+                    "name": "vegas - bank"
+                },
+                {
+                    "name": "teleport from"
+                },
+                {
+                    "name": "teleport to"
+                },
+                {
+                    "name": "hill - flag"
+                }
+            ]
+        },
+        {
+            "index": "70",
+            "name": "enum70",
+            "values": [
+                {
+                    "name": "left"
+                },
+                {
+                    "name": "right"
+                },
+                {
+                    "name": "center"
+                }
+            ]
+        },
+        {
+            "index": "71",
+            "name": "enum71",
+            "values": [
+                {
+                    "name": "solo"
+                },
+                {
+                    "name": "multiplayer"
+                },
+                {
+                    "name": "main menu"
+                }
+            ]
+        },
+        {
+            "index": "72",
+            "name": "enum72",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "power"
+                },
+                {
+                    "name": "change in power"
+                },
+                {
+                    "name": "position"
+                },
+                {
+                    "name": "change in position"
+                },
+                {
+                    "name": "locked"
+                },
+                {
+                    "name": "delay"
+                }
+            ]
+        },
+        {
+            "index": "73",
+            "name": "enum73",
+            "values": [
+                {
+                    "name": "door"
+                },
+                {
+                    "name": "platform"
+                },
+                {
+                    "name": "gear"
+                }
+            ]
+        },
+        {
+            "index": "74",
+            "name": "enum74",
+            "values": [
+                {
+                    "name": "pause until crushed"
+                },
+                {
+                    "name": "reverse directions"
+                }
+            ]
+        },
+        {
+            "index": "75",
+            "name": "enum75",
+            "values": [
+                {
+                    "name": "toggle switch"
+                },
+                {
+                    "name": "on button"
+                },
+                {
+                    "name": "off button"
+                },
+                {
+                    "name": "call button"
+                }
+            ]
+        },
+        {
+            "index": "76",
+            "name": "enum76",
+            "values": [
+                {
+                    "name": "touched by player"
+                },
+                {
+                    "name": "destroyed"
+                }
+            ]
+        },
+        {
+            "index": "77",
+            "name": "enum77",
+            "values": [
+                {
+                    "name": "damage"
+                },
+                {
+                    "name": "angle"
+                }
+            ]
+        },
+        {
+            "index": "78",
+            "name": "enum78",
+            "values": [
+                {
+                    "name": "disappear"
+                },
+                {
+                    "name": "detonate"
+                },
+                {
+                    "name": "reflect"
+                },
+                {
+                    "name": "overpenetrate"
+                },
+                {
+                    "name": "attach"
+                }
+            ]
+        },
+        {
+            "index": "79",
+            "name": "enum79",
+            "values": [
+                {
+                    "name": "immediately"
+                },
+                {
+                    "name": "after first bounce"
+                },
+                {
+                    "name": "when at rest"
+                }
+            ]
+        },
+        {
+            "index": "80",
+            "name": "enum80",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "range remaining"
+                },
+                {
+                    "name": "time remaining"
+                },
+                {
+                    "name": "tracer"
+                }
+            ]
+        },
+        {
+            "index": "81",
+            "name": "enum81",
+            "values": [
+                {
+                    "name": "default"
+                },
+                {
+                    "name": "explosion"
+                },
+                {
+                    "name": "jet"
+                }
+            ]
+        },
+        {
+            "index": "82",
+            "name": "enum82",
+            "values": [
+                {
+                    "name": "default"
+                }
+            ]
+        },
+        {
+            "index": "83",
+            "name": "enum83",
+            "values": [
+                {
+                    "name": "default"
+                },
+                {
+                    "name": "explosion"
+                }
+            ]
+        },
+        {
+            "index": "84",
+            "name": "enum84",
+            "values": [
+                {
+                    "name": "simple"
+                },
+                {
+                    "name": "rotational"
+                }
+            ]
+        },
+        {
+            "index": "85",
+            "name": "enum85",
+            "values": [
+                {
+                    "name": "bounce"
+                },
+                {
+                    "name": "wrap"
+                }
+            ]
+        },
+        {
+            "index": "86",
+            "name": "enum86",
+            "values": [
+                {
+                    "name": "distributed randomly"
+                },
+                {
+                    "name": "distributed uniformly"
+                }
+            ]
+        },
+        {
+            "index": "87",
+            "name": "enum87",
+            "values": [
+                {
+                    "name": "emit vertically"
+                },
+                {
+                    "name": "emit normal (up)"
+                },
+                {
+                    "name": "emit randomly"
+                }
+            ]
+        },
+        {
+            "index": "88",
+            "name": "enum88",
+            "values": [
+                {
+                    "name": "NONE"
+                },
+                {
+                    "name": "A out"
+                },
+                {
+                    "name": "B out"
+                },
+                {
+                    "name": "C out"
+                },
+                {
+                    "name": "D out"
+                }
+            ]
+        },
+        {
+            "index": "89",
+            "name": "enum89",
+            "values": [
+                {
+                    "name": "from velocity"
+                },
+                {
+                    "name": "from acceleration"
+                }
+            ]
+        },
+        {
+            "index": "90",
+            "name": "enum90",
+            "values": [
+                {
+                    "name": "flat"
+                },
+                {
+                    "name": "concave triangular"
+                },
+                {
+                    "name": "convex triangular"
+                },
+                {
+                    "name": "trapezoid, short top"
+                },
+                {
+                    "name": "trapezoid, short bottom"
+                }
+            ]
+        },
+        {
+            "index": "91",
+            "name": "enum91",
+            "values": [
+                {
+                    "name": "flat"
+                },
+                {
+                    "name": "concave triangular"
+                }
+            ]
+        },
+        {
+            "index": "92",
+            "name": "enum92",
+            "values": [
+                {
+                    "name": "human fragmentation"
+                },
+                {
+                    "name": "covenant plasma"
+                }
+            ]
+        },
+        {
+            "index": "93",
+            "name": "equipment type",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "double speed"
+                },
+                {
+                    "name": "over shield"
+                },
+                {
+                    "name": "active camouflage"
+                },
+                {
+                    "name": "full-spectrum vision"
+                },
+                {
+                    "name": "health"
+                },
+                {
+                    "name": "grenade"
+                }
+            ]
+        },
+        {
+            "index": "94",
+            "name": "material type",
+            "values": [
+                {
+                    "name": "dirt"
+                },
+                {
+                    "name": "sand"
+                },
+                {
+                    "name": "stone"
+                },
+                {
+                    "name": "snow"
+                },
+                {
+                    "name": "wood"
+                },
+                {
+                    "name": "metal (hollow)"
+                },
+                {
+                    "name": "metal (thin)"
+                },
+                {
+                    "name": "metal (thick)"
+                },
+                {
+                    "name": "rubber"
+                },
+                {
+                    "name": "glass"
+                },
+                {
+                    "name": "force field"
+                },
+                {
+                    "name": "grunt"
+                },
+                {
+                    "name": "hunter armor"
+                },
+                {
+                    "name": "hunter skin"
+                },
+                {
+                    "name": "elite"
+                },
+                {
+                    "name": "jackal"
+                },
+                {
+                    "name": "jackal energy shield"
+                },
+                {
+                    "name": "engineer skin"
+                },
+                {
+                    "name": "engineer force field"
+                },
+                {
+                    "name": "flood combat form"
+                },
+                {
+                    "name": "flood carrier form"
+                },
+                {
+                    "name": "cyborg armor"
+                },
+                {
+                    "name": "cyborg energy shield"
+                },
+                {
+                    "name": "human armor"
+                },
+                {
+                    "name": "human skin"
+                },
+                {
+                    "name": "sentinel"
+                },
+                {
+                    "name": "monitor"
+                },
+                {
+                    "name": "plastic"
+                },
+                {
+                    "name": "water"
+                },
+                {
+                    "name": "leaves"
+                },
+                {
+                    "name": "elite energy shield"
+                },
+                {
+                    "name": "ice"
+                },
+                {
+                    "name": "hunter shield"
+                }
+            ]
+        },
+        {
+            "index": "95",
+            "name": "particle create mode",
+            "values": [
+                {
+                    "name": "either mode"
+                },
+                {
+                    "name": "violent mode only"
+                },
+                {
+                    "name": "nonviolent mode only"
+                }
+            ]
+        },
+        {
+            "index": "96",
+            "name": "environment type",
+            "values": [
+                {
+                    "name": "any environment"
+                },
+                {
+                    "name": "air only"
+                },
+                {
+                    "name": "water only"
+                },
+                {
+                    "name": "space only"
+                }
+            ]
+        },
+        {
+            "index": "97",
+            "name": "creation perspective",
+            "values": [
+                {
+                    "name": "independent of camera mode"
+                },
+                {
+                    "name": "only in first person"
+                },
+                {
+                    "name": "only in third person"
+                },
+                {
+                    "name": "in first person if possible"
+                }
+            ]
+        },
+        {
+            "index": "98",
+            "name": "distribution function",
+            "values": [
+                {
+                    "name": "start"
+                },
+                {
+                    "name": "end"
+                },
+                {
+                    "name": "constant"
+                },
+                {
+                    "name": "buildup"
+                },
+                {
+                    "name": "falloff"
+                },
+                {
+                    "name": "buildup and falloff"
+                }
+            ]
+        },
+        {
+            "index": "99",
+            "name": "enum99",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "explode"
+                },
+                {
+                    "name": "discharge"
+                }
+            ]
+        },
+        {
+            "index": "100",
+            "name": "enum100",
+            "values": [
+                {
+                    "name": "point"
+                },
+                {
+                    "name": "horizontal fan"
+                }
+            ]
+        },
+        {
+            "index": "101",
+            "name": "enum101",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "heat"
+                },
+                {
+                    "name": "primary ammunition"
+                },
+                {
+                    "name": "secondary ammunition"
+                },
+                {
+                    "name": "primary rate of fire"
+                },
+                {
+                    "name": "secondary rate of fire"
+                },
+                {
+                    "name": "ready"
+                },
+                {
+                    "name": "primary ejection port"
+                },
+                {
+                    "name": "secondary ejection port"
+                },
+                {
+                    "name": "overheated"
+                },
+                {
+                    "name": "primary charged"
+                },
+                {
+                    "name": "secondary charged"
+                },
+                {
+                    "name": "illumination"
+                },
+                {
+                    "name": "age"
+                },
+                {
+                    "name": "integrated light"
+                },
+                {
+                    "name": "primary firing"
+                },
+                {
+                    "name": "secondary firing"
+                },
+                {
+                    "name": "primary firing on"
+                },
+                {
+                    "name": "secondary firing on"
+                }
+            ]
+        },
+        {
+            "index": "102",
+            "name": "secondary trigger mode",
+            "values": [
+                {
+                    "name": "normal"
+                },
+                {
+                    "name": "slaved to primary"
+                },
+                {
+                    "name": "inhibits primary"
+                },
+                {
+                    "name": "loads alternate ammunition"
+                },
+                {
+                    "name": "loads multiple primary ammunition"
+                }
+            ]
+        },
+        {
+            "index": "103",
+            "name": "enum103",
+            "values": [
+                {
+                    "name": "always"
+                },
+                {
+                    "name": "when zoomed"
+                },
+                {
+                    "name": "when zoomed or reloading"
+                }
+            ]
+        },
+        {
+            "index": "104",
+            "name": "weapon type",
+            "values": [
+                {
+                    "name": "undefined"
+                },
+                {
+                    "name": "shotgun"
+                },
+                {
+                    "name": "needler"
+                },
+                {
+                    "name": "plasma pistol"
+                },
+                {
+                    "name": "plasma rifle"
+                }
+            ]
+        },
+        {
+            "index": "105",
+            "name": "enum105",
+            "values": [
+                {
+                    "name": "vertical orientation"
+                },
+                {
+                    "name": "horizontal orientation"
+                },
+                {
+                    "name": "media mapped"
+                },
+                {
+                    "name": "ground mapped"
+                },
+                {
+                    "name": "viewer facing"
+                },
+                {
+                    "name": "double-marker linked"
+                }
+            ]
+        },
+        {
+            "index": "106",
+            "name": "enum106",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "A"
+                },
+                {
+                    "name": "B"
+                },
+                {
+                    "name": "C"
+                },
+                {
+                    "name": "D"
+                }
+            ]
+        },
+        {
+            "index": "107",
+            "name": "enum107",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "A out"
+                },
+                {
+                    "name": "B out"
+                },
+                {
+                    "name": "C out"
+                },
+                {
+                    "name": "D out"
+                }
+            ]
+        },
+        {
+            "index": "108",
+            "name": "enum108",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "A in"
+                },
+                {
+                    "name": "B in"
+                },
+                {
+                    "name": "C in"
+                },
+                {
+                    "name": "D in"
+                },
+                {
+                    "name": "A out"
+                },
+                {
+                    "name": "B out"
+                },
+                {
+                    "name": "C out"
+                },
+                {
+                    "name": "D out"
+                }
+            ]
+        },
+        {
+            "index": "109",
+            "name": "enum109",
+            "values": [
+                {
+                    "name": "clip"
+                },
+                {
+                    "name": "clip and normalize"
+                },
+                {
+                    "name": "scale to fit"
+                }
+            ]
+        },
+        {
+            "index": "110",
+            "name": "enum110",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "body vitality"
+                },
+                {
+                    "name": "shield vitality"
+                },
+                {
+                    "name": "recent body damage"
+                },
+                {
+                    "name": "recent shield damage"
+                },
+                {
+                    "name": "random constant"
+                },
+                {
+                    "name": "umbrella shield vitality"
+                },
+                {
+                    "name": "shield stun"
+                },
+                {
+                    "name": "recent umbrella shield vitality"
+                },
+                {
+                    "name": "umbrella shield stun"
+                },
+                {
+                    "name": "region ",
+                    "comment": "00 damage"
+                },
+                {
+                    "name": "region ",
+                    "comment": "01 damage"
+                },
+                {
+                    "name": "region ",
+                    "comment": "02 damage"
+                },
+                {
+                    "name": "region ",
+                    "comment": "03 damage"
+                },
+                {
+                    "name": "region ",
+                    "comment": "04 damage"
+                },
+                {
+                    "name": "region ",
+                    "comment": "05 damage"
+                },
+                {
+                    "name": "region ",
+                    "comment": "06 damage"
+                },
+                {
+                    "name": "region ",
+                    "comment": "07 damage"
+                },
+                {
+                    "name": "alive"
+                },
+                {
+                    "name": "compass"
+                }
+            ]
+        },
+        {
+            "index": "111",
+            "name": "physics friction type",
+            "values": [
+                {
+                    "name": "point"
+                },
+                {
+                    "name": "forward"
+                },
+                {
+                    "name": "left"
+                },
+                {
+                    "name": "up"
+                }
+            ]
+        },
+        {
+            "index": "112",
+            "name": "vehicle physics type",
+            "values": [
+                {
+                    "name": "human tank"
+                },
+                {
+                    "name": "human jeep"
+                },
+                {
+                    "name": "human boat"
+                },
+                {
+                    "name": "human plane"
+                },
+                {
+                    "name": "alien scout"
+                },
+                {
+                    "name": "alien fighter"
+                },
+                {
+                    "name": "turret"
+                }
+            ]
+        },
+        {
+            "index": "113",
+            "name": "enum113",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "speed absolute"
+                },
+                {
+                    "name": "speed forward"
+                },
+                {
+                    "name": "speed backward"
+                },
+                {
+                    "name": "slide absolute"
+                },
+                {
+                    "name": "slide left"
+                },
+                {
+                    "name": "slide right"
+                },
+                {
+                    "name": "speed slide maximum"
+                },
+                {
+                    "name": "turn absolute"
+                },
+                {
+                    "name": "turn left"
+                },
+                {
+                    "name": "turn right"
+                },
+                {
+                    "name": "crouch"
+                },
+                {
+                    "name": "jump"
+                },
+                {
+                    "name": "walk"
+                },
+                {
+                    "name": "velocity air"
+                },
+                {
+                    "name": "velocity water"
+                },
+                {
+                    "name": "velocity ground"
+                },
+                {
+                    "name": "velocity forward"
+                },
+                {
+                    "name": "velocity left"
+                },
+                {
+                    "name": "velocity up"
+                },
+                {
+                    "name": "left tread position"
+                },
+                {
+                    "name": "right tread position"
+                },
+                {
+                    "name": "left tread velocity"
+                },
+                {
+                    "name": "right tread velocity"
+                },
+                {
+                    "name": "front left tire position"
+                },
+                {
+                    "name": "front right tire position"
+                },
+                {
+                    "name": "back left tire position"
+                },
+                {
+                    "name": "back right tire position"
+                },
+                {
+                    "name": "front left tire velocity"
+                },
+                {
+                    "name": "front right tire velocity"
+                },
+                {
+                    "name": "back left tire velocity"
+                },
+                {
+                    "name": "back right tire velocity"
+                },
+                {
+                    "name": "wingtip contrail"
+                },
+                {
+                    "name": "hover"
+                },
+                {
+                    "name": "thrust"
+                },
+                {
+                    "name": "engine hack"
+                },
+                {
+                    "name": "wingtip contrail new"
+                }
+            ]
+        },
+        {
+            "index": "114",
+            "name": "enum114",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "flying velocity"
+                }
+            ]
+        },
+        {
+            "index": "115",
+            "name": "enum115",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "driver seat power"
+                },
+                {
+                    "name": "gunner seat power"
+                },
+                {
+                    "name": "aiming change"
+                },
+                {
+                    "name": "mouth aperture"
+                },
+                {
+                    "name": "integrated light power"
+                },
+                {
+                    "name": "can blink"
+                },
+                {
+                    "name": "shield sapping"
+                }
+            ]
+        },
+        {
+            "index": "116",
+            "name": "team",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "player"
+                },
+                {
+                    "name": "human"
+                },
+                {
+                    "name": "covenant"
+                },
+                {
+                    "name": "flood"
+                },
+                {
+                    "name": "sentinel"
+                },
+                {
+                    "name": "unused (6)"
+                },
+                {
+                    "name": "unused (7)"
+                },
+                {
+                    "name": "unused (8)"
+                },
+                {
+                    "name": "unused (9)"
+                }
+            ]
+        },
+        {
+            "index": "117",
+            "name": "bitmap type",
+            "values": [
+                {
+                    "name": "texture 2D"
+                },
+                {
+                    "name": "texture 3D"
+                },
+                {
+                    "name": "cube map"
+                },
+                {
+                    "name": "white"
+                }
+            ]
+        },
+        {
+            "index": "118",
+            "name": "bitmap pixel format",
+            "values": [
+                {
+                    "name": "a8"
+                },
+                {
+                    "name": "y8"
+                },
+                {
+                    "name": "ay8"
+                },
+                {
+                    "name": "a8y8"
+                },
+                {
+                    "name": "unused1"
+                },
+                {
+                    "name": "unused2"
+                },
+                {
+                    "name": "r5g6b5"
+                },
+                {
+                    "name": "unused3"
+                },
+                {
+                    "name": "a1r5g5b5"
+                },
+                {
+                    "name": "a4r4g4b4"
+                },
+                {
+                    "name": "x8r8g8b8"
+                },
+                {
+                    "name": "a8r8g8b8"
+                },
+                {
+                    "name": "unused4"
+                },
+                {
+                    "name": "unused5"
+                },
+                {
+                    "name": "dxt1"
+                },
+                {
+                    "name": "dxt3"
+                },
+                {
+                    "name": "dxt5"
+                },
+                {
+                    "name": "p8-bump"
+                }
+            ]
+        },
+        {
+            "index": "119",
+            "name": "enum119",
+            "values": [
+                {
+                    "name": "2D textures"
+                },
+                {
+                    "name": "3D textures"
+                },
+                {
+                    "name": "cube maps"
+                },
+                {
+                    "name": "sprites"
+                },
+                {
+                    "name": "interface bitmaps"
+                }
+            ]
+        },
+        {
+            "index": "120",
+            "name": "enum120",
+            "values": [
+                {
+                    "name": "alpha-blend"
+                },
+                {
+                    "name": "default"
+                },
+                {
+                    "name": "height map"
+                },
+                {
+                    "name": "detail map"
+                },
+                {
+                    "name": "light map"
+                },
+                {
+                    "name": "vector map"
+                }
+            ]
+        },
+        {
+            "index": "121",
+            "name": "enum121",
+            "values": [
+                {
+                    "name": "compressed with color-key transparency"
+                },
+                {
+                    "name": "compressed with explicit alpha"
+                },
+                {
+                    "name": "compressed with interpolated alpha"
+                },
+                {
+                    "name": "16-bit color"
+                },
+                {
+                    "name": "32-bit color"
+                },
+                {
+                    "name": "monochrome"
+                }
+            ]
+        },
+        {
+            "index": "122",
+            "name": "enum122",
+            "values": [
+                {
+                    "name": "32x32"
+                },
+                {
+                    "name": "64x64"
+                },
+                {
+                    "name": "128x128"
+                },
+                {
+                    "name": "256x256"
+                },
+                {
+                    "name": "512x512"
+                }
+            ]
+        },
+        {
+            "index": "123",
+            "name": "enum123",
+            "values": [
+                {
+                    "name": "blend/add/subtract/max"
+                },
+                {
+                    "name": "multiply/min"
+                },
+                {
+                    "name": "double multiply"
+                }
+            ]
+        },
+        {
+            "index": "124",
+            "name": "animation function",
+            "values": [
+                {
+                    "name": "one"
+                },
+                {
+                    "name": "zero"
+                },
+                {
+                    "name": "cosine"
+                },
+                {
+                    "name": "cosine (variable period)"
+                },
+                {
+                    "name": "diagonal wave"
+                },
+                {
+                    "name": "diagonal wave (variable period)"
+                },
+                {
+                    "name": "slide"
+                },
+                {
+                    "name": "slide (variable period)"
+                },
+                {
+                    "name": "noise"
+                },
+                {
+                    "name": "jitter"
+                },
+                {
+                    "name": "wander"
+                },
+                {
+                    "name": "spark"
+                }
+            ]
+        },
+        {
+            "index": "125",
+            "name": "enum125",
+            "values": [
+                {
+                    "name": "linear"
+                },
+                {
+                    "name": "early"
+                },
+                {
+                    "name": "very early"
+                },
+                {
+                    "name": "late"
+                },
+                {
+                    "name": "very late"
+                },
+                {
+                    "name": "cosine"
+                }
+            ]
+        },
+        {
+            "index": "126",
+            "name": "enum126",
+            "values": [
+                {
+                    "name": "silent"
+                },
+                {
+                    "name": "medium"
+                },
+                {
+                    "name": "loud"
+                },
+                {
+                    "name": "shout"
+                },
+                {
+                    "name": "quiet"
+                }
+            ]
+        },
+        {
+            "index": "127",
+            "name": "enum127",
+            "values": [
+                {
+                    "name": "bitmap"
+                },
+                {
+                    "name": "sound"
+                }
+            ]
+        },
+        {
+            "index": "128",
+            "name": "enum128",
+            "values": [
+                {
+                    "name": "A"
+                },
+                {
+                    "name": "B"
+                },
+                {
+                    "name": "C"
+                },
+                {
+                    "name": "D"
+                },
+                {
+                    "name": "E"
+                },
+                {
+                    "name": "F"
+                },
+                {
+                    "name": "G"
+                },
+                {
+                    "name": "H"
+                },
+                {
+                    "name": "I"
+                },
+                {
+                    "name": "J"
+                },
+                {
+                    "name": "K"
+                },
+                {
+                    "name": "L"
+                },
+                {
+                    "name": "M"
+                },
+                {
+                    "name": "N"
+                },
+                {
+                    "name": "O"
+                },
+                {
+                    "name": "P"
+                },
+                {
+                    "name": "Q"
+                },
+                {
+                    "name": "R"
+                },
+                {
+                    "name": "S"
+                },
+                {
+                    "name": "T"
+                },
+                {
+                    "name": "U"
+                },
+                {
+                    "name": "V"
+                },
+                {
+                    "name": "W"
+                },
+                {
+                    "name": "X"
+                },
+                {
+                    "name": "Y"
+                },
+                {
+                    "name": "Z"
+                }
+            ]
+        },
+        {
+            "index": "129",
+            "name": "enum129",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "sleeping"
+                },
+                {
+                    "name": "alert"
+                },
+                {
+                    "name": "moving - repeat same position"
+                },
+                {
+                    "name": "moving - loop"
+                },
+                {
+                    "name": "moving - loop back and forth"
+                },
+                {
+                    "name": "moving - loop randomly"
+                },
+                {
+                    "name": "moving - randomly"
+                },
+                {
+                    "name": "guarding"
+                },
+                {
+                    "name": "guarding at guard position"
+                },
+                {
+                    "name": "searching"
+                },
+                {
+                    "name": "fleeing"
+                }
+            ]
+        },
+        {
+            "index": "130",
+            "name": "enum130",
+            "values": [
+                {
+                    "name": "pause"
+                },
+                {
+                    "name": "go to"
+                },
+                {
+                    "name": "go to and face"
+                },
+                {
+                    "name": "move in direction"
+                },
+                {
+                    "name": "look"
+                },
+                {
+                    "name": "animation mode"
+                },
+                {
+                    "name": "crouch"
+                },
+                {
+                    "name": "shoot"
+                },
+                {
+                    "name": "grenade"
+                },
+                {
+                    "name": "vehicle"
+                },
+                {
+                    "name": "running jump"
+                },
+                {
+                    "name": "targeted jump"
+                },
+                {
+                    "name": "script"
+                },
+                {
+                    "name": "animate"
+                },
+                {
+                    "name": "recording"
+                },
+                {
+                    "name": "action"
+                },
+                {
+                    "name": "vocalize"
+                },
+                {
+                    "name": "targeting"
+                },
+                {
+                    "name": "initiative"
+                },
+                {
+                    "name": "wait"
+                },
+                {
+                    "name": "loop"
+                },
+                {
+                    "name": "die"
+                },
+                {
+                    "name": "move immediate"
+                },
+                {
+                    "name": "look random"
+                },
+                {
+                    "name": "look player"
+                },
+                {
+                    "name": "look object"
+                },
+                {
+                    "name": "set radius"
+                },
+                {
+                    "name": "teleport"
+                }
+            ]
+        },
+        {
+            "index": "131",
+            "name": "enum131",
+            "values": [
+                {
+                    "name": "(never)"
+                },
+                {
+                    "name": "< 75% strength"
+                },
+                {
+                    "name": "< 50% strength"
+                },
+                {
+                    "name": "< 25% strength"
+                },
+                {
+                    "name": "anybody dead"
+                },
+                {
+                    "name": "25% dead"
+                },
+                {
+                    "name": "50% dead"
+                },
+                {
+                    "name": "75% dead"
+                },
+                {
+                    "name": "all but one dead"
+                },
+                {
+                    "name": "all dead"
+                }
+            ]
+        },
+        {
+            "index": "132",
+            "name": "enum132",
+            "values": [
+                {
+                    "name": "normal"
+                },
+                {
+                    "name": "few"
+                },
+                {
+                    "name": "many"
+                },
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "all"
+                }
+            ]
+        },
+        {
+            "index": "133",
+            "name": "enum133",
+            "values": [
+                {
+                    "name": "normal"
+                },
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "random"
+                },
+                {
+                    "name": "sgt johnson"
+                },
+                {
+                    "name": "sgt lehto"
+                }
+            ]
+        },
+        {
+            "index": "134",
+            "name": "enum134",
+            "values": [
+                {
+                    "name": "normal"
+                },
+                {
+                    "name": "never"
+                },
+                {
+                    "name": "tenacious"
+                }
+            ]
+        },
+        {
+            "index": "135",
+            "name": "enum135",
+            "values": [
+                {
+                    "name": "0 / default by unit"
+                },
+                {
+                    "name": "1 / player"
+                },
+                {
+                    "name": "2 / human"
+                },
+                {
+                    "name": "3 / covenant"
+                },
+                {
+                    "name": "4 / flood"
+                },
+                {
+                    "name": "5 / sentinel"
+                },
+                {
+                    "name": "6 / unused6"
+                },
+                {
+                    "name": "7 / unused7"
+                },
+                {
+                    "name": "8 / unused8"
+                },
+                {
+                    "name": "9 / unused9"
+                }
+            ]
+        },
+        {
+            "index": "136",
+            "name": "enum136",
+            "values": [
+                {
+                    "name": "friendly actor"
+                },
+                {
+                    "name": "disembodied"
+                },
+                {
+                    "name": "in player's vehicle"
+                },
+                {
+                    "name": "not in a vehicle"
+                },
+                {
+                    "name": "prefer sergeant"
+                },
+                {
+                    "name": "any actor"
+                },
+                {
+                    "name": "radio unit"
+                },
+                {
+                    "name": "radio sergeant"
+                }
+            ]
+        },
+        {
+            "index": "137",
+            "name": "enum137",
+            "values": [
+                {
+                    "name": "none"
+                },
+                {
+                    "name": "player"
+                },
+                {
+                    "name": "participant"
+                }
+            ]
+        },
+        {
+            "index": "138",
+            "name": "enum138",
+            "values": [
+                {
+                    "name": "NULL"
+                },
+                {
+                    "name": "list goto next item"
+                },
+                {
+                    "name": "list goto previous item"
+                },
+                {
+                    "name": "unused"
+                },
+                {
+                    "name": "unused"
+                },
+                {
+                    "name": "initialize sp level list solo"
+                },
+                {
+                    "name": "initialize sp level list coop"
+                },
+                {
+                    "name": "dispose sp level list"
+                },
+                {
+                    "name": "solo level set map"
+                },
+                {
+                    "name": "set difficulty"
+                },
+                {
+                    "name": "start new game"
+                },
+                {
+                    "name": "pause game restart at checkpoint"
+                },
+                {
+                    "name": "pause game restart level"
+                },
+                {
+                    "name": "pause game return to main menu"
+                },
+                {
+                    "name": "clear multiplayer player joins"
+                },
+                {
+                    "name": "join controller to mp game"
+                },
+                {
+                    "name": "initialize net game server list"
+                },
+                {
+                    "name": "start network game server"
+                },
+                {
+                    "name": "dispose net game server list"
+                },
+                {
+                    "name": "shutdown network game"
+                },
+                {
+                    "name": "net game join from server list"
+                },
+                {
+                    "name": "split screen game initialize"
+                },
+                {
+                    "name": "coop game initialize"
+                },
+                {
+                    "name": "main menu intialize"
+                },
+                {
+                    "name": "mp type menu initialize"
+                },
+                {
+                    "name": "pick play stage for quick start"
+                },
+                {
+                    "name": "mp level list initialize"
+                },
+                {
+                    "name": "mp level list dispose"
+                },
+                {
+                    "name": "mp level select"
+                },
+                {
+                    "name": "mp profiles list initialize"
+                },
+                {
+                    "name": "mp profiles list dispose"
+                },
+                {
+                    "name": "mp profile set for game"
+                },
+                {
+                    "name": "swap player team"
+                },
+                {
+                    "name": "net game join player"
+                },
+                {
+                    "name": "player profile list initialize"
+                },
+                {
+                    "name": "player profile list dispose"
+                },
+                {
+                    "name": "3wide plyr prof set for game"
+                },
+                {
+                    "name": "1wide plyr prof set for game"
+                },
+                {
+                    "name": "mp profile begin editing"
+                },
+                {
+                    "name": "mp profile end editing"
+                },
+                {
+                    "name": "mp profile set game engine"
+                },
+                {
+                    "name": "mp profile change name"
+                },
+                {
+                    "name": "mp profile set ctf rules"
+                },
+                {
+                    "name": "mp profile set koth rules"
+                },
+                {
+                    "name": "mp profile set slayer rules"
+                },
+                {
+                    "name": "mp profile set oddball rules"
+                },
+                {
+                    "name": "mp profile set racing rules"
+                },
+                {
+                    "name": "mp profile set player options"
+                },
+                {
+                    "name": "mp profile set item options"
+                },
+                {
+                    "name": "mp profile set indicator opts"
+                },
+                {
+                    "name": "mp profile init game engine"
+                },
+                {
+                    "name": "mp profile init name"
+                },
+                {
+                    "name": "mp profile init ctf rules"
+                },
+                {
+                    "name": "mp profile init koth rules"
+                },
+                {
+                    "name": "mp profile init slayer rules"
+                },
+                {
+                    "name": "mp profile init oddball rules"
+                },
+                {
+                    "name": "mp profile init racing rules"
+                },
+                {
+                    "name": "mp profile init player opts"
+                },
+                {
+                    "name": "mp profile init item options"
+                },
+                {
+                    "name": "mp profile init indicator opts"
+                },
+                {
+                    "name": "mp profile save changes"
+                },
+                {
+                    "name": "color picker menu initialize"
+                },
+                {
+                    "name": "color picker menu dispose"
+                },
+                {
+                    "name": "color picker select color"
+                },
+                {
+                    "name": "player profile begin editing"
+                },
+                {
+                    "name": "player profile end editing"
+                },
+                {
+                    "name": "player profile change name"
+                },
+                {
+                    "name": "player profile save changes"
+                },
+                {
+                    "name": "plyr prf init cntl settings"
+                },
+                {
+                    "name": "plyr prf init adv cntl set"
+                },
+                {
+                    "name": "plyr prf save cntl settings"
+                },
+                {
+                    "name": "plyr prf save adv cntl set"
+                },
+                {
+                    "name": "mp game player quit"
+                },
+                {
+                    "name": "main menu switch to solo game"
+                },
+                {
+                    "name": "request del player profile"
+                },
+                {
+                    "name": "request del playlist profile"
+                },
+                {
+                    "name": "final del player profile"
+                },
+                {
+                    "name": "final del playlist profile"
+                },
+                {
+                    "name": "cancel profile delete"
+                },
+                {
+                    "name": "create&edit playlist profile"
+                },
+                {
+                    "name": "create&edit player profile"
+                },
+                {
+                    "name": "net game speed start"
+                },
+                {
+                    "name": "net game delay start"
+                },
+                {
+                    "name": "net server accept conx"
+                },
+                {
+                    "name": "net server defer start"
+                },
+                {
+                    "name": "net server allow start"
+                },
+                {
+                    "name": "disable if no xdemos"
+                },
+                {
+                    "name": "run xdemos"
+                },
+                {
+                    "name": "sp reset controller choices"
+                },
+                {
+                    "name": "sp set p1 controller choice"
+                },
+                {
+                    "name": "sp set p2 controller choice"
+                },
+                {
+                    "name": "error if no network connection"
+                },
+                {
+                    "name": "start server if none advertised"
+                },
+                {
+                    "name": "net game unjoin player"
+                },
+                {
+                    "name": "close if not editing profile"
+                },
+                {
+                    "name": "exit to xbox dashboard"
+                },
+                {
+                    "name": "new campaign chosen"
+                },
+                {
+                    "name": "new campaign decision"
+                },
+                {
+                    "name": "pop history stack once"
+                },
+                {
+                    "name": "difficulty menu init"
+                },
+                {
+                    "name": "begin music fade out"
+                },
+                {
+                    "name": "new game if no plyr profiles"
+                },
+                {
+                    "name": "exit gracefully to xbox dashboard"
+                },
+                {
+                    "name": "pause game invert pitch"
+                },
+                {
+                    "name": "start new coop game"
+                },
+                {
+                    "name": "pause game invert spinner get"
+                },
+                {
+                    "name": "pause game invert spinner set"
+                },
+                {
+                    "name": "main menu quit game"
+                },
+                {
+                    "name": "mouse - emit ACCEPT event"
+                },
+                {
+                    "name": "mouse - emit BACK event"
+                },
+                {
+                    "name": "mouse - emit DPAD LEFT event"
+                },
+                {
+                    "name": "mouse - emit DPAD RIGHT event"
+                },
+                {
+                    "name": "mouse spinner 3wide click"
+                },
+                {
+                    "name": "controls screen init"
+                },
+                {
+                    "name": "video screen init"
+                },
+                {
+                    "name": "controls begin binding"
+                },
+                {
+                    "name": "gamespy screen init"
+                },
+                {
+                    "name": "gamespy screen dispose"
+                },
+                {
+                    "name": "gamespy select header"
+                },
+                {
+                    "name": "gamespy select item"
+                },
+                {
+                    "name": "gamespy select button"
+                },
+                {
+                    "name": "plr prof init mouse set"
+                },
+                {
+                    "name": "plr prof change mouse set"
+                },
+                {
+                    "name": "plr prof init audio set"
+                },
+                {
+                    "name": "plr prof change audio set"
+                },
+                {
+                    "name": "plr prof change video set"
+                },
+                {
+                    "name": "controls screen dispose"
+                },
+                {
+                    "name": "controls screen change set"
+                },
+                {
+                    "name": "mouse - emit X event"
+                },
+                {
+                    "name": "gamepad screen init"
+                },
+                {
+                    "name": "gamepad screen dispose"
+                },
+                {
+                    "name": "gamepad screen change gamepads"
+                },
+                {
+                    "name": "gamepad screen select item"
+                },
+                {
+                    "name": "mouse screen defaults"
+                },
+                {
+                    "name": "audio screen defaults"
+                },
+                {
+                    "name": "video screen defaults"
+                },
+                {
+                    "name": "controls screen defaults"
+                },
+                {
+                    "name": "profile set edit begin"
+                },
+                {
+                    "name": "profile manager delete"
+                },
+                {
+                    "name": "profile manager select"
+                },
+                {
+                    "name": "gamespy dismiss error"
+                },
+                {
+                    "name": "server settings init"
+                },
+                {
+                    "name": "ss edit server name"
+                },
+                {
+                    "name": "ss edit server password"
+                },
+                {
+                    "name": "ss start game"
+                },
+                {
+                    "name": "video test dialog init"
+                },
+                {
+                    "name": "video test dialog dispose"
+                },
+                {
+                    "name": "video test dialog accept"
+                },
+                {
+                    "name": "gamespy dismiss filters"
+                },
+                {
+                    "name": "gamespy update filter settings"
+                },
+                {
+                    "name": "gamespy back handler"
+                },
+                {
+                    "name": "mouse spinner 1wide click"
+                },
+                {
+                    "name": "controls back handler"
+                },
+                {
+                    "name": "controls advanced launch"
+                },
+                {
+                    "name": "controls advanced ok"
+                },
+                {
+                    "name": "mp pause menu open"
+                },
+                {
+                    "name": "mp game options open"
+                },
+                {
+                    "name": "mp choose team"
+                },
+                {
+                    "name": "mp prof init vehicle options"
+                },
+                {
+                    "name": "mp prof save vehicle options"
+                },
+                {
+                    "name": "single prev cl item activated"
+                },
+                {
+                    "name": "mp prof init teamplay options"
+                },
+                {
+                    "name": "mp prof save teamplay options"
+                },
+                {
+                    "name": "mp game options choose"
+                },
+                {
+                    "name": "emit custom activation event"
+                },
+                {
+                    "name": "plr prof cancel audio set"
+                },
+                {
+                    "name": "plr prof init network options"
+                },
+                {
+                    "name": "plr prof save network options"
+                },
+                {
+                    "name": "credits post render"
+                },
+                {
+                    "name": "difficulty item select"
+                },
+                {
+                    "name": "credits initialize"
+                },
+                {
+                    "name": "credits dispose"
+                },
+                {
+                    "name": "gamespy get patch"
+                },
+                {
+                    "name": "video screen dispose"
+                },
+                {
+                    "name": "campaign menu init"
+                },
+                {
+                    "name": "campaign menu continue"
+                },
+                {
+                    "name": "load game menu init"
+                },
+                {
+                    "name": "load game menu dispose"
+                },
+                {
+                    "name": "load game menu activated"
+                },
+                {
+                    "name": "solo menu save checkpoint"
+                },
+                {
+                    "name": "mp type set mode"
+                },
+                {
+                    "name": "checking for updates ok"
+                },
+                {
+                    "name": "checking for updates dismiss"
+                },
+                {
+                    "name": "direct ip connect init"
+                },
+                {
+                    "name": "direct ip connect go"
+                },
+                {
+                    "name": "direct ip edit field"
+                },
+                {
+                    "name": "network settings edit a port"
+                },
+                {
+                    "name": "network settings defaults"
+                },
+                {
+                    "name": "load game menu delete request"
+                },
+                {
+                    "name": "load game menu delete finish"
+                }
+            ]
+        },
+        {
+            "index": "139",
+            "name": "enum139",
+            "values": [
+                {
+                    "name": "NULL"
+                },
+                {
+                    "name": "widget's controller"
+                },
+                {
+                    "name": "build number"
+                },
+                {
+                    "name": "pid"
+                }
+            ]
+        },
+        {
+            "index": "140",
+            "name": "enum140",
+            "values": [
+                {
+                    "name": "NULL"
+                },
+                {
+                    "name": "player settings menu update desc"
+                },
+                {
+                    "name": "unused"
+                },
+                {
+                    "name": "playlist settings menu update desc"
+                },
+                {
+                    "name": "gametype select menu update desc"
+                },
+                {
+                    "name": "multiplayer type menu update desc"
+                },
+                {
+                    "name": "solo level select update"
+                },
+                {
+                    "name": "difficulty menu update desc"
+                },
+                {
+                    "name": "build number (textbox only)"
+                },
+                {
+                    "name": "server list update"
+                },
+                {
+                    "name": "network pregame status update"
+                },
+                {
+                    "name": "splitscreen pregame status update"
+                },
+                {
+                    "name": "net/splitscreen prejoin players"
+                },
+                {
+                    "name": "mp profile list update"
+                },
+                {
+                    "name": "3wide player profile list update"
+                },
+                {
+                    "name": "plyr prof edit-select menu upd8"
+                },
+                {
+                    "name": "player profile small menu update"
+                },
+                {
+                    "name": "game settings lists text update"
+                },
+                {
+                    "name": "solo game objective text"
+                },
+                {
+                    "name": "color picker update"
+                },
+                {
+                    "name": "game settings lists pic update"
+                },
+                {
+                    "name": "main menu fake animate"
+                },
+                {
+                    "name": "mp level select update"
+                },
+                {
+                    "name": "get active plyr profile name"
+                },
+                {
+                    "name": "get edit plyr profile name"
+                },
+                {
+                    "name": "get edit game settings name"
+                },
+                {
+                    "name": "get active plyr profile color"
+                },
+                {
+                    "name": "mp set textbox map name"
+                },
+                {
+                    "name": "mp set textbox game ruleset"
+                },
+                {
+                    "name": "mp set textbox teams noteams"
+                },
+                {
+                    "name": "mp set textbox score limit"
+                },
+                {
+                    "name": "mp set textbox score limit type"
+                },
+                {
+                    "name": "mp set bitmap for map"
+                },
+                {
+                    "name": "mp set bitmap for ruleset"
+                },
+                {
+                    "name": "mp set textbox ",
+                    "comment": " of players"
+                },
+                {
+                    "name": "mp edit profile set rule text"
+                },
+                {
+                    "name": "system link status check"
+                },
+                {
+                    "name": "mp game directions"
+                },
+                {
+                    "name": "teams/no teams bitmap update"
+                },
+                {
+                    "name": "warn if diff. will nuke saved game"
+                },
+                {
+                    "name": "dim if no net cable"
+                },
+                {
+                    "name": "pause game set textbox inverted"
+                },
+                {
+                    "name": "dim unless two controllers"
+                },
+                {
+                    "name": "controls update menu"
+                },
+                {
+                    "name": "video menu update"
+                },
+                {
+                    "name": "gamespy screen update"
+                },
+                {
+                    "name": "common button bar update"
+                },
+                {
+                    "name": "gamepad update menu"
+                },
+                {
+                    "name": "server settings update"
+                },
+                {
+                    "name": "audio_menu_update"
+                },
+                {
+                    "name": "mp prof vehicles update"
+                },
+                {
+                    "name": "solo map list update"
+                },
+                {
+                    "name": "mp map list update"
+                },
+                {
+                    "name": "gt select list update"
+                },
+                {
+                    "name": "gt edit list update"
+                },
+                {
+                    "name": "load game list update"
+                },
+                {
+                    "name": "checking for updates"
+                },
+                {
+                    "name": "direct ip connect update"
+                },
+                {
+                    "name": "network settings update"
+                }
+            ]
+        },
+        {
+            "index": "141",
+            "name": "enum141",
+            "values": [
+                {
+                    "name": "startup"
+                },
+                {
+                    "name": "dormant"
+                },
+                {
+                    "name": "continuous"
+                },
+                {
+                    "name": "static"
+                },
+                {
+                    "name": "stub"
+                }
+            ]
+        },
+        {
+            "index": "142",
+            "name": "enum142",
+            "values": [
+                {
+                    "name": "unparsed"
+                },
+                {
+                    "name": "special form"
+                },
+                {
+                    "name": "function name"
+                },
+                {
+                    "name": "passthrough"
+                },
+                {
+                    "name": "void"
+                },
+                {
+                    "name": "boolean"
+                },
+                {
+                    "name": "real"
+                },
+                {
+                    "name": "short"
+                },
+                {
+                    "name": "long"
+                },
+                {
+                    "name": "string"
+                },
+                {
+                    "name": "script"
+                },
+                {
+                    "name": "trigger_volume"
+                },
+                {
+                    "name": "cutscene_flag"
+                },
+                {
+                    "name": "cutscene_camera_point"
+                },
+                {
+                    "name": "cutscene_title"
+                },
+                {
+                    "name": "cutscene_recording"
+                },
+                {
+                    "name": "device_group"
+                },
+                {
+                    "name": "ai"
+                },
+                {
+                    "name": "ai_command_list"
+                },
+                {
+                    "name": "starting_profile"
+                },
+                {
+                    "name": "conversation"
+                },
+                {
+                    "name": "navpoint"
+                },
+                {
+                    "name": "hud_message"
+                },
+                {
+                    "name": "object_list"
+                },
+                {
+                    "name": "sound"
+                },
+                {
+                    "name": "effect"
+                },
+                {
+                    "name": "damage"
+                },
+                {
+                    "name": "looping_sound"
+                },
+                {
+                    "name": "animation_graph"
+                },
+                {
+                    "name": "actor_variant"
+                },
+                {
+                    "name": "damage_effect"
+                },
+                {
+                    "name": "object_definition"
+                },
+                {
+                    "name": "game_difficulty"
+                },
+                {
+                    "name": "team"
+                },
+                {
+                    "name": "ai_default_state"
+                },
+                {
+                    "name": "actor_type"
+                },
+                {
+                    "name": "hud_corner"
+                },
+                {
+                    "name": "object"
+                },
+                {
+                    "name": "unit"
+                },
+                {
+                    "name": "vehicle"
+                },
+                {
+                    "name": "weapon"
+                },
+                {
+                    "name": "device"
+                },
+                {
+                    "name": "scenery"
+                },
+                {
+                    "name": "object_name"
+                },
+                {
+                    "name": "unit_name"
+                },
+                {
+                    "name": "vehicle_name"
+                },
+                {
+                    "name": "weapon_name"
+                },
+                {
+                    "name": "device_name"
+                },
+                {
+                    "name": "scenery_name"
+                }
+            ]
+        },
+        {
+            "index": "143",
+            "name": "enum143",
+            "values": [
+                {
+                    "name": "screen facing"
+                },
+                {
+                    "name": "parallel to direction"
+                },
+                {
+                    "name": "perpendicular to direction"
+                }
+            ]
+        },
+        {
+            "index": "144",
+            "name": "object type",
+            "values": [
+                {
+                    "name": "biped"
+                },
+                {
+                    "name": "vehicle"
+                },
+                {
+                    "name": "weapon"
+                },
+                {
+                    "name": "equipment"
+                },
+                {
+                    "name": "garbage"
+                },
+                {
+                    "name": "projectile"
+                },
+                {
+                    "name": "scenery"
+                },
+                {
+                    "name": "device machine"
+                },
+                {
+                    "name": "device control"
+                },
+                {
+                    "name": "device light fixture"
+                },
+                {
+                    "name": "placeholder"
+                },
+                {
+                    "name": "sound scenery"
+                }
+            ]
+        },
+        {
+            "index": "145",
+            "name": "shader type",
+            "values": [
+                {
+                    "name": "unused 0"
+                },
+                {
+                    "name": "particle"
+                },
+                {
+                    "name": "unused 2"
+                },
+                {
+                    "name": "environment"
+                },
+                {
+                    "name": "model"
+                },
+                {
+                    "name": "unused 5"
+                },
+                {
+                    "name": "chicago"
+                },
+                {
+                    "name": "chicago extended"
+                },
+                {
+                    "name": "water"
+                },
+                {
+                    "name": "glass"
+                },
+                {
+                    "name": "meter"
+                },
+                {
+                    "name": "plasma"
+                }
+            ]
+        },
+        {
+            "index": "146",
+            "name": "unit weapon animation",
+            "values": [
+                {
+                    "name": "idle"
+                },
+                {
+                    "name": "gesture"
+                },
+                {
+                    "name": "turn left"
+                },
+                {
+                    "name": "turn right"
+                },
+                {
+                    "name": "dive front"
+                },
+                {
+                    "name": "dive back"
+                },
+                {
+                    "name": "dive left"
+                },
+                {
+                    "name": "dive right"
+                },
+                {
+                    "name": "move front"
+                },
+                {
+                    "name": "move back"
+                },
+                {
+                    "name": "move left"
+                },
+                {
+                    "name": "move right"
+                },
+                {
+                    "name": "slide front"
+                },
+                {
+                    "name": "slide back"
+                },
+                {
+                    "name": "slide left"
+                },
+                {
+                    "name": "slide right"
+                },
+                {
+                    "name": "airborne"
+                },
+                {
+                    "name": "land soft"
+                },
+                {
+                    "name": "land hard"
+                },
+                {
+                    "name": "unused"
+                },
+                {
+                    "name": "throw grenade"
+                },
+                {
+                    "name": "disarm"
+                },
+                {
+                    "name": "drop"
+                },
+                {
+                    "name": "ready"
+                },
+                {
+                    "name": "put away"
+                },
+                {
+                    "name": "aim still"
+                },
+                {
+                    "name": "aim move"
+                },
+                {
+                    "name": "surprise front"
+                },
+                {
+                    "name": "surprise back"
+                },
+                {
+                    "name": "berserk"
+                },
+                {
+                    "name": "evade left"
+                },
+                {
+                    "name": "evade right"
+                },
+                {
+                    "name": "signal move"
+                },
+                {
+                    "name": "signal attack"
+                },
+                {
+                    "name": "warn"
+                },
+                {
+                    "name": "stunned front"
+                },
+                {
+                    "name": "stunned back"
+                },
+                {
+                    "name": "stunned left"
+                },
+                {
+                    "name": "stunned right"
+                },
+                {
+                    "name": "melee"
+                },
+                {
+                    "name": "celebrate"
+                },
+                {
+                    "name": "panic"
+                },
+                {
+                    "name": "melee airborne"
+                },
+                {
+                    "name": "flaming"
+                },
+                {
+                    "name": "resurrect front"
+                },
+                {
+                    "name": "resurrect back"
+                },
+                {
+                    "name": "melee continuous"
+                },
+                {
+                    "name": "feeding"
+                },
+                {
+                    "name": "leap start"
+                },
+                {
+                    "name": "leap airborne"
+                },
+                {
+                    "name": "leap melee"
+                }
+            ]
+        },
+        {
+            "index": "147",
+            "name": "unit seat animation",
+            "values": [
+                {
+                    "name": "airborne dead"
+                },
+                {
+                    "name": "landing dead"
+                },
+                {
+                    "name": "accel front back"
+                },
+                {
+                    "name": "accel left right"
+                },
+                {
+                    "name": "accel up down"
+                },
+                {
+                    "name": "push"
+                },
+                {
+                    "name": "twitch"
+                },
+                {
+                    "name": "enter"
+                },
+                {
+                    "name": "exit"
+                },
+                {
+                    "name": "look"
+                },
+                {
+                    "name": "talk"
+                },
+                {
+                    "name": "emotions"
+                },
+                {
+                    "name": "unused"
+                },
+                {
+                    "name": "user0"
+                },
+                {
+                    "name": "user1"
+                },
+                {
+                    "name": "user2"
+                },
+                {
+                    "name": "user3"
+                },
+                {
+                    "name": "user4"
+                },
+                {
+                    "name": "user5"
+                },
+                {
+                    "name": "user6"
+                },
+                {
+                    "name": "user7"
+                },
+                {
+                    "name": "user8"
+                },
+                {
+                    "name": "user9"
+                },
+                {
+                    "name": "flying front"
+                },
+                {
+                    "name": "flying back"
+                },
+                {
+                    "name": "flying left"
+                },
+                {
+                    "name": "flying right"
+                },
+                {
+                    "name": "opening"
+                },
+                {
+                    "name": "closing"
+                },
+                {
+                    "name": "hovering"
+                }
+            ]
+        },
+        {
+            "index": "148",
+            "name": "weapon animation",
+            "values": [
+                {
+                    "name": "idle"
+                },
+                {
+                    "name": "ready"
+                },
+                {
+                    "name": "put away"
+                },
+                {
+                    "name": "reload 1"
+                },
+                {
+                    "name": "reload 2"
+                },
+                {
+                    "name": "chamber 1"
+                },
+                {
+                    "name": "chamber 2"
+                },
+                {
+                    "name": "charged 1"
+                },
+                {
+                    "name": "charged 2"
+                },
+                {
+                    "name": "fire 1"
+                },
+                {
+                    "name": "fire 2"
+                }
+            ]
+        },
+        {
+            "index": "149",
+            "name": "first person animation",
+            "values": [
+                {
+                    "name": "idle"
+                },
+                {
+                    "name": "posing"
+                },
+                {
+                    "name": "fire 1"
+                },
+                {
+                    "name": "moving"
+                },
+                {
+                    "name": "overlays"
+                },
+                {
+                    "name": "light off"
+                },
+                {
+                    "name": "light on"
+                },
+                {
+                    "name": "reload empty"
+                },
+                {
+                    "name": "reload full"
+                },
+                {
+                    "name": "overheated"
+                },
+                {
+                    "name": "ready"
+                },
+                {
+                    "name": "put away"
+                },
+                {
+                    "name": "overcharged"
+                },
+                {
+                    "name": "melee"
+                },
+                {
+                    "name": "fire 2"
+                },
+                {
+                    "name": "overcharged jitter"
+                },
+                {
+                    "name": "throw grenade"
+                },
+                {
+                    "name": "ammunition"
+                },
+                {
+                    "name": "misfire 1"
+                },
+                {
+                    "name": "misfire 2"
+                },
+                {
+                    "name": "throw overheated"
+                },
+                {
+                    "name": "overheating"
+                },
+                {
+                    "name": "overheating again"
+                },
+                {
+                    "name": "enter"
+                },
+                {
+                    "name": "exit empty"
+                },
+                {
+                    "name": "exit full"
+                },
+                {
+                    "name": "overheat enter"
+                },
+                {
+                    "name": "overheat exit"
+                }
+            ]
+        },
+        {
+            "index": "150",
+            "name": "unit weapon type animation",
+            "values": [
+                {
+                    "name": "reload 1"
+                },
+                {
+                    "name": "reload 2"
+                },
+                {
+                    "name": "chamber 1"
+                },
+                {
+                    "name": "chamber 2"
+                },
+                {
+                    "name": "fire 1"
+                },
+                {
+                    "name": "fire 2"
+                },
+                {
+                    "name": "charged 1"
+                },
+                {
+                    "name": "charged 2"
+                },
+                {
+                    "name": "melee"
+                },
+                {
+                    "name": "overheat"
+                }
+            ]
+        },
+        {
+            "index": "150",
+            "name": "vehicle animation",
+            "values": [
+                {
+                    "name": "steering"
+                },
+                {
+                    "name": "roll"
+                },
+                {
+                    "name": "throttle"
+                },
+                {
+                    "name": "velocity"
+                },
+                {
+                    "name": "braking"
+                },
+                {
+                    "name": "ground speed"
+                },
+                {
+                    "name": "occupied"
+                },
+                {
+                    "name": "unoccupied"
+                }
+            ]
+        }
+    ]
+}

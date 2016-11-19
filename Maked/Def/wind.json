@@ -1,0 +1,40 @@
+{
+    "name": "wind",
+    "type": "wind",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "wind",
+            "sizeof": 64,
+            "fields": [
+                {
+                    "name": "velocity",
+                    "unit": "world units",
+                    "comment": "the wind magnitude in the weather region scales the wind between these bounds",
+                    "type": "bound float"
+                },
+                {
+                    "name": "variation area",
+                    "comment": "the wind direction varies inside a box defined by these angles on either side of the direction from the weather region.",
+                    "type": "angles2"
+                },
+                {
+                    "name": "local variation weight",
+                    "type": "float"
+                },
+                {
+                    "name": "local variation rate",
+                    "type": "float"
+                },
+                {
+                    "name": "damping",
+                    "type": "float"
+                },
+                {
+                    "type": "pad",
+                    "size": 36
+                }
+            ]
+        }
+    ]
+}

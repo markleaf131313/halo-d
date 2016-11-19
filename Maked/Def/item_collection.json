@@ -1,0 +1,59 @@
+{
+    "name": "item_collection",
+    "type": "itmc",
+    "version": 0,
+    "blocks": [
+        {
+            "name": "item_permutation",
+            "sizeof": 84,
+            "fields": [
+                {
+                    "type": "pad",
+                    "size": 32
+                },
+                {
+                    "name": "weight",
+                    "comment": "relatively how likely this item will be chosen",
+                    "type": "float"
+                },
+                {
+                    "name": "item",
+                    "comment": "which item to ",
+                    "type": "tagref",
+                    "tag_types": [
+                        {
+                            "type": "item"
+                        }
+                    ]
+                },
+                {
+                    "type": "pad",
+                    "size": 32
+                }
+            ]
+        },
+        {
+            "name": "item_collection",
+            "sizeof": 92,
+            "fields": [
+                {
+                    "name": "item permutations",
+                    "type": "block",
+                    "block_name": "item_permutation"
+                },
+                {
+                    "name": "spawn time (in seconds, 0 = default)",
+                    "type": "short"
+                },
+                {
+                    "type": "pad",
+                    "size": 2
+                },
+                {
+                    "type": "pad",
+                    "size": 76
+                }
+            ]
+        }
+    ]
+}
