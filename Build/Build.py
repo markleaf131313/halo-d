@@ -28,7 +28,7 @@ def doBuild(buildTarget):
                 '-I../build/imports/',
             ]
 
-            libs = [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib' ]
+            libs = [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
         elif buildTarget == 'opengl':
             dflags = [
@@ -50,7 +50,7 @@ def doBuild(buildTarget):
             ]
 
             lflags = [ '-L/PDB:../build/obj/runtime-' + uniqueIdentifer + '.pdb' ]
-            libs = [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'cimgui.lib' ]
+            libs = [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'cimgui.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
             # possible .dll is created before .pdb, thus dll is loaded without symbols
             # so store it else where and copy it after everything is linked and ready

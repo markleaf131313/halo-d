@@ -80,6 +80,11 @@ size_t decodedAdpcmSize(size_t compressedSize, int numChannels)
     return (compressedSize / (numChannels * 36)) * (numChannels * 130);
 }
 
+size_t compressedAdpcmSize(size_t size, int numChannels)
+{
+    return (size / (numChannels * 130)) * (numChannels * 36);
+}
+
 void decodeAdpcm(const(void)[] input, int numChannels, void[] output)
 in
 {

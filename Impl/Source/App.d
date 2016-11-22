@@ -4,6 +4,7 @@ import OpenAL;
 import OpenGL;
 import OpenGL.Loader;
 import SDL2;
+import Vorbis;
 
 import Game.GameInterface;
 

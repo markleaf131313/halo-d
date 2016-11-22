@@ -6,6 +6,7 @@ import std.string : fromStringz;
 
 import Game.Cache.SharedResourceCache;
 
+import Game.Audio;
 import Game.Tags;
 import Game.Core;
 
@@ -74,7 +75,7 @@ SharedResourceCache bitmapCache;
 SharedResourceCache soundCache;
 SharedResourceCache locCache;
 
-pragma(inline, true) static @nogc
+pragma(inline, true) static @nogc nothrow
 {
     @property Cache* inst()                { return instance; }
     @property void   inst(Cache* instance) { this.instance = instance; }
@@ -369,47 +370,11 @@ void loadTagSound(ref Meta meta, ref SharedLoadData sharedLoadData)
     foreach(ref pitchRange ; tagSound.pitchRanges)
     foreach(ref permutation ; pitchRange.permutations)
     {
-        import OpenAL;
-        import Game.Audio.Adpcm;
+        void* data = mallocCast!void(permutation.samples.size);
+        permutation.cacheBufferIndex = Audio.inst.addSampleData(data);
 
-        if(permutation.compression == TagEnums.SoundCompression.xboxAdpcm)
-        {
-            int channels = tagSound.encoding == TagEnums.SoundEncoding.mono ? 1 : 2;
+        cache.read(permutation.samples.offset, data, permutation.samples.size);
 
-            void[] buffer = new void[](permutation.samples.size); // TODO(IMPLEMENT, MEMORY) need to free allocation
-            cache.read(permutation.samples.offset, buffer.ptr, buffer.length);
-            void[] decoded = new void[](decodedAdpcmSize(buffer.length, channels));
-
-            decodeAdpcm(buffer, channels, decoded);
-
-            if(permutation.cacheBufferIndex == indexNone)
-            {
-                alGenBuffers(1, cast(uint*)&permutation.cacheBufferIndex);
-            }
-
-            int sampleRate;
-
-            switch(tagSound.sampleRate)
-            {
-            case TagEnums.SoundSampleRate._44khz: sampleRate = 44100; break;
-            case TagEnums.SoundSampleRate._22khz: sampleRate = 22050; break;
-            default:
-            }
-
-            switch(tagSound.encoding)
-            {
-            case TagEnums.SoundEncoding.mono:
-                alBufferData(permutation.cacheBufferIndex, AL_FORMAT_MONO16,
-                    decoded.ptr, cast(int)decoded.length, sampleRate);
-                break;
-            case TagEnums.SoundEncoding.stereo:
-                alBufferData(permutation.cacheBufferIndex, AL_FORMAT_STEREO16,
-                    decoded.ptr, cast(int)decoded.length, sampleRate);
-                break;
-            default:
-            }
-
-        }
     }
 }
 
@@ -436,7 +401,7 @@ void loadBlockFields(T)(T* block)
             }
             else static if(is(Member == TagData))
             {
-                member.data = fixPointer(member.data);
+                // member.data = fixPointer(member.data);
             }
             else static if(is(Member : T[size], T, int size) && is(T == struct))
             {

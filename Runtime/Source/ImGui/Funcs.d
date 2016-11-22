@@ -8,6 +8,20 @@ private
     import core.stdc.stdarg : va_list;
 }
 
+@nogc nothrow
+{
+
+    bool igInputShort(const char* label, short* v, short step = 1, short step_fast = 100, ImGuiInputTextFlags extra_flags = 0)
+    {
+        int value = *v;
+        bool result = igInputInt(label, &value, step, step_fast, extra_flags);
+
+        *v = cast(short)value;
+        return result;
+    }
+
+}
+
 extern(C) @nogc nothrow
 {
     ImGuiIO* igGetIO();

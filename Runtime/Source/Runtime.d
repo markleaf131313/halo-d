@@ -275,6 +275,22 @@ bool initSharedGameState(SharedGameState* gameState)
     return true;
 }
 
+template EnumMembersNameArray(T...)
+{
+    static if(T.length == 1 && is(T[0] == enum))
+    {
+        alias EnumMembersNameArray = EnumMembersNameArray!(EnumMembers!(T[0]));
+    }
+    else static if(T.length)
+    {
+        alias EnumMembersNameArray = AliasSeq!(T[0].stringof, EnumMembersNameArray!(T[1 .. $]));
+    }
+    else
+    {
+        alias EnumMembersNameArray = AliasSeq!();
+    }
+}
+
 void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices = [])
 {
 
@@ -309,10 +325,21 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         igPushIdPtr(&field);
         scope(exit) igPopId();
 
+        static if(is(Field == enum))
+        {
+            immutable immutable(char)*[] names = [ EnumMembersNameArray!Field ];
 
-        static if(is(Field == int))
+            int currentItem = cast(int)field;
+            igCombo(identifier, &currentItem, names.ptr, cast(int)names.length);
+            field = cast(Field)currentItem;
+        }
+        else static if(is(Field == int))
         {
             igInputInt(identifier, &field);
+        }
+        else static if(is(Field == short))
+        {
+            igInputShort(identifier, &field);
         }
         else static if(is(Field == float))
         {
@@ -326,9 +353,26 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         {
             igInputFloat3(identifier, field[]);
         }
+        else static if(is(Field : TagBounds!Bound, Bound))
+        {
+            igBeginGroup();
+            igPushItemWidth(igGetWindowWidth() / 4);
+            static      if(is(Bound == int))   igInputInt  ("##lower", &field.lower);
+            else static if(is(Bound == short)) igInputShort("##lower", &field.lower);
+            else static if(is(Bound == float)) igInputFloat("##lower", &field.lower);
+            else static assert(0);
+
+            igSameLine();
+
+            static      if(is(Bound == int))   igInputInt  (identifier, &field.upper);
+            else static if(is(Bound == short)) igInputShort(identifier, &field.upper);
+            else static if(is(Bound == float)) igInputFloat(identifier, &field.upper);
+
+            igPopItemWidth();
+            igEndGroup();
+        }
         else static if(is(Field == TagRef))
         {
-
             if(igButton("..."))
             {
                 selectedIndex = indexNone;
@@ -398,6 +442,10 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
             }
 
         }
+        else static if(is(Field == TagData))
+        {
+            igInputInt(identifier, &field.size);
+        }
         else static if(is(Field : TagBlock!BlockType, BlockType))
         {
             if(field.ptr && field.size)
@@ -409,9 +457,13 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
             {
                 igSliderInt("##index", &field.debugIndex, 0, max(0, field.size - 1));
 
-                if(field.ptr)
+                if(field.ptr && field.size)
                 {
-                    setView!(typeof(*field.ptr))(tagIndex, field.ptr + field.debugIndex, tags, blockIndices ~ field.debugIndex);
+                    // SliderInt doesn't respect input bounds...
+                    field.debugIndex = clamp(field.debugIndex, 0, max(0, field.size - 1));
+
+                    setView!(typeof(*field.ptr))(tagIndex, field.ptr + field.debugIndex,
+                        tags, blockIndices ~ field.debugIndex);
                 }
 
                 igTreePop();
@@ -443,8 +495,6 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
                 igEndTooltip();
             }
         }
-
-
     }
 }
 

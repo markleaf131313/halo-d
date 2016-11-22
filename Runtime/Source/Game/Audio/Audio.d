@@ -4,6 +4,7 @@ module Game.Audio.Audio;
 import std.datetime : StopWatch, Duration;
 
 import OpenAL;
+import Vorbis;
 
 import Game.Audio.Sound;
 import Game.Audio.Looping;
@@ -31,41 +32,27 @@ Duration  lastUpdateTime;
 Listener[TagConstants.Player.maxLocalPlayers] listeners;
 DatumArray!Sound sounds;
 
+int lastSample;
+void*[2048] samples; // TODO use padding in TagData instead?
+
 void initialize()
 {
+    stopWatch.start();
     sounds.allocate(128, multichar!"s!");
+}
+
+int addSampleData(void* ptr)
+{
+    int result = lastSample++;
+    samples[result] = ptr;
+    return result;
 }
 
 void update()
 {
     foreach(ref sound ; sounds)
     {
-        const tagSound       = Cache.get!TagSound(sound.tagIndex);
-        const tagPitchRange  = &tagSound.pitchRanges[sound.pitchRangeIndex];
-        const tagPermutation = &tagPitchRange.permutations[sound.permutationIndex];
-
-        if(sound.source == AL_NONE)
-        {
-            if(tagPermutation.cacheBufferIndex == indexNone)
-            {
-                sounds.remove(sound.selfIndex);
-                continue;
-            }
-
-            alGenSources(1, &sound.source);
-
-            alSourcei(sound.source, AL_BUFFER, tagPermutation.cacheBufferIndex);
-            alSourcePlay(sound.source);
-        }
-
-        int state;
-        alGetSourcei(sound.source, AL_SOURCE_STATE, &state);
-
-        if(state != AL_PLAYING)
-        {
-            sounds.remove(sound.selfIndex);
-        }
-
+        sound.update();
     }
 }
 
