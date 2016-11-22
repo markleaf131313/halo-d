@@ -69,6 +69,21 @@ void update()
     }
 }
 
+DatumIndex playDebug(DatumIndex tagSoundIndex, int pitch, int permutation)
+{
+    DatumIndex index = play(tagSoundIndex);
+
+    if(index != DatumIndex.none)
+    {
+        Sound* sound = &sounds[index];
+
+        sound.pitchRangeIndex  = pitch;
+        sound.permutationIndex = permutation;
+    }
+
+    return index;
+}
+
 DatumIndex play(DatumIndex tagSoundIndex)
 {
     if(tagSoundIndex == DatumIndex.none)
@@ -135,6 +150,8 @@ DatumIndex play(DatumIndex tagSoundIndex, ref const Sound.Spatial spatial)
 
     return soundIndex;
 }
+
+
 
 int findClosestListener(ref const Sound.Spatial spatial, float maximumDistance)
 {

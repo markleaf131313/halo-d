@@ -1,20 +1,21 @@
 
 import core.sys.windows.dll : SimpleDllMain;
 
-import std.stdio;
-import std.meta;
-import std.conv : to;
+import std.conv     : to;
 import std.datetime : StopWatch, Duration, dur;
+import std.meta;
+import std.stdio;
+import std.traits : EnumMembers;
 
 import OpenGL;
 import SDL2;
 import imgui;
 
 import Game.Audio;
-import Game.Core;
-import Game.SharedGameState;
-import Game.GameInterface;
 import Game.Cache;
+import Game.Core;
+import Game.GameInterface;
+import Game.SharedGameState;
 import Game.Tags;
 import Game.World;
 import Game.World.Player;
@@ -274,7 +275,7 @@ bool initSharedGameState(SharedGameState* gameState)
     return true;
 }
 
-void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags)
+void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices = [])
 {
 
     static int selectedIndex; // todo remove hack
@@ -289,13 +290,11 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags)
     igPushIdPtr(f);
     scope(exit) igPopId();
 
-    static if(is(T == TagSound))
+    static if(is(T == Tag.SoundPermutationsBlock))
     {
-        T* tagSound = cast(T*)f;
-
         if(igButton("Play"))
         {
-            Audio.inst.play(tagIndex);
+            Audio.inst.playDebug(tagIndex, blockIndices[$ - 2], blockIndices[$ - 1]);
         }
     }
 
@@ -412,7 +411,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags)
 
                 if(field.ptr)
                 {
-                    setView!(typeof(*field.ptr))(tagIndex, field.ptr + field.debugIndex, tags);
+                    setView!(typeof(*field.ptr))(tagIndex, field.ptr + field.debugIndex, tags, blockIndices ~ field.debugIndex);
                 }
 
                 igTreePop();
@@ -575,14 +574,15 @@ try
         igValueInt("Ticks", ticks);
 
 
-        foreach(i, ref group ; cacheTagPaths)
+        foreach(tagId ; [EnumMembers!TagId])
+        if(auto group = tagId in cacheTagPaths)
         {
             import std.conv : to;
-            const(char)[] name = to!string(i) ~ "\0";
+            const(char)[] name = to!string(tagId) ~ "\0";
 
             if(igTreeNode(name.ptr))
             {
-                foreach(index ; group)
+                foreach(index ; *group)
                 {
                     if(igSelectable(Cache.inst.metaAt(index).path))
                     {
@@ -605,8 +605,7 @@ try
 
         igEnd();
 
-        int removeIndex = indexNone;
-        foreach(int j, int i ; openedTags)
+        foreach(int j, ref i ; openedTags)
         {
             auto meta = &Cache.inst.metaAt(i);
             bool opened = true;
@@ -616,19 +615,25 @@ try
             igSetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
             if(igBegin2(name.ptr, &opened, ImVec2(600, 500), -1.0f, ImGuiWindowFlags_NoSavedSettings))
             {
-                InvokeByTag!setView(meta.type, meta.index, meta.data, openedTags);
+                InvokeByTag!setView(meta.type, meta.index, meta.data, openedTags, null);
             }
             igEnd();
 
             if(!opened)
             {
-                removeIndex = j;
+                i = indexNone;
             }
         }
 
-        if(removeIndex != indexNone)
+        for(int i = 0; i < openedTags.length; ++i)
         {
-            openedTags = openedTags[0 .. removeIndex] ~ openedTags[removeIndex + 1 .. $];
+            if(openedTags[i] == indexNone)
+            {
+                openedTags[i] = openedTags[$ - 1];
+
+                openedTags.length -= 1;
+                i                 -= 1;
+            }
         }
 
         if(selectedObject)
@@ -660,7 +665,6 @@ try
 
         igRender();
     }
-
 
 
     Duration currentTime = dur!"hnsecs"(frameStopWatch.peek().hnsecs);
