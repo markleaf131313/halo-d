@@ -121,6 +121,18 @@ struct TagBounds(T)
     T lower;
     T upper;
 
+    bool inBounds(string boundaries)(T value) const
+    {
+        static if(boundaries == "[]")
+        {
+            return value >= lower && value <= upper;
+        }
+        else
+        {
+            static assert(0, "Invalid boundaries \"" ~ boundaries ~ "\".");
+        }
+    }
+
     static if(is(T == float))
     {
         float mix(float a) const

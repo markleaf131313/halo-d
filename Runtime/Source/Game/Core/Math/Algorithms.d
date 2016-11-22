@@ -57,7 +57,7 @@ T saturate(T)(T value) if(isFloatingPoint!T)
     return clamp!T(value, 0, 1);
 }
 
-// todo idk if this is the correct name but we are shoehorning it so..
+// TODO rename possibly?
 T barycentricInterpolate(T, U)(T v0, T v1, T v2, U uv) if(isVector!U && U.size == 2 && isFloatingPoint!(U.Type))
 {
     return (v1 - v0) * uv.x + (v2 - v0) * uv.y + v0;

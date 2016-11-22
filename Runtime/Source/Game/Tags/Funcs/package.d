@@ -7,4 +7,6 @@ public
     import Game.Tags.Funcs.Model;
     import Game.Tags.Funcs.Bitmap;
     import Game.Tags.Funcs.ScenarioStructureBsp;
+    import Game.Tags.Funcs.Sound;
+
 }

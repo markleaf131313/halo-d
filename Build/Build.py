@@ -63,6 +63,7 @@ def doBuild(buildTarget):
     args = [
         'dmd',
         '-m64',
+        '-mscrtlib=msvcrt',
         # '-w',           # warnings
         '-de',          # treat deprecation as errors
         '-gc',          # debug symbols (C format)

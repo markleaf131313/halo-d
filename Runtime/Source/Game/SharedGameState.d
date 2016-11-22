@@ -3,6 +3,7 @@ module Game.SharedGameState;
 
 import SDL2;
 
+import Game.Audio;
 import Game.Cache;
 import Game.Render;
 import Game.World;
@@ -23,6 +24,7 @@ struct SharedGameState
     Player[16] players; // TODO rename to "localPlayers" ?
 
     Cache cache;
+    Audio audio;
     World world;
     Renderer renderer;
 }

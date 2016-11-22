@@ -10,6 +10,7 @@ import OpenGL;
 import SDL2;
 import imgui;
 
+import Game.Audio;
 import Game.Core;
 import Game.SharedGameState;
 import Game.GameInterface;
@@ -106,6 +107,9 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
     try
     {
         emplace(gameState);
+
+        Audio.inst = &gameState.audio;
+        Audio.inst.initialize();
 
         Cache.inst = &gameState.cache;
         gameState.cache.load("maps/bloodgulch.map");
@@ -222,6 +226,8 @@ bool initSharedGameState(SharedGameState* gameState)
     Cache.inst = &gameState.cache;
     loadCacheTagPaths();
 
+    Audio.inst = &gameState.audio;
+
     ImGuiIO* io = igGetIO();
 
     ubyte* pixels;
@@ -268,7 +274,7 @@ bool initSharedGameState(SharedGameState* gameState)
     return true;
 }
 
-void setView(T)(void* f, ref int[] tags)
+void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags)
 {
 
     static int selectedIndex; // todo remove hack
@@ -277,29 +283,19 @@ void setView(T)(void* f, ref int[] tags)
     static if(__traits(getAliasThis, T).length)
     {
         alias Type = typeof(__traits(getMember, fields, __traits(getAliasThis, T)[0]));
-        setView!Type(&__traits(getMember, fields, __traits(getAliasThis, T)[0]), tags);
+        setView!Type(tagIndex, &__traits(getMember, fields, __traits(getAliasThis, T)[0]), tags);
     }
 
     igPushIdPtr(f);
     scope(exit) igPopId();
 
-    static if(is(T == Tag.SoundPermutationsBlock))
+    static if(is(T == TagSound))
     {
-        T* tagPermutation = cast(T*)f;
+        T* tagSound = cast(T*)f;
 
-        if(tagPermutation.cacheBufferIndex != indexNone)
+        if(igButton("Play"))
         {
-            if(igButton("Play"))
-            {
-                import OpenAL;
-
-                // TODO(CRITICAL) fix memory leak, debugging only
-                uint source;
-                alGenSources(1, &source);
-
-                alSourcei(source, AL_BUFFER, tagPermutation.cacheBufferIndex);
-                alSourcePlay(source);
-            }
+            Audio.inst.play(tagIndex);
         }
     }
 
@@ -416,7 +412,7 @@ void setView(T)(void* f, ref int[] tags)
 
                 if(field.ptr)
                 {
-                    setView!(typeof(*field.ptr))(field.ptr + field.debugIndex, tags);
+                    setView!(typeof(*field.ptr))(tagIndex, field.ptr + field.debugIndex, tags);
                 }
 
                 igTreePop();
@@ -428,7 +424,7 @@ void setView(T)(void* f, ref int[] tags)
             {
                 igText("%s %d", identifier.ptr, j);
                 igIndent();
-                setView!(typeof(value))(&value, tags);
+                setView!(typeof(value))(tagIndex, &value, tags);
                 igUnindent();
             }
         }
@@ -620,7 +616,7 @@ try
             igSetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
             if(igBegin2(name.ptr, &opened, ImVec2(600, 500), -1.0f, ImGuiWindowFlags_NoSavedSettings))
             {
-                InvokeByTag!setView(meta.type, meta.data, openedTags);
+                InvokeByTag!setView(meta.type, meta.index, meta.data, openedTags);
             }
             igEnd();
 
@@ -802,6 +798,7 @@ try
 
         }
 
+        gameState.audio.update();
         gameState.world.updateLogicEffects(1.0f / gameFramesPerSecond);
         gameState.world.updateLogicParticles(1.0f / gameFramesPerSecond); // TODO(REFACTOR) ordering is wrong
 

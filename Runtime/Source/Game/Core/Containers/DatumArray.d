@@ -12,8 +12,8 @@ struct DatumIndex
 {
     enum none = DatumIndex(indexNone, indexNone);
 
-    short i;
-    short salt;
+    short i    = indexNone;
+    short salt = indexNone;
 }
 
 struct DatumArray(T)

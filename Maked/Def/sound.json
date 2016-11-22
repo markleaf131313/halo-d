@@ -89,7 +89,22 @@
                 },
                 {
                     "type": "pad",
-                    "size": 12
+                    "size": 4
+                },
+                {
+                    "name": "played permutation bits",
+                    "type": "int",
+                    "comment": "runtime value, indicates indices of permutations that have been played"
+                },
+                {
+                    "name": "prev permutation index",
+                    "type": "short",
+                    "comment": "runtime value, previous permutation used"
+                },
+                {
+                    "name": "next permutation index",
+                    "type": "short",
+                    "comment": "runtime value, index changes whenever a new permutation is selected"
                 },
                 {
                     "name": "permutations",
@@ -187,15 +202,15 @@
                     "explanation": "as the sound's input scale changes from zero to one, these modifiers move between the two values specified here. the sound will play using the current scale modifier multiplied by the value specified above. (0 values are ignored.)"
                 },
                 {
-                    "name": "skip fraction modifier",
+                    "name": "skip fraction modifier 0",
                     "type": "float"
                 },
                 {
-                    "name": "gain modifier",
+                    "name": "gain modifier 0",
                     "type": "float"
                 },
                 {
-                    "name": "pitch modifier",
+                    "name": "pitch modifier 0",
                     "type": "float"
                 },
                 {
@@ -208,15 +223,15 @@
                     "explanation": "as the sound's input scale changes from zero to one, these modifiers move between the two values specified here. the sound will play using the current scale modifier multiplied by the value specified above. (0 values are ignored.)"
                 },
                 {
-                    "name": "skip fraction modifier",
+                    "name": "skip fraction modifier 1",
                     "type": "float"
                 },
                 {
-                    "name": "gain modifier",
+                    "name": "gain modifier 1",
                     "type": "float"
                 },
                 {
-                    "name": "pitch modifier",
+                    "name": "pitch modifier 1",
                     "type": "float"
                 },
                 {

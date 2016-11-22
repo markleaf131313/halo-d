@@ -55,7 +55,7 @@ struct Meta
     DatumIndex index;
 
     mixin exactPointer32!(const(char), "path");
-    mixin exactPointer32!(void, "data");
+    mixin exactPointer32!(void,        "data");
 
     bool external;
     int pad0;

@@ -69,7 +69,7 @@ private enum int[89] stepTable =
     15289, 16818, 18500, 20350, 22385, 24623, 27086, 29794, 32767
 ];
 
-enum int[16] indexTable =
+private enum int[16] indexTable =
 [
     -1, -1, -1, -1, 2, 4, 6, 8,
     -1, -1, -1, -1, 2, 4, 6, 8
@@ -155,11 +155,10 @@ body
 
 private short decodeAdpcmSample(byte code, int step, int predictor)
 {
-    int diff = step >> 3;
-
-    diff += -(code >> 2 & 1) & (step >> 0);
-    diff += -(code >> 1 & 1) & (step >> 1);
-    diff += -(code >> 0 & 1) & (step >> 2);
+    int diff = (step >> 3)
+        + (-(code >> 2 & 1) & (step >> 0))
+        + (-(code >> 1 & 1) & (step >> 1))
+        + (-(code >> 0 & 1) & (step >> 2));
 
     int tmp = -(code >> 3 & 1);
 
