@@ -122,8 +122,7 @@ void update()
 
         if(!fillBuffer(buffer == buffers[0] ? 0 : 1))
         {
-            audio.sounds.remove(selfIndex);
-            return;
+            break;
         }
     }
 
@@ -132,7 +131,14 @@ void update()
 
     if(state != AL_PLAYING)
     {
-        audio.sounds.remove(selfIndex);
+        if(readOffset >= tagPermutation.samples.size)
+        {
+            audio.sounds.remove(selfIndex);
+        }
+        else
+        {
+            alSourcePlay(source);
+        }
     }
 }
 
@@ -142,25 +148,35 @@ bool fillBuffer(int i)
     const tagPitchRange  = &tagSound.pitchRanges[pitchRangeIndex];
     const tagPermutation = &tagPitchRange.permutations[permutationIndex];
 
+    if(readOffset >= tagPermutation.samples.size)
+    {
+        return false;
+    }
+
     uint buffer = buffers[i];
 
-    byte[4128] data = void;
+    byte[8256] data = void;
     ptrdiff_t length;
 
-    int numChannels = tagSound.encoding == TagEnums.SoundEncoding.mono ? 1 : 2;
+    int  numChannels = 2;
+    uint encoding    = AL_FORMAT_STEREO16;
 
-    void* sample = audio.samples[tagPermutation.cacheBufferIndex];
+    if(tagSound.encoding == TagEnums.SoundEncoding.mono)
+    {
+        numChannels = 1;
+        encoding    = AL_FORMAT_MONO16;
+    }
+
+    const void* sample = audio.samples[tagPermutation.cacheBufferIndex];
 
     switch(tagSound.compression)
     {
     case TagEnums.SoundCompression.xboxAdpcm:
-        size_t encodedLength = min(compressedAdpcmSize(data.length, numChannels),
-            tagPermutation.samples.size - readOffset);
-
-        length = decodedAdpcmSize(encodedLength, numChannels);
+        size_t encodedLength = compressedAdpcmSize(data.length, numChannels);
+        encodedLength        = min(encodedLength, tagPermutation.samples.size - readOffset);
+        length               = decodedAdpcmSize(encodedLength, numChannels);
 
         decodeAdpcm(sample[readOffset .. readOffset + encodedLength], numChannels, data[0 .. length]);
-
         readOffset += encodedLength;
         break;
     case TagEnums.SoundCompression.ogg:
@@ -187,7 +203,7 @@ bool fillBuffer(int i)
 
     int freq = tagSound.sampleRate == TagEnums.SoundSampleRate._44khz ? 44100 : 22050;
 
-    alBufferData(buffer, numChannels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16, data.ptr, cast(int)length, freq);
+    alBufferData(buffer, encoding, data.ptr, cast(int)length, freq);
     alSourceQueueBuffers(source, 1, &buffer);
 
     return true;
