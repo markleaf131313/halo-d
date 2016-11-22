@@ -34,203 +34,205 @@ struct Vector(int _S, _T) if(_S >= 2)
 {
 pragma(inline, true) @nogc nothrow pure:
 
-    alias Type = _T;
-    enum  size = _S;
+alias Type = _T;
+enum  size = _S;
 
-    private enum isTypeAssignable(U) = isAssignable!(Type, U);
+private enum isTypeAssignable(U) = isAssignable!(Type, U);
 
-    union
+union
+{
+    private Type[size] values;
+
+    struct
     {
-        private Type[size] values;
+        Type x;
+        Type y;
 
-        struct
-        {
-            Type x;
-            Type y;
-
-            static if(size >= 3) Type z;
-            static if(size >= 4) Type w;
-        }
-    }
-
-    this(Type v)
-    {
-        values = v;
-    }
-
-    this(Args...)(Args args) if(args.length == size && allSatisfy!(isTypeAssignable, typeof(args)))
-    {
-        foreach(I, v ; args)
-        {
-            values[I] = v;
-        }
-    }
-
-    this(V, Args...)(auto ref const(V) vec, Args args)
-    if(isVector!V && vec.size + args.length == size && allSatisfy!(isTypeAssignable, AliasSeq!(V.Type, typeof(args))))
-    {
-        foreach(i ; staticIota!(vec.size))
-        {
-            values[i] = vec.values[i];
-        }
-
-        foreach(I, i ; staticIota!(vec.size, size))
-        {
-            values[i] = args[I];
-        }
-    }
-
-    ref inout(Type) opIndex(size_t i) inout
-    {
-        return values[i];
-    }
-
-    ref auto opSlice()
-    {
-        return values;
-    }
-
-    bool opEquals()(auto ref const(Vector) a) const
-    {
-        return values[] == a.values[];
-    }
-
-    auto opBinary(string op, N)(N num) const
-    if(isNumeric!N && op != "~")
-    {
-        Vector!(size, typeof(Type.init * N.init)) result = void;
-        foreach(i ; staticIota!(size))
-        {
-            result.values[i] = mixin("values[i] " ~ op ~ " num");
-        }
-        return result;
-    }
-
-    auto opBinaryRight(string op, N)(N num) const
-    if(isNumeric!N && op != "~")
-    {
-        Vector!(size, typeof(Type.init * N.init)) result = void;
-        foreach(i ; staticIota!(size))
-        {
-            result.values[i] = mixin("num " ~ op ~ " values[i]");
-        }
-        return result;
-    }
-
-    ref Vector opOpAssign(string op, N)(N num)
-    if(isNumeric!N && op != "~")
-    {
-        foreach(i ; staticIota!(size))
-        {
-            mixin("values[i] " ~ op ~ "= num;");
-        }
-        return this;
-    }
-
-    auto opBinary(string op, V)(auto ref const(V) vec) const
-    if(isVector!V && V.size == size && op != "~")
-    {
-        Vector!(size, Unqual!(typeof(x * vec.x))) result = void;
-        foreach(i ; staticIota!(size))
-        {
-            result.values[i] = mixin("values[i] " ~ op ~ " vec.values[i]");
-        }
-        return result;
-    }
-
-    auto opBinary(string op : "~", V)(auto ref const(V) vec) const
-    if(isVector!V)
-    {
-        Vector!(size + V.size, Unqual!(typeof(x * vec.x))) result = void;
-        foreach(i ; staticIota!(result.size))
-        {
-            static if(i < size) result.values[i] = values[i];
-            else                result.values[i] = vec.values[i - size];
-        }
-        return result;
-    }
-
-    auto opBinary(string op : "~", N)(N num) const
-    if(isNumeric!N)
-    {
-        Vector!(size + 1, Unqual!(typeof(x * num))) result = void;
-        foreach(i ; staticIota!(size))
-        {
-            result.values[i] = values[i];
-        }
-
-        result.values[$ - 1] = num;
-
-        return result;
-    }
-
-    auto opBinaryRight(string op : "~", N)(N num) const
-    if(isNumeric!N)
-    {
-        Vector!(size + 1, Unqual!(typeof(x * num))) result = void;
-
-        result.values[0] = num;
-
-        foreach(i ; staticIota!(size))
-        {
-            result.values[i + 1] = values[i];
-        }
-
-        return result;
-    }
-
-    ref Vector opOpAssign(string op, V)(auto ref const(V) vec)
-    if(isVector!V && V.size == size && op != "~")
-    {
-        foreach(i ; staticIota!(size))
-        {
-            mixin("values[i] " ~ op ~ "= vec.values[i];");
-        }
-        return this;
-    }
-
-    Vector opUnary(string op)() const if(op == "-" || op == "+")
-    {
-        Vector result = void;
-        result.values[] = mixin(op ~ "values[]");
-        return result;
-    }
-
-    @property auto opDispatch(string op)() const
-    {
-        Vector!(op.length, Type) result = void;
-
-        foreach(I, i ; staticIota!(op.length))
-        {
-            static      if(op[i] == 'x') result[I] = values[0];
-            else static if(op[i] == 'y') result[I] = values[1];
-            else static if(op[i] == 'z' && size >= 3) result[I] = values[2];
-            else static if(op[i] == 'w' && size >= 4) result[I] = values[3];
-            else static assert(false, "Unknown swizzle character '" ~ c ~ "' in operator '" ~ op ~ "'.");
-        }
-
-        return result;
-    }
-
-    @property void opDispatch(string op, V)(auto ref V vec) if(isVector!V && op.length <= size && op.length == vec.size)
-    {
-        foreach(i ; staticIota!(op.length))
-        {
-            foreach(j ; staticIota!(i + 1, op.length))
-            {
-                static if(op[i] == op[j])
-                {
-                    static assert("Duplicate swizzle parameter not allowed in assignment '" ~ op[i] ~ "' in '" ~ op ~ "'.");
-                }
-            }
-        }
-
-        foreach(i ; staticIota!(op.length))
-        {
-            mixin("this." ~ op[i]) = vec[i];
-        }
+        static if(size >= 3) Type z;
+        static if(size >= 4) Type w;
     }
 }
+
+this(Type v)
+{
+    values = v;
+}
+
+this(Args...)(Args args) if(args.length == size && allSatisfy!(isTypeAssignable, typeof(args)))
+{
+    foreach(I, v ; args)
+    {
+        values[I] = v;
+    }
+}
+
+this(V, Args...)(auto ref const(V) vec, Args args)
+if(isVector!V && vec.size + args.length == size && allSatisfy!(isTypeAssignable, AliasSeq!(V.Type, typeof(args))))
+{
+    foreach(i ; staticIota!(vec.size))
+    {
+        values[i] = vec.values[i];
+    }
+
+    foreach(I, i ; staticIota!(vec.size, size))
+    {
+        values[i] = args[I];
+    }
+}
+
+ref inout(Type) opIndex(size_t i) inout
+{
+    return values[i];
+}
+
+ref auto opSlice()
+{
+    return values;
+}
+
+bool opEquals()(auto ref const(Vector) a) const
+{
+    return values[] == a.values[];
+}
+
+auto opBinary(string op, N)(N num) const
+if(isNumeric!N && op != "~")
+{
+    Vector!(size, typeof(Type.init * N.init)) result = void;
+    foreach(i ; staticIota!(size))
+    {
+        result.values[i] = mixin("values[i] " ~ op ~ " num");
+    }
+    return result;
+}
+
+auto opBinaryRight(string op, N)(N num) const
+if(isNumeric!N && op != "~")
+{
+    Vector!(size, typeof(Type.init * N.init)) result = void;
+    foreach(i ; staticIota!(size))
+    {
+        result.values[i] = mixin("num " ~ op ~ " values[i]");
+    }
+    return result;
+}
+
+ref Vector opOpAssign(string op, N)(N num)
+if(isNumeric!N && op != "~")
+{
+    foreach(i ; staticIota!(size))
+    {
+        mixin("values[i] " ~ op ~ "= num;");
+    }
+    return this;
+}
+
+auto opBinary(string op, V)(auto ref const(V) vec) const
+if(isVector!V && V.size == size && op != "~")
+{
+    Vector!(size, Unqual!(typeof(x * vec.x))) result = void;
+    foreach(i ; staticIota!(size))
+    {
+        result.values[i] = mixin("values[i] " ~ op ~ " vec.values[i]");
+    }
+    return result;
+}
+
+auto opBinary(string op : "~", V)(auto ref const(V) vec) const
+if(isVector!V)
+{
+    Vector!(size + V.size, Unqual!(typeof(x * vec.x))) result = void;
+    foreach(i ; staticIota!(result.size))
+    {
+        static if(i < size) result.values[i] = values[i];
+        else                result.values[i] = vec.values[i - size];
+    }
+    return result;
+}
+
+auto opBinary(string op : "~", N)(N num) const
+if(isNumeric!N)
+{
+    Vector!(size + 1, Unqual!(typeof(x * num))) result = void;
+    foreach(i ; staticIota!(size))
+    {
+        result.values[i] = values[i];
+    }
+
+    result.values[$ - 1] = num;
+
+    return result;
+}
+
+auto opBinaryRight(string op : "~", N)(N num) const
+if(isNumeric!N)
+{
+    Vector!(size + 1, Unqual!(typeof(x * num))) result = void;
+
+    result.values[0] = num;
+
+    foreach(i ; staticIota!(size))
+    {
+        result.values[i + 1] = values[i];
+    }
+
+    return result;
+}
+
+ref Vector opOpAssign(string op, V)(auto ref const(V) vec)
+if(isVector!V && V.size == size && op != "~")
+{
+    foreach(i ; staticIota!(size))
+    {
+        mixin("values[i] " ~ op ~ "= vec.values[i];");
+    }
+    return this;
+}
+
+Vector opUnary(string op)() const if(op == "-" || op == "+")
+{
+    Vector result = void;
+    result.values[] = mixin(op ~ "values[]");
+    return result;
+}
+
+@property auto opDispatch(string op)() const
+{
+    Vector!(op.length, Type) result = void;
+
+    foreach(I, i ; staticIota!(op.length))
+    {
+        static      if(op[i] == 'x') result[I] = values[0];
+        else static if(op[i] == 'y') result[I] = values[1];
+        else static if(op[i] == 'z' && size >= 3) result[I] = values[2];
+        else static if(op[i] == 'w' && size >= 4) result[I] = values[3];
+        else static assert(false, "Unknown swizzle character '" ~ c ~ "' in operator '" ~ op ~ "'.");
+    }
+
+    return result;
+}
+
+@property void opDispatch(string op, V)(auto ref V vec) if(isVector!V && op.length <= size && op.length == vec.size)
+{
+    foreach(i ; staticIota!(op.length))
+    {
+        foreach(j ; staticIota!(i + 1, op.length))
+        {
+            static if(op[i] == op[j])
+            {
+                static assert("Duplicate swizzle parameter not allowed in assignment '" ~ op[i] ~ "' in '" ~ op ~ "'.");
+            }
+        }
+    }
+
+    foreach(i ; staticIota!(op.length))
+    {
+        mixin("this." ~ op[i]) = vec[i];
+    }
+}
+}
+
+// Functions ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 auto abs(T, int size)(auto ref const(Vector!(size, T)) a)
 {
