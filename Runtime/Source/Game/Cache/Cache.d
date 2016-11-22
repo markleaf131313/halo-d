@@ -401,7 +401,7 @@ void loadBlockFields(T)(T* block)
             }
             else static if(is(Member == TagData))
             {
-                // member.data = fixPointer(member.data);
+                // member.data = fixPointer(member.data); // TODO, do we need this for data ?
             }
             else static if(is(Member : T[size], T, int size) && is(T == struct))
             {
