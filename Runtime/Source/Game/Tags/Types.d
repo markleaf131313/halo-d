@@ -10,7 +10,7 @@ public import Game.Core.Math
 public import Game.Tags.Generated.Meta;
 
 import Game.Core.Containers.DatumArray : DatumIndex;
-import Game.Core.Memory : exactPointer32;
+import Game.Core.Memory : ExactPointer32;
 
 mixin template TagPad(int size)
 {
@@ -34,7 +34,7 @@ struct TagRef
     alias isValid this;
 
     TagId id;
-    mixin exactPointer32!(const(char), "path");
+    ExactPointer32!(const(char)) path;
     uint length;
     DatumIndex index;
 
@@ -58,7 +58,7 @@ struct TagBlock(T)
     @disable this(this);
 
     int size;
-    mixin exactPointer32!(T, "ptr");
+    ExactPointer32!T ptr;
     int debugIndex; // this is normally only used in editors, but we repurpose it
 
     alias ptr this;
@@ -105,7 +105,7 @@ struct TagData
     bool external;
     int offset;
 
-    mixin exactPointer32!(void, "data");
+    ExactPointer32!void data;
 
     int pad2;
 

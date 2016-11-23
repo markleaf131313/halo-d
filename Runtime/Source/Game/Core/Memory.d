@@ -40,21 +40,31 @@ void destroyFree(T)(T* object)
     }
 }
 
-mixin template exactPointer32(T, string name)
+static if((void*).sizeof == 4)
 {
-    static if((void*).sizeof == 4)
+    alias ExactPointer32(T) = T*;
+}
+else
+{
+    struct ExactPointer32(T)
     {
-        mixin("T* " ~ name ~ ";");
-    }
-    else
-    {
-        import core.memory : GC;
+        private uint ptrValue;
 
-        private uint valuePtr__;
+        alias ptr this;
 
-        mixin("@property @nogc nothrow inout(T)* " ~name~ "() inout { return cast(inout(T)*)valuePtr__; }");
-        mixin("@property @nogc nothrow void " ~name~ "(const(T)* p)" ~
-            "in   { assert(cast(ulong)p <= 0xFFFF_FFFF); }" ~ // assert(GC.addrOf(cast(void*)p) is null &&  TODO, too many problems right with it
-            "body { valuePtr__ = cast(uint)p; }");
+        @property @nogc nothrow inout(T)* ptr() inout
+        {
+            return cast(T*)ptrValue;
+        }
+
+        @property @nogc nothrow void ptr(const(T)* p)
+        in
+        {
+            assert(cast(size_t)p <= 0xFFFF_FFFF); // assert(GC.addrOf(cast(void*)p) is null &&  TODO, too many problems right with it
+        }
+        body
+        {
+            ptrValue = cast(uint)p;
+        }
     }
 }

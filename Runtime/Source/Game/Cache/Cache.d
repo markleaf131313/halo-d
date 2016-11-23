@@ -55,8 +55,8 @@ struct Meta
 
     DatumIndex index;
 
-    mixin exactPointer32!(const(char), "path");
-    mixin exactPointer32!(void,        "data");
+    ExactPointer32!(const(char)) path;
+    ExactPointer32!void          data;
 
     bool external;
     int pad0;
@@ -254,7 +254,7 @@ struct TagTable
 {
     static assert(this.sizeof == 0x28);
 
-    mixin exactPointer32!(void, "metas");
+    ExactPointer32!void metas;
     int scenarioIndex;
     int last;
 
