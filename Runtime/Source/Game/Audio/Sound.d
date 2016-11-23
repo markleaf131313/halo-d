@@ -12,6 +12,8 @@ import Game.Core;
 import Game.Tags;
 import Game.World : World;
 
+
+
 struct Sound
 {
 
@@ -86,13 +88,8 @@ void update()
 
             callbacks.close_func = null;
             callbacks.tell_func  = null;
-
-            // TODO(CRITICAL) not valid across hot reloads
-            callbacks.seek_func = (a, b, c) nothrow => -1;
-            callbacks.read_func = (void* ptr, size_t size, size_t num, void* data) nothrow
-            {
-                return (cast(Sound*)data).readOgg(size, num, ptr);
-            };
+            callbacks.seek_func  = null;
+            callbacks.read_func  = &readOggCallback;
 
             ov_open_callbacks(&this, oggFile, null, 0, callbacks);
 
@@ -209,6 +206,14 @@ bool fillBuffer(int i)
     return true;
 }
 
+void updateOggCallbacks()
+{
+    if(oggFile.callbacks.read_func)
+    {
+        oggFile.callbacks.read_func = &readOggCallback;
+    }
+}
+
 private size_t readOgg(size_t size, size_t num, void* data) nothrow
 {
     import core.stdc.string : memcpy;
@@ -225,6 +230,12 @@ private size_t readOgg(size_t size, size_t num, void* data) nothrow
     readOffset += cast(int)total;
 
     return total;
+}
+
+private extern(C) static
+size_t readOggCallback(void* ptr, size_t size, size_t num, void* data) nothrow
+{
+    return (cast(Sound*)data).readOgg(size, num, ptr);
 }
 
 }

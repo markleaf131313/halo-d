@@ -1,11 +1,12 @@
 
 import core.sys.windows.dll : SimpleDllMain;
 
-import std.conv     : to;
-import std.datetime : StopWatch, Duration, dur;
+import std.conv      : emplace, to;
+import std.datetime  : StopWatch, Duration, dur;
+import std.exception : enforce;
 import std.meta;
 import std.stdio;
-import std.traits : EnumMembers;
+import std.traits    : EnumMembers;
 
 import OpenGL;
 import SDL2;
@@ -103,8 +104,6 @@ export extern(C) void grabInterface(GameInterface* gameInterface, uint sizeof)
 
 bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
 {
-    import std.conv : emplace;
-
     try
     {
         emplace(gameState);
@@ -222,11 +221,12 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
 
 bool initSharedGameState(SharedGameState* gameState)
 {
-    assert(gameState.initializedSizeof == SharedGameState.sizeof);
+    enforce(gameState.initializedSizeof == SharedGameState.sizeof);
 
     Cache.inst = &gameState.cache;
     loadCacheTagPaths();
 
+    gameState.audio.updateCallbacksOnReload();
     Audio.inst = &gameState.audio;
 
     ImGuiIO* io = igGetIO();
@@ -281,9 +281,16 @@ template EnumMembersNameArray(T...)
     {
         alias EnumMembersNameArray = EnumMembersNameArray!(EnumMembers!(T[0]));
     }
-    else static if(T.length)
+    else static if(T.length == 1)
     {
-        alias EnumMembersNameArray = AliasSeq!(T[0].stringof, EnumMembersNameArray!(T[1 .. $]));
+        alias EnumMembersNameArray = AliasSeq!(T[0].stringof);
+    }
+    else static if (T.length > 0)
+    {
+        alias EnumMembersNameArray = AliasSeq!(
+            T[0].stringof,
+            EnumMembersNameArray!(T[1 .. $/2]),
+            EnumMembersNameArray!(T[$/2 .. $]));
     }
     else
     {

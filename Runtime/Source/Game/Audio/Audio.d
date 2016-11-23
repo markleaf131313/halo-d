@@ -138,8 +138,6 @@ DatumIndex play(DatumIndex tagSoundIndex, ref const Sound.Spatial spatial)
     return soundIndex;
 }
 
-
-
 int findClosestListener(ref const Sound.Spatial spatial, float maximumDistance)
 {
 
@@ -215,5 +213,12 @@ body
     }
 }
 
+void updateCallbacksOnReload()
+{
+    foreach(ref sound ; sounds)
+    {
+        sound.updateOggCallbacks();
+    }
+}
 
 }
