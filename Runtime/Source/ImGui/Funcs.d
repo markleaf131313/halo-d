@@ -11,12 +11,24 @@ private
 @nogc nothrow
 {
 
-    bool igInputShort(const char* label, short* v, short step = 1, short step_fast = 100, ImGuiInputTextFlags extra_flags = 0)
+    bool igInputShort(const(char)* label, short* v, short step = 1, short step_fast = 100, ImGuiInputTextFlags extra_flags = 0)
     {
         int value = *v;
         bool result = igInputInt(label, &value, step, step_fast, extra_flags);
 
         *v = cast(short)value;
+        return result;
+    }
+
+    bool igDragShortRange2(const(char)* label, short* v_current_min, short* v_current_max, float v_speed = 1.0f,
+        short v_min = 0, short v_max = 0, const(char)* display_format = "%.0f", const(char)* display_format_max = null)
+    {
+        int value_min = *v_current_min;
+        int value_max = *v_current_max;
+        bool result = igDragIntRange2(label, &value_min, &value_max, v_speed, v_min, v_max, display_format, display_format_max);
+
+        *v_current_min = cast(short)value_min;
+        *v_current_max = cast(short)value_max;
         return result;
     }
 

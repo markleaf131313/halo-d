@@ -1,7 +1,7 @@
 
 module Game.Audio.Audio;
 
-import std.datetime : StopWatch, Duration;
+import std.datetime : StopWatch, Duration, msecs;
 
 import OpenAL;
 import Vorbis;
@@ -12,6 +12,7 @@ import Game.Audio.Looping;
 import Game.Cache;
 import Game.Core;
 import Game.Tags;
+import Game.World;
 
 
 struct Audio
@@ -27,18 +28,28 @@ struct Listener
 }
 
 StopWatch stopWatch;
-Duration  lastUpdateTime;
+Duration  currentTime;
+
+int      objectLoopingTickCounter;
+Duration lastObjectLoopingUpdateTime;
 
 Listener[TagConstants.Player.maxLocalPlayers] listeners;
-DatumArray!Sound sounds;
+
+DatumArray!Sound              sounds;
+DatumArray!LoopingSound       loopingSounds;
+DatumArray!ObjectLoopingSound objectLoopingSounds;
 
 int lastSample;
 void*[2048] samples; // TODO use padding in TagData instead?
 
 void initialize()
 {
+    stopWatch.reset();
     stopWatch.start();
+
     sounds.allocate(128, multichar!"s!");
+    loopingSounds.allocate(128, multichar!"lp");
+    objectLoopingSounds.allocate(32, multichar!"ol");
 }
 
 int addSampleData(void* ptr)
@@ -53,6 +64,26 @@ void update()
     foreach(ref sound ; sounds)
     {
         sound.update();
+    }
+
+}
+
+void updateObjectLoopingSounds()
+{
+
+    if(stopWatch.peek() - lastObjectLoopingUpdateTime >= gameFrameTimeMsecs)
+    {
+        foreach(ref objectLooping ; objectLoopingSounds)
+        {
+            objectLooping.update();
+        }
+
+        objectLoopingTickCounter += 1;
+        lastObjectLoopingUpdateTime = cast(Duration)stopWatch.peek();
+    }
+    else
+    {
+        // TODO other stuff, check garbage collection, etc...
     }
 }
 
@@ -100,12 +131,10 @@ DatumIndex play(DatumIndex tagSoundIndex, ref const Sound.Spatial spatial)
         return DatumIndex.none;
     }
 
-    if(tagSound.pitchRanges.size <= 0 || tagSound.pitchRanges[0].permutations.size <= 0)
+    if(!tagSound.isValid())
     {
         return DatumIndex.none;
     }
-
-    // TODO global value that enables/disables sound classes
 
     int listenerIndex = findClosestListener(spatial, tagSound.getMaximumDistance());
 
@@ -136,6 +165,116 @@ DatumIndex play(DatumIndex tagSoundIndex, ref const Sound.Spatial spatial)
     // TODO set game time delay
 
     return soundIndex;
+}
+
+package
+DatumIndex createSoundForLooping(DatumIndex tagIndex, DatumIndex loopingSoundIndex, int trackIndex, Sound.State state)
+{
+    auto          tagSound     = Cache.get!TagSound(tagIndex);
+    LoopingSound* loopingSound = &loopingSounds[loopingSoundIndex];
+
+    if(!tagSound.isValid())
+    {
+        return DatumIndex.none;
+    }
+
+    int listenerIndex = findClosestListener(loopingSound.spatial, tagSound.getMaximumDistance());
+
+    if(listenerIndex == indexNone)
+    {
+        return DatumIndex.none;
+    }
+
+    if(DatumIndex index = sounds.add())
+    {
+        float pitchModifier = mix(tagSound.pitchModifier0, tagSound.pitchModifier1, loopingSound.spatial.scale);
+
+        Sound* sound = &sounds[index];
+
+        sound.audio    = &this;
+        sound.tagIndex = tagIndex;
+
+        sound.state = state;
+
+        sound.ownerIndex = loopingSoundIndex;
+        sound.trackIndex = trackIndex;
+
+        sound.pitch            = randomValue(tagSound.randomPitchBounds) * pitchModifier;
+        sound.pitchRangeIndex  = tagSound.selectPitchRange(sound.pitch);
+        sound.permutationIndex = tagSound.selectPermutation(sound.pitchRangeIndex);
+
+
+        return index;
+    }
+
+    return DatumIndex.none;
+}
+
+DatumIndex createLoopingSound(DatumIndex tagIndex, DatumIndex ownerIndex, float scale)
+{
+    if(DatumIndex index = loopingSounds.add())
+    {
+       const tagSoundLooping = Cache.get!TagSoundLooping(tagIndex);
+       LoopingSound* loopingSound = &loopingSounds[index];
+
+       loopingSound.tagIndex   = tagIndex;
+       loopingSound.audio      = &this;
+       loopingSound.ownerIndex = ownerIndex;
+
+       foreach(int i, ref tagDetail ; tagSoundLooping.detailSounds)
+       {
+           float period       = randomValue(tagDetail.randomPeriodBounds);
+           float scaledPeriod = mix(tagSoundLooping.detailSoundPeriod0, tagSoundLooping.detailSoundPeriod1, scale);
+
+           loopingSound.detailStartTimes[i] = currentTime + msecs(cast(long)(period * scaledPeriod * 1000.0f));
+       }
+
+       return index;
+    }
+
+    return DatumIndex.none;
+}
+
+DatumIndex createObjectLoopingSound(DatumIndex tagIndex, ref GObject object, const(char)[] markerName)
+{
+    if(tagIndex == DatumIndex.none)
+    {
+        return DatumIndex.none;
+    }
+
+    if(DatumIndex index = objectLoopingSounds.add())
+    {
+        ObjectLoopingSound* objectLooping = &objectLoopingSounds[index];
+
+        objectLooping.audio    = &this;
+        objectLooping.tagIndex = tagIndex;
+
+        return index;
+    }
+
+    return DatumIndex.none;
+}
+
+DatumIndex createObjectLoopingSound(DatumIndex tagIndex)
+{
+    if(tagIndex == DatumIndex.none)
+    {
+        return DatumIndex.none;
+    }
+
+    if(DatumIndex index = objectLoopingSounds.add())
+    {
+        ObjectLoopingSound* objectLooping = &objectLoopingSounds[index];
+
+        objectLooping.audio    = &this;
+        objectLooping.tagIndex = tagIndex;
+
+        objectLooping.flags.isBackgroundSound = true;
+
+        return index;
+    }
+
+    return DatumIndex.none;
 }
 
 int findClosestListener(ref const Sound.Spatial spatial, float maximumDistance)

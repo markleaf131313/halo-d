@@ -6,6 +6,7 @@ import std.datetime  : StopWatch, Duration, dur;
 import std.exception : enforce;
 import std.meta;
 import std.stdio;
+import std.string    : fromStringz;
 import std.traits    : EnumMembers;
 
 import OpenGL;
@@ -321,6 +322,26 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         }
     }
 
+    static if(is(T == TagSoundLooping))
+    {{
+        TagSoundLooping* tagSoundLooping = cast(T*)f;
+
+        if(tagSoundLooping.playingIndex)
+        {
+            if(igButton("Stop"))
+            {
+                assert(0);
+            }
+        }
+        else
+        {
+            if(igButton("Play"))
+            {
+                tagSoundLooping.playingIndex = Audio.inst.createObjectLoopingSound(tagIndex);
+            }
+        }
+    }}
+
     foreach(i, ref field ; fields.tupleof)
     {
         import std.meta   : Alias;
@@ -362,21 +383,10 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         }
         else static if(is(Field : TagBounds!Bound, Bound))
         {
-            igBeginGroup();
-            igPushItemWidth(igGetWindowWidth() / 4);
-            static      if(is(Bound == int))   igInputInt  ("##lower", &field.lower);
-            else static if(is(Bound == short)) igInputShort("##lower", &field.lower);
-            else static if(is(Bound == float)) igInputFloat("##lower", &field.lower);
+            static      if(is(Bound == int))   igDragIntRange2  (identifier, &field.lower, &field.upper);
+            else static if(is(Bound == short)) igDragShortRange2(identifier, &field.lower, &field.upper);
+            else static if(is(Bound == float)) igDragFloatRange2(identifier, &field.lower, &field.upper);
             else static assert(0);
-
-            igSameLine();
-
-            static      if(is(Bound == int))   igInputInt  (identifier, &field.upper);
-            else static if(is(Bound == short)) igInputShort(identifier, &field.upper);
-            else static if(is(Bound == float)) igInputFloat(identifier, &field.upper);
-
-            igPopItemWidth();
-            igEndGroup();
         }
         else static if(is(Field == TagRef))
         {
@@ -667,7 +677,7 @@ try
             auto meta = &Cache.inst.metaAt(i);
             bool opened = true;
 
-            const(char[]) name = to!string(meta.path) ~ "##" ~ to!string(i) ~ "\0";
+            const(char)[] name = fromStringz(meta.path) ~ "##" ~ to!string(i) ~ "\0";
 
             igSetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
             if(igBegin2(name.ptr, &opened, ImVec2(600, 500), -1.0f, ImGuiWindowFlags_NoSavedSettings))
@@ -859,7 +869,7 @@ try
 
         }
 
-        gameState.audio.update();
+        gameState.audio.update(); // TODO REFACTOR
         gameState.world.updateLogicEffects(1.0f / gameFramesPerSecond);
         gameState.world.updateLogicParticles(1.0f / gameFramesPerSecond); // TODO(REFACTOR) ordering is wrong
 
@@ -920,6 +930,8 @@ try
                 }
             }
         }
+
+        gameState.audio.updateObjectLoopingSounds();
 
         if(dur!"hnsecs"(stopWatch.peek().hnsecs) > frameDelta)
         {

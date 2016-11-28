@@ -1,9 +1,10 @@
 
 module Game.World.Objects.Object;
 
-import std.meta   : allSatisfy, anySatisfy, Filter;
-import std.traits : Parameters, ReturnType, hasMember;
-import std.conv   : to;
+import std.bitmanip : bitfields;
+import std.conv     : to;
+import std.meta     : allSatisfy, anySatisfy, Filter;
+import std.traits   : Parameters, ReturnType, hasMember;
 
 import imgui;
 
@@ -108,11 +109,41 @@ struct ClusterNode
 
 struct Damage
 {
-    float maximumHealth;
-    float maximumShield;
+    struct Flags
+    {
+        mixin(bitfields!(
+            bool, "healthDamageEffectApplied", 1,
+            bool, "shieldDamageEffectApplied", 1,
+            bool, "healthDepleted",            1,
+            bool, "shieldDepleted",            1,
+            bool, "_bit4_x10__",               1,
+            bool, "killedLoud",                1,
+            bool, "killedSilent",              1,
+            bool, "meleeAttackDisabled",       1,
+            bool, "_bit8_x100__",              1,
+            bool, "_bit9_x200__",              1,
+            bool, "_bit10_x400__",             1,
+            bool, "immuneToDamage",            1,
+            bool, "shieldRecharging",          1,
+            bool, "killedNoStatistics",        1,
+            ubyte, "",                         2,
+        ));
+    }
+
+    Flags flags;
 
     float health;
+    float healthMaximum;
+    float healthDamageCurrent;
+    int   healthDamageUpdateTick;
+
     float shield;
+    float shieldMaximum;
+    float shieldDamageCurrent;
+    int   shieldDamageUpdateTick;
+
+    int stunTicks;
+
 }
 
 struct AnimationController
@@ -183,6 +214,22 @@ struct MarkerTransform
     Transform world;
 }
 
+struct Attachment
+{
+    enum Type
+    {
+        none = indexNone,
+        light,
+        loopingSound,
+        effect,
+        contrail,
+        particle,
+    }
+
+    Type       type;
+    DatumIndex index;
+}
+
 struct Lighting
 {
     struct DistantLight
@@ -213,8 +260,6 @@ struct CachedLighting
 
 struct HeaderFlags
 {
-    import std.bitmanip : bitfields;
-
     mixin(bitfields!(
         bool, "active",                1,
         bool, "newlyCreated",          1,
@@ -229,8 +274,6 @@ struct HeaderFlags
 
 struct Flags
 {
-    import std.bitmanip : bitfields;
-
     mixin(bitfields!(
         bool, "hidden",                     1,
         bool, "connectedToMap",             1,
@@ -280,6 +323,7 @@ CachedLighting cachedLighting;
 int shaderPermutation;
 int regionPermutation;
 int[TagConstants.Model.maxRegions] regionPermutationIndices;
+ubyte[TagConstants.Model.maxRegions] regionVitalities;
 
 AnimationController baseAnimation;
 
@@ -290,9 +334,11 @@ Orientation[TagConstants.Animation.maxNodes] nodeOrientations;
 Orientation[TagConstants.Animation.maxNodes] nodeInterpolateOrientations;
 Transform  [TagConstants.Animation.maxNodes] transforms;
 
-float[TagConstants.Object.maxInputFunctions]  inputFunctionValues;
-float[TagConstants.Object.maxOutputFunctions] outputFunctionValues;
-bool [TagConstants.Object.maxOutputFunctions] outputFunctionValidities;
+float[TagConstants.Object.maxFunctions] importFunctionValues;
+float[TagConstants.Object.maxFunctions] exportFunctionValues;
+bool [TagConstants.Object.maxFunctions] exportFunctionValidities;
+
+Attachment[TagConstants.Object.maxAttachments] attachments;
 
 int occupiedClustersCount;
 ClusterNode[TagConstants.Object.maxClusterPresence] occupiedClusters; // todo implement static_vector
@@ -323,6 +369,11 @@ bool byTypeProcessOrientations(Orientation* orientations)
 bool byTypeUpdateMatrices()
 {
     return makeCallByType!"implUpdateMatrices"(this);
+}
+
+bool byTypeUpdateImportFunctions()
+{
+    return makeCallByType!"implUpdateImportFunctions"(this);
 }
 
 void byTypeDestruct()
@@ -368,6 +419,52 @@ static auto byTypeInit(TagEnums.ObjectType type)
     return null;
 }
 
+void createAttachments()
+{
+    const tagObject = Cache.get!TagObject(tagIndex);
+
+    foreach(int i, ref tagAttachment ; tagObject.attachments)
+    {
+        if(!tagAttachment.type)
+        {
+            continue;
+        }
+
+        Attachment.Type type;
+
+        switch(tagAttachment.type.id)
+        {
+        case TagId.light:        type = Attachment.Type.light;        break;
+        case TagId.soundLooping: type = Attachment.Type.loopingSound; break;
+        case TagId.effect:       type = Attachment.Type.effect;       break;
+        case TagId.contrail:     type = Attachment.Type.contrail;     break;
+        case TagId.particle:     type = Attachment.Type.particle;     break;
+        default:
+        }
+
+        DatumIndex index;
+
+        switch(type)
+        {
+        case Attachment.Type.light:
+            break;
+        case Attachment.Type.loopingSound:
+
+            break;
+        case Attachment.Type.effect:
+            break;
+        case Attachment.Type.contrail:
+            break;
+        case Attachment.Type.particle:
+            break;
+        default:
+        }
+
+        attachments[i] = Attachment(type, index);
+    }
+
+}
+
 void doLogicUpdate()
 {
     const tagObject = Cache.get!TagObject(tagIndex);
@@ -389,7 +486,7 @@ void doLogicUpdate()
         // todo collision related ?
     }
 
-    // update export functions
+    updateExportFunctions();
 
     // todo limping flag, dont update matrices
 
@@ -804,6 +901,18 @@ GObject* getAbsoluteParent()
     return top;
 }
 
+GObject* getFirstVisibleObject()
+{
+    GObject* result = &this;
+
+    while(result.parent && result.flags.hidden)
+    {
+        result = result.parent;
+    }
+
+    return result;
+}
+
 int findMarker(const(char)[] name)
 {
     import std.string : fromStringz;
@@ -962,22 +1071,221 @@ void setVitality()
 {
     auto tagObject = Cache.get!TagObject(tagIndex);
 
-    float maximumShield = 0.0f;
-    float maximumHealth = 0.0f;
+    float shieldMaximum = 0.0f;
+    float healthMaximum = 0.0f;
 
     if(tagObject.collisionModel)
     {
         auto tagCollision = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel);
 
-        maximumShield = tagCollision.maximumShieldVitality;
-        maximumHealth = tagCollision.maximumBodyVitality;
+        shieldMaximum = tagCollision.maximumShieldVitality;
+        healthMaximum = tagCollision.maximumBodyVitality;
     }
 
-    damage.maximumShield = maximumShield;
-    damage.maximumHealth = maximumHealth;
+    damage.shieldMaximum = shieldMaximum;
+    damage.healthMaximum = healthMaximum;
 
-    damage.shield = maximumShield == 0.0f ? 0.0f : 1.0f;
-    damage.health = maximumHealth == 0.0f ? 0.0f : 1.0f;
+    damage.shield = shieldMaximum == 0.0f ? 0.0f : 1.0f;
+    damage.health = healthMaximum == 0.0f ? 0.0f : 1.0f;
+}
+
+float getFunctionValue(TagEnums.FunctionScaleBy value) const
+{
+    switch(value)
+    {
+    case TagEnums.FunctionScaleBy.aIn:  return importFunctionValues[0];
+    case TagEnums.FunctionScaleBy.bIn:  return importFunctionValues[1];
+    case TagEnums.FunctionScaleBy.cIn:  return importFunctionValues[2];
+    case TagEnums.FunctionScaleBy.dIn:  return importFunctionValues[3];
+
+    case TagEnums.FunctionScaleBy.aOut: return exportFunctionValues[0];
+    case TagEnums.FunctionScaleBy.bOut: return exportFunctionValues[1];
+    case TagEnums.FunctionScaleBy.cOut: return exportFunctionValues[2];
+    case TagEnums.FunctionScaleBy.dOut: return exportFunctionValues[3];
+    default:
+    }
+
+    return 0.0f;
+}
+
+void updateExportFunctions()
+{
+    const tagObject = Cache.get!TagObject(tagIndex);
+
+    float time = world.getTickCounter() / float(gameFramesPerSecond);
+
+    foreach(int i, ref tagFunction ; tagObject.functions)
+    {
+        float period = tagFunction.initialPeriod;
+
+        if(tagFunction.scalePeriodBy != TagEnums.FunctionScaleBy.none)
+        {
+            float scale = getFunctionValue(tagFunction.scalePeriodBy);
+
+            if(scale > 0.0f)
+            {
+                period *= scale;
+            }
+        }
+
+        bool  valid = true;
+        float value = evalTagFunctionWithTime(tagFunction.func, time * period);
+
+        if(tagFunction.scaleFunctionBy != TagEnums.FunctionScaleBy.none)
+        {
+            value *= getFunctionValue(tagFunction.scaleFunctionBy);
+        }
+
+        if(tagFunction.flags.invert)
+        {
+            value = 1.0f - value;
+        }
+
+        if(tagFunction.wobbleMagnitude != 0.0f)
+        {
+            float wobble = evalTagFunctionWithTime(tagFunction.wobbleFunction, time * tagFunction.wobblePeriod);
+            value += (wobble - 0.5f) * tagFunction.wobbleMagnitude * 2.0f;
+        }
+
+        if(tagFunction.squareWaveThreshold != 0.0f)
+        {
+            if(value <= tagFunction.squareWaveThreshold) value = 0.0f;
+            else                                         value = 1.0f;
+        }
+
+        if(tagFunction.stepCount > 1)   value = floor(value * tagFunction.stepCount) * tagFunction.stepMultiplier;
+        if(tagFunction.modulus != 0.0f) value %= tagFunction.modulus;
+
+        if(tagFunction.add != TagEnums.FunctionScaleBy.none) value = min(1.0f, value + getFunctionValue(tagFunction.add));
+        if(tagFunction.scaleResultBy != TagEnums.FunctionScaleBy.none) value *= getFunctionValue(tagFunction.scaleResultBy);
+
+        value = evalTagMapToFunction(tagFunction.mapTo, value);
+
+        if(tagFunction.scaleBy > 0.0f)
+        {
+            value *= tagFunction.scaleBy;
+        }
+
+        switch(tagFunction.boundsMode)
+        {
+        case TagEnums.BoundsMode.clip:
+        case TagEnums.BoundsMode.clipAndNormalize:
+
+            if(value <= tagFunction.bounds.lower + 0.0001f)
+            {
+                value = tagFunction.bounds.lower;
+                valid = tagFunction.flags.alwaysActive;
+            }
+
+            if(value > tagFunction.bounds.upper)
+            {
+                value = tagFunction.bounds.upper;
+            }
+
+            if(tagFunction.boundsMode == TagEnums.BoundsMode.clipAndNormalize)
+            {
+                value = (value - tagFunction.bounds.lower) / tagFunction.boundsDelta;
+            }
+
+            break;
+        case TagEnums.BoundsMode.scaleToFit:
+
+            value = tagFunction.bounds.mix(value);
+
+            if(value <= tagFunction.bounds.lower + 0.0001f)
+            {
+                valid = tagFunction.flags.alwaysActive;
+            }
+            break;
+        default:
+        }
+
+        if(tagFunction.turnOffWith != indexNone)
+        {
+            if(!exportFunctionValidities[tagFunction.turnOffWith])
+            {
+                valid = false;
+            }
+        }
+
+        if(tagFunction.flags.additive)
+        {
+            value = (exportFunctionValues[i] + value) % 1.0f;
+        }
+
+        exportFunctionValues[i]     = value;
+        exportFunctionValidities[i] = valid;
+
+    }
+}
+
+bool implUpdateImportFunctions()
+{
+    const tagObject = Cache.get!TagObject(tagIndex);
+
+    foreach(i ; 0 .. TagConstants.Object.maxFunctions)
+    {
+        TagEnums.ObjectImport type;
+
+        switch(i)
+        {
+        case 0: type = tagObject.aIn; break;
+        case 1: type = tagObject.bIn; break;
+        case 2: type = tagObject.cIn; break;
+        case 3: type = tagObject.dIn; break;
+        default: continue;
+        }
+
+        float value;
+
+        switch(type) with(TagEnums.ObjectImport)
+        {
+        case bodyVitality:       value = damage.health;              break;
+        case shieldVitality:     value = min(damage.shield, 1.0f);   break;
+        case recentBodyDamage:   value = damage.healthDamageCurrent; break;
+        case recentShieldDamage: value = damage.shieldDamageCurrent; break;
+        case randomConstant:
+            if(isNaN(importFunctionValues[i]))
+            {
+                value = randomPercent();
+            }
+            break;
+        case region00Damage:
+        case region01Damage:
+        case region02Damage:
+        case region03Damage:
+        case region04Damage:
+        case region05Damage:
+        case region06Damage:
+        case region07Damage:
+            value = regionVitalities[type - region00Damage] / float(ubyte.max);
+            break;
+        case alive:
+            if(damage.flags.healthDepleted) value = 0.0f;
+            else                            value = 1.0f;
+            break;
+        case compass:
+            Transform* transform = &transforms[0];
+            if(abs(transform.forward.z) >= 0.995f)
+            {
+                value = importFunctionValues[i];
+            }
+            else
+            {
+                float localNorth = Cache.inst.scenario.localNorth;
+                float angle      = atan2(transform.forward.y, transform.forward.x);
+                float clamped    = (angle - localNorth) % M_2_PI;
+
+                value = clamp(clamped / M_2_PI + 0.5f, 0.0f, 1.0f);
+            }
+            break;
+        default: value = 0.0f;
+        }
+
+        importFunctionValues[i] = value;
+    }
+
+    return true;
 }
 
 bool implDebugUI()

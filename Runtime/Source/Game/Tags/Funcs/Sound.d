@@ -168,4 +168,16 @@ int selectPermutation(int pitchRangeIndex, int prevPermutationIndex = indexNone)
     return index;
 }
 
+bool isValid() const
+{
+    if(pitchRanges.size <= 0 || pitchRanges[0].permutations.size <= 0)
+    {
+        return false;
+    }
+
+    // TODO global value that enables/disables sound classes
+
+    return true;
+}
+
 }

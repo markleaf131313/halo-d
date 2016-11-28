@@ -43,7 +43,9 @@ basicTypeName = {
     "index32": "int",
 
     "tagref": "TagRef",
-    "data": "TagData"
+    "data": "TagData",
+
+    "datum index": "DatumIndex"
 
 }
 

@@ -67,6 +67,7 @@ def doBuild(buildTarget):
         # '-w',           # warnings
         '-de',          # treat deprecation as errors
         '-gc',          # debug symbols (C format)
+        '-debug',
         #'-inline',
         *dflags,
         *dsrcs,

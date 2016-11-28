@@ -219,8 +219,24 @@
                     "size": 252
                 },
                 {
-                    "type": "pad",
-                    "size": 16
+                    "name": "bounds delta",
+                    "type": "float",
+                    "comment": "compile time value, used to normalize bounds, effectively: 1.0 / (bounds.upper - bounds.lower)"
+                },
+                {
+                    "name": "modulus",
+                    "type": "float",
+                    "comment": "compile time value, effectively: a = a % modulus"
+                },
+                {
+                    "name": "step multiplier",
+                    "type": "float",
+                    "comment": "compile time value, effectively: 1.0f / (step_count - 1)"
+                },
+                {
+                    "name": "initial period",
+                    "type": "float",
+                    "comment": "compile time value"
                 },
                 {
                     "name": "usage",

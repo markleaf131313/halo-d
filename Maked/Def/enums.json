@@ -2531,7 +2531,7 @@
         },
         {
             "index": "101",
-            "name": "enum101",
+            "name": "weapon import",
             "values": [
                 {
                     "name": "none"
@@ -2717,7 +2717,7 @@
         },
         {
             "index": "108",
-            "name": "enum108",
+            "name": "function scale by",
             "values": [
                 {
                     "name": "none"
@@ -2750,7 +2750,7 @@
         },
         {
             "index": "109",
-            "name": "enum109",
+            "name": "bounds mode",
             "values": [
                 {
                     "name": "clip"
@@ -2765,7 +2765,7 @@
         },
         {
             "index": "110",
-            "name": "enum110",
+            "name": "object import",
             "values": [
                 {
                     "name": "none"
@@ -2798,35 +2798,35 @@
                     "name": "umbrella shield stun"
                 },
                 {
-                    "name": "region ",
+                    "name": "region 00 damage",
                     "comment": "00 damage"
                 },
                 {
-                    "name": "region ",
+                    "name": "region 01 damage",
                     "comment": "01 damage"
                 },
                 {
-                    "name": "region ",
+                    "name": "region 02 damage",
                     "comment": "02 damage"
                 },
                 {
-                    "name": "region ",
+                    "name": "region 03 damage",
                     "comment": "03 damage"
                 },
                 {
-                    "name": "region ",
+                    "name": "region 04 damage",
                     "comment": "04 damage"
                 },
                 {
-                    "name": "region ",
+                    "name": "region 05 damage",
                     "comment": "05 damage"
                 },
                 {
-                    "name": "region ",
+                    "name": "region 06 damage",
                     "comment": "06 damage"
                 },
                 {
-                    "name": "region ",
+                    "name": "region 07 damage",
                     "comment": "07 damage"
                 },
                 {
@@ -2884,7 +2884,7 @@
         },
         {
             "index": "113",
-            "name": "enum113",
+            "name": "vehicle import",
             "values": [
                 {
                     "name": "none"
@@ -3013,7 +3013,7 @@
         },
         {
             "index": "115",
-            "name": "enum115",
+            "name": "unit import",
             "values": [
                 {
                     "name": "none"
@@ -3262,7 +3262,7 @@
         },
         {
             "index": "124",
-            "name": "animation function",
+            "name": "function",
             "values": [
                 {
                     "name": "one"
@@ -3304,7 +3304,7 @@
         },
         {
             "index": "125",
-            "name": "enum125",
+            "name": "map to function",
             "values": [
                 {
                     "name": "linear"

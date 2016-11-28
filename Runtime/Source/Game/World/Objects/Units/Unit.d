@@ -171,11 +171,15 @@ int currentWeaponIndex     = indexNone;
 int nextWeaponIndex        = indexNone;
 int enteredParentSeatIndex = indexNone;
 
-Weapon*[TagConstants.Unit.maxHeldWeapons]     weapons;
+ubyte aimingChange; // TODO(IMPLEMENT)
+
+Weapon*[TagConstants.Unit.maxHeldWeapons]      weapons;
 PoweredSeat[TagConstants.Unit.maxPoweredSeats] poweredSeats;
 
 Vec3 throttle                = 0.0f;
 Vec3 desiredForwardDirection = Vec3(1, 0, 0);
+
+float mouthAperture; // TODO(IMPLEMENT)
 
 AimVectors aim;
 AimVectors look;
@@ -404,6 +408,48 @@ bool implUpdateMatrices()
                 solveMarkerIk(&this, ikPoint.marker, &currentWeapon.object, ikPoint.attachToMarker);
             }
         }
+    }
+
+    return true;
+}
+
+bool implUpdateImportFunctions()
+{
+    const tagUnit = Cache.get!TagUnit(tagIndex);
+
+    foreach(i ; 0 .. TagConstants.Object.maxFunctions)
+    {
+        TagEnums.UnitImport type;
+
+        switch(i)
+        {
+        case 0: type = tagUnit.aIn; break;
+        case 1: type = tagUnit.bIn; break;
+        case 2: type = tagUnit.cIn; break;
+        case 3: type = tagUnit.dIn; break;
+        default: continue;
+        }
+
+        float value = 0.0f;
+
+        switch(type)
+        {
+        case TagEnums.UnitImport.driverSeatPower: value = poweredSeats[0].power; break;
+        case TagEnums.UnitImport.gunnerSeatPower: value = poweredSeats[1].power; break;
+        case TagEnums.UnitImport.aimingChange:    value = aimingChange / float(ubyte.max); break;
+        case TagEnums.UnitImport.mouthAperture:   value = mouthAperture; break;
+        case TagEnums.UnitImport.integratedLightPower:
+            break;
+        case TagEnums.UnitImport.canBlink:
+            assert(0); // TODO(IMPLEMENT)
+            break;
+        case TagEnums.UnitImport.shieldSapping:
+            assert(0); // TODO(IMPLEMENT)
+            break;
+        default: value = 0.0f;
+        }
+
+        importFunctionValues[i] = value;
     }
 
     return true;

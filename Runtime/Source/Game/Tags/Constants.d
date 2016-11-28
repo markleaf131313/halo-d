@@ -42,9 +42,9 @@ struct Model
 struct Object
 {
     @disable this();
+    enum maxAttachments = 8;
     enum maxClusterPresence = 64;
-    enum maxInputFunctions  = 4;
-    enum maxOutputFunctions = 4;
+    enum maxFunctions = 4;
 }
 struct Particle
 {
@@ -62,6 +62,12 @@ struct PointPhysics
     enum float densityConversion = 118613.34f; // from g/ml to world unit density
     enum float densityOfAir      = densityConversion * 0.0011f;
     enum float densityOfWater    = densityConversion * 1.0f;
+}
+struct SoundLooping
+{
+    @disable this();
+    enum maxTracks       = 4;
+    enum maxDetailSounds = 32;
 }
 struct StructureBsp
 {

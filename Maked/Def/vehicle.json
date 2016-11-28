@@ -94,8 +94,9 @@
                     "type": "float"
                 },
                 {
-                    "name": "maximum right turn (negative)",
-                    "type": "float"
+                    "name": "maximum right turn",
+                    "type": "float",
+                    "comment": "negative"
                 },
                 {
                     "name": "wheel circumference",

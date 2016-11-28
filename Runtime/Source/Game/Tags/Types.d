@@ -9,7 +9,7 @@ public import Game.Core.Math
 
 public import Game.Tags.Generated.Meta;
 
-import Game.Core.Containers.DatumArray : DatumIndex;
+public import Game.Core.Containers.DatumArray : DatumIndex;
 import Game.Core.Memory : ExactPointer32;
 
 mixin template TagPad(int size)

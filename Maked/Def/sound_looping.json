@@ -191,7 +191,7 @@
                     "explanation": "as the sound's input scale changes from zero to one, these modifiers move between the two values specified here. the sound will play using the current scale modifier multiplied by the value specified below. (0 values are ignored.)"
                 },
                 {
-                    "name": "detail sound period",
+                    "name": "detail sound period 0",
                     "type": "float"
                 },
                 {
@@ -204,7 +204,7 @@
                     "explanation": "as the sound's input scale changes from zero to one, these modifiers move between the two values specified here. the sound will play using the current scale modifier multiplied by the value specified below. (0 values are ignored.)"
                 },
                 {
-                    "name": "detail sound period",
+                    "name": "detail sound period 1",
                     "type": "float"
                 },
                 {
@@ -212,8 +212,13 @@
                     "size": 8
                 },
                 {
+                    "type": "datum index",
+                    "name": "playing index",
+                    "comment": "runtime value, index to the object looping sound, used by soung_looping_start/stop"
+                },
+                {
                     "type": "pad",
-                    "size": 16
+                    "size": 12
                 },
                 {
                     "name": "continuous damage effect",

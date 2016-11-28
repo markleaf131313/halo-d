@@ -14,6 +14,11 @@ struct DatumIndex
 
     short i    = indexNone;
     short salt = indexNone;
+
+    bool opCast(T : bool)() const
+    {
+        return this != none;
+    }
 }
 
 struct DatumArray(T)
@@ -140,14 +145,14 @@ void remove(DatumIndex index)
 
     if(element.selfIndex.salt == index.salt)
     {
-        num -= 1;
-        element.selfIndex.salt &= short.max;
-        nextIndex = min(nextIndex, index.i);
-
         static if(hasElaborateDestructor!T)
         {
             element.__xdtor();
         }
+
+        num -= 1;
+        element.selfIndex.salt = index.salt & short.max;
+        nextIndex              = min(nextIndex, index.i);
 
         if(length == index.i + 1)
         {
@@ -164,6 +169,23 @@ void remove(DatumIndex index)
 ref inout(T) opIndex(DatumIndex index) inout
 {
     return elements[index.i];
+}
+
+inout(T)* at(DatumIndex index) inout
+{
+    if(index.i < 0 || index.i >= length)
+    {
+        return null;
+    }
+
+    auto element = &elements[index.i];
+
+    if(index != element.selfIndex)
+    {
+        return null;
+    }
+
+    return element;
 }
 
 }

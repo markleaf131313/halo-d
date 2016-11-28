@@ -210,6 +210,11 @@ void initialize()
     return currentSbsp;
 }
 
+@nogc int getTickCounter()
+{
+    return tickCounter;
+}
+
 GObject* createObject(ref GObject.Creation data)
 {
     auto tagObject = Cache.get!TagObject(data.tagIndex);
@@ -259,6 +264,10 @@ GObject* createObject(ref GObject.Creation data)
                 object.setVitality();
                 object.updateMatrices();
                 object.connectToWorld();
+                object.byTypeUpdateMatrices();
+                object.byTypeUpdateImportFunctions();
+                object.updateExportFunctions();
+                object.createAttachments();
 
                 return object;
             }
@@ -1342,6 +1351,7 @@ alias Bound   = WorldBound;
 alias Element = WorldElement;
 alias Line    = WorldLine;
 
+int tickCounter; // TODO(IMPLEMENT)
 TagScenarioStructureBsp* currentSbsp;
 
 MasterComputeIdentifier masterComputeId;

@@ -19,6 +19,14 @@ struct Sound
 
 @disable this(this);
 
+enum State
+{
+    linear,
+    start,
+    looping,
+    end,
+}
+
 struct Spatial
 {
     enum Type
@@ -40,22 +48,27 @@ struct Spatial
 }
 
 DatumIndex selfIndex;
+DatumIndex tagIndex;
 Audio* audio;
 
-DatumIndex tagIndex;
+State state;
+
+DatumIndex ownerIndex;
 
 uint    source  = AL_NONE;
 uint[2] buffers = AL_NONE;
 
 Spatial spatial;
 
+DatumIndex desiredTagIndex;
+
 float pitch;
 
 int pitchRangeIndex;
 int permutationIndex;
+int trackIndex;
 
 uint readOffset;
-
 align(OggVorbis_File.alignof) void[OggVorbis_File.sizeof] oggFileBuffer = void;
 
 @property OggVorbis_File* oggFile()
@@ -108,6 +121,12 @@ void update()
         alSourcePlay(source);
     }
 
+    if(state != State.linear)
+    {
+        // TODO
+        assert(0);
+    }
+
     int processed;
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
 
@@ -123,11 +142,13 @@ void update()
         }
     }
 
-    int state;
-    alGetSourcei(source, AL_SOURCE_STATE, &state);
+    int sourceState;
+    alGetSourcei(source, AL_SOURCE_STATE, &sourceState);
 
-    if(state != AL_PLAYING)
+    if(sourceState != AL_PLAYING)
     {
+        // TODO better way to determine done playing
+        //      ogg's readOffset can be "done" but still have data it needs to play
         if(readOffset >= tagPermutation.samples.size)
         {
             audio.sounds.remove(selfIndex);
@@ -144,11 +165,6 @@ bool fillBuffer(int i)
     const tagSound       = Cache.get!TagSound(tagIndex);
     const tagPitchRange  = &tagSound.pitchRanges[pitchRangeIndex];
     const tagPermutation = &tagPitchRange.permutations[permutationIndex];
-
-    if(readOffset >= tagPermutation.samples.size)
-    {
-        return false;
-    }
 
     uint buffer = buffers[i];
 
@@ -169,6 +185,12 @@ bool fillBuffer(int i)
     switch(tagSound.compression)
     {
     case TagEnums.SoundCompression.xboxAdpcm:
+
+        if(readOffset >= tagPermutation.samples.size)
+        {
+            return false;
+        }
+
         size_t encodedLength = compressedAdpcmSize(data.length, numChannels);
         encodedLength        = min(encodedLength, tagPermutation.samples.size - readOffset);
         length               = decodedAdpcmSize(encodedLength, numChannels);
@@ -188,7 +210,6 @@ bool fillBuffer(int i)
 
             length += ret;
         }
-
         break;
     default: return false;
     }
@@ -230,6 +251,14 @@ private size_t readOgg(size_t size, size_t num, void* data) nothrow
     readOffset += cast(int)total;
 
     return total;
+}
+
+void setDesiredTag(DatumIndex index)
+{
+    if(tagIndex != index)
+    {
+        desiredTagIndex = index;
+    }
 }
 
 private extern(C) static

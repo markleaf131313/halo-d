@@ -98,6 +98,9 @@ Flags flags;
 float wheelSteering = 0.0f;
 float wheelPosition = 0.0f;
 
+float leftTreadPosition  = 0.0f; // TODO(IMPLEMENT)
+float rightTreadPosition = 0.0f; // TODO(IMPLEMENT)
+
 int ticksToSleep;
 
 float speed = 0.0f;
@@ -200,11 +203,7 @@ bool implUpdateLogic()
     else
     {
         float angle = speed < 0.0f ? -aimAngle : aimAngle;
-
-        float clamped = clamp(angle,
-            toRadians(tagVehicle.maximumRightTurnNegative),
-            toRadians(tagVehicle.maximumLeftTurn));
-
+        float clamped = clamp(angle, toRadians(tagVehicle.maximumRightTurn), toRadians(tagVehicle.maximumLeftTurn));
         float turnRate = toRadians(tagVehicle.turnRate) / gameFramesPerSecond;
         float difference = clamped - wheelSteering;
 
@@ -641,6 +640,121 @@ bool implProcessOrientations(Orientation* orientations)
             auto animation = &tagAnimations.animations[suspension.animation];
             animation.decodeOverlayMix(0, 1, suspensionPositions[i], orientations);
         }
+    }
+
+    return true;
+}
+
+bool implUpdateImportFunctions()
+{
+    const tagVehicle = Cache.get!TagVehicle(tagIndex);
+
+    const float maxForwardSpeed = abs(tagVehicle.maximumForwardSpeed);
+    const float maxReverseSpeed = abs(tagVehicle.maximumReverseSpeed);
+
+    const float maxLeftSlide  = abs(tagVehicle.maximumLeftSlide);
+    const float maxRightSlide = abs(tagVehicle.maximumRightSlide);
+
+    const float maxLeftTurn  = abs(tagVehicle.maximumLeftTurn);
+    const float maxRightTurn = abs(tagVehicle.maximumRightTurn);
+
+    const float absMaxSpeed = max(maxForwardSpeed, maxReverseSpeed);
+    const float absMaxSlide = max(maxLeftSlide,    maxRightSlide);
+    const float absMaxTurn  = max(maxLeftTurn,     maxRightTurn);
+
+    foreach(i ; 0 .. TagConstants.Object.maxFunctions)
+    {
+        TagEnums.VehicleImport type;
+
+        switch(i)
+        {
+        case 0: type = tagVehicle.aIn; break;
+        case 1: type = tagVehicle.bIn; break;
+        case 2: type = tagVehicle.cIn; break;
+        case 3: type = tagVehicle.dIn; break;
+        default: continue;
+        }
+
+        float value = 0.0f;
+
+        switch(type)
+        {
+        case TagEnums.VehicleImport.frontLeftTireVelocity:
+        case TagEnums.VehicleImport.frontRightTireVelocity:
+        case TagEnums.VehicleImport.backLeftTireVelocity:
+        case TagEnums.VehicleImport.backRightTireVelocity:
+        case TagEnums.VehicleImport.speedAbsolute:
+            value = abs(speed) / absMaxSpeed;
+            break;
+        case TagEnums.VehicleImport.speedForward:
+            if(speed > 0.0f) value = speed / maxForwardSpeed;
+            else             value = 0.0f;
+            break;
+        case TagEnums.VehicleImport.speedBackward: value = abs(speed) / maxReverseSpeed;
+            if(speed < 0.0f) value = abs(speed) / maxReverseSpeed;
+            else             value = 0.0f;
+            break;
+
+        case TagEnums.VehicleImport.slideAbsolute: assert(0); break; // TODO
+        case TagEnums.VehicleImport.slideLeft:     assert(0); break; // TODO
+        case TagEnums.VehicleImport.slideRight:    assert(0); break; // TODO
+        case TagEnums.VehicleImport.speedSlideMaximum: assert(0); break; // TODO
+
+        case TagEnums.VehicleImport.turnAbsolute: value = abs(wheelSteering) / absMaxTurn;   break;
+        case TagEnums.VehicleImport.turnLeft:     value = abs(wheelSteering) / maxLeftTurn;  break;
+        case TagEnums.VehicleImport.turnRight:    value = abs(wheelSteering) / maxRightTurn; break;
+
+        case TagEnums.VehicleImport.crouch: assert(0); break; // TODO
+        case TagEnums.VehicleImport.jump:
+            if(flags.brakes) value = 1.0f;
+            else             value = 0.0f;
+            break;
+        case TagEnums.VehicleImport.walk:
+            break;
+        case TagEnums.VehicleImport.velocityAir:    value = length(velocity) / absMaxSpeed; break;
+        case TagEnums.VehicleImport.velocityWater:  assert(0); break; // TODO
+        case TagEnums.VehicleImport.velocityGround: assert(0); break;
+        case TagEnums.VehicleImport.velocityForward:    value = dot(rotation.forward, velocity) / absMaxSpeed;      break;
+        case TagEnums.VehicleImport.velocityLeft:
+        case TagEnums.VehicleImport.velocityUp:         value = dot(rotation.up, velocity) / absMaxSpeed;           break;
+        case TagEnums.VehicleImport.leftTreadPosition:  value = leftTreadPosition  / tagVehicle.wheelCircumference; break;
+        case TagEnums.VehicleImport.rightTreadPosition: value = rightTreadPosition / tagVehicle.wheelCircumference; break;
+        case TagEnums.VehicleImport.leftTreadVelocity:
+            assert(0); // TODO
+            break;
+        case TagEnums.VehicleImport.rightTreadVelocity:
+            assert(0); // TODO
+            break;
+        case TagEnums.VehicleImport.frontLeftTirePosition:
+        case TagEnums.VehicleImport.frontRightTirePosition:
+        case TagEnums.VehicleImport.backLeftTirePosition:
+        case TagEnums.VehicleImport.backRightTirePosition:
+            value = wheelPosition / tagVehicle.wheelCircumference;
+            break;
+        case TagEnums.VehicleImport.wingtipContrail:
+            assert(0); // TODO
+            break;
+        case TagEnums.VehicleImport.hover:
+            value = hover;
+            break;
+        case TagEnums.VehicleImport.thrust:
+            assert(0); // TODO
+            break;
+        case TagEnums.VehicleImport.engineHack:
+            float throttle = abs(dot(velocity, rotation.forward)) / absMaxSpeed;
+            float speed    = abs(speed) / maxForwardSpeed;
+            float airborne = clamp((ticksInAir * 0.2f + 1.0f) * 0.5f, 0.0f, 1.0f);
+
+            value = throttle * (1.0f - airborne) + airborne * speed;
+            break;
+        case TagEnums.VehicleImport.wingtipContrailNew:
+            // TODO
+            break;
+        default: value = 0.0f;
+        }
+
+        importFunctionValues[i] = clamp(value, 0.0f, 1.0f);
+
     }
 
     return true;

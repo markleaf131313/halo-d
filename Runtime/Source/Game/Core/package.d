@@ -2,6 +2,8 @@
 
 module Game.Core;
 
+import std.datetime : Duration, msecs;
+
 public
 {
     import Game.Core.Containers;
@@ -18,5 +20,6 @@ public
 
     // todo find better place for these global, (eventually to be runtime) variables
     enum gameFramesPerSecond = 30; // todo make runtime value, eventually
+    enum Duration gameFrameTimeMsecs = 33.msecs;
     enum gameGravity = 0.0035651791f; // todo make runtime value
 }

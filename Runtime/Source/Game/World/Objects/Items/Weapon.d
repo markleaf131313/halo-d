@@ -3,6 +3,7 @@ module Game.World.Objects.Items.Weapon;
 
 
 import Game.World.FirstPerson;
+import Game.World.Objects.Object;
 import Game.World.Objects.Items.Item;
 import Game.World.Objects.Units.Unit;
 
@@ -175,6 +176,7 @@ State state;
 float heat         = 0.0f;
 float age          = 0.0f;
 float illumination = 0.0f;
+float integratedLightPower = 0.0f;
 
 int alternateShotsLoaded;
 int readyTimer;
@@ -526,6 +528,115 @@ bool implUpdateLogic()
             trigger.errorPercent = max(0.0f, trigger.errorPercent - tagTrigger.errorDeaccelerationPercent);
         }
 
+    }
+
+    return true;
+}
+
+bool implUpdateImportFunctions()
+{
+    const tagWeapon = Cache.get!TagWeapon(tagIndex);
+    GObject* dest = getFirstVisibleObject();
+
+    foreach(i ; 0 .. TagConstants.Object.maxFunctions)
+    {
+        TagEnums.WeaponImport type;
+
+        switch(i)
+        {
+        case 0: type = tagWeapon.aIn; break;
+        case 1: type = tagWeapon.bIn; break;
+        case 2: type = tagWeapon.cIn; break;
+        case 3: type = tagWeapon.dIn; break;
+        default: continue;
+        }
+
+        float value = 0.0f;
+
+        switch(type)
+        {
+        case TagEnums.WeaponImport.heat:
+            value = this.heat;
+            break;
+        case TagEnums.WeaponImport.primaryAmmunition:
+        case TagEnums.WeaponImport.secondaryAmmunition:
+            int index = type - TagEnums.WeaponImport.primaryAmmunition;
+
+            if(index < tagWeapon.magazines.size)
+            {
+                int maximum = tagWeapon.magazines[index].roundsLoadedMaximum;
+                value = cast(float)magazines[index].roundsLoaded / maximum;
+            }
+            break;
+        case TagEnums.WeaponImport.primaryRateOfFire:
+            if(tagWeapon.triggers.size > 0) value = triggers[0].firingPercent;
+            break;
+        case TagEnums.WeaponImport.secondaryRateOfFire:
+            if(tagWeapon.triggers.size > 1) value = triggers[1].firingPercent;
+            break;
+        case TagEnums.WeaponImport.ready:
+            value = 1.0f;
+            break;
+        case TagEnums.WeaponImport.primaryEjectionPort:
+            if(tagWeapon.triggers.size > 0) value = triggers[0].ejectionPortRecoveryPercent;
+            break;
+        case TagEnums.WeaponImport.secondaryEjectionPort:
+            if(tagWeapon.triggers.size > 1) value = triggers[1].ejectionPortRecoveryPercent;
+            break;
+        case TagEnums.WeaponImport.overheated:
+            if(flags.overheated && tagWeapon.heatRecoveryThreshold != 1.0f)
+            {
+                value = (heat - tagWeapon.heatRecoveryThreshold) / (1.0f - tagWeapon.heatRecoveryThreshold);
+            }
+            else
+            {
+                value = 0.0f;
+            }
+            break;
+        case TagEnums.WeaponImport.primaryCharged:   if(tagWeapon.triggers.size > 0) value = chargedPercent(0); break;
+        case TagEnums.WeaponImport.secondaryCharged: if(tagWeapon.triggers.size > 1) value = chargedPercent(1); break;
+        case TagEnums.WeaponImport.illumination:
+            break;
+        case TagEnums.WeaponImport.age:             value = age;                  break;
+        case TagEnums.WeaponImport.integratedLight: value = integratedLightPower; break;
+        case TagEnums.WeaponImport.primaryFiring:
+        case TagEnums.WeaponImport.secondaryFiring:
+            assert(0); // TODO(IMPLEMENT)
+            break;
+        case TagEnums.WeaponImport.primaryFiringOn:
+        case TagEnums.WeaponImport.secondaryFiringOn:
+            static bool checkReloading(const ref Weapon weapon, const TagWeapon* tagWeapon)
+            {
+                if(tagWeapon.magazines.size > 0 && weapon.magazines[0].state == Magazine.State.reloading)
+                {
+                    return true;
+                }
+                return false;
+            }
+
+            int index = type - TagEnums.WeaponImport.primaryFiringOn;
+            if(index < tagWeapon.triggers.size)
+            {
+                const tagTrigger = &tagWeapon.triggers[index];
+                Magazine* magazine;
+
+                if(tagTrigger.magazine != indexNone)
+                {
+                    magazine = &magazines[tagTrigger.magazine];
+                }
+
+                value = triggers[index].firingPercent;
+
+                if((magazine && magazine.roundsLoaded == 0) || flags.overheated || checkReloading(this, tagWeapon))
+                {
+                    value = 0.0f;
+                }
+            }
+            break;
+        default: value = 0.0f;
+        }
+
+        importFunctionValues[i] = value;
     }
 
     return true;
@@ -1168,6 +1279,25 @@ DatumIndex createEffectOrSound(DatumIndex index, float scaleA, float scaleB)
     }
 
     return DatumIndex.none;
+}
+
+private float chargedPercent(int triggerIndex)
+{
+    Trigger* trigger = &triggers[triggerIndex];
+
+    if(trigger.state == Trigger.State.charging)
+    {
+        const tagWeapon = Cache.get!TagWeapon(tagIndex);
+        return 1.0f - (trigger.time / cast(float)gameFramesPerSecond) / tagWeapon.triggers[triggerIndex].chargingTime;
+    }
+    else if(trigger.state == Trigger.State.charged)
+    {
+        return 1.0f;
+    }
+    else
+    {
+        return 0.0f;
+    }
 }
 
 }
