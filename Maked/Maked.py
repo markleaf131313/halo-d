@@ -91,6 +91,14 @@ def FormatEnumTypeName(name):
 def FormatEnumFieldName(name):
     return FormatClassVarName(name)
 
+def PrintExplanation(out, field, tabs):
+    out.write(tabs)
+    out.write("@TagExplanation(\"")
+    out.write(field["name"])
+    out.write("\", ")
+    out.write(json.dumps(field["explanation"]))
+    out.write(")\n")
+
 def PrintFields(out, fields, tabs):
     padCount = 0
     nomadCount = 0
@@ -98,7 +106,7 @@ def PrintFields(out, fields, tabs):
 
     fieldNameMap = {}
 
-    for f in fields:
+    for index, f in enumerate(fields):
         ftype = f["type"]
 
         if "name" in f:
@@ -114,7 +122,8 @@ def PrintFields(out, fields, tabs):
                 fieldNameMap[fieldName] += 1
                 fieldName += str(fieldNameMap[fieldName])
         else:
-            fieldNameMap[fieldName] = 0
+            if ftype != "explanation":
+                fieldNameMap[fieldName] = 0
 
         if fieldName == "function":
             fieldName = "func"
@@ -123,7 +132,7 @@ def PrintFields(out, fields, tabs):
 
         if "comment" in f:
             out.write(tabs + "@TagField(")
-            out.write( json.dumps(f["comment"]))
+            out.write(json.dumps(f["comment"]))
             out.write(")")
             out.write("\n")
 
@@ -143,6 +152,8 @@ def PrintFields(out, fields, tabs):
             flags = f["flags"]
 
             out.write("\n")
+            out.write(tabs + "Impl" + FormatClassTypeName(fieldName) + " " + fieldName + ";\n")
+
             out.write(tabs + "align(1) struct Impl" + FormatClassTypeName(fieldName) + "\n")
             out.write(tabs + "{\n")
             out.write(tabs + "    import std.bitmanip : bitfields;\n")
@@ -165,13 +176,19 @@ def PrintFields(out, fields, tabs):
             out.write(tabs + "        int, \"\", " + str(num - len(flags)) + "));\n")
             out.write(tabs + "}\n\n")
 
-            out.write(tabs + "Impl" + FormatClassTypeName(fieldName) + " " + fieldName + ";\n")
         elif ftype == "pad":
             out.write(tabs + "mixin TagPad!" + str(f["size"]) + ";\n")
         elif ftype == "block":
             out.write(tabs + "TagBlock!" + FormatClassTypeName(f["block_name"]) + " " + fieldName + ";\n")
         elif ftype == "explanation":
-            continue
+            # prevent attribute being placed if this is the last field
+            # there won't be another field to attach this attribute to
+            # only seems to exist for point physics
+            if index == len(fields) - 1:
+                continue
+
+            PrintExplanation(out, f, tabs)
+
         elif ftype == "array":
             out.write(tabs + "struct SubField" + str(arrayCount) + "\n" + tabs + "{\n")
 
@@ -189,7 +206,13 @@ def PrintFields(out, fields, tabs):
 
 def PrintBlocks(out, blocks, tag, root = False):
     for b in blocks:
+
+        fields = b["fields"]
+
         if root and tag != None and b["name"] == tag["name"]:
+            if len(fields) != 0 and fields[-1]["type"] == "explanation":
+                PrintExplanation(out, fields[-1], "")
+
             className = "Tag" + FormatClassTypeName(b["name"])
             out.write("struct " + className + "\n{\n")
 
@@ -211,6 +234,9 @@ def PrintBlocks(out, blocks, tag, root = False):
         elif root == False:
             if tag != None and b["name"] == tag["name"]:
                 continue
+
+            if len(fields) != 0 and fields[-1]["type"] == "explanation":
+                PrintExplanation(out, fields[-1], "")
 
             className = FormatClassTypeName(b["name"])
 

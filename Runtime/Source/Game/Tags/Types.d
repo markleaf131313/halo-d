@@ -22,6 +22,12 @@ struct TagField
     string comment;
 }
 
+struct TagExplanation
+{
+    string header;
+    string explanation;
+}
+
 struct TagRef
 {
 @nogc:
@@ -159,6 +165,11 @@ struct TagString
     @property bool isEmpty() const
     {
         return buffer[0] == '\0';
+    }
+
+    @property inout(char)* ptr() inout
+    {
+        return buffer.ptr;
     }
 
 private:

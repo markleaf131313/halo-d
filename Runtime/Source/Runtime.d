@@ -301,6 +301,8 @@ template EnumMembersNameArray(T...)
 
 void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices = [])
 {
+    import std.meta   : Alias;
+    import std.traits : getUDAs;
 
     static int selectedIndex; // todo remove hack
     T* fields = cast(T*)f;
@@ -344,14 +346,20 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
 
     foreach(i, ref field ; fields.tupleof)
     {
-        import std.meta   : Alias;
-        import std.traits : getUDAs;
 
         alias Field = typeof(field);
         alias identifier = Alias!(__traits(identifier, T.tupleof[i]));
 
         igPushIdPtr(&field);
         scope(exit) igPopId();
+
+        alias explainUdas = getUDAs!(typeof(*fields).tupleof[i], TagExplanation);
+
+        static if(explainUdas.length)
+        {
+            static if(explainUdas[0].header.length)      igText(explainUdas[0].header);
+            static if(explainUdas[0].explanation.length) igTextWrapped(explainUdas[0].explanation);
+        }
 
         static if(is(Field == enum))
         {
@@ -375,7 +383,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         }
         else static if(is(Field == TagString))
         {
-            igText(field.ptr);
+            igInputText(identifier, field.ptr, 32);
         }
         else static if(is(Field == Vec3))
         {
@@ -467,7 +475,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         {
             if(field.ptr && field.size)
             {
-                igSetNextTreeNodeOpened(true, ImGuiSetCond_FirstUseEver);
+                //igSetNextTreeNodeOpened(true, ImGuiSetCond_FirstUseEver);
             }
 
             if(igTreeNode(identifier))
@@ -512,6 +520,14 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
                 igEndTooltip();
             }
         }
+    }
+
+    alias explainUdas = getUDAs!(T, TagExplanation);
+
+    static if(explainUdas.length)
+    {
+        static if(explainUdas[0].header.length)      igText(explainUdas[0].header);
+        static if(explainUdas[0].explanation.length) igTextWrapped(explainUdas[0].explanation);
     }
 }
 
