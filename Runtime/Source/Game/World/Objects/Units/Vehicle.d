@@ -732,13 +732,13 @@ bool implUpdateImportFunctions()
             value = wheelPosition / tagVehicle.wheelCircumference;
             break;
         case TagEnums.VehicleImport.wingtipContrail:
-            assert(0); // TODO
+            // TODO
             break;
         case TagEnums.VehicleImport.hover:
             value = hover;
             break;
         case TagEnums.VehicleImport.thrust:
-            assert(0); // TODO
+            // TODO
             break;
         case TagEnums.VehicleImport.engineHack:
             float throttle = abs(dot(velocity, rotation.forward)) / absMaxSpeed;

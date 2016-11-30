@@ -173,7 +173,7 @@ void load(in string filename)
     auto scenario = cast(TagScenario*)metas[0].data;
     assert(scenario !is null);
 
-    foreach(ref bsp ; scenario.structureBsps[])
+    foreach(ref bsp ; scenario.structureBsps[0 .. 1])
     {
         Meta* meta = &metas[bsp.structureBsp.index.i];
         void** buf = fixPointer(cast(void**)bsp.ptr);

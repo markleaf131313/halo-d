@@ -86,9 +86,14 @@ struct TagBlock(T)
     }
 
     pragma(inline, true)
-    inout(T[]) opSlice() inout
+    inout(T)[] opSlice() inout
     {
         return ptr ? ptr[0 .. size] : ptr[0 .. 0];
+    }
+
+    inout(T)[] opSlice(int a, int b) inout
+    {
+        return ptr[a .. b];
     }
 
     pragma(inline, true)

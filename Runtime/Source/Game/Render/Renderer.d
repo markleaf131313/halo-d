@@ -1032,25 +1032,22 @@ void bindTexture(
     DefaultTexture defaultType)
 {
     Tag.BitmapDataBlock* bitmap;
-    Cache.Meta*          meta;
 
     if(tagIndex == DatumIndex.none)
     {
-        meta   = &Cache.inst.metaAt(defaultIndex);
-        bitmap = &meta.tagData!TagBitmap.bitmaps[int(defaultType)];
+        bitmap = &Cache.get!TagBitmap(defaultIndex).bitmaps[int(defaultType)];
     }
     else
     {
-        meta   = &Cache.inst.metaAt(tagIndex);
-        bitmap = &meta.tagData!TagBitmap.bitmaps[bitmapIndex];
+        bitmap = &Cache.get!TagBitmap(tagIndex).bitmaps[bitmapIndex];
     }
 
     if(bitmap.glTexture == indexNone)
     {
         byte[] buffer = new byte[](bitmap.pixelsSize);
 
-        if(meta.external) Cache.inst.bitmapCache.read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
-        else              Cache.inst            .read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
+        if(bitmap.flags.externalPixelData) Cache.inst.bitmapCache.read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
+        else                               Cache.inst            .read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
 
         loadPixelData(bitmap, buffer);
     }
@@ -1276,15 +1273,13 @@ private ubyte[] grabPixelDataFromBitmap(DatumIndex index, int bitmapIndex)
     }
     else
     {
-        Cache.Meta* meta = &Cache.inst.metaAt(index);
-
         TagBitmap* tagBitmap = Cache.get!TagBitmap(index);
         auto       bitmap    = &tagBitmap.bitmaps[bitmapIndex];
 
         ubyte[] buffer = new ubyte[](bitmap.pixelsSize);
 
-        if(meta.external) Cache.inst.bitmapCache.read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
-        else              Cache.inst            .read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
+        if(bitmap.flags.externalPixelData) Cache.inst.bitmapCache.read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
+        else                               Cache.inst            .read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
 
         gBitmapLoadedPixels[hash.value] = buffer;
 

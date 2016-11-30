@@ -176,7 +176,7 @@ struct WorldElement
         foreach(i ; bound.surfaces)
         {
             auto surface = &bsp.surfaces[i];
-            Plane3 plane = bsp.planes[surface.plane].plane;
+            Plane3 plane = bsp.planes[surface.plane & int.max].plane;
 
             if(transform)
             {

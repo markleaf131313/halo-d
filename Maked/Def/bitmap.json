@@ -125,6 +125,16 @@
                         },
                         {
                             "name": "v16u16"
+                        },
+                        {
+                            "name": "unknown 0"
+                        },
+                        {
+                            "name": "unknown 1"
+                        },
+                        {
+                            "name": "external pixel data",
+                            "comment": "compile time value"
                         }
                     ]
                 },

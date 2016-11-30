@@ -146,6 +146,11 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
 
         foreach(ref scenery ; Cache.inst.scenario.scenery)
         {
+            if(scenery.type == indexNone)
+            {
+                continue;
+            }
+
             auto palette = &Cache.inst.scenario.sceneryPalette[scenery.type];
 
             GObject.Creation data;
