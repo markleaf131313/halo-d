@@ -1293,6 +1293,9 @@ bool implDebugUI()
 
     if(igCollapsingHeader("Object", null, true, true))
     {
+        igText(Cache.inst.metaAt(tagIndex).path);
+        igText((to!string(type) ~ "\0").ptr);
+
         igInputFloat("scale", &scale);
         igInputFloat3("position", position[]);
 
