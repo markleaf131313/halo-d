@@ -480,7 +480,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         {
             if(field.ptr && field.size)
             {
-                //igSetNextTreeNodeOpened(true, ImGuiSetCond_FirstUseEver);
+                igSetNextTreeNodeOpened(true, ImGuiSetCond_FirstUseEver);
             }
 
             if(igTreeNode(identifier))
