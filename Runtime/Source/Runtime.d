@@ -124,9 +124,6 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         gameState.world.setCurrentSbsp();
         gameState.world.initialize();
 
-        gameState.ai.world = &gameState.world;
-        gameState.ai.initialize();
-
         gameState.renderer.load();
         gameState.renderer.loadShaders();
 
