@@ -59,6 +59,42 @@ int opApply(scope int delegate(ref T) dg)
     return 0;
 }
 
+int opApply(scope int delegate(int, ref T) dg)
+{
+    foreach(int i, ref element ; elements[0 .. length])
+    {
+        if(element.selfIndex.salt >= 0)
+        {
+            continue;
+        }
+
+        if(int result = dg(i, element))
+        {
+            return result;
+        }
+    }
+
+    return 0;
+}
+
+int opApply(scope int delegate(DatumIndex, ref T) dg)
+{
+    foreach(ref element ; elements[0 .. length])
+    {
+        if(element.selfIndex.salt >= 0)
+        {
+            continue;
+        }
+
+        if(int result = dg(element.selfIndex, element))
+        {
+            return result;
+        }
+    }
+
+    return 0;
+}
+
 void clear()
 {
     if(elements)

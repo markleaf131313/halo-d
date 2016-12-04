@@ -13,6 +13,7 @@ import OpenGL;
 import SDL2;
 import imgui;
 
+import Game.Ai;
 import Game.Audio;
 import Game.Cache;
 import Game.Core;
@@ -123,6 +124,9 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         gameState.world.setCurrentSbsp();
         gameState.world.initialize();
 
+        gameState.ai.world = &gameState.world;
+        gameState.ai.initialize();
+
         gameState.renderer.load();
         gameState.renderer.loadShaders();
 
@@ -206,12 +210,67 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
             gameState.world.createObject(data);
         }
 
+        version(none)
+        {
+            int squadCount;
+            int platoonCount;
+
+            foreach(ref tagEncounter ; Cache.inst.scenario.encounters)
+            {
+                DatumIndex index = gameState.ai.encounters.add();
+                Encounter* encounter = &gameState.ai.encounters[index];
+
+                encounter.squadBegin = squadCount;
+                encounter.squadEnd   = squadCount += tagEncounter.squads.size;
+
+                encounter.platoonBegin = platoonCount;
+                encounter.platoonEnd   = platoonCount += tagEncounter.platoons.size;
+
+                foreach(int i, ref tagSquad ; tagEncounter.squads)
+                {
+                    Squad* squad = &gameState.ai.squads[encounter.squadBegin + i];
+
+                    if(tagSquad.flags.noTimerDelayForever)
+                    {
+                        squad.delayTicks = 999;
+                    }
+                    else
+                    {
+                        squad.delayTicks = cast(typeof(squad.delayTicks))(tagSquad.squadDelayTime * gameFramesPerSecond);
+                    }
+
+                    if(tagSquad.respawnMinActors > 0 || tagSquad.respawnMaxActors > 0)
+                    {
+                        if(tagSquad.respawnTotal != 0) squad.respawnTotal = tagSquad.respawnTotal;
+                        else                           squad.respawnTotal = 999;
+                    }
+                }
+
+                foreach(int i, ref tagPlatoon ; tagEncounter.platoons)
+                {
+                    Platoon* platoon = &gameState.ai.platoons[encounter.platoonBegin + i];
+                    platoon.startInDefendingState = tagPlatoon.flags.startInDefendingState;
+                }
+            }
+
+            foreach(int i, ref encounter ; gameState.ai.encounters)
+            {
+                auto tagEncounter = &Cache.inst.scenario.encounters[i];
+
+                if(tagEncounter.flags.notInitiallyCreated)
+                {
+                    continue;
+                }
+
+                assert(0);
+            }
+        }
+
         glGenTextures(1, &gameState.imguiTexture);
         glBindTexture(GL_TEXTURE_2D, gameState.imguiTexture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glBindTexture(GL_TEXTURE_2D, 0);
-
 
     }
     catch(Exception ex)

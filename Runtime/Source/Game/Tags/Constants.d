@@ -3,6 +3,10 @@ module Game.Tags.Constants;
 
 private import Game.Core.Math : toRadians;
 
+struct Actor
+{
+    enum maxStartingPositions = 32;
+}
 struct Animation
 {
     @disable this();
