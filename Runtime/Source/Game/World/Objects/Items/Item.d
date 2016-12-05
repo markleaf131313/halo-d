@@ -1,8 +1,8 @@
 
-module Game.World.Objects.Items.Item;
+module Game.World.Items.Item;
 
 import Game.World.Objects.Object;
-import Game.World.Objects.Units.Unit;
+import Game.World.Units.Unit;
 import Game.World.World;
 
 import Game.Cache;

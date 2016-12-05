@@ -1,10 +1,9 @@
 
-module Game.World.Objects.Units;
+module Game.World.Units;
 
 public
 {
-    import Game.World.Objects.Units.Unit;
-
-    import Game.World.Objects.Units.Biped;
-    import Game.World.Objects.Units.Vehicle;
+    import Game.World.Units.Biped;
+    import Game.World.Units.Unit;
+    import Game.World.Units.Vehicle;
 }

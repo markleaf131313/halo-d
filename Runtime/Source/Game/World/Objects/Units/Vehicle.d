@@ -1,10 +1,11 @@
 
-module Game.World.Objects.Units.Vehicle;
+module Game.World.Units.Vehicle;
 
-import std.uni  : icmp;
+import std.uni : icmp;
 
-import Game.World.Objects.Units.Unit;
-import Game.World;
+import Game.World.Objects.Object;
+import Game.World.Units.Unit;
+import Game.World.World;
 
 import Game.Cache;
 import Game.Core;

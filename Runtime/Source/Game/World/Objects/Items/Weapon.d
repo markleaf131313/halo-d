@@ -1,11 +1,11 @@
 
-module Game.World.Objects.Items.Weapon;
+module Game.World.Items.Weapon;
 
 
 import Game.World.FirstPerson;
 import Game.World.Objects.Object;
-import Game.World.Objects.Items.Item;
-import Game.World.Objects.Units.Unit;
+import Game.World.Items.Item;
+import Game.World.Units.Unit;
 
 import Game.Cache;
 import Game.Core;

@@ -1,18 +1,18 @@
 
-module Game.World.Objects.Units.Unit;
+module Game.World.Units.Unit;
 
 import std.uni : icmp;
 
 import Game.World.FirstPerson;
 import Game.World.Objects.Object;
-import Game.World.Objects.Items;
+import Game.World.Items;
 import Game.World.World;
 
 import Game.Cache;
 import Game.Core;
 import Game.Tags;
 
-enum unitSeatStateNames = [ "asleep", "alert", "crouch", "stand", "flee", "flaming" ];
+private enum unitSeatStateNames = [ "asleep", "alert", "crouch", "stand", "flee", "flaming" ];
 
 struct Unit
 {

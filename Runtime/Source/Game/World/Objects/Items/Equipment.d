@@ -1,7 +1,7 @@
 
-module Game.World.Objects.Items.Equipment;
+module Game.World.Items.Equipment;
 
-import Game.World.Objects.Items.Item;
+import Game.World.Items.Item;
 
 struct Equipment
 {

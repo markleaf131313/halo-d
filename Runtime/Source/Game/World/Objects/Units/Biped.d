@@ -1,10 +1,10 @@
 
-module Game.World.Objects.Units.Biped;
+module Game.World.Units.Biped;
 
 import Game.World.FirstPerson;
-import Game.World.Objects.Units.Unit;
-import Game.World.Objects.Items.Weapon;
 import Game.World.Objects.Object;
+import Game.World.Items.Weapon;
+import Game.World.Units.Unit;
 import Game.World.World;
 
 import Game.Cache;
