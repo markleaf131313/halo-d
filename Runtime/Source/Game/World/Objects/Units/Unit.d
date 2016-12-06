@@ -691,14 +691,12 @@ bool enterSeat(Unit* desiredParent, int desiredSeatIndex)
 
 Tag.AnimationBlock* getSeatEnterAnimation(const(char)[] seat)
 {
-    import std.utf : byDchar;
-
     auto tagUnit       = Cache.get!TagUnit(tagIndex);
     auto tagAnimations = Cache.get!TagModelAnimations(tagUnit.animationGraph);
 
     foreach(ref animationUnit ; tagAnimations.units)
     {
-        if(icmp(animationUnit.label.toStr().byDchar, seat.byDchar) == 0)
+        if(iequals(animationUnit.label, seat))
         {
             if(animationUnit.animations.inUpperBound(TagEnums.UnitSeatAnimation.enter))
             {
@@ -1185,25 +1183,22 @@ private:
 
 bool setSeat(const(char)[] seat, const(char)[] weapon, bool setState)
 {
-    import std.utf : byDchar; // TODO don't use this+icmp, when sicmp has @nogc nothrow
-
     const tagObject     = Cache.get!TagObject(tagIndex);
     const tagAnimations = Cache.get!TagModelAnimations(tagObject.animationGraph);
 
-    bool isUnarmed = weapon ? !icmp("unarmed".byDchar, weapon.byDchar) : false;
+    bool isUnarmed = weapon ? iequals("unarmed", weapon) : false;
     bool found;
 
     foreach(int i, ref animUnit ; tagAnimations.units)
     {
-        if(seat && icmp(seat.byDchar, animUnit.label.toStr().byDchar))
+        if(seat && !iequals(seat, animUnit.label))
         {
             continue;
         }
 
         foreach(int j, ref animWeap ; animUnit.weapons)
         foreach(int k, ref animWeapType ; animWeap.weaponTypes)
-        if(weapon is null || (isUnarmed && animWeapType.label.isEmpty())
-            || !icmp(animWeapType.label.toStr().byDchar, weapon.byDchar))
+        if(weapon is null || (isUnarmed && animWeapType.label.isEmpty()) || iequals(animWeapType.label, weapon))
         {
             found = true;
 
@@ -1213,7 +1208,7 @@ bool setSeat(const(char)[] seat, const(char)[] weapon, bool setState)
 
                 foreach(n, name ; unitSeatStateNames)
                 {
-                    if(!icmp(seat.byDchar, name.byDchar))
+                    if(iequals(seat, name))
                     {
                         animation.baseSeat = cast(BaseSeat)n;
                     }

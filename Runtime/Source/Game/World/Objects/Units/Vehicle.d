@@ -571,13 +571,11 @@ bool implUpdateLogic()
 
     static void modelSetPermutation(TagGbxmodel* model, Vehicle* vehicle, const(char)[] name, bool doset)
     {
-        import std.utf : byDchar; // TODO use sicmp when it becomes @nogc nothrow
-
         foreach(int i, ref region ; model.regions)
         {
             foreach(int j, ref permutation ; region.permutations)
             {
-                if(!icmp(name.byDchar, permutation.name.toStr().byDchar))
+                if(iequals(name, permutation.name))
                 {
                     vehicle.regionPermutationIndices[i] = doset ? j : 0;
                     break;

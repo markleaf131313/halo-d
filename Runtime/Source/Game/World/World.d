@@ -435,15 +435,12 @@ void createEffectFromMarkers(
         {
             foreach(ref marker ; markers)
             {
-                import std.uni : icmp;
-                import std.utf : byDchar; // TODO replace when @nogc is implemented for sicmp
-
                 if(count >= max)
                 {
                     break;
                 }
 
-                if(!icmp(marker.name.byDchar, name.byDchar))
+                if(iequals(marker.name, name))
                 {
                     GObject.MarkerTransform* transform = transforms + count;
 

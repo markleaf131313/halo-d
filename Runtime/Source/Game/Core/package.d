@@ -15,6 +15,7 @@ public
     import Game.Core.Meta;
     import Game.Core.Misc;
     import Game.Core.Random;
+    import Game.Core.String;
     import Game.Core.Traits;
 
     alias diff_t = ptrdiff_t;

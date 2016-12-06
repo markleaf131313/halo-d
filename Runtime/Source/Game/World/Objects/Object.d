@@ -920,15 +920,11 @@ GObject* getFirstVisibleObject()
 
 int findMarker(const(char)[] name)
 {
-    import std.uni : icmp;
-    import std.utf : byDchar;
-
     auto tagModel = Cache.get!TagGbxmodel(Cache.get!TagObject(tagIndex).model);
 
     foreach(int i, ref marker ; tagModel.markers)
     {
-        // TODO use an ascii icmp instead
-        if(icmp(marker.name.toStr().byDchar, name.byDchar) == 0)
+        if(iequals(marker.name, name))
         {
             return i;
         }
