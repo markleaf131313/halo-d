@@ -695,16 +695,36 @@ try
         igNewFrame();
         static int[] openedTags;
 
-        igBegin("Main Window");
-        igValueInt("Ticks", ticks);
-
         {
             import core.memory : GC;
+
+            static float[1000] usedValues;
+            static float[1000] freeValues;
+
+            static size_t head = 0;
+            static size_t count = 0;
+
+            igBegin("GC");
 
             igValueInt("GC used", cast(int)GC.stats.usedSize);
             igValueInt("GC free", cast(int)GC.stats.freeSize);
             igValueInt("GC Total", cast(int)(GC.stats.freeSize + GC.stats.usedSize));
+
+            usedValues[head] = GC.stats.usedSize;
+            freeValues[head] = GC.stats.freeSize;
+
+            igPlotLines("##GCused", usedValues.ptr, cast(int)count + 1, 0, null, 0, float.max, ImVec2(igGetWindowWidth(), 250));
+            igPlotLines("##GCfree", freeValues.ptr, cast(int)count + 1, 0, null, 0, float.max, ImVec2(igGetWindowWidth(), 250));
+
+            count = max(head, count);
+            head = (head + 1) % usedValues.length;
+
+            igEnd();
         }
+
+        igBegin("Main Window");
+        igValueInt("Ticks", ticks);
+
 
         foreach(tagId ; [EnumMembers!TagId])
         if(auto group = tagId in cacheTagPaths)
