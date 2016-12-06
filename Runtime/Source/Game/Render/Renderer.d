@@ -405,7 +405,7 @@ void render(ref World world, ref Camera camera)
         Vec2 uv;
     }
 
-    enum Vertex[4] vertices =
+    immutable Vertex[4] vertices =
     [
         { Vec2(-1, -1), Vec2(0, 0) },
         { Vec2(-1, 1), Vec2(0, 1) },
@@ -849,12 +849,13 @@ bool updateObjectLighting(ref World world, Vec3 position, ref GObject.Lighting l
 
     }
 
-    Vec3* segments;
-    int   segmentCount;
+    const(Vec3)* segments;
+    int          segmentCount;
 
     if(options.calculateColorFromSides)
     {
-        enum Vec3[4] directions = [
+        immutable Vec3[4] directions =
+        [
             Vec3(-10, 0, 0),
             Vec3( 10, 0, 0),
             Vec3(0, -10, 0),
@@ -866,7 +867,7 @@ bool updateObjectLighting(ref World world, Vec3 position, ref GObject.Lighting l
     }
     else
     {
-        enum Vec3[1] directions = [ Vec3(0, 0, -10) ];
+        immutable Vec3[1] directions = [ Vec3(0, 0, -10) ];
 
         segments     = directions.ptr;
         segmentCount = directions.length;
@@ -874,7 +875,7 @@ bool updateObjectLighting(ref World world, Vec3 position, ref GObject.Lighting l
 
     bool result = false;
 
-    foreach(ref Vec3 segment ; segments[0 .. segmentCount])
+    foreach(ref const(Vec3) segment ; segments[0 .. segmentCount])
     {
         World.RenderSurfaceResult renderResult;
 
