@@ -20,7 +20,27 @@ import Game.Tags;
 
 struct World
 {
+// TODO make @nogc nothrow
+void updateLogicEffects(float deltaTime)
+{
+    foreach(ref effect ; effects)
+    {
+        effect.updateEvents(deltaTime);
+    }
+}
+
+// TODO make @nogc nothrow
+void updateLogicParticles(float deltaTime)
+{
+    foreach(ref particle ; particles)
+    {
+        particle.updateLogic(deltaTime);
+    }
+}
+
+
 @nogc nothrow:
+
 
 enum CollisionType
 {
@@ -1328,22 +1348,6 @@ bool isClusterActive(int clusterIndex)
 {
     return true; // todo implement a bit array for activation
                  // there are two separate bit array for cluster activation, one serves a different purpose?
-}
-
-void updateLogicEffects(float deltaTime)
-{
-    foreach(ref effect ; effects)
-    {
-        effect.updateEvents(deltaTime);
-    }
-}
-
-void updateLogicParticles(float deltaTime)
-{
-    foreach(ref particle ; particles)
-    {
-        particle.updateLogic(deltaTime);
-    }
 }
 
 private:
