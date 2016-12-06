@@ -52,7 +52,6 @@ void loadCacheTagPaths()
     foreach(ref group ; cacheTagPaths)
     {
         import std.algorithm.sorting : sort;
-        import std.uni : icmp;
         import std.string : fromStringz;
 
         sort!((a, b) => icmp(fromStringz(Cache.inst.metaAt(a).path), fromStringz(Cache.inst.metaAt(b).path)) < 0)(group);

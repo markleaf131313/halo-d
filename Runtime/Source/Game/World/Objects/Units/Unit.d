@@ -1,8 +1,6 @@
 
 module Game.World.Units.Unit;
 
-import std.uni : icmp;
-
 import Game.World.FirstPerson;
 import Game.World.Objects.Object;
 import Game.World.Items;

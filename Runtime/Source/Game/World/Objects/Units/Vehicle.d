@@ -1,8 +1,6 @@
 
 module Game.World.Units.Vehicle;
 
-import std.uni : icmp;
-
 import Game.World.Objects.Object;
 import Game.World.Units.Unit;
 import Game.World.World;
