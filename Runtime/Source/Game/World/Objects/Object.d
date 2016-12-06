@@ -18,7 +18,7 @@ import Game.Tags;
 
 struct GObjectTypeMask
 {
-@nogc:
+@nogc nothrow:
 
     private enum isObjectType(T) = is(T == TagEnums.ObjectType);
 
@@ -72,6 +72,7 @@ struct GObjectTypeMask
 // TODO(REFACTOR) use GameObject or Entity instead of GObject
 struct GObject
 {
+@nogc nothrow:
 
 @disable this(this);
 
@@ -94,6 +95,8 @@ struct Creation
 
 struct Rotation
 {
+@nogc nothrow:
+
     Vec3 forward;
     Vec3 up;
 
@@ -148,6 +151,8 @@ struct Damage
 
 struct AnimationController
 {
+@nogc nothrow:
+
     enum State
     {
         invalid,
@@ -345,7 +350,6 @@ ClusterNode[TagConstants.Object.maxClusterPresence] occupiedClusters; // todo im
 
 Damage damage;
 
-
 bool byTypePreInitialize(Creation* creation)
 {
     return makeCallByType!"implPreInitialize"(this, creation);
@@ -381,9 +385,9 @@ void byTypeDestruct()
     makeCallByType!("__xdtor", ByType.doDerived)(this);
 }
 
-bool byTypeDebugUI()
+bool byTypeDebugUi()
 {
-    return makeCallByType!"implDebugUI"(this);
+    return makeCallByType!"implDebugUi"(this);
 }
 
 static auto byTypeInit(TagEnums.ObjectType type)
@@ -838,6 +842,7 @@ void move(ref Vec3 position, ref Vec3 forward, ref Vec3 up)
     connectToWorld();
 }
 
+@nogc nothrow
 void interpolateCurrent(int frames)
 {
     auto tagModel = Cache.get!TagGbxmodel(Cache.get!TagObject(tagIndex).model);
@@ -915,14 +920,15 @@ GObject* getFirstVisibleObject()
 
 int findMarker(const(char)[] name)
 {
-    import std.string : fromStringz;
     import std.uni : icmp;
+    import std.utf : byDchar;
 
     auto tagModel = Cache.get!TagGbxmodel(Cache.get!TagObject(tagIndex).model);
 
     foreach(int i, ref marker ; tagModel.markers)
     {
-        if(icmp(marker.name, name) == 0)
+        // TODO use an ascii icmp instead
+        if(icmp(marker.name.toStr().byDchar, name.byDchar) == 0)
         {
             return i;
         }
@@ -1288,13 +1294,13 @@ bool implUpdateImportFunctions()
     return true;
 }
 
-bool implDebugUI()
+bool implDebugUi()
 {
 
     if(igCollapsingHeader("Object", null, true, true))
     {
         igText(Cache.inst.metaAt(tagIndex).path);
-        igText((to!string(type) ~ "\0").ptr);
+        igText(enumName(type).ptr);
 
         igInputFloat("scale", &scale);
         igInputFloat3("position", position[]);
@@ -1421,9 +1427,7 @@ bool makeCallByType(string func, ByType order = ByType.doTopDown, Args...)(ref G
         }
     }
 
-    static immutable bool function(ref GObject, Args)[TagEnums.ObjectType.max + 1] functionPtrs
-        = mixin("[ " ~ strInit!(__traits(allMembers, TagEnums.ObjectType)) ~ " ]");
-
+    static immutable functionPtrs = mixin("[ " ~ strInit!(__traits(allMembers, TagEnums.ObjectType)) ~ " ]");
 
     if(auto result = functionPtrs[object.type])
     {

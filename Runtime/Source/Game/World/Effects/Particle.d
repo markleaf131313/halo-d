@@ -12,6 +12,7 @@ import Game.Tags;
 
 struct Particle
 {
+@nogc nothrow:
 
 struct Creation
 {

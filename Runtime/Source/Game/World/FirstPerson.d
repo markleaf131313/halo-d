@@ -9,6 +9,8 @@ import Game.Tags;
 // TODO(REFACTOR, ?) this might be better in some sort of interface module?
 struct FirstPerson
 {
+@nogc nothrow:
+
     enum Action
     {
         fire1,

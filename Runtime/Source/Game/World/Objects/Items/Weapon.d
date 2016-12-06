@@ -14,6 +14,8 @@ import Game.Tags;
 
 struct Weapon
 {
+@nogc nothrow:
+
 @disable this(this);
 
 alias item this;
@@ -31,6 +33,8 @@ enum State
 
 struct Magazine
 {
+@nogc nothrow:
+
     enum State
     {
         idle,
@@ -69,6 +73,8 @@ struct Magazine
 
 struct Trigger
 {
+@nogc nothrow:
+
     enum State
     {
         idle,

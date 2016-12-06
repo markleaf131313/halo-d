@@ -9,7 +9,7 @@ import Game.Tags;
 
 struct WorldLine
 {
-@nogc:
+@nogc nothrow:
 
     alias checkHit this;
 

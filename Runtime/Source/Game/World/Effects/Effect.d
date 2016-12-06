@@ -15,6 +15,7 @@ import Game.Tags;
 
 struct Effect
 {
+@nogc nothrow:
 
 struct Location
 {
@@ -92,7 +93,9 @@ ubyte[TagConstants.Effect.maxParticlesPerEvent] particleCounts;
     }
 }
 
-void createLocations(scope int delegate(const(char)[], int, GObject.MarkerTransform*) findMarker, bool firstPerson = false)
+void createLocations(
+    scope int delegate(const(char)[], int, GObject.MarkerTransform*) @nogc nothrow findMarker,
+    bool firstPerson = false)
 {
     const tagEffect = Cache.get!TagEffect(tagIndex);
 
@@ -537,6 +540,8 @@ auto rangeOfLocations(int locationIndex, TagEnums.CreationPerspective perspectiv
 {
     static struct Result
     {
+    @nogc nothrow:
+
         private Effect* effect;
         private Location* start;
         private TagEnums.CreationPerspective perspective;

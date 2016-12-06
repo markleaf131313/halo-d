@@ -12,10 +12,12 @@ import Game.Cache;
 import Game.Core;
 import Game.Tags;
 
-private enum unitSeatStateNames = [ "asleep", "alert", "crouch", "stand", "flee", "flaming" ];
+private immutable const(char)[][] unitSeatStateNames = [ "asleep", "alert", "crouch", "stand", "flee", "flaming" ];
 
 struct Unit
 {
+@nogc nothrow:
+
 @disable this(this);
 alias object this;
 
@@ -108,6 +110,8 @@ struct Control
 
 struct Animation
 {
+@nogc nothrow:
+
     @disable this(this);
 
     struct Flags
@@ -441,10 +445,10 @@ bool implUpdateImportFunctions()
         case TagEnums.UnitImport.integratedLightPower:
             break;
         case TagEnums.UnitImport.canBlink:
-            assert(0); // TODO(IMPLEMENT)
+            // TODO(IMPLEMENT)
             break;
         case TagEnums.UnitImport.shieldSapping:
-            assert(0); // TODO(IMPLEMENT)
+            // TODO(IMPLEMENT)
             break;
         default: value = 0.0f;
         }
@@ -687,12 +691,14 @@ bool enterSeat(Unit* desiredParent, int desiredSeatIndex)
 
 Tag.AnimationBlock* getSeatEnterAnimation(const(char)[] seat)
 {
+    import std.utf : byDchar;
+
     auto tagUnit       = Cache.get!TagUnit(tagIndex);
     auto tagAnimations = Cache.get!TagModelAnimations(tagUnit.animationGraph);
 
     foreach(ref animationUnit ; tagAnimations.units)
     {
-        if(icmp(animationUnit.label, seat) == 0)
+        if(icmp(animationUnit.label.toStr().byDchar, seat.byDchar) == 0)
         {
             if(animationUnit.animations.inUpperBound(TagEnums.UnitSeatAnimation.enter))
             {
@@ -1179,22 +1185,25 @@ private:
 
 bool setSeat(const(char)[] seat, const(char)[] weapon, bool setState)
 {
-    auto tagObject = Cache.get!TagObject(tagIndex);
-    auto tagAnimations = Cache.get!TagModelAnimations(tagObject.animationGraph);
+    import std.utf : byDchar; // TODO don't use this+icmp, when sicmp has @nogc nothrow
 
-    bool isUnarmed = weapon ? !icmp("unarmed", weapon) : false;
+    const tagObject     = Cache.get!TagObject(tagIndex);
+    const tagAnimations = Cache.get!TagModelAnimations(tagObject.animationGraph);
+
+    bool isUnarmed = weapon ? !icmp("unarmed".byDchar, weapon.byDchar) : false;
     bool found;
 
     foreach(int i, ref animUnit ; tagAnimations.units)
     {
-        if(seat && icmp(seat, animUnit.label))
+        if(seat && icmp(seat.byDchar, animUnit.label.toStr().byDchar))
         {
             continue;
         }
 
         foreach(int j, ref animWeap ; animUnit.weapons)
         foreach(int k, ref animWeapType ; animWeap.weaponTypes)
-        if(weapon is null || (isUnarmed && animWeapType.label.isEmpty()) || !icmp(animWeapType.label, weapon))
+        if(weapon is null || (isUnarmed && animWeapType.label.isEmpty())
+            || !icmp(animWeapType.label.toStr().byDchar, weapon.byDchar))
         {
             found = true;
 
@@ -1204,7 +1213,7 @@ bool setSeat(const(char)[] seat, const(char)[] weapon, bool setState)
 
                 foreach(n, name ; unitSeatStateNames)
                 {
-                    if(!icmp(seat, name))
+                    if(!icmp(seat.byDchar, name.byDchar))
                     {
                         animation.baseSeat = cast(BaseSeat)n;
                     }
@@ -1263,7 +1272,8 @@ int getAnimationIndex(TagEnums.UnitWeaponTypeAnimation i)
 // end of Unit ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-private void solveIk(Transform destination, ref Transform wrist, ref Transform elbow, ref Transform shoulder)
+private @nogc nothrow
+void solveIk(Transform destination, ref Transform wrist, ref Transform elbow, ref Transform shoulder)
 {
     Vec3 direction = destination.position - shoulder.position;
     float lengthToDestination = normalize(direction);
@@ -1304,7 +1314,8 @@ private void solveIk(Transform destination, ref Transform wrist, ref Transform e
     wrist = destination;
 }
 
-private void solveMarkerIk(Unit* unit, const(char)[] marker, GObject* object, const(char)[] attachToMarker)
+private @nogc nothrow
+void solveMarkerIk(Unit* unit, const(char)[] marker, GObject* object, const(char)[] attachToMarker)
 {
     GObject.MarkerTransform markerTransform         = void;
     GObject.MarkerTransform attachToMarkerTransform = void;

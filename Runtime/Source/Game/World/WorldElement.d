@@ -11,7 +11,7 @@ import Game.Tags;
 
 struct WorldElement
 {
-@nogc:
+@nogc nothrow:
 
     struct Sphere
     {
@@ -30,6 +30,8 @@ struct WorldElement
 
     struct Extruded
     {
+    @nogc nothrow:
+
         World.SurfaceResult surface;
         Projector           proj;
 

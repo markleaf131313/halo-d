@@ -5,6 +5,8 @@ import OpenGL;
 
 struct GLFramebuffer
 {
+@nogc nothrow:
+
 @disable this(this);
 
 static GLFramebuffer make(int width, int height)

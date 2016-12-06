@@ -8,6 +8,9 @@ import Game.Core.Math.Algorithms;
 import Game.Core.Math.Vector;
 
 
+@nogc nothrow pure:
+
+
 struct ColorRgb
 {
 @nogc pure nothrow:
@@ -332,6 +335,8 @@ struct ColorArgb4
 
 struct ColorHsv
 {
+@nogc nothrow pure:
+
     float h;
     float s;
     float v;

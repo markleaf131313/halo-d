@@ -13,6 +13,7 @@ import Game.Tags;
 
 struct Biped
 {
+@nogc nothrow:
 
     @disable this(this);
 

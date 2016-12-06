@@ -440,11 +440,11 @@ void render(ref World world, ref Camera camera)
 
 }
 
-
+@nogc nothrow
 void doUi()
 {
-    enum const(char*)[] attachments = ["Attachment 0", "Attachment 1", "Attachment 2", "Depth Attachment"];
-    enum indices = [ GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_DEPTH_ATTACHMENT ];
+    static immutable const(char*)[] attachments = ["Attachment 0", "Attachment 1", "Attachment 2", "Depth Attachment"];
+    static immutable indices = [ GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2, GL_DEPTH_ATTACHMENT ];
 
     igBegin("Renderer");
     igCombo("attachments", &uiSelectedAttachment, attachments.ptr, attachments.length);
@@ -1150,7 +1150,7 @@ void loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer)
 
         for(int i = 0; i < bitmap.mipmapCount + 1; ++i)
         {
-            immutable sides = [ 0, 2, 1, 3, 4, 5 ];
+            static immutable sides = [ 0, 2, 1, 3, 4, 5 ];
 
             if(width  == 0) width  = 1;
             if(height == 0) height = 1;

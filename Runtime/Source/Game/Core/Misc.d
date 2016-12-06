@@ -21,7 +21,7 @@ template multichar(string op)
 
 struct SlaveComputeIdentifier
 {
-@nogc:
+@nogc nothrow:
 
     void setPrevious(ref const(MasterComputeIdentifier) o)
     {
@@ -44,7 +44,7 @@ struct SlaveComputeIdentifier
 
 struct MasterComputeIdentifier
 {
-@nogc:
+@nogc nothrow:
 
     void advance()
     {

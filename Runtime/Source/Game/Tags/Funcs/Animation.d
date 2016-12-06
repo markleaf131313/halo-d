@@ -6,17 +6,20 @@ mixin template AnimationBlock()
     import Game.Core.Math;
     import Game.Tags : TagEnums;
 
-    static private float normalizeShort(short v)
+    @nogc nothrow
+    private static float normalizeShort(short v)
     {
         return v / float(short.max);
     }
 
-    static private Quat extractQuat(void* buf)
+    @nogc nothrow
+    private static Quat extractQuat(void* buf)
     {
         short* b = cast(short*)buf;
         return Quat(-normalizeShort(b[0]), -normalizeShort(b[1]), -normalizeShort(b[2]), normalizeShort(b[3]));
     }
 
+    @nogc nothrow
     bool decodeBase(int frame, Orientation* output) const
     {
         if(type != TagEnums.AnimationType.base)
@@ -81,6 +84,7 @@ mixin template AnimationBlock()
         return true;
     }
 
+    @nogc nothrow
     void decodeReplace(int frame, Orientation* output) const
     {
         ulong rotationBits  = *cast(ulong*)nodeRotationFlagData.ptr;
@@ -114,6 +118,7 @@ mixin template AnimationBlock()
         }
     }
 
+    @nogc nothrow
     void decodeOverlay(int frame, Orientation* output) const
     {
         ulong rotationBits  = *cast(ulong*)nodeRotationFlagData.ptr;
@@ -147,6 +152,7 @@ mixin template AnimationBlock()
         }
     }
 
+    @nogc nothrow
     void decodeOverlayMix(int frame0, int frame1, float alpha, Orientation* output) const
     {
         if(type != TagEnums.AnimationType.overlay)
@@ -195,6 +201,8 @@ mixin template AnimationBlock()
 
     static struct ScreenBounds
     {
+    @nogc nothrow:
+
         this(T)(ref T b)
         {
             leftAngle       = b.leftYawPerFrame;
@@ -221,6 +229,7 @@ mixin template AnimationBlock()
         int   downFrameCount;
     }
 
+    @nogc nothrow
     void decodeOverlayAim(T)(ref T b, float yaw, float pitch, Orientation* output) const
     {
         // aim animation is stored as a 2d array

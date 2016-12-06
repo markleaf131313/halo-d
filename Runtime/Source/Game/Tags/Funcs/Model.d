@@ -5,6 +5,7 @@ mixin template TagGbxmodel()
 {
     import Game.Core : Orientation, conjugate;
 
+    @nogc nothrow
     void copyDefaultOrientation(Orientation* output) const
     {
         foreach(i, ref node ; nodes)
@@ -21,6 +22,7 @@ mixin template GbxmodelRegionBlock()
     import Game.Tags : TagConstants;
     import Game.Core : indexNone;
 
+    @nogc nothrow
     int findRandomizablePermutations(int desiredPermutation, ref int[TagConstants.Model.maxFindablePermutations] output)
     {
         int count = 0;

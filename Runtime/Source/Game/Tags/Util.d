@@ -1,6 +1,8 @@
 
 module Game.Tags.Util;
 
+import std.traits : EnumMembers;
+
 import Game.Tags.Types;
 import Game.Tags.Generated.Tags;
 import Game.Tags.Generated.Meta;
@@ -9,6 +11,7 @@ import TagEnums = Game.Tags.Generated.Enums;
 
 import Game.Core;
 
+@nogc nothrow
 float evalTagFunctionWithTime(TagEnums.Function type, float input)
 {
     switch(type) with(TagEnums)
@@ -31,6 +34,7 @@ float evalTagFunctionWithTime(TagEnums.Function type, float input)
     return 0.0f;
 }
 
+@nogc nothrow
 float evalTagMapToFunction(TagEnums.MapToFunction type, float input)
 {
     input = clamp(input, 0.0f, 1.0f);
@@ -57,20 +61,21 @@ private template TagIdToType(string id)
 
 auto InvokeByTag(alias invoker, Args...)(TagId id, auto ref Args args)
 {
-    template impl(types...)
+
+    switch(id)
     {
-        static if(types.length == 1) enum impl = "";
-        else
+        foreach(i, member ; EnumMembers!TagId)
         {
-            enum impl = "TagId." ~ types[0] ~ ": &invoker!" ~ TagIdToType!(types[0]).stringof ~ ", " ~ impl!(types[1 .. $]);
+            static if(is(typeof(return) Return))
+            {
+                case member: mixin("return invoker!(TagIdToType!(EnumMembers!TagId[i].stringof))(args);");
+            }
+            else
+            {
+                case member: mixin("invoker!(TagIdToType!(EnumMembers!TagId[i].stringof))(args); break;");
+            }
         }
-    }
-
-    enum map = mixin("[" ~ impl!(__traits(allMembers, TagId)) ~ "]");
-
-    if(auto func = id in map)
-    {
-        return (*func)(args);
+    default:
     }
 
     static if(is(typeof(return) Return) && is(Return.init))

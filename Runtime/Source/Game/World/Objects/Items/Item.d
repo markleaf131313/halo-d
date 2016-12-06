@@ -11,6 +11,7 @@ import Game.Tags;
 
 struct Item
 {
+@nogc nothrow:
 
 struct Flags
 {

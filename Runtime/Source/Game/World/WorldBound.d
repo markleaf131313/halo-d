@@ -11,7 +11,7 @@ import Game.Tags;
 
 struct WorldBound
 {
-@nogc:
+@nogc nothrow:
 
     struct Result
     {

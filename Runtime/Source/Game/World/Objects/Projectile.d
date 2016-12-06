@@ -12,6 +12,7 @@ import Game.Tags;
 
 struct Projectile
 {
+@nogc nothrow:
 
 struct Flags
 {

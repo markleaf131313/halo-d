@@ -30,7 +30,7 @@ struct TagExplanation
 
 struct TagRef
 {
-@nogc:
+@nogc nothrow:
 
     static assert(this.sizeof == 0x10);
 
@@ -57,7 +57,8 @@ struct TagRef
 
 struct TagBlock(T)
 {
-@nogc:
+@nogc nothrow:
+
     static assert(this.sizeof == 0xC);
 
     @disable this();
@@ -106,7 +107,8 @@ struct TagBlock(T)
 
 struct TagData
 {
-@nogc:
+@nogc nothrow:
+
     static assert(this.sizeof == 0x14);
 
     @disable this();
@@ -129,6 +131,8 @@ struct TagData
 // TODO(REFACTOR) nothing really "tag" about this, could just rename to "Bounds" or "BoundedValue" etc...
 struct TagBounds(T)
 {
+@nogc nothrow:
+
     T lower;
     T upper;
 
@@ -155,14 +159,15 @@ struct TagBounds(T)
 
 struct TagString
 {
-@nogc:
+@nogc nothrow:
+
     static assert(this.sizeof == 32);
 
     @disable this(this);
 
-    alias toString this;
+    alias toStr this;
 
-    @property const(char)[] toString() const
+    @property const(char)[] toStr() const
     {
         return fromStringz(buffer.ptr);
     }

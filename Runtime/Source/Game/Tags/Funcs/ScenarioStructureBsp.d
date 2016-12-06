@@ -4,7 +4,7 @@ module Game.Tags.Funcs.ScenarioStructureBsp;
 mixin template TagScenarioStructureBsp()
 {
 
-    @nogc
+    @nogc nothrow
     void findLightmapMaterialFromSurface(int surface, ref int lightmapIndex, ref int materialIndex) const
     {
         // NOTE: differs from normal binary search
@@ -52,7 +52,7 @@ mixin template TagScenarioStructureBsp()
 
     }
 
-    @nogc
+    @nogc nothrow
     bool getSurfaceVertices(int lightmapIndex, int materialIndex, int surfaceIndex, ref TagBspVertex*[3] result) const
     {
         auto lightmap = &lightmaps[lightmapIndex];
@@ -80,7 +80,7 @@ mixin template TagScenarioStructureBsp()
         }
     }
 
-    @nogc
+    @nogc nothrow
     bool getLightmapVertices(
         int                          lightmapIndex,
         int                          materialIndex,

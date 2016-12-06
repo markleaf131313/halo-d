@@ -36,10 +36,6 @@ shared static this()
 
 }
 
-shared static ~this()
-{
-}
-
 struct Cache
 {
 @disable this(this);
@@ -75,7 +71,7 @@ SharedResourceCache bitmapCache;
 SharedResourceCache soundCache;
 SharedResourceCache locCache;
 
-pragma(inline, true) static @nogc nothrow
+static @nogc nothrow pragma(inline, true)
 {
     @property Cache* inst()                { return instance; }
     @property void   inst(Cache* instance) { this.instance = instance; }
@@ -205,28 +201,31 @@ void readModelVertexData(ref ubyte[] vertexData, ref ubyte[] indexData)
     file.rawRead(indexData);
 }
 
-pragma(inline, true) @nogc @property TagScenario* scenario()
+@nogc nothrow pragma(inline, true)
+@property TagScenario* scenario()
 {
     return metas[0].tagData!TagScenario;
 }
 
-pragma(inline, true) @nogc @property TagGlobals* globals()
+@nogc nothrow pragma(inline, true)
+@property TagGlobals* globals()
 {
     return metas[globalsIndex].tagData!TagGlobals;
 }
 
+@nogc nothrow
 Meta[] getMetas()
 {
     return metas[0 .. table.metaCount];
 }
 
-pragma(inline, true)
+@nogc nothrow pragma(inline, true)
 ref Meta metaAt(ref DatumIndex i)
 {
     return metas[i.i];
 }
 
-pragma(inline, true)
+@nogc nothrow pragma(inline, true)
 ref Meta metaAt(int i)
 {
     return metas[i];

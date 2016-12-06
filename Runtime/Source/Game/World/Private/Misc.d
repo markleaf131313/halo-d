@@ -53,7 +53,7 @@ struct Projector
 }
 
 // todo this needs optimizing
-bool forEachEdgeInBspSurface(alias callback, Args...)(Tag.Bsp* bsp, int surface) @nogc pure
+bool forEachEdgeInBspSurface(alias callback, Args...)(Tag.Bsp* bsp, int surface) pure
 {
     auto s = &bsp.surfaces[surface];
     int next = s.firstEdge;
@@ -89,9 +89,10 @@ bool forEachEdgeInBspSurface(alias callback, Args...)(Tag.Bsp* bsp, int surface)
     return true;
 }
 
-bool pointInSurface(Tag.Bsp* bsp, Vec2 pt, int surface, Projector proj) @nogc
+@nogc nothrow
+bool pointInSurface(Tag.Bsp* bsp, Vec2 pt, int surface, Projector proj)
 {
-    return forEachEdgeInBspSurface!(delegate(int e, int v0, int v1) @nogc pure
+    return forEachEdgeInBspSurface!(delegate(int e, int v0, int v1) @nogc nothrow pure
     {
         Vec2 e0 = proj.project(bsp.vertices[v0].point) - pt;
         Vec2 e1 = proj.project(bsp.vertices[v1].point) - pt;
@@ -100,7 +101,8 @@ bool pointInSurface(Tag.Bsp* bsp, Vec2 pt, int surface, Projector proj) @nogc
     })(bsp, surface);
 }
 
-@nogc bool calculateCoordInTriangle(Vec3 point, Vec3 v0, Vec3 v1, Vec3 v2, ref Vec2 result)
+@nogc nothrow
+bool calculateCoordInTriangle(Vec3 point, Vec3 v0, Vec3 v1, Vec3 v2, ref Vec2 result)
 {
     Vec3 originToPoint = point - v0;
     Vec3 originToV1    = v1 - v0;

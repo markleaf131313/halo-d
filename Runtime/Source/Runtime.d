@@ -337,27 +337,13 @@ bool initSharedGameState(SharedGameState* gameState)
     return true;
 }
 
-template EnumMembersNameArray(T...)
+void setViewEnum(Field)(const(char)* identifier, ref Field field)
 {
-    static if(T.length == 1 && is(T[0] == enum))
-    {
-        alias EnumMembersNameArray = EnumMembersNameArray!(EnumMembers!(T[0]));
-    }
-    else static if(T.length == 1)
-    {
-        alias EnumMembersNameArray = AliasSeq!(T[0].stringof);
-    }
-    else static if (T.length > 0)
-    {
-        alias EnumMembersNameArray = AliasSeq!(
-            T[0].stringof,
-            EnumMembersNameArray!(T[1 .. $/2]),
-            EnumMembersNameArray!(T[$/2 .. $]));
-    }
-    else
-    {
-        alias EnumMembersNameArray = AliasSeq!();
-    }
+    static immutable immutable(char)*[] names = enumNamesArray!Field;
+
+    int currentItem = cast(int)field;
+    igCombo(identifier, &currentItem, names.ptr, cast(int)names.length);
+    field = cast(Field)currentItem;
 }
 
 void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices = [])
@@ -424,11 +410,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
 
         static if(is(Field == enum))
         {
-            immutable immutable(char)*[] names = [ EnumMembersNameArray!Field ];
-
-            int currentItem = cast(int)field;
-            igCombo(identifier, &currentItem, names.ptr, cast(int)names.length);
-            field = cast(Field)currentItem;
+            setViewEnum(identifier, field);
         }
         else static if(is(Field == int))
         {
@@ -717,12 +699,18 @@ try
         igBegin("Main Window");
         igValueInt("Ticks", ticks);
 
+        {
+            import core.memory : GC;
+
+            igValueInt("GC used", cast(int)GC.stats.usedSize);
+            igValueInt("GC free", cast(int)GC.stats.freeSize);
+            igValueInt("GC Total", cast(int)(GC.stats.freeSize + GC.stats.usedSize));
+        }
 
         foreach(tagId ; [EnumMembers!TagId])
         if(auto group = tagId in cacheTagPaths)
         {
-            import std.conv : to;
-            const(char)[] name = to!string(tagId) ~ "\0";
+            string name = enumName(tagId);
 
             if(igTreeNode(name.ptr))
             {
@@ -749,15 +737,18 @@ try
 
         igEnd();
 
-        foreach(int j, ref i ; openedTags)
+        foreach(int j, ref int i ; openedTags)
         {
+            import core.stdc.stdio : snprintf;
+
             auto meta = &Cache.inst.metaAt(i);
             bool opened = true;
 
-            const(char)[] name = fromStringz(meta.path) ~ "##" ~ to!string(i) ~ "\0";
+            char[1024] buffer = void;
+            snprintf(buffer.ptr, buffer.length, "%s##%d", meta.path, i);
 
             igSetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
-            if(igBegin2(name.ptr, &opened, ImVec2(600, 500), -1.0f, ImGuiWindowFlags_NoSavedSettings))
+            if(igBegin2(buffer.ptr, &opened, ImVec2(600, 500), -1.0f, ImGuiWindowFlags_NoSavedSettings))
             {
                 InvokeByTag!setView(meta.type, meta.index, meta.data, openedTags, null);
             }
@@ -790,7 +781,7 @@ try
             if(igBegin("Selected Object Info", &opened))
             {
                 igPushIdPtr(selectedObject);
-                selectedObject.byTypeDebugUI();
+                selectedObject.byTypeDebugUi();
                 igPopId();
             }
             igEnd();

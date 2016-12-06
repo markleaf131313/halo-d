@@ -20,6 +20,7 @@ import Game.Tags;
 
 struct World
 {
+@nogc nothrow:
 
 enum CollisionType
 {
@@ -44,7 +45,7 @@ struct Location
 
 struct SurfaceResult
 {
-@nogc:
+@nogc nothrow:
 
     int index;
     int planeIndex;
@@ -65,17 +66,19 @@ struct SurfaceResult
 
 struct RenderSurfaceResult
 {
+@nogc nothrow:
+
     int lightmapIndex = indexNone;
     int materialIndex = indexNone;
     int surfaceIndex  = indexNone;
     Vec2 coord;
 
-    @nogc bool getSurfaceVertices(TagScenarioStructureBsp* sbsp, ref TagBspVertex*[3] result) const
+    bool getSurfaceVertices(TagScenarioStructureBsp* sbsp, ref TagBspVertex*[3] result) const
     {
         return sbsp.getSurfaceVertices(lightmapIndex, materialIndex, surfaceIndex, result);
     }
 
-    @nogc bool getLightmapVertices(TagScenarioStructureBsp* sbsp, ref TagBspLightmapVertex*[3] result) const
+    bool getLightmapVertices(TagScenarioStructureBsp* sbsp, ref TagBspLightmapVertex*[3] result) const
     {
         return sbsp.getLightmapVertices(lightmapIndex, materialIndex, surfaceIndex, result);
     }
@@ -198,19 +201,19 @@ void initialize()
     return objectList;
 }
 
-@nogc void setCurrentSbsp()
+void setCurrentSbsp()
 {
     // todo temporary fix, remove this
     TagScenario* scenario = Cache.inst.scenario();
     currentSbsp = Cache.get!TagScenarioStructureBsp(scenario.structureBsps[0].structureBsp);
 }
 
-@nogc TagScenarioStructureBsp* getCurrentSbsp()
+TagScenarioStructureBsp* getCurrentSbsp()
 {
     return currentSbsp;
 }
 
-@nogc int getTickCounter()
+int getTickCounter()
 {
     return tickCounter;
 }
@@ -388,7 +391,7 @@ void createEffectFromMarkers(
 
     effect.color = ColorRgb(1, 1, 1);
 
-    effect.createLocations((const(char)[] name, int max, GObject.MarkerTransform* transforms)
+    effect.createLocations((const(char)[] name, int max, GObject.MarkerTransform* transforms) @nogc nothrow
     {
         assert(markers.length > 0 && max > 0);
 
@@ -413,13 +416,14 @@ void createEffectFromMarkers(
             foreach(ref marker ; markers)
             {
                 import std.uni : icmp;
+                import std.utf : byDchar; // TODO replace when @nogc is implemented for sicmp
 
                 if(count >= max)
                 {
                     break;
                 }
 
-                if(!icmp(marker.name, name))
+                if(!icmp(marker.name.byDchar, name.byDchar))
                 {
                     GObject.MarkerTransform* transform = transforms + count;
 
@@ -562,7 +566,7 @@ void createParticle(ref Particle.Creation data)
 
 }
 
-static @nogc
+static
 bool collideObjectLine(GObject* object, Vec3 position, Vec3 segment, SurfaceOptions options, ref ObjectLineResult result)
 {
     bool collision = false;
@@ -670,7 +674,6 @@ int calculateOccupiedClusters(int clusterIndex, ref const(Sphere) sphere, int* i
     return calculateClusterRecurse(clusterIndex, sphere, iterator, max);
 }
 
-@nogc
 Location calculateLocation(ref const(Vec3) position)
 {
     Location result;
@@ -686,7 +689,6 @@ Location calculateLocation(ref const(Vec3) position)
     return result;
 }
 
-@nogc
 static int calculateLeaf(Tag.Bsp* bsp, ref const(Vec3) position) // todo move this out into TagBsp Funcs
 {
     int id = 0;
@@ -705,13 +707,12 @@ static int calculateLeaf(Tag.Bsp* bsp, ref const(Vec3) position) // todo move th
     return id == indexNone ? indexNone : (id & int.max);
 }
 
-@nogc
 int calculateLeaf(ref const(Vec3) position)
 {
     return calculateLeaf(currentSbsp.collisionBsp, position);
 }
 
-@nogc bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions options, ref LineResult result)
+bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions options, ref LineResult result)
 {
     if(!options.structure && !options.objects && !options.water)
     {
@@ -828,7 +829,7 @@ int calculateLeaf(ref const(Vec3) position)
     return collision;
 }
 
-@nogc bool collideRenderLine(Vec3 position, Vec3 segment, ref RenderSurfaceResult result)
+bool collideRenderLine(Vec3 position, Vec3 segment, ref RenderSurfaceResult result)
 {
     LineResult  lineResult = void;
     LineOptions options;
@@ -1364,7 +1365,7 @@ DList!(GObject*)[TagConstants.StructureBsp.maxClusters] noncollideableClusterObj
 public DatumArray!Effect   effects;
 public DatumArray!Particle particles;
 
-static @nogc
+static
 bool calculateObjectLineCollisionRecurse(
     GObject*       ignoreObject,
     Vec3           position,
@@ -1616,7 +1617,7 @@ int calculateClusterRecurse(int id, ref const(Sphere) sphere, int* iterator, int
 }
 
 
-static @nogc
+static
 bool calculateRenderSurface(
     TagScenarioStructureBsp* sbsp,
     Vec3                     point,
@@ -1667,6 +1668,8 @@ bool calculateRenderSurface(
 // TODO(REFACTOR) move these two ptr structures into a separate module
 struct OverseerGObjectPtr
 {
+@nogc nothrow:
+
     import core.stdc.string : memcpy;
 
     @disable this(this);
@@ -1716,6 +1719,8 @@ struct OverseerGObjectPtr
 
     private struct Control
     {
+    @nogc nothrow:
+
         @disable this(this);
 
         int      count = 1;
@@ -1741,6 +1746,8 @@ struct OverseerGObjectPtr
 
 struct SheepGObjectPtr
 {
+@nogc nothrow:
+
     this(this)
     {
         if(control)
