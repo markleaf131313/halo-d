@@ -407,30 +407,13 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
             static if(explainUdas[0].explanation.length) igTextWrapped(explainUdas[0].explanation);
         }
 
-        static if(is(Field == enum))
-        {
-            setViewEnum(identifier, field);
-        }
-        else static if(is(Field == int))
-        {
-            igInputInt(identifier, &field);
-        }
-        else static if(is(Field == short))
-        {
-            igInputShort(identifier, &field);
-        }
-        else static if(is(Field == float))
-        {
-            igInputFloat(identifier, &field);
-        }
-        else static if(is(Field == TagString))
-        {
-            igInputText(identifier, field.ptr, 32);
-        }
-        else static if(is(Field == Vec3))
-        {
-            igInputFloat3(identifier, field[]);
-        }
+        static      if(is(Field == enum))      setViewEnum(identifier, field);
+        else static if(is(Field == int))       igInputInt(identifier, &field);
+        else static if(is(Field == short))     igInputShort(identifier, &field);
+        else static if(is(Field == float))     igInputFloat(identifier, &field);
+        else static if(is(Field == TagString)) igInputText(identifier, field.ptr, 32);
+        else static if(is(Field == Vec3))      igInputFloat3(identifier, field[]);
+        else static if(is(Field == TagData))   igInputInt(identifier, &field.size);
         else static if(is(Field : TagBounds!Bound, Bound))
         {
             static      if(is(Bound == int))   igDragIntRange2  (identifier, &field.lower, &field.upper);
@@ -508,10 +491,6 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
                 igEndPopup();
             }
 
-        }
-        else static if(is(Field == TagData))
-        {
-            igInputInt(identifier, &field.size);
         }
         else static if(is(Field : TagBlock!BlockType, BlockType))
         {
