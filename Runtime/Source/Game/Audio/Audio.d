@@ -214,22 +214,22 @@ DatumIndex createLoopingSound(DatumIndex tagIndex, DatumIndex ownerIndex, float 
 {
     if(DatumIndex index = loopingSounds.add())
     {
-       const tagSoundLooping = Cache.get!TagSoundLooping(tagIndex);
-       LoopingSound* loopingSound = &loopingSounds[index];
+        const tagSoundLooping = Cache.get!TagSoundLooping(tagIndex);
+        LoopingSound* loopingSound = &loopingSounds[index];
 
-       loopingSound.tagIndex   = tagIndex;
-       loopingSound.audio      = &this;
-       loopingSound.ownerIndex = ownerIndex;
+        loopingSound.tagIndex   = tagIndex;
+        loopingSound.audio      = &this;
+        loopingSound.ownerIndex = ownerIndex;
 
-       foreach(int i, ref tagDetail ; tagSoundLooping.detailSounds)
-       {
-           float period       = randomValue(tagDetail.randomPeriodBounds);
-           float scaledPeriod = mix(tagSoundLooping.detailSoundPeriod0, tagSoundLooping.detailSoundPeriod1, scale);
+        foreach(int i, ref tagDetail ; tagSoundLooping.detailSounds)
+        {
+            float period       = randomValue(tagDetail.randomPeriodBounds);
+            float scaledPeriod = mix(tagSoundLooping.detailSoundPeriod0, tagSoundLooping.detailSoundPeriod1, scale);
 
-           loopingSound.detailStartTimes[i] = currentTime + msecs(cast(long)(period * scaledPeriod * 1000.0f));
-       }
+            loopingSound.detailStartTimes[i] = currentTime + msecs(cast(long)(period * scaledPeriod * 1000.0f));
+        }
 
-       return index;
+        return index;
     }
 
     return DatumIndex.none;

@@ -147,7 +147,7 @@ static void openglDebugCallback(
     }
 
     printf("Message: %s \nSource: %s \nType: %s \nID: %d\nSeverity: %s\n\n",
-           message, to!(char*)(source), to!(char*)(type), id, to!(char*)(severity));
+        message, to!(char*)(source), to!(char*)(type), id, to!(char*)(severity));
 
     fflush(stdout);
 

@@ -85,7 +85,7 @@ struct Matrix(int _cols, int _rows, _T) if(_cols >= 2 && _rows >= 2)
         {
             foreach(j ; staticIota!(rows))
             {
-                     static if(i < M.cols && j < M.rows) m[i][j] = mat[i][j];
+                static      if(i < M.cols && j < M.rows) m[i][j] = mat[i][j];
                 else static if(i == j)                   m[i][j] = 1;
                 else                                     m[i][j] = 0;
             }
@@ -98,9 +98,10 @@ struct Matrix(int _cols, int _rows, _T) if(_cols >= 2 && _rows >= 2)
         Type yy = q.y * q.y; Type xz = q.x * q.z; Type yw = q.y * q.w;
         Type zz = q.z * q.z; Type xw = q.x * q.w; Type zw = q.z * q.w;
 
-        this(1 - 2 * (yy + zz),  2 * (xy + zw),      2 * (xz - yw),
-             2 * (xy - zw),      1 - 2 * (xx + zz),  2 * (yz + xw),
-             2 * (xz + yw),      2 * (yz - xw),      1 - 2 * (xx + yy));
+        this(
+            1 - 2 * (yy + zz),  2 * (xy + zw),      2 * (xz - yw),
+            2 * (xy - zw),      1 - 2 * (xx + zz),  2 * (yz + xw),
+            2 * (xz + yw),      2 * (yz - xw),      1 - 2 * (xx + yy));
     }
 
     static Matrix fromUnitVector()(auto ref const(Column) unit) if(isMatrix2)

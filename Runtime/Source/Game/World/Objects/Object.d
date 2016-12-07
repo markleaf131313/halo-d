@@ -1360,7 +1360,7 @@ bool makeCallByType(string func, ByType order = ByType.doTopDown, Args...)(ref G
     static
     bool callImpl(O, Types...)(ref GObject object, Args args)
     {
-             static if(order == ByType.doTopDown) alias List = Types;
+        static      if(order == ByType.doTopDown) alias List = Types;
         else static if(order == ByType.doBotUp)   alias List = Reverse!(Types);
         else static if(order == ByType.doDerived)
         {

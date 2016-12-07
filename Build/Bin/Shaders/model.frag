@@ -16,7 +16,7 @@ out vec4 outColors[3];
 
 
 #ifndef MASK
-   #error Missing MASK macro
+    #error Missing MASK macro
 #endif
 
 #ifndef MASK_INVERT
