@@ -272,8 +272,13 @@
                     "size": 2
                 },
                 {
+                    "name": "duration of sound",
+                    "type": "int",
+                    "comment": "compile time value"
+                },
+                {
                     "type": "pad",
-                    "size": 20
+                    "size": 16
                 },
                 {
                     "name": "pitch ranges",

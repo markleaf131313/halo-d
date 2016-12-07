@@ -352,8 +352,7 @@ void loadTagSound(ref Meta meta, ref SharedLoadData sharedLoadData)
     tagSound.sampleRate  = tempTagSound.sampleRate;
     tagSound.encoding    = tempTagSound.encoding;
     tagSound.compression = tempTagSound.compression;
-
-    // todo copy unmapped field (offset = 0x84)
+    tagSound.durationOfSound = tempTagSound.durationOfSound;
 
     uint start = 0;
 
