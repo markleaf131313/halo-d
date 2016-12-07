@@ -271,7 +271,7 @@ struct HeaderFlags
         bool, "requestedDeletion",     1,
         bool, "automaticDeactivation", 1,
         bool, "connectedToParent",     1, // todo not sure if this is a valid name, not used when disconnecting
-                                            // from parrent (used whend connecting)
+                                          // from parrent (used whend connecting)
         bool, "visible",               1,
         uint, "", 2
     ));
