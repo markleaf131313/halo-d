@@ -414,6 +414,27 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         else static if(is(Field == TagString)) igInputText(identifier, field.ptr, 32);
         else static if(is(Field == Vec3))      igInputFloat3(identifier, field[]);
         else static if(is(Field == TagData))   igInputInt(identifier, &field.size);
+        else static if(is(Field == ColorRgb))
+        {
+            float[3] value = [ field.r, field.g, field.b ];
+            if(igColorEdit3(identifier, value))
+            {
+                field.r = value[0];
+                field.g = value[1];
+                field.b = value[2];
+            }
+        }
+        else static if(is(Field == ColorArgb))
+        {
+            float[4] value = [ field.r, field.g, field.b, field.a ];
+            if(igColorEdit4(identifier, value))
+            {
+                field.a = value[3];
+                field.r = value[0];
+                field.g = value[1];
+                field.b = value[2];
+            }
+        }
         else static if(is(Field : TagBounds!Bound, Bound))
         {
             static      if(is(Bound == int))   igDragIntRange2  (identifier, &field.lower, &field.upper);
