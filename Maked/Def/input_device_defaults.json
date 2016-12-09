@@ -1,0 +1,36 @@
+{
+    "name": "input_device_defaults",
+    "type": "devc",
+    "version": 1,
+    "blocks": [
+        {
+            "name": "input_device_defaults",
+            "sizeof": 44,
+            "max": 1,
+            "fields": [
+                {
+                    "name": "device type",
+                    "type": "enum",
+                    "index": 152
+                },
+                {
+                    "name": "flags",
+                    "type": "flag16",
+                    "flags": [
+                        {
+                            "name": "unused"
+                        }
+                    ]
+                },
+                {
+                    "name": "device id",
+                    "type": "data"
+                },
+                {
+                    "name": "profile",
+                    "type": "data"
+                }
+            ]
+        }
+    ]
+}

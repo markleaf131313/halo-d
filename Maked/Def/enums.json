@@ -5221,7 +5221,7 @@
             ]
         },
         {
-            "index": "150",
+            "index": "151",
             "name": "vehicle animation",
             "values": [
                 {
@@ -5247,6 +5247,21 @@
                 },
                 {
                     "name": "unoccupied"
+                }
+            ]
+        },
+        {
+            "index": "152",
+            "name": "enum152",
+            "values": [
+                {
+                    "name": "mouse and keyboard"
+                },
+                {
+                    "name": "joysticks\/gamepads\/etc..."
+                },
+                {
+                    "name": "full profile definition"
                 }
             ]
         }
