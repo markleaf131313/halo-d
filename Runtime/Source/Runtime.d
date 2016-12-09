@@ -444,6 +444,8 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         }
         else static if(is(Field == TagRef))
         {
+            igPushItemWidth(-(igGetWindowContentRegionWidth() - igCalcItemWidth()));
+
             if(igButton("..."))
             {
                 selectedIndex = indexNone;
@@ -467,12 +469,20 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
                 }
             }
 
-            if(field.path)
             {
                 import core.stdc.string : strlen;
+
+                char[1] nullBuffer = void;
+                nullBuffer[0] = 0;
+
+                auto len = field.path ? strlen(field.path) : 0;
+
                 igSameLine();
-                igInputText(identifier, cast(char*)field.path, strlen(field.path), ImGuiInputTextFlags_ReadOnly);
+                igInputText(identifier, field.path ? cast(char*)field.path : nullBuffer.ptr,
+                    len, ImGuiInputTextFlags_ReadOnly);
+                igPopItemWidth();
             }
+
 
             igSetNextWindowSize(ImVec2(600, 500), ImGuiSetCond_FirstUseEver);
             if(igBeginPopupModal("Find Tag"))
@@ -490,6 +500,13 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
                     igCloseCurrentPopup();
                 }
 
+                igSameLine();
+
+                if(igButton("Cancel"))
+                {
+                    igCloseCurrentPopup();
+                }
+
                 igBeginChild("Scroll");
                 igColumns(2);
 
@@ -501,8 +518,22 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
                     {
                         selectedIndex = j;
                     }
+
                     igNextColumn();
-                    igText("tests");
+
+                    if(string name = enumName(meta.type))
+                    {
+                        igText(name.ptr);
+                    }
+                    else
+                    {
+                        char[5] buffer;
+
+                        *cast(TagId*)buffer.ptr = meta.type;
+
+                        igText(buffer.ptr);
+                    }
+
                     igNextColumn();
                     igPopId();
                 }
