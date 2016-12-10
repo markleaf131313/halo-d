@@ -34,7 +34,6 @@ struct TagRef
 
     static assert(this.sizeof == 0x10);
 
-    @disable this();
     @disable this(this);
 
     alias isValid this;

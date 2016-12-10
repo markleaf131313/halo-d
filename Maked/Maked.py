@@ -228,7 +228,6 @@ def PrintBlocks(out, blocks, tag, root = False):
             else:
                 out.write("    static assert(" + className + ".sizeof == " + str(b["sizeof"]) + ");\n\n")
 
-            out.write("    @disable this();\n")
             out.write("    @disable this(this);\n\n")
             out.write("    static if(is(typeof(Game.Tags.Funcs." + className + "))) mixin Game.Tags.Funcs." + className + ";\n\n")
         elif root == False:
@@ -242,7 +241,6 @@ def PrintBlocks(out, blocks, tag, root = False):
 
             out.write("struct " + className + "\n{\n")
             out.write("    static assert(" + className + ".sizeof == " + str(b["sizeof"]) + ");\n\n")
-            out.write("    @disable this();\n")
             out.write("    @disable this(this);\n\n")
             out.write("    static if(is(typeof(Game.Tags.Funcs." + className + "))) mixin Game.Tags.Funcs." + className + ";\n\n")
         else:
