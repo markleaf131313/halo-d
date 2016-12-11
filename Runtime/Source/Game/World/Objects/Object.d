@@ -6,7 +6,7 @@ import std.conv     : to;
 import std.meta     : allSatisfy, anySatisfy, Filter;
 import std.traits   : Parameters, ReturnType, hasMember;
 
-import imgui;
+import ImGui;
 
 import Game.World.Objects;
 import Game.World.World : World, SheepGObjectPtr;
@@ -1292,8 +1292,8 @@ bool implUpdateImportFunctions()
 
 bool implDebugUi()
 {
-
-    if(igCollapsingHeader("Object", null, true, true))
+    igSetNextTreeNodeOpen(true, ImGuiSetCond.FirstUseEver);
+    if(igCollapsingHeader("Object"))
     {
         igText(Cache.inst.metaAt(tagIndex).path);
         igText(enumName(type).ptr);

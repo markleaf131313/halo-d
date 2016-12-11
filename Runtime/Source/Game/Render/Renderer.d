@@ -8,7 +8,7 @@ import std.meta : AliasSeq;
 
 import OpenGL;
 import SDL2;
-import imgui;
+import ImGui;
 
 import Game.Render.Camera;
 import Game.Render.Framebuffer;
@@ -449,7 +449,7 @@ void doUi()
     igBegin("Renderer");
     igCombo("attachments", &uiSelectedAttachment, attachments.ptr, attachments.length);
 
-    igPushStyleVar(ImGuiStyleVar_Alpha, 1.0f);
+    igPushStyleVar(ImGuiStyleVar.Alpha, 1.0f);
     igImage(cast(void*)framebuffer.getTexture(indices[uiSelectedAttachment]), ImVec2(1920.0f / 2, 810.0f / 2), ImVec2(0,1), ImVec2(1,0));
     igPopStyleVar();
     igEnd();
@@ -1204,8 +1204,8 @@ void renderImGui()
         ImDrawList* cmdList = drawData.CmdLists[i];
         uint idxBufferOffset;
 
-        auto countVertices = cmdList.VtxBuffer.size();
-        auto countIndices  = cmdList.IdxBuffer.size();
+        auto countVertices = cmdList.VtxBuffer.Size;
+        auto countIndices  = cmdList.IdxBuffer.Size;
 
         // TODO(PERFORMANCE, ?) shouldn't create gpu buffer like this every draw ?
 
@@ -1217,7 +1217,7 @@ void renderImGui()
             .createBuffer(1, countIndices * ImDrawIdx.sizeof, &cmdList.IdxBuffer[0], GL_STREAM_DRAW)
             .elementBuffer(1);
 
-        foreach(j ; 0 .. cmdList.CmdBuffer.size())
+        foreach(j ; 0 .. cmdList.CmdBuffer.Size)
         {
             const cmd = &cmdList.CmdBuffer[j];
 

@@ -11,7 +11,7 @@ import std.traits    : EnumMembers;
 
 import OpenGL;
 import SDL2;
-import imgui;
+import ImGui;
 
 import Game.Ai;
 import Game.Audio;
@@ -303,25 +303,25 @@ bool initSharedGameState(SharedGameState* gameState)
 
     io.Fonts.SetTexID(cast(ImTextureID)gameState.imguiTexture);
 
-    io.KeyMap[ImGuiKey_Tab]       = SDLK_TAB;
-    io.KeyMap[ImGuiKey_LeftArrow] = SDL_SCANCODE_LEFT;
-    io.KeyMap[ImGuiKey_RightArrow] = SDL_SCANCODE_RIGHT;
-    io.KeyMap[ImGuiKey_UpArrow]   = SDL_SCANCODE_UP;
-    io.KeyMap[ImGuiKey_DownArrow] = SDL_SCANCODE_DOWN;
-    io.KeyMap[ImGuiKey_PageUp]    = SDL_SCANCODE_PAGEUP;
-    io.KeyMap[ImGuiKey_PageDown]  = SDL_SCANCODE_PAGEDOWN;
-    io.KeyMap[ImGuiKey_Home]      = SDL_SCANCODE_HOME;
-    io.KeyMap[ImGuiKey_End]       = SDL_SCANCODE_END;
-    io.KeyMap[ImGuiKey_Delete]    = SDLK_DELETE;
-    io.KeyMap[ImGuiKey_Backspace] = SDLK_BACKSPACE;
-    io.KeyMap[ImGuiKey_Enter]     = SDLK_RETURN;
-    io.KeyMap[ImGuiKey_Escape]    = SDLK_ESCAPE;
-    io.KeyMap[ImGuiKey_A] = SDLK_a;
-    io.KeyMap[ImGuiKey_C] = SDLK_c;
-    io.KeyMap[ImGuiKey_V] = SDLK_v;
-    io.KeyMap[ImGuiKey_X] = SDLK_x;
-    io.KeyMap[ImGuiKey_Y] = SDLK_y;
-    io.KeyMap[ImGuiKey_Z] = SDLK_z;
+    io.KeyMap[ImGuiKey.Tab]       = SDLK_TAB;
+    io.KeyMap[ImGuiKey.LeftArrow] = SDL_SCANCODE_LEFT;
+    io.KeyMap[ImGuiKey.RightArrow] = SDL_SCANCODE_RIGHT;
+    io.KeyMap[ImGuiKey.UpArrow]   = SDL_SCANCODE_UP;
+    io.KeyMap[ImGuiKey.DownArrow] = SDL_SCANCODE_DOWN;
+    io.KeyMap[ImGuiKey.PageUp]    = SDL_SCANCODE_PAGEUP;
+    io.KeyMap[ImGuiKey.PageDown]  = SDL_SCANCODE_PAGEDOWN;
+    io.KeyMap[ImGuiKey.Home]      = SDL_SCANCODE_HOME;
+    io.KeyMap[ImGuiKey.End]       = SDL_SCANCODE_END;
+    io.KeyMap[ImGuiKey.Delete]    = SDLK_DELETE;
+    io.KeyMap[ImGuiKey.Backspace] = SDLK_BACKSPACE;
+    io.KeyMap[ImGuiKey.Enter]     = SDLK_RETURN;
+    io.KeyMap[ImGuiKey.Escape]    = SDLK_ESCAPE;
+    io.KeyMap[ImGuiKey.A] = SDLK_a;
+    io.KeyMap[ImGuiKey.C] = SDLK_c;
+    io.KeyMap[ImGuiKey.V] = SDLK_v;
+    io.KeyMap[ImGuiKey.X] = SDLK_x;
+    io.KeyMap[ImGuiKey.Y] = SDLK_y;
+    io.KeyMap[ImGuiKey.Z] = SDLK_z;
 
     io.SetClipboardTextFn = &imguiSetClipboardText;
     io.GetClipboardTextFn = &imguiGetClipboardText;
@@ -359,8 +359,8 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         setView!Type(tagIndex, &__traits(getMember, fields, __traits(getAliasThis, T)[0]), tags);
     }
 
-    igPushIdPtr(f);
-    scope(exit) igPopId();
+    igPushID(f);
+    scope(exit) igPopID();
 
     static if(is(T == Tag.SoundPermutationsBlock))
     {
@@ -396,8 +396,8 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         alias Field = typeof(field);
         alias identifier = Alias!(__traits(identifier, T.tupleof[i]));
 
-        igPushIdPtr(&field);
-        scope(exit) igPopId();
+        igPushID(&field);
+        scope(exit) igPopID();
 
         alias explainUdas = getUDAs!(typeof(*fields).tupleof[i], TagExplanation);
 
@@ -444,8 +444,6 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         }
         else static if(is(Field == TagRef))
         {
-            igPushItemWidth(-(igGetWindowContentRegionWidth() - igCalcItemWidth()));
-
             if(igButton("..."))
             {
                 selectedIndex = indexNone;
@@ -479,12 +477,11 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
 
                 igSameLine();
                 igInputText(identifier, field.path ? cast(char*)field.path : nullBuffer.ptr,
-                    len, ImGuiInputTextFlags_ReadOnly);
-                igPopItemWidth();
+                    len, ImGuiInputTextFlags.ReadOnly);
             }
 
 
-            igSetNextWindowSize(ImVec2(600, 500), ImGuiSetCond_FirstUseEver);
+            igSetNextWindowSize(ImVec2(600, 500), ImGuiSetCond.FirstUseEver);
             if(igBeginPopupModal("Find Tag"))
             {
                 if(igButton("Select"))
@@ -512,9 +509,9 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
 
                 foreach(int j, ref meta ; Cache.inst.getMetas())
                 {
-                    igPushIdInt(j);
+                    igPushID(j);
                     if(igSelectable(meta.path, selectedIndex == j,
-                        ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups))
+                        ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.DontClosePopups))
                     {
                         selectedIndex = j;
                     }
@@ -535,7 +532,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
                     }
 
                     igNextColumn();
-                    igPopId();
+                    igPopID();
                 }
                 igEndChild();
 
@@ -548,7 +545,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         {
             if(field.ptr && field.size)
             {
-                igSetNextTreeNodeOpened(true, ImGuiSetCond_FirstUseEver);
+                igSetNextTreeNodeOpen(true, ImGuiSetCond.FirstUseEver);
             }
 
             if(igTreeNode(identifier))
@@ -737,9 +734,9 @@ try
 
             igBegin("GC");
 
-            igValueInt("GC used", cast(int)GC.stats.usedSize);
-            igValueInt("GC free", cast(int)GC.stats.freeSize);
-            igValueInt("GC Total", cast(int)(GC.stats.freeSize + GC.stats.usedSize));
+            igValue("GC used", cast(int)GC.stats.usedSize);
+            igValue("GC free", cast(int)GC.stats.freeSize);
+            igValue("GC Total", cast(int)(GC.stats.freeSize + GC.stats.usedSize));
 
             usedValues[head] = GC.stats.usedSize;
             freeValues[head] = GC.stats.freeSize;
@@ -754,7 +751,7 @@ try
         }
 
         igBegin("Main Window");
-        igValueInt("Ticks", ticks);
+        igValue("Ticks", ticks);
 
 
         foreach(tagId ; [EnumMembers!TagId])
@@ -776,7 +773,7 @@ try
                         }
                         else
                         {
-                            igSetWindowFocus2(Cache.inst.metaAt(index).path);
+                            igSetWindowFocus(Cache.inst.metaAt(index).path);
                         }
                     }
                 }
@@ -797,8 +794,8 @@ try
             char[1024] buffer = void;
             snprintf(buffer.ptr, buffer.length, "%s##%d", meta.path, i);
 
-            igSetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
-            if(igBegin2(buffer.ptr, &opened, ImVec2(600, 500), -1.0f, ImGuiWindowFlags_NoSavedSettings))
+            igSetNextWindowPosCenter(ImGuiSetCond.FirstUseEver);
+            if(igBegin(buffer.ptr, &opened, ImVec2(600, 500), -1.0f, ImGuiWindowFlags.NoSavedSettings))
             {
                 InvokeByTag!setView(meta.type, meta.index, meta.data, openedTags, null);
             }
@@ -825,14 +822,14 @@ try
         {
             bool opened = true;
 
-            igSetNextWindowPosCenter(ImGuiSetCond_FirstUseEver);
-            igSetNextWindowSize(ImVec2(600, 500), ImGuiSetCond_FirstUseEver);
+            igSetNextWindowPosCenter(ImGuiSetCond.FirstUseEver);
+            igSetNextWindowSize(ImVec2(600, 500), ImGuiSetCond.FirstUseEver);
 
             if(igBegin("Selected Object Info", &opened))
             {
-                igPushIdPtr(selectedObject);
+                igPushID(selectedObject);
                 selectedObject.byTypeDebugUi();
-                igPopId();
+                igPopID();
             }
             igEnd();
 
