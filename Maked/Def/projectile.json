@@ -23,12 +23,12 @@
                     "explanation": "(if the potential result, below, fails to happen)"
                 },
                 {
-                    "name": "response",
+                    "name": "default response",
                     "type": "enum",
                     "index": 78
                 },
                 {
-                    "name": "effect",
+                    "name": "default effect",
                     "type": "tagref",
                     "tag_types": [
                         {
@@ -46,7 +46,7 @@
                     "explanation": ""
                 },
                 {
-                    "name": "response",
+                    "name": "potential response",
                     "type": "enum",
                     "index": 78
                 },
@@ -75,7 +75,7 @@
                     "type": "bound float"
                 },
                 {
-                    "name": "effect",
+                    "name": "potential effect",
                     "type": "tagref",
                     "tag_types": [
                         {

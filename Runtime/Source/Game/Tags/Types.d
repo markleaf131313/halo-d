@@ -74,6 +74,11 @@ struct TagBlock(T)
         return i < size;
     }
 
+    bool inBounds(int i) const
+    {
+        return i >= 0 && i < size;
+    }
+
     pragma(inline, true)
     ref auto opIndex(int i) inout
     in
