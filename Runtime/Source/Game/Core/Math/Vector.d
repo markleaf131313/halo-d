@@ -325,6 +325,27 @@ auto normalize(T, int size)(ref Vector!(size, T) vec) if(isFloatingPoint!T)
     return len;
 }
 
+auto angleBetween(T)(Vector!(3, T) a, Vector!(3, T) b)
+{
+    T len = lengthSqr(a) * lengthSqr(b);
+
+    if(len == T(0.0))
+    {
+        return T(0.0);
+    }
+
+    T aob = dot(a, b);
+    T result = aob * aob / len;
+    result = T(0.5) * acos(clamp((result + result) - T(1.0), T(-1.0), T(1.0)));
+
+    if(aob < T(0.0))
+    {
+        result = PI - result;
+    }
+
+    return result;
+}
+
 Vector3!T rotate(T)(Vector!(3,T) vec, T angle, Vector!(3,T) axis)
 {
     T s = sin(angle);
