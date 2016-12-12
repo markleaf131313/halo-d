@@ -49,7 +49,7 @@ def doBuild(buildTarget):
                 '-Jtext/',
             ]
 
-            lflags = [ '-L/PDB:../build/obj/runtime-' + uniqueIdentifer + '.pdb' ]
+            lflags = [ '-L/LTCG', '-L/PDB:../build/obj/runtime-' + uniqueIdentifer + '.pdb' ]
             libs = [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'cimgui.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
             # possible .dll is created before .pdb, thus dll is loaded without symbols
