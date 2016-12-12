@@ -199,11 +199,11 @@ private bool collideWorld(Vec3 segment, ref World.LineResult lineResult)
     return false;
 }
 
-private void doImpact(Vec3 impactVelocity, ref const World.LineResult line)
+private void doImpact(ref Vec3 velocity, ref const World.LineResult line)
 {
     const tagProjectile = Cache.get!TagProjectile(tagIndex);
 
-    Vec3  direction = impactVelocity;
+    Vec3  direction = velocity;
     float speed     = normalize(direction);
 
     if(speed == 0.0f)
