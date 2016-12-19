@@ -115,18 +115,18 @@ struct Damage
     struct Flags
     {
         mixin(bitfields!(
-            bool, "healthDamageEffectApplied", 1,
-            bool, "shieldDamageEffectApplied", 1,
+            bool, "healthDamaged",             1,
+            bool, "shieldDamaged",             1,
             bool, "healthDepleted",            1,
             bool, "shieldDepleted",            1,
-            bool, "_bit4_x10__",               1,
+            bool, "shieldAbsorbsAllDamage",    1,
             bool, "killedLoud",                1,
             bool, "killedSilent",              1,
-            bool, "meleeAttackDisabled",       1,
-            bool, "_bit8_x100__",              1,
-            bool, "_bit9_x200__",              1,
-            bool, "_bit10_x400__",             1,
-            bool, "immuneToDamage",            1,
+            bool, "meleeAttackInhibited",      1,
+            bool, "weaponAttackInhibited",     1,
+            bool, "walkingInhibited",          1,
+            bool, "weaponDropForced",          1,
+            bool, "cannotTakeDamage",          1,
             bool, "shieldRecharging",          1,
             bool, "killedNoStatistics",        1,
             ubyte, "",                         2,
@@ -138,15 +138,36 @@ struct Damage
     float health;
     float healthMaximum;
     float healthDamageCurrent;
+    float healthDamageRecent;
     int   healthDamageUpdateTick;
 
     float shield;
     float shieldMaximum;
     float shieldDamageCurrent;
+    float shieldDamageRecent;
     int   shieldDamageUpdateTick;
 
     int stunTicks;
 
+}
+
+struct DamageOptions
+{
+    DatumIndex tagIndex; // damage effect tag
+
+    DatumIndex    instigatorPlayerIndex;
+    GObject*      instigatorObject;
+    TagEnums.Team instigatorTeam;
+
+    World.Location location;
+
+    Vec3 position;
+    Vec3 velocity;
+
+    float scale;
+    float multiplier;
+
+    TagEnums.MaterialType material;
 }
 
 struct AnimationController
@@ -315,8 +336,8 @@ World.Location location; // TODO(IMPLEMENT), might be set when connecting to map
 Sphere bound;
 Vec3 position;
 Rotation rotation;
-Vec3 velocity           = Vec3(0);
-Vec3 rotationalVelocity = Vec3(0);
+Vec3 velocity           = 0.0f;
+Vec3 rotationalVelocity = 0.0f;
 
 float scale = 0.0f;
 
@@ -421,6 +442,11 @@ static auto byTypeInit(TagEnums.ObjectType type)
     }
 
     return null;
+}
+
+bool isUnit() const
+{
+    return GObjectTypeMask(TagEnums.ObjectType.biped, TagEnums.ObjectType.vehicle).isSet(type);
 }
 
 void createAttachments()
@@ -894,6 +920,17 @@ void attachTo(const(char)[] gripName, GObject* other, const(char)[] handName)
     connectToWorld();
 }
 
+int getParentHierarchy(GObject** values, int max)
+{
+    int i = 0;
+    for(GObject* next = &this; i < max && next; next = next.parent, ++values, ++i)
+    {
+        *values = next;
+    }
+
+    return i;
+}
+
 GObject* getAbsoluteParent()
 {
     auto top = &this;
@@ -1089,6 +1126,396 @@ void initializeVitality()
 
     damage.shield = shieldMaximum == 0.0f ? 0.0f : 1.0f;
     damage.health = healthMaximum == 0.0f ? 0.0f : 1.0f;
+}
+
+void triggerShieldDepleted()
+{
+    if(damage.flags.shieldDepleted)
+    {
+        return;
+    }
+
+    damage.flags.shieldDepleted = true;
+
+    const tagObject = Cache.get!TagObject(tagIndex);
+
+    if(tagObject.collisionModel)
+    {
+        // TODO create shield depleted effect
+    }
+
+    // TODO hide regions with shield off flag
+
+}
+
+void triggerHealthDepleted()
+{
+    if(damage.flags.healthDepleted)
+    {
+        return;
+    }
+
+    damage.flags.healthDepleted = true;
+
+    const tagObject = Cache.get!TagObject(tagIndex);
+
+    if(tagObject.collisionModel)
+    {
+        // TODO create health depleted effect
+    }
+
+    if(type == TagEnums.ObjectType.vehicle)
+    {
+        // TODO tell children objects they were eliminated
+    }
+
+    triggerShieldDepleted();
+}
+
+private
+struct ImplDamageFlags
+{
+    mixin(bitfields!(
+        bool, "friendly",       1,
+        bool, "healthDepleted", 1,
+        bool, "shieldDepleted", 1,
+        ushort, "", 13,
+    ));
+}
+
+private
+void dealDamageToShield(
+    const(TagDamageEffect)*          tagDamageEffect,
+    const(Tag.DamageMaterialsBlock)* tagDamageMaterial,
+    ref ImplDamageFlags              damageFlags,
+    ref float                        damageAmount,
+    ref float                        damageDealt)
+{
+    const tagObject    = Cache.get!TagObject(tagIndex);
+    const tagCollision = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel);
+
+    // TODO check singleplayer, special case with falling damage if singleplayer
+
+    float leftover = damageAmount;
+    float dealt    = 0.0f;
+
+    if(damage.shield > 0.0f)
+    {
+        // TODO difficulty setting, scale shield maximum
+        const float shieldMaximum     = damage.shieldMaximum;
+        const float shieldeMaxDivisor = shieldMaximum <= 0.0f ? 0.0f : 1.0f / shieldMaximum;
+        const float materialModifier  = tagDamageEffect.getMaterialModifier(tagCollision.shieldMaterialType);
+
+        if(!damageFlags.friendly || tagCollision.flags.alwaysShieldsFriendlyDamage)
+        {
+            dealt = leftover * (1.0f - tagDamageMaterial.shieldLeakPercentage);
+
+            if(tagCollision.shieldFailureThreshold > 0.0f && damage.shield <= tagCollision.shieldFailureThreshold)
+            {
+                // TODO shield failure function
+            }
+        }
+
+        bool noDamageDealt = false;
+
+        if(damage.flags.shieldAbsorbsAllDamage)
+        {
+            dealt    = leftover;
+            leftover = 0.0f;
+        }
+        else
+        {
+            dealt = max(dealt, 0.0f);
+            leftover -= dealt;
+
+            // TODO friendly difficulty scaling
+
+            float dealtScaled  = dealt * tagDamageMaterial.shieldDamageMultiplier * materialModifier;
+            float dealtPercent = dealtScaled * shieldeMaxDivisor;
+            noDamageDealt      = dealtScaled < 0.0001f;
+
+            if(dealtPercent > damage.shield || tagDamageEffect.sideEffect == TagEnums.DamageSideEffect.emp)
+            {
+                if(dealtScaled - damage.shield * shieldMaximum > 0.0f)
+                {
+                    leftover += dealtScaled - damage.shield * shieldMaximum;
+                }
+
+                damage.shield = 0.0f;
+
+                if(!damage.flags.shieldDepleted)
+                {
+                    triggerShieldDepleted();
+                    damageFlags.shieldDepleted = true;
+                }
+            }
+            else
+            {
+                if(!damage.flags.shieldDepleted)
+                {
+                    damage.shield -= dealtPercent;
+                }
+
+                if(!damage.flags.shieldDamaged && damage.shield < tagCollision.shieldDamagedThreshold)
+                {
+                    // TODO create effect, tagCollision.shieldDamagedEffect
+                    damage.flags.shieldDamaged = true;
+                }
+            }
+        }
+
+        if(!noDamageDealt)
+        {
+            assert(0); // TODO
+        }
+    }
+    else
+    {
+        damage.shield = 0.0f;
+    }
+
+    // TODO stun time
+
+    damageAmount = leftover;
+    damageDealt  = dealt;
+
+}
+
+private
+void dealDamageToHealth(
+    const(TagDamageEffect)*          tagDamageEffect,
+    const(Tag.DamageMaterialsBlock)* tagDamageMaterial,
+    int                              regionIndex,
+    ref DamageOptions                options,
+    ref ImplDamageFlags              damageFlags,
+    float                            damageAmount,
+    ref float                        damageDealt)
+{
+    const tagObject    = Cache.get!TagObject(tagIndex);
+    const tagCollision = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel);
+
+    float dealt = damageAmount * tagDamageMaterial.bodyDamageMultiplier;
+
+    if(tagCollision.flags.onlyDamagedWhileOccupied && type == TagEnums.ObjectType.vehicle)
+    {
+        // TODO check occupied, has driver in powered seat, set dealt to zero
+    }
+
+    // TODO falling category check in singleplayer
+    // TODO scale maximum health based on team
+
+    const float healthMaximum    = damage.healthMaximum;
+    const float healthMaxDivisor = healthMaximum <= 0.0f ? 0.0f : 1.0f / healthMaximum;
+    const float materialModifier = tagDamageEffect.getMaterialModifier(tagDamageMaterial.materialType);
+
+    // TODO friendly fire based scaling
+
+    float dealtPercent = dealt * healthMaxDivisor * materialModifier;
+
+    if(!damage.flags.cannotTakeDamage)
+    {
+        if(dealt > 0.0f && tagDamageMaterial.flags.head)
+        {
+            if(tagDamageEffect.damageFlags.canCauseHeadshots)
+            {
+                // TODO check player controlled for single player, or multiplayer game
+                //      set health to zero and flags
+            }
+            else if(tagDamageEffect.damageFlags.canCauseMultiplayerHeadshots)
+            {
+                // TODO multiplayer headshot, don't think this is ever used?
+            }
+        }
+
+        damage.health -= dealtPercent;
+    }
+
+    if(regionIndex != indexNone)
+    {
+        // TODO damage specific region
+    }
+
+    damage.healthDamageUpdateTick = 0;
+    damage.healthDamageCurrent    = min(damage.healthDamageCurrent + dealtPercent, 1.0f);
+    damage.healthDamageRecent     = min(damage.healthDamageRecent  + dealtPercent, 1.0f);
+
+    if(tagCollision.bodyDestroyedThreshold >= 0.0f || damage.health >= healthMaxDivisor * tagCollision.bodyDestroyedThreshold)
+    {
+        if(damage.health < 0.0f)
+        {
+            if(!damage.flags.healthDepleted)
+            {
+                foreach(ref tagRegion ; tagCollision.regions)
+                {
+                    if(tagRegion.flags.diesWhenObjectDies)
+                    {
+                        // TODO destroy region
+                    }
+                }
+
+                triggerHealthDepleted();
+                damageFlags.healthDepleted = true;
+            }
+        }
+        else if(damage.health < healthMaxDivisor * tagCollision.bodyDestroyedThreshold && !damage.flags.healthDamaged)
+        {
+            // TODO create health damaged effect
+            damage.flags.healthDamaged = true;
+        }
+    }
+    else
+    {
+        assert(0); // TODO destroy object
+    }
+
+    // TODO create localized damage effect
+    // TODO create area damage effect
+
+    damageDealt = dealt;
+}
+
+void dealDamage(ref DamageOptions options, int regionIndex, int nodeIndex, int materialIndex)
+{
+    const tagDamageEffect = Cache.get!TagDamageEffect(options.tagIndex);
+
+    float damage = mix(tagDamageEffect.damageLowerBound, randomValue(tagDamageEffect.damageUpperBound), options.scale);
+    damage *= options.multiplier;
+
+    // TODO ai related damage scale
+    // TODO multiplayer or singleplayer damage scaling
+
+    // TODO flags that only uses the object and no parents
+    GObject*[16] parents = void;
+    int numParents = getParentHierarchy(parents.ptr, parents.length);
+
+    bool passBodyDamageToParents = true;
+
+    {
+        const tagObject = Cache.get!TagObject(tagIndex);
+        if(const tagCollision = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel))
+        {
+            passBodyDamageToParents = !tagCollision.flags.parentNeverTakesBodyDamageForUs;
+        }
+    }
+
+    // TODO entangled object, add to list of parents
+
+    if(type == TagEnums.ObjectType.vehicle)
+    {
+        const tagUnit = Cache.get!TagUnit(tagIndex);
+        float multiplier = tagUnit.riderDamageFraction * (1.0f - tagDamageEffect.vehiclePassthroughPenalty);
+
+        // TODO multiplayer, count number of players in vehicle and divide damage by that amount
+
+        options.multiplier = multiplier;
+
+        for(GObject* next = firstChildObject; next; next = next.nextSiblingObject)
+        {
+            if(next.type != TagEnums.ObjectType.biped)
+            {
+                continue;
+            }
+
+            // TODO player controlled / has driver
+            // TODO adjust options.flags
+
+            next.dealDamage(options, indexNone, indexNone, indexNone);
+
+        }
+
+        options.multiplier = 1.0f;
+
+    }
+
+    foreach(GObject* parent ; parents[0 .. numParents])
+    {
+        if(!parent.isUnit())
+        {
+            continue;
+        }
+
+        // TODO check player controlled and apply effects of damage
+    }
+
+    foreach_reverse(i, parent ; parents[0 .. numParents])
+    {
+        if(damage <= 0.0f)
+        {
+            break;
+        }
+
+        const tagObject = Cache.get!TagObject(parent.tagIndex);
+
+        ImplDamageFlags damageFlags;
+
+        if(const tagCollision = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel))
+        {
+            // TODO hidden node field in collision
+            // TODO team related damage checks
+
+            const(Tag.DamageMaterialsBlock)* tagDamageMaterial;
+
+            if(i == 0 && tagCollision.materials.inBounds(materialIndex))
+            {
+                tagDamageMaterial = &tagCollision.materials[materialIndex];
+            }
+            else if(tagCollision.materials.inBounds(tagCollision.indirectDamageMaterial))
+            {
+                tagDamageMaterial = &tagCollision.materials[tagCollision.indirectDamageMaterial];
+            }
+            else
+            {
+                static immutable Tag.DamageMaterialsBlock defaultDamageMaterial =
+                {
+                    shieldLeakPercentage:   0.0f,
+                    shieldDamageMultiplier: 0.0f,
+                    bodyDamageMultiplier:   0.0f,
+                };
+
+                tagDamageMaterial = &defaultDamageMaterial;
+            }
+
+            // TODO team related checks
+            if(!tagDamageEffect.damageFlags.skipsShields && parent.damage.shieldMaximum > 0.0f)
+            {
+                if(i == 0 || tagCollision.flags.takesShieldDamageForChildren)
+                {
+                    // TODO damage shields
+                }
+            }
+
+            if(!tagDamageEffect.damageFlags.onlyHurtsShields)
+            {
+                if(i == 0 || passBodyDamageToParents && tagCollision.flags.takesBodyDamageForChildren)
+                {
+                    // TODO only damaged by explosives, set dmg to zero
+                    // TODO team related checks, set dmg to zero
+
+                    int bodyNodeIndex   = indexNone;
+                    int bodyRegionIndex = indexNone;
+
+                    if(i == 0)
+                    {
+                        bodyNodeIndex   = nodeIndex;
+                        bodyRegionIndex = regionIndex;
+                    }
+
+                    // TODO damage health
+                    // TODO skip all other parents and go to primary target, since we damaged health here
+                }
+            }
+
+            // TODO check first damage, set options output result to that amount
+
+            // TODO acceleration scale related update
+
+            assert(0); // TODO
+        }
+
+        assert(0); // TODO
+    }
+
+    assert(0);
 }
 
 float getFunctionValue(TagEnums.FunctionScaleBy value) const

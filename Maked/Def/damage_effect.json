@@ -348,7 +348,7 @@
                     "index": 11
                 },
                 {
-                    "name": "flags",
+                    "name": "damage flags",
                     "type": "flag32",
                     "flags": [
                         {
