@@ -263,18 +263,24 @@ with open("def/enums.json") as file:
             if e["name"][0:4] == "enum":
                 continue
 
-            out.write("enum " + FormatEnumTypeName(e["name"]) + " : short\n{\n")
+            out.write("enum " + FormatEnumTypeName(e["name"]) + "\n{\n")
 
             nomad = 0
-
+            first = True
             for v in e["values"]:
                 name = v["name"]
 
                 if len(name) == 0:
-                    out.write("    nomad" + str(nomad) + ",\n")
+                    out.write("    nomad" + str(nomad))
                     nomad += 1
                 else:
-                    out.write("    " + FormatEnumFieldName(name) + ",\n")
+                    out.write("    " + FormatEnumFieldName(name))
+
+                if first:
+                    out.write(" = short(0),\n")
+                    first = False
+                else:
+                    out.write(",\n")
 
             out.write("}\n\n")
 
