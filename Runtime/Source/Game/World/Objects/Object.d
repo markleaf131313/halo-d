@@ -350,7 +350,7 @@ ClusterNode[TagConstants.Object.maxClusterPresence] occupiedClusters; // todo im
 
 Damage damage;
 
-bool byTypePreInitialize(Creation* creation)
+bool byTypePreInitialize(Creation* creation) const
 {
     return makeCallByType!"implPreInitialize"(this, creation);
 }
@@ -1350,7 +1350,7 @@ template makeCallByTypeError(string type)
 }
 
 private
-bool makeCallByType(string func, ByType order = ByType.doTopDown, Args...)(ref GObject object, auto ref Args args)
+bool makeCallByType(string func, ByType order = ByType.doTopDown, Args...)(ref inout GObject object, auto ref Args args)
 {
     import std.ascii : toUpper;
     import std.meta  : AliasSeq, Reverse;
@@ -1358,7 +1358,7 @@ bool makeCallByType(string func, ByType order = ByType.doTopDown, Args...)(ref G
     enum declaresImplFunc(T) = declaresMember!(T, func);
 
     static
-    bool callImpl(O, Types...)(ref GObject object, Args args)
+    bool callImpl(O, Types...)(ref inout GObject object, Args args)
     {
         static      if(order == ByType.doTopDown) alias List = Types;
         else static if(order == ByType.doBotUp)   alias List = Reverse!(Types);

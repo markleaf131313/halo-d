@@ -53,7 +53,7 @@ float crouchPercent = 0.0f;
 
 Vec3 groundNormal;
 
-bool implPreInitialize(GObject.Creation* data)
+bool implPreInitialize(GObject.Creation* data) const
 {
     const tagBiped = Cache.get!TagBiped(data.tagIndex);
 
@@ -62,8 +62,12 @@ bool implPreInitialize(GObject.Creation* data)
         // todo update data.position
     }
 
-    flags.airborne = true;
+    return true;
+}
 
+bool implInitialize()
+{
+    flags.airborne = true;
     return true;
 }
 
