@@ -1069,7 +1069,7 @@ void initializeRegions()
     }
 }
 
-void setVitality()
+void initializeVitality()
 {
     auto tagObject = Cache.get!TagObject(tagIndex);
 

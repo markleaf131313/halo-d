@@ -20,6 +20,9 @@ import Game.Tags;
 
 struct World
 {
+
+enum maxBipedPhysicsIterations = 16;
+
 // TODO make @nogc nothrow
 void updateLogicEffects(float deltaTime)
 {
@@ -205,10 +208,6 @@ struct EffectMarker
     Vec3 direction;
 }
 
-
-enum maxBipedPhysicsIterations = 16;
-
-
 void initialize()
 {
     effects  .allocate(512,  multichar!"ef");
@@ -284,7 +283,7 @@ GObject* createObject(ref GObject.Creation data)
             if(object.byTypeInitialize())
             {
                 object.initializeRegions();
-                object.setVitality();
+                object.initializeVitality();
                 object.updateMatrices();
                 object.connectToWorld();
                 object.byTypeUpdateMatrices();
