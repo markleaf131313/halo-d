@@ -49,7 +49,7 @@ struct GObjectTypeMask
     }
 
     pragma(inline, true)
-    bool anySet(Args...)(Args args) const if(allSatisfy!(isObjectType, Args))
+    bool anySet() const
     {
         return bits != 0;
     }
