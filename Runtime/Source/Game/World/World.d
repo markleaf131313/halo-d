@@ -237,6 +237,24 @@ int getTickCounter()
     return tickCounter;
 }
 
+void dealAreaDamage(ref GObject.DamageOptions options)
+{
+    const tagDamageEffect = Cache.get!TagDamageEffect(options.tagIndex);
+
+    Sphere sphere = {options.center, tagDamageEffect.radius.upper};
+
+    GObject*[64] objects = void;
+    int count = calculateNearbyObjects(ObjectSearchType.all, GObjectTypeMask(),
+        options.location, sphere, objects.ptr, objects.length);
+
+    foreach(ref object ; objects[0 .. count])
+    {
+        object.dealAreaDamage(options);
+    }
+
+    // TODO damage aoe breakable surfaces
+}
+
 GObject* createObject(ref GObject.Creation data)
 {
     auto tagObject = Cache.get!TagObject(data.tagIndex);
@@ -697,8 +715,8 @@ int calculateNearbyObjects(
     {
         if(max == 0)
         {
-        return 0;
-    }
+            return 0;
+        }
 
         if(search == ObjectSearchType.collideable || search == ObjectSearchType.all)
         {

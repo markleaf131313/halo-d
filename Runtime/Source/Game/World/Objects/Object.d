@@ -153,7 +153,17 @@ struct Damage
 
 struct DamageOptions
 {
+    struct Flags
+    {
+        mixin(bitfields!(
+            bool, "areaOfEffect", 1,
+            ubyte, "", 7,
+        ));
+    }
+
     DatumIndex tagIndex; // damage effect tag
+
+    Flags flags;
 
     DatumIndex    instigatorPlayerIndex;
     GObject*      instigatorObject;
@@ -161,8 +171,9 @@ struct DamageOptions
 
     World.Location location;
 
+    Vec3 center;
     Vec3 position;
-    Vec3 velocity;
+    Vec3 direction;
 
     float scale;
     float multiplier;
@@ -1202,9 +1213,9 @@ void dealDamageToShield(
     if(damage.shield > 0.0f)
     {
         // TODO difficulty setting, scale shield maximum
-        const float shieldMaximum     = damage.shieldMaximum;
-        const float shieldeMaxDivisor = shieldMaximum <= 0.0f ? 0.0f : 1.0f / shieldMaximum;
-        const float materialModifier  = tagDamageEffect.getMaterialModifier(tagCollision.shieldMaterialType);
+        const float shieldMaximum    = damage.shieldMaximum;
+        const float shieldMaxDivisor = shieldMaximum <= 0.0f ? 0.0f : 1.0f / shieldMaximum;
+        const float materialModifier = tagDamageEffect.getMaterialModifier(tagCollision.shieldMaterialType);
 
         if(!damageFlags.friendly || tagCollision.flags.alwaysShieldsFriendlyDamage)
         {
@@ -1216,7 +1227,7 @@ void dealDamageToShield(
             }
         }
 
-        bool noDamageDealt = false;
+        bool preventDamage = false;
 
         if(damage.flags.shieldAbsorbsAllDamage)
         {
@@ -1231,8 +1242,8 @@ void dealDamageToShield(
             // TODO friendly difficulty scaling
 
             float dealtScaled  = dealt * tagDamageMaterial.shieldDamageMultiplier * materialModifier;
-            float dealtPercent = dealtScaled * shieldeMaxDivisor;
-            noDamageDealt      = dealtScaled < 0.0001f;
+            float dealtPercent = dealtScaled * shieldMaxDivisor;
+            preventDamage      = dealtScaled < 0.0001f;
 
             if(dealtPercent > damage.shield || tagDamageEffect.sideEffect == TagEnums.DamageSideEffect.emp)
             {
@@ -1264,9 +1275,18 @@ void dealDamageToShield(
             }
         }
 
-        if(!noDamageDealt)
+        if(!preventDamage)
         {
-            assert(0); // TODO
+            if(damage.flags.shieldDepleted)
+            {
+                damage.shieldDamageCurrent = 1.0f;
+            }
+
+            const float dealtPercent = (damageAmount - leftover) / shieldMaxDivisor;
+
+            damage.shieldDamageUpdateTick = 0;
+            damage.shieldDamageRecent     = min(damage.shieldDamageRecent  + dealtPercent, 1.0f);
+            damage.shieldDamageCurrent    = min(damage.shieldDamageCurrent + dealtPercent, 1.0f);
         }
     }
     else
@@ -1285,6 +1305,7 @@ private
 void dealDamageToHealth(
     const(TagDamageEffect)*          tagDamageEffect,
     const(Tag.DamageMaterialsBlock)* tagDamageMaterial,
+    int                              nodeIndex,
     int                              regionIndex,
     ref DamageOptions                options,
     ref ImplDamageFlags              damageFlags,
@@ -1374,7 +1395,7 @@ void dealDamageToHealth(
     damageDealt = dealt;
 }
 
-void dealDamage(ref DamageOptions options, int regionIndex, int nodeIndex, int materialIndex)
+void dealDamage(ref DamageOptions options, int nodeIndex, int regionIndex, int materialIndex)
 {
     const tagDamageEffect = Cache.get!TagDamageEffect(options.tagIndex);
 
@@ -1447,11 +1468,14 @@ void dealDamage(ref DamageOptions options, int regionIndex, int nodeIndex, int m
         const tagObject = Cache.get!TagObject(parent.tagIndex);
 
         ImplDamageFlags damageFlags;
+        float           shieldDamage = 0.0f;
+        float           healthDamage = 0.0f;
 
         if(const tagCollision = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel))
         {
             // TODO hidden node field in collision
             // TODO team related damage checks
+            // TODO lethal damage to unsuspecting (singleplayer only)
 
             const(Tag.DamageMaterialsBlock)* tagDamageMaterial;
 
@@ -1480,7 +1504,7 @@ void dealDamage(ref DamageOptions options, int regionIndex, int nodeIndex, int m
             {
                 if(i == 0 || tagCollision.flags.takesShieldDamageForChildren)
                 {
-                    // TODO damage shields
+                    dealDamageToShield(tagDamageEffect, tagDamageMaterial, damageFlags,  damage, shieldDamage);
                 }
             }
 
@@ -1500,22 +1524,143 @@ void dealDamage(ref DamageOptions options, int regionIndex, int nodeIndex, int m
                         bodyRegionIndex = regionIndex;
                     }
 
-                    // TODO damage health
-                    // TODO skip all other parents and go to primary target, since we damaged health here
+                    dealDamageToHealth(tagDamageEffect, tagDamageMaterial, bodyNodeIndex, bodyRegionIndex,
+                        options, damageFlags, damage, healthDamage);
+
+                    damage = 0.0f; // don't pass damage to any other objects
                 }
             }
 
             // TODO check first damage, set options output result to that amount
-
+            // TODO update shields if damage dealt to it
             // TODO acceleration scale related update
-
-            assert(0); // TODO
         }
+    }
+}
 
-        assert(0); // TODO
+void dealAreaDamage(ref DamageOptions options, bool doSiblings = false)
+{
+    const tagObject       = Cache.get!TagObject(tagIndex);
+    const tagCollision    = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel);
+    const tagDamageEffect = Cache.get!TagDamageEffect(options.tagIndex);
+
+    bool doDamage = true;
+
+    if(!flags.hidden)
+    {
+        World.LineResult  lineResult = void;
+        World.LineOptions lineOptions;
+
+        lineOptions.surface.frontFacing = true;
+        lineOptions.structure           = true;
+
+        Vec3 direction = bound.center - options.center;
+
+        if(!isUnit() || tagDamageEffect.aoeCoreRadius < 0.0001f)
+        {
+            if(world.collideLine(null, options.center, direction, lineOptions, lineResult))
+            {
+                doDamage = false;
+            }
+        }
+        else
+        {
+            Vec3 perp = anyPerpendicularTo(direction);
+            Vec3 left = cross(direction, perp);
+
+            normalize(perp);
+            normalize(left);
+
+            bool blocked = true;
+
+            foreach(i ; 0 .. 4)
+            {
+                Vec3 segment;
+
+                switch(i)
+                {
+                case 0: segment =  tagDamageEffect.aoeCoreRadius * perp; break;
+                case 1: segment = -tagDamageEffect.aoeCoreRadius * perp; break;
+                case 2: segment =  tagDamageEffect.aoeCoreRadius * left; break;
+                case 3: segment = -tagDamageEffect.aoeCoreRadius * left; break;
+                default: assert(0);
+                }
+
+                world.collideLine(null, options.center, segment, lineOptions, lineResult);
+
+                if(!world.collideLine(null, lineResult.point, bound.center - lineResult.point, lineOptions, lineResult))
+                {
+                    blocked = false;
+                    break;
+                }
+            }
+
+            if(blocked)
+            {
+                doDamage = false;
+            }
+        }
+    }
+    else
+    {
+        doDamage = false;
     }
 
-    assert(0);
+    if(tagDamageEffect.damageFlags.doesNotHurtOwner)
+    {
+        if(&this is options.instigatorObject)
+        {
+            doDamage = false;
+        }
+    }
+
+    // TODO does not hurt friends
+    // TODO infection form pop
+    // TODO unit flag, inconsequential
+
+    options.flags.areaOfEffect = true;
+
+    if(doDamage)
+    {
+        options.direction = bound.center - options.center;
+        float distance = options.direction.normalize();
+
+        const float deltaRadius = tagDamageEffect.radius.upper - tagDamageEffect.radius.lower;
+        float scale = 1.0f;
+
+        if(!tagDamageEffect.flags.dontScaleDamageByDistance)
+        {
+            if(deltaRadius > 0.0f)
+            {
+                scale = saturate(1.0f - (distance - tagDamageEffect.radius.lower) / deltaRadius);
+            }
+        }
+
+        options.scale = scale;
+
+        if(scale > 0.0f)
+        {
+            dealDamage(options, indexNone, indexNone, indexNone);
+        }
+
+        if(tagCollision.flags.passesAreaDamageToChildren)
+        {
+            if(firstChildObject)
+            {
+                firstChildObject.dealAreaDamage(options, true);
+            }
+        }
+    }
+
+    // TODO infection form pop related
+
+    if(doSiblings)
+    {
+        for(GObject* next = nextSiblingObject; next; next = next.nextSiblingObject)
+        {
+            next.dealAreaDamage(options, false);
+        }
+    }
 }
 
 float getFunctionValue(TagEnums.FunctionScaleBy value) const
