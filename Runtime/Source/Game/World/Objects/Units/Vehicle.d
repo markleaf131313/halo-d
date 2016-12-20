@@ -1134,8 +1134,8 @@ void doVehiclePhysicsToObject(TagVehicle* tagVehicle, TagPhysics* tagPhysics)
 
     GObject*[TagConstants.Vehicle.maxCollisionObjects] objects = void;
 
-    int num = world.calculateNearbyObjects(
-        World.ObjectSearchType.collideable, mask, bound, objects.ptr, objects.length);
+    int num = world.calculateNearbyObjects(World.ObjectSearchType.collideable, mask,
+        location, bound, objects.ptr, objects.length);
 
     foreach(i ; 0 .. num)
     {

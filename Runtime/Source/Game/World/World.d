@@ -57,7 +57,7 @@ enum ObjectSearchType
 {
     collideable,
     noncollideable,
-    bothCollideableAndNoncollideable,
+    all,
 }
 
 struct Location
@@ -662,20 +662,88 @@ void removeObjectFromNoncollideableCluster(int clusterIndex, typeof(GObject.Clus
 int calculateNearbyObjects(
     ObjectSearchType  search,
     GObjectTypeMask   mask,
+    Location          location,
     ref const(Sphere) sphere,
     GObject**         iterator,
     int               max)
 {
-    int leaf = calculateLeaf(currentSbsp.collisionBsp, sphere.center);
-
-    if(leaf == indexNone)
+    if(location.cluster == indexNone)
     {
         return 0;
     }
 
-    masterComputeId.advance();
+    int count;
+    int[TagConstants.StructureBsp.maxClusters] clusters = void;
 
-    return calculateNearbyObjectsRecurse(currentSbsp.leaves[leaf].cluster, search, mask, sphere, iterator, max);
+    if(sphere.radius > 0.0f)
+    {
+        count = calculateOccupiedClusters(location.cluster, sphere, clusters.ptr, clusters.length);
+    }
+    else
+    {
+        count       = 1;
+        clusters[0] = location.cluster;
+    }
+
+    if(!mask.anySet())
+    {
+        mask.setAll();
+    }
+
+    masterComputeId.advance();
+    int total = 0;
+
+    foreach(int clusterIndex ; clusters[0 .. count])
+    {
+        if(max == 0)
+        {
+        return 0;
+    }
+
+        if(search == ObjectSearchType.collideable || search == ObjectSearchType.all)
+        {
+            foreach(object ; collideableClusterObjectLists[clusterIndex])
+            {
+                if(object.computeId.assignEqual(masterComputeId)) continue;
+                if(!mask.isSet(object.type))                      continue;
+                if(!sphere.intersects(object.bound))              continue;
+
+                *iterator = object;
+
+                iterator += 1;
+                total    += 1;
+                max      -= 1;
+
+                if(max == 0)
+                {
+                    return total;
+                }
+            }
+        }
+
+        if(search == ObjectSearchType.noncollideable || search == ObjectSearchType.all)
+        {
+            foreach(object ; noncollideableClusterObjectLists[clusterIndex])
+            {
+                if(object.computeId.assignEqual(masterComputeId)) continue;
+                if(!mask.isSet(object.type))                      continue;
+                if(!sphere.intersects(object.bound))              continue;
+
+                *iterator = object;
+
+                iterator += 1;
+                total    += 1;
+                max      -= 1;
+
+                if(max == 0)
+                {
+                    return total;
+                }
+            }
+        }
+    }
+
+    return total;
 }
 
 int calculateOccupiedClusters(int clusterIndex, ref const(Sphere) sphere, int* iterator, int max)
@@ -1482,93 +1550,6 @@ void calculateCapsuleElement(
             }
         }
     }
-}
-
-int calculateNearbyObjectsRecurse(
-    int               id,
-    ObjectSearchType  search,
-    GObjectTypeMask   objectTypeMask,
-    ref const(Sphere) sphere,
-    GObject**         iterator,
-    int               max)
-{
-    auto cluster = &currentSbsp.clusters[id];
-
-    if(clusterComputeIds[id].assignEqual(masterComputeId)) return 0;
-    if(max == 0)                                           return 0;
-
-    int total = 0;
-
-    if(search == ObjectSearchType.collideable || search == ObjectSearchType.bothCollideableAndNoncollideable)
-    {
-        foreach(object ; collideableClusterObjectLists[id])
-        {
-            if(object.computeId.assignEqual(masterComputeId)) continue;
-            if(!objectTypeMask.isSet(object.type))            continue;
-            if(!sphere.intersects(object.bound))              continue;
-
-            *iterator = object;
-
-            iterator += 1;
-            total    += 1;
-            max      -= 1;
-
-            if(max == 0)
-            {
-                return total;
-            }
-        }
-    }
-
-    if(search == ObjectSearchType.noncollideable || search == ObjectSearchType.bothCollideableAndNoncollideable)
-    {
-        foreach(object ; noncollideableClusterObjectLists[id])
-        {
-            if(object.computeId.assignEqual(masterComputeId)) continue;
-            if(!objectTypeMask.isSet(object.type))            continue;
-            if(!sphere.intersects(object.bound))              continue;
-
-            *iterator = object;
-
-            iterator += 1;
-            total    += 1;
-            max      -= 1;
-
-            if(max == 0)
-            {
-                return total;
-            }
-        }
-    }
-
-    foreach(ref p ; cluster.portals)
-    {
-        auto portal = &currentSbsp.clusterPortals[p.portal];
-        auto plane  = &currentSbsp.collisionBsp.planes[portal.planeIndex].plane;
-
-        float distance = plane.distanceToPoint(sphere.center);
-
-        // todo fix implementation
-        // we need to test with portal indicies when the sphere is intersecting the plane
-        // todo move to a separate functionm, see CalcClusterRecurse()
-
-        if(distance >= -sphere.radius && distance <= sphere.radius)
-        {
-            int index = portal.frontCluster == id ? portal.backCluster : portal.frontCluster;
-            int count = calculateNearbyObjectsRecurse(index, search, objectTypeMask, sphere, iterator, max);
-
-            iterator += count;
-            total    += count;
-            max      -= count;
-
-            if(max == 0)
-            {
-                return total;
-            }
-        }
-    }
-
-    return total;
 }
 
 int calculateClusterRecurse(int id, ref const(Sphere) sphere, int* iterator, int max)

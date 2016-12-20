@@ -1021,8 +1021,8 @@ try
                 TagEnums.ObjectType.weapon,
                 TagEnums.ObjectType.equipment);
 
-            int num = gameState.world.calculateNearbyObjects(World.ObjectSearchType.bothCollideableAndNoncollideable,
-                            mask, gameState.players[0].biped.bound, objects.ptr, objects.length);
+            int num = gameState.world.calculateNearbyObjects(World.ObjectSearchType.all, mask,
+                biped.location, biped.bound, objects.ptr, objects.length);
 
             foreach(object ; objects[0 .. num])
             {
