@@ -264,9 +264,9 @@ with open("def/enums.json") as file:
                 continue
 
             out.write("enum " + FormatEnumTypeName(e["name"]) + "\n{\n")
+            out.write("    invalid = short(-1),\n")
 
             nomad = 0
-            first = True
             for v in e["values"]:
                 name = v["name"]
 
@@ -275,12 +275,7 @@ with open("def/enums.json") as file:
                     nomad += 1
                 else:
                     out.write("    " + FormatEnumFieldName(name))
-
-                if first:
-                    out.write(" = short(0),\n")
-                    first = False
-                else:
-                    out.write(",\n")
+                out.write(",\n")
 
             out.write("}\n\n")
 

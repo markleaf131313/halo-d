@@ -432,6 +432,10 @@ static auto byTypeInit(TagEnums.ObjectType type)
         {
             enum strInit = "";
         }
+        else static if(T[0] == "invalid")
+        {
+            enum strInit = strInit!(T[1 .. $]);
+        }
         else static if(mixin("is(" ~ toUpper(T[0][0]) ~ T[0][1..$] ~ " O)"))
         {
             enum strInit = "typeid(" ~ O.stringof ~ "), "
@@ -1975,6 +1979,10 @@ bool makeCallByType(string func, ByType order = ByType.doTopDown, Args...)(ref i
         static if(T.length == 0)
         {
             enum strInit = "";
+        }
+        else static if(T[0] == "invalid")
+        {
+            enum strInit = strInit!(T[1 .. $]);
         }
         else static if(mixin("is(" ~ toUpper(T[0][0]) ~ T[0][1..$] ~ " O)"))
         {
