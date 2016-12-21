@@ -506,7 +506,7 @@ void createAttachments()
 
 }
 
-void doLogicUpdate()
+void updateLogic()
 {
     const tagObject = Cache.get!TagObject(tagIndex);
 
@@ -535,12 +535,12 @@ void doLogicUpdate()
 
     if(firstChildObject)
     {
-        firstChildObject.doLogicUpdate();
+        firstChildObject.updateLogic();
     }
 
     if(parent && nextSiblingObject)
     {
-        nextSiblingObject.doLogicUpdate();
+        nextSiblingObject.updateLogic();
     }
 
     byTypeUpdateMatrices();

@@ -994,7 +994,7 @@ try
 
             if(object.headerFlags.active && !object.headerFlags.newlyCreated)
             {
-                object.doLogicUpdate();
+                object.updateLogic();
             }
         }
 
@@ -1006,7 +1006,7 @@ try
             {
                 object.headerFlags.newlyCreated = false;
 
-                object.doLogicUpdate();
+                object.updateLogic();
             }
         }
 
