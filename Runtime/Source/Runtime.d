@@ -345,12 +345,81 @@ void setViewEnum(Field)(const(char)* identifier, ref Field field)
     field = cast(Field)currentItem;
 }
 
+void popupFindTag(ref TagRef tagRef, bool initialize)
+{
+    static int selectedIndex;
+
+    if(initialize)
+    {
+        selectedIndex = tagRef.index.i;
+    }
+
+    igSetNextWindowSize(ImVec2(600, 500), ImGuiSetCond.FirstUseEver);
+    if(igBeginPopupModal("Find Tag"))
+    {
+        if(igButton("Select"))
+        {
+            if(selectedIndex != indexNone)
+            {
+                auto meta = &Cache.inst.metaAt(selectedIndex);
+
+                tagRef.path  = meta.path;
+                tagRef.index = meta.index;
+            }
+
+            igCloseCurrentPopup();
+        }
+
+        igSameLine();
+
+        if(igButton("Cancel"))
+        {
+            igCloseCurrentPopup();
+        }
+
+        igBeginChild("Scroll");
+        igColumns(2);
+
+        foreach(int j, ref meta ; Cache.inst.getMetas())
+        {
+            igPushID(j);
+
+            const auto flags = ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.DontClosePopups;
+            if(igSelectable(meta.path, selectedIndex == j, flags))
+            {
+                selectedIndex = j;
+            }
+
+            igNextColumn();
+
+            if(string name = enumName(meta.type))
+            {
+                igText(name.ptr);
+            }
+            else
+            {
+                char[5] buffer;
+
+                *cast(TagId*)buffer.ptr = meta.type;
+
+                igText(buffer.ptr);
+            }
+
+            igNextColumn();
+            igPopID();
+        }
+        igEndChild();
+
+
+        igEndPopup();
+    }
+}
+
 void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices = [])
 {
     import std.meta   : Alias;
     import std.traits : getUDAs;
 
-    static int selectedIndex; // todo remove hack
     T* fields = cast(T*)f;
 
     static if(__traits(getAliasThis, T).length)
@@ -444,10 +513,12 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         }
         else static if(is(Field == TagRef))
         {
+            bool initialize = false;
+
             if(igButton("..."))
             {
-                selectedIndex = indexNone;
                 igOpenPopup("Find Tag");
+                initialize = true;
             }
 
             igSameLine();
@@ -480,65 +551,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
                     len, ImGuiInputTextFlags.ReadOnly);
             }
 
-
-            igSetNextWindowSize(ImVec2(600, 500), ImGuiSetCond.FirstUseEver);
-            if(igBeginPopupModal("Find Tag"))
-            {
-                if(igButton("Select"))
-                {
-                    if(selectedIndex != indexNone)
-                    {
-                        auto meta = &Cache.inst.metaAt(selectedIndex);
-
-                        field.path  = meta.path;
-                        field.index = meta.index;
-                    }
-
-                    igCloseCurrentPopup();
-                }
-
-                igSameLine();
-
-                if(igButton("Cancel"))
-                {
-                    igCloseCurrentPopup();
-                }
-
-                igBeginChild("Scroll");
-                igColumns(2);
-
-                foreach(int j, ref meta ; Cache.inst.getMetas())
-                {
-                    igPushID(j);
-                    if(igSelectable(meta.path, selectedIndex == j,
-                        ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.DontClosePopups))
-                    {
-                        selectedIndex = j;
-                    }
-
-                    igNextColumn();
-
-                    if(string name = enumName(meta.type))
-                    {
-                        igText(name.ptr);
-                    }
-                    else
-                    {
-                        char[5] buffer;
-
-                        *cast(TagId*)buffer.ptr = meta.type;
-
-                        igText(buffer.ptr);
-                    }
-
-                    igNextColumn();
-                    igPopID();
-                }
-                igEndChild();
-
-
-                igEndPopup();
-            }
+            popupFindTag(field, initialize);
 
         }
         else static if(is(Field : TagBlock!BlockType, BlockType))
