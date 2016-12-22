@@ -1259,6 +1259,36 @@ int getFirstPersonAnimationFrameCount(TagEnums.FirstPersonAnimation i, bool keyF
 }
 
 private
+void createProjectiles(int triggerIndex)
+{
+    const tagWeapon  = Cache.get!TagWeapon(tagIndex);
+    const tagTrigger = &tagWeapon.triggers[triggerIndex];
+    auto  trigger    = &triggers[triggerIndex];
+
+    GObject* host = &this.object;
+
+    if(this.object.flags.hidden)
+    {
+        if(parent && parent.isUnit())
+        {
+            host = parent;
+        }
+    }
+
+    const(char)[] triggerMarker = triggerIndex == 0 ? "primary trigger" : "secondary trigger";
+
+    GObject.MarkerTransform[64] transforms = void;
+    int count = host.findMarkerTransform(triggerMarker, transforms.length, transforms.ptr);
+
+    foreach(ref transform ; transforms[0 .. count])
+    {
+        assert(0); // TODO
+    }
+
+    assert(0); // TODO
+}
+
+private
 DatumIndex createEffectOrSound(DatumIndex index, float scaleA, float scaleB)
 {
     if(index != DatumIndex.none)

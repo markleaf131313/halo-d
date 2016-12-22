@@ -49,6 +49,8 @@ struct Object
     enum maxAttachments = 8;
     enum maxClusterPresence = 64;
     enum maxFunctions = 4;
+    enum float overShieldPercent = 3.0f;
+    enum float overShieldChargePerSecond = 1.0f;
 }
 struct Particle
 {

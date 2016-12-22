@@ -456,7 +456,12 @@
                 },
                 {
                     "type": "pad",
-                    "size": 12
+                    "size": 8
+                },
+                {
+                    "type": "float",
+                    "name": "shield recharge per tick",
+                    "comment": "compile time value, (1 / rechargeTime) / 30"
                 },
                 {
                     "type": "pad",

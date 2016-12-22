@@ -78,7 +78,7 @@ struct GObject
 
 struct Creation
 {
-    DatumIndex tagIndex   = DatumIndex.none;
+    DatumIndex tagIndex;
 
     int regionPermutation = indexNone;
     int playerIndex       = indexNone;
@@ -112,24 +112,26 @@ struct ClusterNode
 
 struct Damage
 {
+@nogc nothrow:
+
     struct Flags
     {
         mixin(bitfields!(
-            bool, "healthDamaged",             1,
-            bool, "shieldDamaged",             1,
-            bool, "healthDepleted",            1,
-            bool, "shieldDepleted",            1,
-            bool, "shieldAbsorbsAllDamage",    1,
-            bool, "killedLoud",                1,
-            bool, "killedSilent",              1,
-            bool, "meleeAttackInhibited",      1,
-            bool, "weaponAttackInhibited",     1,
-            bool, "walkingInhibited",          1,
-            bool, "weaponDropForced",          1,
-            bool, "cannotTakeDamage",          1,
-            bool, "shieldRecharging",          1,
-            bool, "killedNoStatistics",        1,
-            ubyte, "",                         2,
+            bool, "healthDamaged",         1,
+            bool, "shieldDamaged",         1,
+            bool, "healthDepleted",        1,
+            bool, "shieldDepleted",        1,
+            bool, "overShieldCharging",    1,
+            bool, "kill",                  1,
+            bool, "killSilent",            1,
+            bool, "meleeAttackInhibited",  1,
+            bool, "weaponAttackInhibited", 1,
+            bool, "walkingInhibited",      1,
+            bool, "weaponDropForced",      1,
+            bool, "cannotTakeDamage",      1,
+            bool, "shieldRecharging",      1,
+            bool, "killedNoStatistics",    1,
+            ubyte, "",                     2,
         ));
     }
 
@@ -149,6 +151,43 @@ struct Damage
 
     int stunTicks;
 
+    private
+    void update(string name)()
+    {
+        mixin("alias current = " ~ name ~ "DamageCurrent;");
+        mixin("alias recent  = " ~ name ~ "DamageRecent;");
+        mixin("alias tick    = " ~ name ~ "DamageUpdateTick;");
+
+        enum float percentPerTick = 0.5f * gameFramesPerSecond; // 2 seconds to go from 1 to 0
+        enum int   recentDelay    = 2    * gameFramesPerSecond; // 2 second delay
+
+        if(tick >= 0)
+        {
+            tick += 1;
+
+            current -= percentPerTick;
+
+            if(tick > recentDelay)
+            {
+                recent -= percentPerTick;
+            }
+
+            current = max(current, 0.0f);
+            recent  = max(recent,  0.0f);
+
+            if(current == 0.0f && recent == 0.0f)
+            {
+                tick = indexNone;
+            }
+        }
+    }
+
+    void updateRecentDamage()
+    {
+        update!"health"();
+        update!"shield"();
+    }
+
 }
 
 struct DamageOptions
@@ -157,7 +196,8 @@ struct DamageOptions
     {
         mixin(bitfields!(
             bool, "areaOfEffect", 1,
-            ubyte, "", 7,
+            bool, "silent",       1,
+            ubyte, "",            6,
         ));
     }
 
@@ -175,8 +215,8 @@ struct DamageOptions
     Vec3 position;
     Vec3 direction;
 
-    float scale;
-    float multiplier;
+    float scale      = 1.0f;
+    float multiplier = 1.0f;
 
     TagEnums.MaterialType material;
 }
@@ -528,7 +568,7 @@ void updateLogic()
 
     if(tagObject.collisionModel)
     {
-        // todo collision related ?
+        updateVitality();
     }
 
     updateExportFunctions();
@@ -1143,6 +1183,80 @@ void initializeVitality()
     damage.health = healthMaximum == 0.0f ? 0.0f : 1.0f;
 }
 
+void updateVitality()
+{
+    const tagObject    = Cache.get!TagObject(tagIndex);
+    const tagCollision = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel);
+    const tagGlobals   = Cache.inst.globals();
+
+    if(damage.flags.kill | damage.flags.killSilent)
+    {
+        if(!damage.flags.healthDepleted && tagGlobals.fallingDamage.fallingDamage)
+        {
+            DamageOptions options;
+            options.tagIndex     = tagGlobals.fallingDamage.fallingDamage.index;
+            options.flags.silent = damage.flags.killSilent;
+
+            dealDamage(options, indexNone, indexNone, indexNone);
+        }
+
+        damage.flags.kill       = false;
+        damage.flags.killSilent = false;
+    }
+
+    damage.flags.shieldRecharging = false;
+
+    if(damage.shieldMaximum > 0.0f && !damage.flags.healthDepleted)
+    {
+        if(damage.flags.overShieldCharging)
+        {
+            damage.shield += TagConstants.Object.overShieldChargePerSecond / float(gameFramesPerSecond);
+
+            if(damage.shield < TagConstants.Object.overShieldPercent)
+            {
+                damage.flags.shieldRecharging = true;
+            }
+            else
+            {
+                damage.shield = TagConstants.Object.overShieldPercent;
+                damage.flags.shieldDepleted = false;
+            }
+        }
+        else if(damage.shield < 1.0f)
+        {
+            if(damage.stunTicks > 0)
+            {
+                damage.stunTicks -= 1;
+            }
+            else
+            {
+                // TODO difficulty modifier recharging
+
+                if(damage.flags.shieldDepleted)
+                {
+                    // TODO create recharging effect
+                    // TODO make regions go on, that go off with shield
+
+                    damage.flags.shieldDepleted = false;
+                }
+
+                damage.shield += tagCollision.shieldRechargePerTick; // TODO unhardcode frames per second
+
+                if(damage.shield >= 1.0f)
+                {
+                    damage.shield = 1.0f;
+                }
+                else
+                {
+                    damage.flags.shieldRecharging = true;
+                }
+            }
+        }
+    }
+
+    damage.updateRecentDamage();
+}
+
 void triggerShieldDepleted()
 {
     if(damage.flags.shieldDepleted)
@@ -1233,7 +1347,7 @@ void dealDamageToShield(
 
         bool preventDamage = false;
 
-        if(damage.flags.shieldAbsorbsAllDamage)
+        if(damage.flags.overShieldCharging)
         {
             dealt    = leftover;
             leftover = 0.0f;
@@ -1298,11 +1412,13 @@ void dealDamageToShield(
         damage.shield = 0.0f;
     }
 
-    // TODO stun time
+    if(dealt >= tagCollision.minimumStunDamage || damage.shield == 0.0f)
+    {
+        damage.stunTicks = cast(int)(tagCollision.stunTime * gameFramesPerSecond);
+    }
 
     damageAmount = leftover;
     damageDealt  = dealt;
-
 }
 
 private
@@ -1550,7 +1666,11 @@ void dealAreaDamage(ref DamageOptions options, bool doSiblings = false)
 
     bool doDamage = true;
 
-    if(!flags.hidden)
+    if(flags.hidden)
+    {
+        doDamage = false;
+    }
+    else
     {
         World.LineResult  lineResult = void;
         World.LineOptions lineOptions;
@@ -1604,10 +1724,6 @@ void dealAreaDamage(ref DamageOptions options, bool doSiblings = false)
                 doDamage = false;
             }
         }
-    }
-    else
-    {
-        doDamage = false;
     }
 
     if(tagDamageEffect.damageFlags.doesNotHurtOwner)
