@@ -101,11 +101,11 @@ extern(C) @nogc nothrow
     void          igSetWindowPos(ImVec2 pos, ImGuiSetCond cond = ImGuiSetCond.Default);                                // (not recommended) set current window position - call within Begin()/End(). prefer using SetNextWindowPos(), as this may incur tearing and side-effects.
     void          igSetWindowSize(ImVec2 size, ImGuiSetCond cond = ImGuiSetCond.Default);                              // (not recommended) set current window size - call within Begin()/End(). set to ImVec2(0,0) to force an auto-fit. prefer using SetNextWindowSize(), as this may incur tearing and minor side-effects.
     void          igSetWindowCollapsed(bool collapsed, ImGuiSetCond cond = ImGuiSetCond.Default);                      // (not recommended) set current window collapsed state. prefer using SetNextWindowCollapsed().
-    void          igSetWindowFocus();                                                               // (not recommended) set current window to be focused / front-most. prefer using SetNextWindowFocus().
-    void          igSetWindowPos(const(char)* name, ImVec2 pos, ImGuiSetCond cond = ImGuiSetCond.Default);             // set named window position.
-    void          igSetWindowSize(const(char)* name, ImVec2 size, ImGuiSetCond cond = ImGuiSetCond.Default);           // set named window size. set axis to 0.0f to force an auto-fit on this axis.
-    void          igSetWindowCollapsed(const(char)* name, bool collapsed, ImGuiSetCond cond = ImGuiSetCond.Default);   // set named window collapsed state
-    void          igSetWindowFocus(const(char)* name);                                              // set named window to be focused / front-most. use NULL to remove focus.
+    void          igSetWindowFocus();                                                                                  // (not recommended) set current window to be focused / front-most. prefer using SetNextWindowFocus().
+    pragma(mangle, "igSetWindowPos2")       void igSetWindowPos(const(char)* name, ImVec2 pos, ImGuiSetCond cond = ImGuiSetCond.Default);             // set named window position.
+    pragma(mangle, "igSetWindowSize2")      void igSetWindowSize(const(char)* name, ImVec2 size, ImGuiSetCond cond = ImGuiSetCond.Default);           // set named window size. set axis to 0.0f to force an auto-fit on this axis.
+    pragma(mangle, "igSetWindowCollapsed2") void igSetWindowCollapsed(const(char)* name, bool collapsed, ImGuiSetCond cond = ImGuiSetCond.Default);   // set named window collapsed state
+    pragma(mangle, "igSetWindowFocus2")     void igSetWindowFocus(const(char)* name);                                                                 // set named window to be focused / front-most. use NULL to remove focus.
 
     float         igGetScrollX();                                                       // get scrolling amount [0..GetScrollMaxX()]
     float         igGetScrollY();                                                       // get scrolling amount [0..GetScrollMaxY()]
@@ -125,6 +125,7 @@ extern(C) @nogc nothrow
     void          igPushStyleColor(ImGuiCol idx, ref const ImVec4 col);
     void          igPopStyleColor(int count = 1);
     void          igPushStyleVar(ImGuiStyleVar idx, float val);
+    pragma(mangle, "igPushStyleVarVec")
     void          igPushStyleVar(ImGuiStyleVar idx, ImVec2 val);
     void          igPopStyleVar(int count = 1);
     ImFont*       igGetFont();                                                          // get current font
@@ -213,6 +214,7 @@ extern(C) @nogc nothrow
     bool          igImageButton(ImTextureID user_texture_id, ImVec2 size, ImVec2 uv0 = ImVec2(0,0), ImVec2 uv1 = ImVec2(1,1), int frame_padding = -1, ImVec4 bg_col = ImVec4(0,0,0,0), ImVec4 tint_col = ImVec4(1,1,1,1));    // <0 frame_padding uses default frame padding settings. 0 for no padding
     bool          igCheckbox(const(char)* label, bool* v);
     bool          igCheckboxFlags(const(char)* label, uint* flags, uint flags_value);
+    pragma(mangle, "igRadioButtonBool")
     bool          igRadioButton(const(char)* label, bool active);
     bool          igRadioButton(const(char)* label, int* v, int v_button);
     bool          igCombo(const(char)* label, int* current_item, const(char*)* items, int items_count, int height_in_items = -1);
@@ -284,6 +286,7 @@ extern(C) @nogc nothrow
     float         igGetTreeNodeToLabelSpacing();                                                      // horizontal distance preceeding label when using TreeNode*() or Bullet() == (g.FontSize + style.FramePadding.x*2) for a regular unframed TreeNode
     void          igSetNextTreeNodeOpen(bool is_open, ImGuiSetCond cond = ImGuiSetCond.Default);      // set next TreeNode/CollapsingHeader open state.
     bool          igCollapsingHeader(const(char)* label, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags.Default);               // if returning 'true' the header is open. doesn't indent nor push on ID stack. user doesn't have to call TreePop().
+    pragma(mangle, "igCollapsingHeader2")
     bool          igCollapsingHeader(const(char)* label, bool* p_open, ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags.Default); // when 'p_open' isn't NULL, display an additional small close button on upper right of the header
 
     // Widgets: Selectable / Lists
