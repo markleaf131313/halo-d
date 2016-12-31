@@ -22,6 +22,7 @@ export bool gladLoadGL(Loader load)
         static if(isFunctionPointer!member)
         {
             member = cast(typeof(member))load(name);
+            assert(member, name ~ " is null, could not optain function pointer.");
         }
     }
 

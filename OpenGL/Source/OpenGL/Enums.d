@@ -1344,3 +1344,7 @@ enum uint GL_BUFFER_UPDATE_BARRIER_BIT = 0x00000200;
 enum uint GL_RGB10_A2UI = 0x906F;
 enum uint GL_TEXTURE_LOD_BIAS = 0x8501;
 enum uint GL_MAX_DEBUG_GROUP_STACK_DEPTH = 0x826C;
+
+// extension - gl_spirv
+enum uint GL_SHADER_BINARY_FORMAT_SPIR_V_ARB = 0x9551;
+enum uint GL_SPIR_V_BINARY_ARB = 0x9552;

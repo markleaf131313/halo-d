@@ -656,4 +656,5 @@ void function(GLuint, GLint, GLdouble) glProgramUniform1d;
 void function(GLenum) glFrontFace;
 void function(GLuint, GLenum, GLuint, GLint, GLint) glNamedFramebufferTextureLayer;
 void function(GLuint, GLenum, GLint) glNamedFramebufferParameteri;
+void function(GLuint, const(GLchar)*, GLuint, const(GLuint)*, const(GLuint)*) glSpecializeShaderARB;
 }
