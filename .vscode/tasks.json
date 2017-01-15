@@ -11,7 +11,7 @@
             "suppressTaskName": true,
             "args": [
                 "${workspaceRoot}/build/build.py",
-                "impl"
+                "Impl"
             ]
         },
         {
@@ -19,7 +19,7 @@
             "suppressTaskName": true,
             "args": [
                 "${workspaceRoot}/build/build.py",
-                "opengl"
+                "OpenGL"
             ]
         },
         {
@@ -28,7 +28,7 @@
             "isBuildCommand": true,
             "args": [
                 "${workspaceRoot}/build/build.py",
-                "runtime"
+                "Runtime"
             ],
             "problemMatcher": {
                 "owner": "d",

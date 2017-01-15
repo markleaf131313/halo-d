@@ -82,9 +82,20 @@ static @nogc nothrow pragma(inline, true)
 
 ~this()
 {
-    import core.sys.windows.windows : VirtualFree, MEM_RELEASE;
-
-    VirtualFree(buffer, 0, MEM_RELEASE);
+    version(Windows)
+    {
+        import core.sys.windows.windows : VirtualFree, MEM_RELEASE;
+        VirtualFree(buffer, 0, MEM_RELEASE);
+    }
+    else version(Posix)
+    {
+        import core.sys.posix.sys.mman : munmap;
+        munmap(buffer, size_t.max);
+    }
+    else
+    {
+        static assert(0);
+    }
 }
 
 void load(in string filename)
@@ -121,10 +132,23 @@ void load(in string filename)
 
     if(buffer is null)
     {
-        import core.sys.windows.windows : VirtualAlloc, MEM_COMMIT, MEM_RESERVE, PAGE_READWRITE;
+        version(Windows)
+        {
+            import core.sys.windows.windows : VirtualAlloc, MEM_COMMIT, MEM_RESERVE, PAGE_READWRITE;
+            buffer = cast(byte*)VirtualAlloc(cast(void*)0x4044_0000, maxBufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        }
+        else version(Posix)
+        {
+            import core.sys.posix.sys.mman : mmap, PROT_READ, PROT_WRITE, MAP_PRIVATE, MAP_ANON;
+            buffer = cast(byte*)mmap(cast(void*)0x4044_0000, maxBufferSize, PROT_READ | PROT_WRITE,
+                MAP_PRIVATE | MAP_ANON, -1, 0);
+        }
+        else
+        {
+            static assert(0);
+        }
 
-        // mallocCast!byte(maxBufferSize);
-        buffer = cast(byte*)VirtualAlloc(cast(void*)0x4044_0000, maxBufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+        assert(buffer !is null);
 
         table  = cast(TagTable*)buffer;
         metas  = cast(Meta*)(buffer + TagTable.sizeof);

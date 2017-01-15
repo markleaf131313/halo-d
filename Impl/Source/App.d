@@ -28,8 +28,20 @@ immutable string libraryPathLoaded;
 
 shared static this()
 {
-    libraryPath       = dirName(thisExePath()) ~ "/runtime.dll\0";
-    libraryPathLoaded = dirName(thisExePath()) ~ "/runtime_loaded.dll\0";
+    version(Windows)
+    {
+        libraryPath       = dirName(thisExePath()) ~ "/runtime.dll\0";
+        libraryPathLoaded = dirName(thisExePath()) ~ "/runtime_loaded.dll\0";
+    }
+    else version(Posix)
+    {
+        libraryPath       = dirName(thisExePath()) ~ "/libruntime.so\0";
+        libraryPathLoaded = dirName(thisExePath()) ~ "/libruntime_loaded.so\0";
+    }
+    else
+    {
+        static assert(0);
+    }
 
     libraryState.gameInterface.loaded = false;
 }
@@ -55,9 +67,19 @@ bool checkNeedsReload()
 
 bool doReloadLibrary()
 {
-    import core.sys.windows.windows;
-    import core.sys.windows.dll;
-    import core.runtime;
+    version(Windows)
+    {
+        import core.sys.windows.windows;
+        import core.sys.windows.dll;
+    }
+    else version(Posix)
+    {
+        import core.sys.posix.dlfcn;
+    }
+    else
+    {
+        static assert(0);
+    }
 
     with(libraryState)
     {
@@ -89,7 +111,10 @@ bool doReloadLibrary()
         }
 
         extern(C) void function(GameInterface*, uint) grabInterface;
-        grabInterface = cast(typeof(grabInterface))GetProcAddress(library, "grabInterface");
+
+        version(Windows)    grabInterface = cast(typeof(grabInterface))GetProcAddress(library, "grabInterface");
+        else version(Posix) grabInterface = cast(typeof(grabInterface))dlsym(library, "grabInterface");
+        else static assert(0);
 
         if(grabInterface !is null)
         {
@@ -101,7 +126,7 @@ bool doReloadLibrary()
     }
 }
 
-extern(Windows) nothrow @nogc
+extern(System) nothrow @nogc
 static void openglDebugCallback(
     GLenum source,
     GLenum type,

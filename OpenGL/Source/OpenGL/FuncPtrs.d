@@ -156,7 +156,7 @@ void function(GLenum, const(GLsizei)*, GLenum, const(void*)*, GLsizei) glMultiDr
 void function(GLenum, GLenum, GLenum, GLsizei, GLint*) glGetInternalformativ;
 void function(GLuint) glLinkProgram;
 void function(GLenum, GLuint, GLsizei, GLsizei*, GLchar*) glGetObjectLabel;
-const(GLubyte)* function(GLenum) glGetString;
+// const(GLubyte)* function(GLenum) glGetString;
 void function(GLenum) glEndQuery;
 void function(GLenum, GLenum, GLint) glFramebufferParameteri;
 void function(GLint, GLsizei, GLboolean, const(GLdouble)*) glUniformMatrix4x3dv;
@@ -242,7 +242,7 @@ void function(GLuint, const(GLint)*) glVertexAttrib4Niv;
 void function(GLenum, GLint, const(GLint)*) glClearBufferiv;
 void function(GLuint, GLdouble, GLdouble) glVertexAttribL2d;
 void function(GLuint, GLint, GLenum, GLint*) glGetTextureLevelParameteriv;
-const(GLubyte)* function(GLenum, GLuint) glGetStringi;
+// const(GLubyte)* function(GLenum, GLuint) glGetStringi;
 void function(GLenum, const(GLfloat)*) glPointParameterfv;
 void function(GLint, GLsizei, const(GLfloat)*) glUniform2fv;
 void function(GLuint, GLint, GLenum, GLfloat*) glGetTextureLevelParameterfv;

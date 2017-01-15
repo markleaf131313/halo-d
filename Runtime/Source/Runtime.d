@@ -1,6 +1,4 @@
 
-import core.sys.windows.dll : SimpleDllMain;
-
 import std.conv      : emplace, to;
 import std.datetime  : StopWatch, Duration, dur;
 import std.exception : enforce;
@@ -24,8 +22,11 @@ import Game.World;
 import Game.World.Player;
 
 
-mixin SimpleDllMain;
-
+version(Windows)
+{
+    import core.sys.windows.dll : SimpleDllMain;
+    mixin SimpleDllMain;
+}
 
 __gshared int[][TagId] cacheTagPaths; // todo temp debugging
 __gshared StopWatch frameStopWatch;
@@ -329,7 +330,7 @@ bool initSharedGameState(SharedGameState* gameState)
     SDL_SysWMinfo wmInfo;
     wmInfo.version_ = SDL_VERSION;
     SDL_GetWindowWMInfo(gameState.window, &wmInfo);
-    io.ImeWindowHandle = wmInfo.info.win.window;
+    version(Windows) io.ImeWindowHandle = wmInfo.info.win.window;
 
     frameStopWatch.start();
 

@@ -2115,8 +2115,8 @@ struct SDL_SysWMinfo {
 
         version( Posix ) {
             struct x11_ {
-                Display* display;
-                Window window;
+                void* display;
+                uint window;
             }
             x11_ x11;
         }

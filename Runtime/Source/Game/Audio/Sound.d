@@ -201,7 +201,7 @@ bool fillBuffer(int i)
     case TagEnums.SoundCompression.ogg:
         while(length < data.length)
         {
-            int ret = ov_read(oggFile, data.ptr + length, cast(int)(data.length - length), 0, 2, 1, null);
+            auto ret = ov_read(oggFile, data.ptr + length, cast(int)(data.length - length), 0, 2, 1, null);
 
             if(ret <= 0)
             {

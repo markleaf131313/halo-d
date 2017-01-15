@@ -17,45 +17,82 @@ def doBuild(buildTarget):
     libs = []
     postbuild = lambda: None
 
-    dsrcs = glob.iglob('source/**/*.d', recursive = True)
+    dsrcs = glob.iglob('Source/**/*.d', recursive = True)
+
+    if buildTarget == 'Runtime':
+        dflags = [
+            '-shared',
+            '-I../OpenGL/Source/',
+            '-I../Build/Imports/',
+            '-JText/',
+        ]
 
     if platform.system() == 'Windows':
-        if buildTarget == 'impl':
-            dflags = [
-                '-of../build/bin/impl.exe',
-                '-I../opengl/source/',
-                '-I../runtime/source/',
-                '-I../build/imports/',
+        dflags += [ '-mscrtlib=msvcrt', ]
+        lflags += [ '-L/LIBPATH:../Build/Lib/', ]
+
+        if buildTarget == 'Impl':
+            dflags += [
+                '-of../Build/Bin/Windows/impl.exe',
+                '-I../OpenGL/Source/',
+                '-I../Runtime/Source/',
+                '-I../Build/Imports/',
             ]
 
-            libs = [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
+            libs += [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
-        elif buildTarget == 'opengl':
-            dflags = [
+        elif buildTarget == 'OpenGL':
+            dflags += [
                 '-shared',
-                '-of../build/bin/opengl.dll',
+                '-of../Build/Bin/Windows/opengl.dll',
             ]
 
-            lflags = [ '-L/IMPLIB:../build/lib/opengl.lib' ]
+            lflags += [ '-L/IMPLIB:../Build/Lib/opengl.lib' ]
 
-        elif buildTarget == 'runtime':
+        elif buildTarget == 'Runtime':
             uniqueIdentifer = datetime.today().strftime('%Y%m%d-%H%M%S')
 
-            dflags = [
-                '-shared',
-                '-of../build/bin/runtime_out.dll',
-                '-I../opengl/source/',
-                '-I../build/imports/',
-                '-Jtext/',
-            ]
-
-            lflags = [ '-L/LTCG', '-L/PDB:../build/obj/runtime-' + uniqueIdentifer + '.pdb' ]
-            libs = [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'cimgui.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
+            dflags += [ '-of../Build/Bin/Windows/runtime_out.dll' ]
+            lflags += [ '-L/LTCG', '-L/PDB:../Build/Obj/runtime-' + uniqueIdentifer + '.pdb' ]
+            libs += [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'cimgui.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
             # possible .dll is created before .pdb, thus dll is loaded without symbols
             # so store it else where and copy it after everything is linked and ready
-            postbuild = lambda: copyfile('../build/bin/runtime_out.dll', '../build/bin/runtime.dll')
+            postbuild = lambda: copyfile('../Build/Bin/Windows/runtime_out.dll', '../Build/Bin/Windows/runtime.dll')
+    elif platform.system() == 'Linux':
+        if buildTarget == 'Impl':
+            dflags = [
+                '-defaultlib=libphobos2.so',
+                '-of../Build/Bin/Linux/impl',
+                '-I../OpenGL/Source/',
+                '-I../Runtime/Source/',
+                '-I../Build/Imports/',
+            ]
 
+            lflags = [ '-L-L../Build/Bin/Linux/' ]
+            libs = [ '-L-lopenal', '-L-lopengl', '-L-lSDL2', '-L-lvorbis', '-L-lvorbisfile' ]
+
+        elif buildTarget == 'OpenGL':
+            dflags = [
+                '-defaultlib=libphobos2.so',
+                '-shared',
+                '-fPIC',
+                '-of../Build/Bin/Linux/libopengl.so',
+            ]
+
+        elif buildTarget == 'Runtime':
+            dflags += [
+                '-defaultlib=libphobos2.so',
+                '-fPIC',
+                '-of../Build/Bin/Linux/libruntime.so',
+            ]
+
+            lflags = [ '-L-L../Build/Bin/Linux/' ]
+            libs = [ '-L-lopenal', '-L-lopengl', '-L-lSDL2', '-L-lcimgui', '-L-lvorbis', '-L-lvorbisfile' ]
+
+            # possible .dll is created before .pdb, thus dll is loaded without symbols
+            # so store it else where and copy it after everything is linked and ready
+            # postbuild = lambda: copyfile('../build/bin/runtime_out.dll', '../build/bin/runtime.dll')
     else:
         print('Error: Unknown platform ' + platform.system() + '.')
         return
@@ -63,7 +100,6 @@ def doBuild(buildTarget):
     args = [
         'dmd',
         '-m64',
-        '-mscrtlib=msvcrt',
         # '-w',           # warnings
         '-de',          # treat deprecation as errors
         '-gc',          # debug symbols (C format)
@@ -71,7 +107,6 @@ def doBuild(buildTarget):
         #'-inline',
         *dflags,
         *dsrcs,
-        '-L/LIBPATH:../build/lib/',
         *lflags,
         *libs,
     ]
@@ -88,15 +123,15 @@ def doBuild(buildTarget):
 
 # main ------------------------------------------------------------------------
 
-startTime = time.clock()
+startTime = datetime.now()
 
 parser = argparse.ArgumentParser()
-parser.add_argument('build', action='append', choices = ['impl', 'opengl', 'runtime', 'all'])
+parser.add_argument('build', action='append', choices = ['Impl', 'OpenGL', 'Runtime', 'all'])
 args = parser.parse_args()
 
 
 if args.build[0] == 'all':
-    args.build = [ 'opengl', 'impl', 'runtime' ] # order matters!
+    args.build = [ 'OpenGL', 'Impl', 'Runtime' ] # order matters!
 
 for b in args.build:
     os.chdir(b)
@@ -104,4 +139,4 @@ for b in args.build:
     os.chdir('..')
 
 
-print('total time: ' + str(timedelta(seconds=time.clock() - startTime)))
+print('total time: ' + str(datetime.now() - startTime))
