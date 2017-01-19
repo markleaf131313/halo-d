@@ -342,7 +342,7 @@ void setViewEnum(Field)(const(char)* identifier, ref Field field)
     static immutable immutable(char)*[] names = enumNamesArray!Field;
 
     int currentItem = cast(int)field;
-    igCombo(identifier, &currentItem, names.ptr, cast(int)names.length);
+    igCombo(identifier, &currentItem, names.ptr + 1, cast(int)names.length - 1);
     field = cast(Field)currentItem;
 }
 
