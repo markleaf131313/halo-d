@@ -10,10 +10,10 @@ import Game.Core.Misc   : indexNone;
 
 struct DatumIndex
 {
-    enum none = DatumIndex(indexNone, indexNone);
+    enum none = DatumIndex(cast(ushort)indexNone, indexNone);
 
-    short i    = indexNone;
-    short salt = indexNone;
+    ushort i    = cast(ushort)indexNone;
+    short  salt = indexNone;
 
     bool opCast(T : bool)() const
     {
