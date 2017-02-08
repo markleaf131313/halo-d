@@ -29,10 +29,10 @@ static assert(is(typeof(T.selfIndex) == DatumIndex) && T.selfIndex.offsetof == 0
 
 @disable this(this);
 
-private short num;       // number of valid elements
-private short max;       // maximum number of elements that can be held
-private short length;    // the range between 0 and "max" where valid elements exist, essentially lastIndex + 1
-private short nextIndex; // where to start searching when adding a new element
+private int num;       // number of valid elements
+private int max;       // maximum number of elements that can be held
+private int length;    // the range between 0 and "max" where valid elements exist, essentially lastIndex + 1
+private int nextIndex; // where to start searching when adding a new element
 
 private T* elements;
 
@@ -120,7 +120,7 @@ void clear()
     elements  = null;
 }
 
-void allocate(short numElements, short salt)
+void allocate(ushort numElements, short salt)
 {
     clear();
 
@@ -142,7 +142,7 @@ DatumIndex add()
         return DatumIndex.none;
     }
 
-    short index;
+    int index;
 
     foreach(i ; 0 .. max)
     {
@@ -157,10 +157,10 @@ DatumIndex add()
     T* element = &elements[index];
 
     num += 1;
-    nextIndex = cast(short)(index + 1);
-    length    = .max(length, cast(short)(index + 1));
+    nextIndex = index + 1;
+    length    = .max(length, index + 1);
 
-    DatumIndex result = { i: index, salt: (element.selfIndex.salt + 1) | short.min };
+    DatumIndex result = { i: cast(ushort)index, salt: (element.selfIndex.salt + 1) | short.min };
 
     emplace(element); // NOTE: careful here, selfIndex gets overwritten as part of the initializer
     element.selfIndex = result;
