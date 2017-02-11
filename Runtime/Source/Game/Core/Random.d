@@ -3,7 +3,7 @@ module Game.Core.Random;
 
 import std.random;
 
-import Game.Core.Math : Vec3, normalize;
+import Game.Core.Math : Vec3, normalize, cross, rotate;
 import Game.Tags : TagBounds;
 
 // TODO this engine is kind of wrong
@@ -52,4 +52,17 @@ Vec3 randomUnitVector()
     }
 
     return result;
+}
+
+@nogc nothrow
+Vec3 randomRotatedVector(Vec3 direction, TagBounds!float angleBounds)
+{
+    Vec3 axis = cross(randomUnitVector(), direction);
+
+    if(normalize(axis) != 0.0f)
+    {
+        direction = rotate(direction, randomValue(angleBounds), axis);
+    }
+
+    return direction;
 }
