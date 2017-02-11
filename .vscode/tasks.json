@@ -32,7 +32,7 @@
             ],
             "problemMatcher": {
                 "owner": "d",
-                "fileLocation": ["relative", "${workspaceRoot}/runtime/"],
+                "fileLocation": ["relative", "${workspaceRoot}/Runtime/"],
                 "pattern": {
                     "regexp": "^(.*)\\(([0-9]+)\\): (Error|Warning): (.*)$",
                     "file": 1,
