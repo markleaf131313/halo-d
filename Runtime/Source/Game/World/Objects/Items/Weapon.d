@@ -4,6 +4,7 @@ module Game.World.Items.Weapon;
 
 import Game.World.FirstPerson;
 import Game.World.Objects.Object;
+import Game.World.Objects.Projectile;
 import Game.World.Items.Item;
 import Game.World.Units.Unit;
 
@@ -114,6 +115,8 @@ struct Trigger
 
     FiringEffect firingEffect;
 
+    int roundsSinceLastTracer;
+
     float firingPercent = 0.0f;
     float errorPercent  = 0.0f;
     float ejectionPortRecoveryPercent = 0.0f;
@@ -151,11 +154,12 @@ struct Control
 
     mixin(bitfields!(
         bool, "light",            1,
+        bool, "zoomed",           1,
         bool, "primaryTrigger",   1,
         bool, "secondaryTrigger", 1,
         bool, "reload",           1,
         bool, "occupied",         1,
-        int, "", 3,
+        int, "", 2,
     ));
 }
 
@@ -1265,27 +1269,171 @@ void createProjectiles(int triggerIndex)
     const tagTrigger = &tagWeapon.triggers[triggerIndex];
     auto  trigger    = &triggers[triggerIndex];
 
-    GObject* host = &this.object;
+    Unit* host;
 
-    if(this.object.flags.hidden)
+    if(parent && parent.isUnit())
     {
-        if(parent && parent.isUnit())
-        {
-            host = parent;
-        }
+        host = cast(Unit*)parent;
     }
 
     const(char)[] triggerMarker = triggerIndex == 0 ? "primary trigger" : "secondary trigger";
-
     GObject.MarkerTransform[64] transforms = void;
-    int count = host.findMarkerTransform(triggerMarker, transforms.length, transforms.ptr);
+
+    GObject* markerObject = this.object.flags.hidden && parent ? parent : &this.object;
+    int      count        = markerObject.findMarkerTransform(triggerMarker, transforms.length, transforms.ptr);
 
     foreach(ref transform ; transforms[0 .. count])
     {
-        assert(0); // TODO
-    }
+        Vec3  forward   = transform.world.forward;
+        Vec3  position  = transform.world.position;
+        float hostSpeed = 0.0f;
+        float projectileError = 0.0f;
 
-    assert(0); // TODO
+        assert(0); // TODO bunch of stuff here still
+
+
+        if(!tagTrigger.flags.projectileVectorCannotBeAdjusted && host && !host.damage.flags.healthDepleted)
+        {
+            const tagUnit = Cache.get!TagUnit(host.tagIndex);
+            DatumIndex controllingPlayerIndex = host.controllingPlayerIndex;
+
+            if(auto gunner = host.poweredSeats[1].rider)
+            {
+                controllingPlayerIndex = gunner.controllingPlayerIndex;
+            }
+            else
+            {
+                forward = host.aim.direction;
+            }
+
+            if(tagUnit.flags.firesFromCamera)
+            {
+                Vec3 origin;
+
+                if(host.getCameraOrigin(origin))
+                {
+                    // make new position same distance away in direction of projectile forward as previously.
+                    position = origin + dot(position - origin, forward) * forward;
+                }
+            }
+
+            hostSpeed = dot(host.getAbsoluteParent().velocity, forward);
+
+            if(controllingPlayerIndex)
+            {
+                // TODO aim assist modification
+            }
+        }
+
+        if(tagTrigger.flags.projectilesUseWeaponOrigin)
+        {
+            position = transform.world.position;
+        }
+
+        int        numProjectiles     = tagTrigger.projectilesPerShot;
+        DatumIndex projectileTagIndex = tagTrigger.projectile.index;
+
+        if(triggerIndex == 0 && alternateShotsLoaded > 0)
+        {
+            numProjectiles = alternateShotsLoaded;
+            alternateShotsLoaded = 0;
+
+            if(tagWeapon.secondaryTriggerMode == TagEnums.SecondaryTriggerMode.loadsMultiplePrimaryAmmunition)
+            {
+                numProjectiles += 1;
+            }
+
+            numProjectiles *= tagTrigger.projectilesPerShot;
+            projectileTagIndex = tagWeapon.triggers[1].projectile.index;
+        }
+
+        if(!projectileTagIndex)
+        {
+            continue;
+        }
+
+        Unit* gunnerUnit;
+
+        if(host)
+        {
+            gunnerUnit = host.poweredSeats[1].rider;
+
+            if(gunnerUnit is null)
+            {
+                gunnerUnit = host;
+            }
+        }
+
+        const tagProjectile = Cache.get!TagProjectile(projectileTagIndex);
+        Vec3 firstForward;
+
+        foreach(p ; 0 .. numProjectiles)
+        {
+            bool isTracer;
+            GObject.Creation creation;
+
+            creation.tagIndex = projectileTagIndex;
+            creation.position = position;
+            creation.forward  = forward;
+
+            trigger.roundsSinceLastTracer += 1;
+            if(trigger.firingPercent == 0.0f || trigger.roundsSinceLastTracer >= tagTrigger.roundsBetweenTracers)
+            {
+                isTracer = true;
+                trigger.roundsSinceLastTracer = 0;
+            }
+
+            if(projectileError == 0.0f)
+            {
+                // TODO implement analog rate of fire, replace constant 0.5f
+                float alpha = tagTrigger.flags.analogRateOfFire ? 0.5f : trigger.firingPercent;
+                projectileError = tagTrigger.errorAngle.mix(alpha);
+            }
+
+            if(!tagTrigger.flags.useErrorWhenUnzoomed || !control.zoomed)
+            {
+                auto error = TagBounds!float(tagTrigger.minimumError, projectileError);
+                creation.forward = randomRotatedVector(creation.forward, error);
+            }
+
+            if(p == 0)
+            {
+                firstForward = creation.forward;
+            }
+
+            if(tagTrigger.flags.projectilesHaveIdenticalError)
+            {
+                creation.forward = firstForward;
+            }
+
+            creation.up = anyPerpendicularTo(creation.forward);
+            normalize(creation.up);
+
+            // TODO weapon trigger distribution horizontal fan
+
+            if(tagProjectile.flags.combineInitialVelocityWithParentVelocity)
+            {
+                creation.velocity = host.getAbsoluteParent().velocity;
+            }
+            else
+            {
+                creation.velocity = creation.forward * hostSpeed;
+            }
+
+            if(auto projectile = cast(Projectile*)world.createObject(creation))
+            {
+                // TODO if player controlled, check to make sure no collision
+                //      happens from camera origin -> projectile position (projectile can be offseted)
+
+                // TODO target object, related to aim assist above
+
+                if(!isTracer)
+                {
+                    projectile.flags.tracer = false;
+                }
+            }
+        }
+    }
 }
 
 private
