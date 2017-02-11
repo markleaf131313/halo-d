@@ -760,6 +760,7 @@ void triggerAttemptFire(int triggerIndex, bool canCharge)
     triggerFire(triggerIndex);
 }
 
+private
 void triggerFire(int triggerIndex)
 {
     const tagWeapon = Cache.get!TagWeapon(tagIndex);
@@ -960,16 +961,17 @@ void triggerFire(int triggerIndex)
 
         changeState(triggerIndex == 0 ? State.fire1 : State.fire2);
 
-        // todo firing effect related bool skips
-
-        if(alternateAmmo)
+        if(!misfire)
         {
-            alternateShotsLoaded += 1;
-        }
-        else
-        {
-            // todo client side only projectile flag
-            // todo create projectile
+            if(alternateAmmo)
+            {
+                alternateShotsLoaded += 1;
+            }
+            else
+            {
+                // todo client side only projectile flag
+                createProjectiles(triggerIndex);
+            }
         }
 
         if(tagWeapon.weaponType == TagEnums.WeaponType.plasmaPistol)
@@ -1288,9 +1290,6 @@ void createProjectiles(int triggerIndex)
         Vec3  position  = transform.world.position;
         float hostSpeed = 0.0f;
         float projectileError = 0.0f;
-
-        assert(0); // TODO bunch of stuff here still
-
 
         if(!tagTrigger.flags.projectileVectorCannotBeAdjusted && host && !host.damage.flags.healthDepleted)
         {
