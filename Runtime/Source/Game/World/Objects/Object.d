@@ -78,6 +78,15 @@ struct GObject
 
 struct Creation
 {
+    struct Flags
+    {
+        mixin(bitfields!(
+            bool, "playerControlled", 1,
+            uint, "", 7
+        ));
+    }
+
+    Flags flags;
     DatumIndex tagIndex;
 
     int regionPermutation = indexNone;
@@ -648,6 +657,18 @@ void setVisible(bool visible)
     }
 }
 
+Vec3 getPosition() const
+{
+    if(parent)
+    {
+        return parent.transforms[parentNodeIndex].mat4x3 * position;
+    }
+    else
+    {
+        return position;
+    }
+}
+
 void updateMatrices()
 {
     auto tagObject    = Cache.get!TagObject(tagIndex);
@@ -923,7 +944,6 @@ void move(ref Vec3 position, ref Vec3 forward, ref Vec3 up)
     connectToWorld();
 }
 
-@nogc nothrow
 void interpolateCurrent(int frames)
 {
     auto tagModel = Cache.get!TagGbxmodel(Cache.get!TagObject(tagIndex).model);
