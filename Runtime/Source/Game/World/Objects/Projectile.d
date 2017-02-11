@@ -37,7 +37,7 @@ struct Flags
 {
     mixin(bitfields!(
         bool, "_bit0_x01_", 1,
-        bool, "_bit1_x02_", 1,
+        bool, "tracer", 1,
         bool, "_bit2_x04_", 1,
         bool, "_bit3_x08_", 1,
         bool, "_bit4_x10_", 1,
