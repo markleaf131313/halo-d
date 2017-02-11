@@ -166,6 +166,8 @@ struct AimVectors
 
 GObject object;
 
+DatumIndex controllingPlayerIndex;
+
 Control control;
 Animation animation;
 
@@ -601,6 +603,61 @@ void incrementFrames(State desiredState)
     {
         setState(desiredState);
     }
+}
+
+bool getCameraOrigin(ref Vec3 result)
+{
+    GObject.MarkerTransform transform = void;
+
+    if(parent)
+    {
+        if(!parent.isUnit() || enteredParentSeatIndex == indexNone)
+        {
+            return false;
+        }
+
+        Unit* parentUnit = cast(Unit*)parent;
+        const tagUnit    = Cache.get!TagUnit(parentUnit.tagIndex);
+        const tagSeat    = &tagUnit.seats[enteredParentSeatIndex];
+
+        if(parentUnit.type == TagEnums.ObjectType.vehicle && !tagSeat.cameraMarkerName)
+        {
+            return false;
+        }
+
+        parent.findMarkerTransform(tagSeat.cameraMarkerName, transform);
+        result = transform.world.position;
+    }
+    else if(damage.flags.healthDepleted || type != TagEnums.ObjectType.biped)
+    {
+        const tagUnit = Cache.get!TagUnit(tagIndex);
+
+        if(auto gunner = poweredSeats[1].rider)
+        {
+            findMarkerTransform(tagUnit.seats[gunner.enteredParentSeatIndex].markerName, transform);
+        }
+        else
+        {
+            findMarkerTransform("head", transform);
+        }
+
+        result = transform.world.position;
+    }
+    else
+    {
+        import Game.World.Objects : Biped;
+
+        Biped* biped = cast(Biped*)&this;
+        const tagBiped = Cache.get!TagBiped(tagIndex);
+
+        result = getPosition();
+
+        // TODO airbourne crouching compensation for camera movement
+
+        result.z += mix(tagBiped.standingCameraHeight, tagBiped.crouchingCameraHeight, biped.crouchPercent);
+    }
+
+    return true;
 }
 
 bool weaponSeatExists(Weapon* weapon)
