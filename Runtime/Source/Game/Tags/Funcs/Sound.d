@@ -9,7 +9,7 @@ import Game.Core : indexNone, randomValueFromZero, randomPercent;
 
 @nogc float getMaximumDistance() const
 {
-    enum float[51] defaultValues =
+    static immutable float[51] defaultValues =
     [
         8.0f,       // projectile_impact
         120.0f,     // projectile_detonation
