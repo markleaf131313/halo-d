@@ -4,7 +4,7 @@ module Game.Tags.Funcs.Sound;
 mixin template TagSound()
 {
 
-import Game.Core : indexNone, randomValue, randomPercent;
+import Game.Core : indexNone, randomValueFromZero, randomPercent;
 
 
 @nogc float getMaximumDistance() const
@@ -127,7 +127,7 @@ int selectPermutation(int pitchRangeIndex, int prevPermutationIndex = indexNone)
         return pitchRange[prevPermutationIndex].nextPermutationIndex;
     }
 
-    int index = randomValue!int(0, pitchRange.actualPermutationCount - 1);
+    int index = randomValueFromZero(pitchRange.actualPermutationCount);
 
     foreach(int i ; 0 .. pitchRange.actualPermutationCount)
     {

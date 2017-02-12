@@ -837,7 +837,7 @@ void triggerFire(int triggerIndex)
 
             if(tagTrigger.flags.randomFiringEffects)
             {
-                index = randomValue!int(0, tagTrigger.firingEffects.size - 1);
+                index = randomValueFromZero(tagTrigger.firingEffects.size);
             }
 
             foreach(i ; 0 .. tagTrigger.firingEffects.size)

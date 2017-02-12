@@ -129,7 +129,7 @@ bool advanceSequence()
     {
         if(tagParticle.initialSequenceCount > 0)
         {
-            sequenceIndex = tagParticle.firstSequenceIndex + randomValue!int(0, tagParticle.initialSequenceCount - 1);
+            sequenceIndex = tagParticle.firstSequenceIndex + randomValueFromZero(tagParticle.initialSequenceCount);
         }
 
         stage = Stage.looping;
@@ -151,7 +151,7 @@ bool advanceSequence()
             sequenceIndex
                 = tagParticle.firstSequenceIndex
                 + tagParticle.initialSequenceCount
-                + randomValue!int(0, tagParticle.loopingSequenceCount - 1);
+                + randomValueFromZero(tagParticle.loopingSequenceCount);
         }
     }
 
@@ -163,7 +163,7 @@ bool advanceSequence()
                 = tagParticle.firstSequenceIndex
                 + tagParticle.initialSequenceCount
                 + tagParticle.loopingSequenceCount
-                + randomValue!int(0, tagParticle.finalSequenceCount - 1);
+                + randomValueFromZero(tagParticle.finalSequenceCount);
         }
 
         stage = Stage.next;

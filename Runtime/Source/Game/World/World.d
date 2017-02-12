@@ -531,9 +531,9 @@ void createParticle(ref Particle.Creation data)
     particle.world     = &this;
     particle.selfIndex = particleIndex;
 
-    if(tagParticle.flags.canAnimateBackwards)       particle.flags.animateBackwards   = randomValue!int() & 1;
-    if(tagParticle.flags.randomHorizontalMirroring) particle.flags.mirrorHorizontally = randomValue!int() & 1;
-    if(tagParticle.flags.randomVerticalMirroring)   particle.flags.mirrorVertically   = randomValue!int() & 1;
+    if(tagParticle.flags.canAnimateBackwards)       particle.flags.animateBackwards   = randomValue() & 1;
+    if(tagParticle.flags.randomHorizontalMirroring) particle.flags.mirrorHorizontally = randomValue() & 1;
+    if(tagParticle.flags.randomVerticalMirroring)   particle.flags.mirrorVertically   = randomValue() & 1;
 
     particle.flags.isThirdPerson     = data.isThirdPersonOnly;
     particle.flags.isFirstPerson     = data.isFirstPersonOnly;
@@ -583,7 +583,7 @@ void createParticle(ref Particle.Creation data)
 
         if(tagParticle.flags.animationStartsOnRandomFrame)
         {
-            particle.spriteIndex = randomValue!int(0, tagBitmap.sequences[particle.sequenceIndex].sprites.size - 1);
+            particle.spriteIndex = randomValueFromZero(tagBitmap.sequences[particle.sequenceIndex].sprites.size);
 
             if(particle.flags.animateBackwards) particle.spriteIndex += 1;
             else                                particle.spriteIndex -= 1;
