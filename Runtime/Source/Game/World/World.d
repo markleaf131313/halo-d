@@ -1743,6 +1743,7 @@ struct OverseerGObjectPtr
 
 }
 
+// TODO remove this and use a DatumArray instead for objects?
 struct SheepGObjectPtr
 {
 @nogc nothrow:
