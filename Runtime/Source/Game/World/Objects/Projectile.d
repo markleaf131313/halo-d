@@ -63,7 +63,8 @@ Flags flags;
 State state;
 
 GObject* sourceObject; // prevent hitting this object, until projectile ricochets off something else.
-GObject* targetObject; // guided homing target
+SheepGObjectPtr targetObject; // guided homing target
+                              // TODO make SheepGObjectPtr DatumIndex instead, See: Game.World.SheepGObjectPtr
 
 bool implUpdateLogic()
 {
@@ -89,9 +90,12 @@ bool implUpdateLogic()
 
         float velocityLength = length(velocity);
 
-        if(targetObject !is null && tagProjectile.guidedAngularVelocity > 0.0f)
+        if(targetObject && tagProjectile.guidedAngularVelocity > 0.0f)
         {
-            // TODO guiding projectile to target
+            if(auto target = targetObject.ptr)
+            {
+                // TODO guiding projectile to target
+            }
         }
 
         if(iteration == maxUpdateIterations)
