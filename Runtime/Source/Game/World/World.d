@@ -600,7 +600,7 @@ void createParticle(ref Particle.Creation data)
 
 }
 
-static
+static // TODO move out of World, into GObject?
 bool collideObjectLine(GObject* object, Vec3 position, Vec3 segment, SurfaceOptions options, ref ObjectLineResult result)
 {
     bool collision = false;
