@@ -66,6 +66,30 @@ GObject* sourceObject; // prevent hitting this object, until projectile ricochet
 SheepGObjectPtr targetObject; // guided homing target
                               // TODO make SheepGObjectPtr DatumIndex instead, See: Game.World.SheepGObjectPtr
 
+bool implInitialize()
+{
+    const tagProjectile = Cache.get!TagProjectile(tagIndex);
+
+    flags.tracer = true;
+
+    // TODO sourceObject, taken from object and the absoluteParent() of (need to implement in object)
+
+    // TODO timer
+    // TODO arming timer
+    // TODO contrail
+
+    velocity += rotation.forward * tagProjectile.initialVelocity;
+
+    // TODO initialize object.flags.inWater
+    // TODO update rotation
+    // TODO update range
+
+    this.object.flags.doesNotCastShadow          = true;
+    this.object.flags.deactivationCausesDeletion = true;
+
+    return true;
+}
+
 bool implUpdateLogic()
 {
     const tagProjectile = Cache.get!TagProjectile(tagIndex);
