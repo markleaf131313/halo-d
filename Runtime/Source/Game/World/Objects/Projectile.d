@@ -99,6 +99,9 @@ bool implUpdateLogic()
     float percent   = 1.0f;
     int   iteration = 0;
 
+    Vec3 position = this.position;
+    Vec3 velocity = this.velocity;
+
     while(percent > 0.0f)
     {
         if(state == State.arming)
@@ -136,17 +139,29 @@ bool implUpdateLogic()
 
         // TODO modify velocity, gravity, maximum distance traveled, final/inital speed, etc...
 
-        // World.LineResult collision = void;
+        float gravity = gameGravity;
 
-        // if(collideWorld(, collision))
-        // {
-        //     percent = 1.0f - collision.percent;
-        //     doImpact(, collision);
-        // }
-        // else
-        // {
-        //     percent = 0.0f;
-        // }
+        if(this.object.flags.inWater) gravity *= tagProjectile.waterGravityScale;
+        else                          gravity *= tagProjectile.airGravityScale;
+
+        velocity.z -= gravity;
+
+        World.LineResult collision = void;
+
+        if(collideWorld(velocity * percent, collision))
+        {
+            percent = 1.0f - collision.percent;
+            sourceObject = null;
+
+            doImpact(position, velocity, collision);
+        }
+        else
+        {
+            percent = 0.0f;
+            position += velocity; // TODO remove
+
+            // TODO
+        }
 
         if(tagProjectile.flybySound)
         {
@@ -162,20 +177,29 @@ bool implUpdateLogic()
             // TODO rotate
         }
 
+        disconnectFromWorld();
 
-        // disconnectFromMap();
-        // TODO
-        // connectToMap();
+        this.position = position;
+        this.velocity = velocity;
+
+        connectToWorld(&collision.location);
 
         if(percent != 0.0f && iteration != 0)
         {
             // TODO add contrail point
         }
-
-        assert(0);
     }
 
-    assert(0);
+    switch(state)
+    {
+    case State.arming:
+        // TODO detonation
+        goto case;
+    case State.detonated:
+        requestDeletion();
+        break;
+    default:
+    }
 
     return true;
 }
@@ -227,7 +251,7 @@ private bool collideWorld(Vec3 segment, ref World.LineResult lineResult)
     return false;
 }
 
-private void doImpact(ref Vec3 velocity, ref const World.LineResult line)
+private void doImpact(ref Vec3 position, ref Vec3 velocity, ref const World.LineResult line)
 {
     const tagProjectile = Cache.get!TagProjectile(tagIndex);
 
@@ -279,6 +303,8 @@ private void doImpact(ref Vec3 velocity, ref const World.LineResult line)
     {
         // TODO breakable surfaces
     }
+
+    position = line.point;
 
     switch(responseType)
     {
