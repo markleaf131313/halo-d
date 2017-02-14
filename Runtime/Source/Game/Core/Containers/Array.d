@@ -11,10 +11,19 @@ private int size = 0;
 private int max  = (Allocator.hasInlinedElements ? Allocator.inlinedSize : 0);
 private Allocator.Def!Element allocator;
 
-pragma(inline, true)
 @property Element* ptr()
 {
     return allocator.allocation();
+}
+
+size_t length() const
+{
+    return size;
+}
+
+size_t opDollar() const
+{
+    return size;
 }
 
 static if(hasElaborateDestructor!Element)
@@ -22,8 +31,7 @@ static if(hasElaborateDestructor!Element)
     static assert(false, "Do not use complicated types for this array.");
 }
 
-pragma(inline, true)
-ref Element opIndex(int i)
+ref Element opIndex(size_t i)
 {
     assert(i >= 0 && i < size);
     return ptr[i];
@@ -35,7 +43,6 @@ Element[] opSlice()
 }
 
 static if(is(Element E : E*))
-pragma(inline, true)
 Element at(int index)
 {
     return index >= 0 && index < size ? ptr[index] : null;
