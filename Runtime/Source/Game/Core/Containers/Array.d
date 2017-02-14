@@ -55,7 +55,7 @@ Element at(int index)
 
 bool capcityReached() const
 {
-    return size == max;
+    return size >= max;
 }
 
 void add()(auto ref Element element)
@@ -64,9 +64,26 @@ void add()(auto ref Element element)
     size += 1;
 }
 
+void addOverthrowFull()(auto ref Element element)
+{
+    if(max <= 0)
+    {
+        return;
+    }
+
+    if(size >= max)
+    {
+        ptr[size - 1] = element;
+    }
+    else
+    {
+        add(element);
+    }
+}
+
 bool addFalloff()(auto ref Element element)
 {
-    if(size == max)
+    if(size >= max)
     {
         return true;
     }
