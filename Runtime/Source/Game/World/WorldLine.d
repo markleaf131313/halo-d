@@ -13,11 +13,12 @@ struct WorldLine
 
     alias checkHit this;
 
-    float percent;
-    int   leafIndex;
+    float               percent;
     World.SurfaceResult surface;
-    Array!(int, FixedArrayAllocator!256) leaves;
+    Array!(int, FixedArrayAllocator!256) leaves; // TODO use circular queue instead, most relevant results are at the end?
+                                                 //      currently only last the very last is preserved.
 
+    // TODO validate need for storeLeaves
     this(World.SurfaceOptions options, bool storeLeaves, Vec3 position, Vec3 segment, Tag.Bsp* bsp, float p)
     {
         this.options     = options;
@@ -154,20 +155,17 @@ private:
 
                 if(!(options.ignoreInvisible && s.flags.invisible) && !(options.ignoreBreakable && s.flags.breakable))
                 {
-                    this.percent   = start;
-                    this.leafIndex = testId & int.max;
-                    this.surface   = World.SurfaceResult(surfaceIndex, s);
+                    this.percent = start;
+                    this.surface = World.SurfaceResult(surfaceIndex, s);
 
                     return true;
                 }
             }
         }
 
-        // todo add clusters
-
         if(leafId != indexNone)
         {
-            leaves.addUniqueFalloff(leafId);
+            leaves.addOverthrowFull(leafId);
         }
 
         lineLastLeaf = leafId;

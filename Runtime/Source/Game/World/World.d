@@ -835,7 +835,7 @@ bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions optio
     WorldLine line = WorldLine(options.surface, true, position, segment, currentSbsp.collisionBsp, 1.0f);
     bool collision = false;
 
-    LineResult bestResult = void;
+    LineResult bestResult = void; // TODO refactor out this
 
     bestResult.collisionType = CollisionType.none;
     bestResult.percent = 1.0f;
@@ -853,15 +853,9 @@ bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions optio
 
         bestResult.location = Location.init;
 
-        if(line.leafIndex != indexNone)
-        {
-            bestResult.location.leaf    = line.leafIndex;
-            bestResult.location.cluster = currentSbsp.leaves[line.leafIndex].cluster;
-        }
-
         if(line.surface.materialIndex == indexNone)
         {
-            bestResult.materialType = cast(TagEnums.MaterialType)indexNone;
+            bestResult.materialType = TagEnums.MaterialType.invalid;
         }
         else
         {
@@ -871,7 +865,13 @@ bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions optio
 
     if(!line.leaves.isEmpty)
     {
-        // todo implement World::Location in Result, place leaf here
+        int leaf = line.leaves[$ - 1];
+
+        if(leaf != indexNone)
+        {
+            bestResult.location.leaf = leaf;
+            bestResult.location.cluster = currentSbsp.leaves[leaf].cluster;
+        }
     }
 
     if(options.water)
@@ -923,9 +923,12 @@ bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions optio
     }
     else
     {
+        result = LineResult();
+
         result.collisionType = CollisionType.none;
         result.percent       = 1.0f;
         result.point         = position + segment;
+        result.location      = bestResult.location;
     }
 
     return collision;
