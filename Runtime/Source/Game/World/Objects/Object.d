@@ -818,7 +818,7 @@ void updateHierarchyMatrices()
     }
 }
 
-void connectToWorld()
+void connectToWorld(const(World.Location)* loc = null)
 {
     if(parent)
     {
@@ -829,14 +829,21 @@ void connectToWorld()
     }
     else
     {
-        headerFlags.connectedToParent = false;
+        World.Location tempLocation = void;
 
-        auto loc = world.calculateLocation(bound.center);
-
-        if(loc.cluster == indexNone)
+        if(loc is null)
         {
-            loc = world.calculateLocation(position);
+            loc = &tempLocation;
+
+            tempLocation = world.calculateLocation(bound.center);
+
+            if(tempLocation.cluster == indexNone)
+            {
+                tempLocation = world.calculateLocation(position);
+            }
         }
+
+        headerFlags.connectedToParent = false;
 
         if(loc.cluster == indexNone)
         {
@@ -848,7 +855,7 @@ void connectToWorld()
         else
         {
             flags.outsideMap = false;
-            location = loc;
+            location = *loc;
 
             int[TagConstants.Object.maxClusterPresence] clusters = void;
             int num = world.calculateOccupiedClusters(loc.cluster, bound, clusters.ptr, clusters.length);
