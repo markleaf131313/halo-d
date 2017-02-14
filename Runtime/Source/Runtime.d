@@ -1024,6 +1024,22 @@ try
             }
         }
 
+        for(auto iter = gameState.world.objects.front(); !iter.empty;)
+        {
+            GObject* object = iter.value.ptr;
+
+            auto erase = iter;
+            iter.next();
+
+            if(object.headerFlags.requestedDeletion)
+            {
+                // TODO move to separate function in World
+
+                object.disconnectFromWorld();
+                gameState.world.objects.remove(erase);
+            }
+        }
+
         gameState.players[0].action.type = Player.Action.Type.none;
 
         if(auto biped = gameState.players[0].biped)

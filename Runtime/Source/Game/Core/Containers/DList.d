@@ -16,9 +16,14 @@ struct Iterator
 {
     private Node* node;
 
-    @property ref Element value()
+    ref Element value()
     {
         return node.element;
+    }
+
+    bool empty() const
+    {
+        return node is null;
     }
 
     void next()
@@ -32,6 +37,10 @@ struct Iterator
     }
 }
 
+Iterator front()
+{
+    return Iterator(head);
+}
 
 Iterator insertFront(ref Element element)
 {
