@@ -1,24 +1,23 @@
 
 module Game.Core.Random;
 
-import std.random;
+import std.random : Xorshift, unpredictableSeed;
 
 import Game.Core.Math : Vec3, normalize, cross, rotate;
 import Game.Tags : TagBounds;
 
-// TODO use different engine, needs to be nothrow nogc
-private __gshared MinstdRand engine;
+private __gshared Xorshift engine;
 
 shared static this()
 {
-    engine = MinstdRand(unpredictableSeed);
+    engine = Xorshift(unpredictableSeed);
 }
 
 @nogc nothrow
 int randomValue(int min = int.min, int max = int.max)
 {
     engine.popFront();
-    return cast(int)(long(engine.front) % (long(max) - long(min)) + min);
+    return cast(int)((ulong(engine.front) * (ulong(max) - ulong(min))) >>> 32) + min;
 }
 
 @nogc nothrow
