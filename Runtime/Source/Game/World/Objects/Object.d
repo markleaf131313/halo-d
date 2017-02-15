@@ -835,11 +835,11 @@ void connectToWorld(const(World.Location)* loc = null)
         {
             loc = &tempLocation;
 
-            tempLocation = world.calculateLocation(bound.center);
+            tempLocation = world.findLocation(bound.center);
 
             if(tempLocation.cluster == indexNone)
             {
-                tempLocation = world.calculateLocation(position);
+                tempLocation = world.findLocation(position);
             }
         }
 

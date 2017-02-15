@@ -419,7 +419,7 @@ void createEffectFromMarkers(
     effect.world = &this;
     effect.selfIndex = index;
 
-    effect.location = calculateLocation(markers[0].position);
+    effect.location = findLocation(markers[0].position);
 
     effect.tagIndex = tagEffectIndex;
     effect.velocity = velocity;
@@ -509,7 +509,7 @@ void createParticle(ref Particle.Creation data)
         position = data.object.transforms[data.nodeIndex] * data.offset;
     }
 
-    Location location = calculateLocation(position);
+    Location location = findLocation(position);
 
     if(location.leaf == indexNone)
     {
@@ -776,42 +776,14 @@ int calculateOccupiedClusters(int clusterIndex, ref const(Sphere) sphere, int* i
     return calculateClusterRecurse(clusterIndex, sphere, iterator, max);
 }
 
-Location calculateLocation(ref const(Vec3) position)
+Location findLocation(ref const(Vec3) position)
 {
-    Location result;
-
-    result.leaf    = calculateLeaf(position);
-    result.cluster = indexNone;
-
-    if(result.leaf != indexNone)
-    {
-        result.cluster = currentSbsp.leaves[result.leaf].cluster;
-    }
-
-    return result;
+    return currentSbsp.findLocation(position);
 }
 
-static int calculateLeaf(Tag.Bsp* bsp, ref const(Vec3) position) // todo move this out into TagBsp Funcs
+int findLeaf(ref const(Vec3) position)
 {
-    int id = 0;
-
-    while(id >= 0)
-    {
-        auto node  = &bsp.bsp3dNodes[id];
-        auto plane = &bsp.planes[node.plane].plane;
-
-        float d = plane.distanceToPoint(position);
-
-        if(d >= 0.0f) id = node.frontChild;
-        else          id = node.backChild;
-    }
-
-    return id == indexNone ? indexNone : (id & int.max);
-}
-
-int calculateLeaf(ref const(Vec3) position)
-{
-    return calculateLeaf(currentSbsp.collisionBsp, position);
+    return currentSbsp.collisionBsp.findLeaf(position);
 }
 
 bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions options, ref LineResult result)
@@ -821,7 +793,7 @@ bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions optio
         result.collisionType = CollisionType.none;
         result.percent  = 1.0f;
         result.point    = position + segment;
-        result.location = calculateLocation(result.point);
+        result.location = findLocation(result.point);
 
         return false;
     }
@@ -914,7 +886,10 @@ bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions optio
 
     if(collision && options.tryToKeepValidLocation)
     {
-        assert(0); // TODO
+        if(result.location.leaf != indexNone && findLeaf(result.point) != result.location.leaf)
+        {
+            assert(0); // TODO
+        }
     }
 
     if(collision)

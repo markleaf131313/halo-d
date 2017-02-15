@@ -5,6 +5,7 @@ public
 {
     import Game.Tags.Funcs.Animation;
     import Game.Tags.Funcs.Bitmap;
+    import Game.Tags.Funcs.BlockBsp;
     import Game.Tags.Funcs.CameraTrack;
     import Game.Tags.Funcs.DamageEffect;
     import Game.Tags.Funcs.Model;

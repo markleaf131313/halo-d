@@ -5,6 +5,24 @@ mixin template TagScenarioStructureBsp()
 {
 @nogc nothrow:
 
+    auto findLocation(Vec3 position) const
+    {
+        import Game.Core  : indexNone;
+        import Game.World : World;
+
+        World.Location result =
+        {
+            leaf: collisionBsp.findLeaf(position)
+        };
+
+        if(result.leaf != indexNone)
+        {
+            result.cluster = this.leaves[result.leaf].cluster;
+        }
+
+        return result;
+    }
+
     void findLightmapMaterialFromSurface(int surface, ref int lightmapIndex, ref int materialIndex) const
     {
         // NOTE: differs from normal binary search
