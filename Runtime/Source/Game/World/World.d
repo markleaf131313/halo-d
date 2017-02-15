@@ -849,7 +849,7 @@ bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions optio
         if(result.location.leaf != indexNone && findLeaf(result.point) != result.location.leaf)
         {
             const float d    = dot(result.plane.normal, segment);
-            const float diff = (d == 0.0f) ? 1.0f / 32.0f : (1.0f / 4096.0f) / d;
+            const float diff = d == 0.0f ? 1.0f / 32.0f : (1.0f / 4096.0f) / abs(d);
 
             while(result.percent > 0.0f)
             {
