@@ -156,12 +156,13 @@ bool implUpdateLogic()
         float d    = dot(desiredForwardDirection, rotation.forward);
         float perp = perpDot(rotation.forward.xy, desiredForwardDirection.xy);
 
-        bool left = perp >= 0.0f;
+        bool left = perp > 0.0f;
 
-        if(d > -0.9f)
+        // continue rotating in same direction if desired direction is almost completely
+        // in the opposite direction.
+
+        if(d < -0.9f)
         {
-            // rotate based on state if desired forward not almost exactly backwards
-
             if     (animation.state == Unit.State.turnLeft)  left = true;
             else if(animation.state == Unit.State.turnRight) left = false;
         }
