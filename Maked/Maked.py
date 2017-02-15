@@ -291,7 +291,7 @@ for filename in os.listdir(os.getcwd() + "/def/"):
             with open(outDir + "Blocks.d", "w") as out:
                 out.write("\nmodule Game.Tags.Generated.Blocks;\n\n")
 
-                out.write("public import Game.Tags.Types;\nimport Game.Tags.Generated.Enums;\n\n")
+                out.write("public import Game.Tags.Types;\nimport Game.Tags.Generated.Enums;\nimport Game.Tags.Funcs;\n\n")
 
                 PrintBlocks(out, root["blocks"], None)
         else:
