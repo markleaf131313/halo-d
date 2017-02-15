@@ -52,12 +52,14 @@ else
 
         alias ptr this;
 
-        @property @nogc nothrow inout(T)* ptr() inout
+        @nogc nothrow
+        inout(T)* ptr() inout
         {
             return cast(T*)ptrValue;
         }
 
-        @property @nogc nothrow void ptr(const(T)* p)
+        @nogc nothrow
+        void ptr(const(T)* p)
         in
         {
             assert(cast(size_t)p <= 0xFFFF_FFFF); // assert(GC.addrOf(cast(void*)p) is null &&  TODO, too many problems right with it
