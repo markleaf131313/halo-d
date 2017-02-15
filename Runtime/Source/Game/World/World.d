@@ -829,14 +829,7 @@ bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions optio
         }
     }
 
-    if(collision && options.tryToKeepValidLocation)
-    {
-        if(result.location.leaf != indexNone && findLeaf(result.point) != result.location.leaf)
-        {
-            assert(0); // TODO
-        }
-    }
-
+    // TODO refactor out bestResult, just use result
     if(collision)
     {
         result = bestResult;
@@ -849,6 +842,29 @@ bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions optio
         result.percent       = 1.0f;
         result.point         = position + segment;
         result.location      = bestResult.location;
+    }
+
+    if(collision && options.tryToKeepValidLocation)
+    {
+        if(result.location.leaf != indexNone && findLeaf(result.point) != result.location.leaf)
+        {
+            const float d    = dot(result.plane.normal, segment);
+            const float diff = (d == 0.0f) ? 1.0f / 32.0f : (1.0f / 4096.0f) / d;
+
+            while(result.percent > 0.0f)
+            {
+                result.percent = max(0.0f, result.percent - diff);
+                result.point   = position + segment * result.percent;
+
+                Location loc = findLocation(result.point);
+
+                if(loc.leaf != indexNone)
+                {
+                    result.location = loc;
+                    break;
+                }
+            }
+        }
     }
 
     return collision;
