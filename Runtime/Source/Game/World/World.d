@@ -600,61 +600,6 @@ void createParticle(ref Particle.Creation data)
 
 }
 
-static // TODO move out of World, into GObject?
-bool collideObjectLine(GObject* object, Vec3 position, Vec3 segment, SurfaceOptions options, ref ObjectLineResult result)
-{
-    bool collision = false;
-    result.percent = float.max;
-
-    auto tagObject = Cache.get!TagObject(object.tagIndex);
-
-    if(!tagObject.collisionModel)
-    {
-        return false;
-    }
-
-    auto tagCollision = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel);
-
-    foreach(int i, ref node ; tagCollision.nodes)
-    {
-        if(node.region == indexNone) continue;
-        if(node.bsps.size == 0)      continue;
-
-        int bspIndex = clamp(object.regionPermutationIndices[node.region], 0, node.bsps.size - 1);
-        Tag.Bsp* bsp = node.bsps + bspIndex;
-
-        Transform inverseTransform = inverse(object.transforms[i]);
-
-        Vec3 p = inverseTransform * position;
-        Vec3 s = inverseTransform.mat3 * (inverseTransform.scale * segment);
-
-        Line line = Line(options, false, p, s, bsp, result.percent);
-
-        if(line && line.percent < result.percent)
-        {
-            result.percent = line.percent;
-            result.surface = line.surface;
-            result.regionIndex = node.region;
-            result.nodeIndex   = i;
-            result.bspIndex    = bspIndex;
-            result.surfacePlane = bsp.planes[line.surface.planeIndex & int.max].plane;
-
-            if(line.surface.materialIndex == indexNone)
-            {
-                result.materialType = cast(TagEnums.MaterialType)(indexNone);
-            }
-            else
-            {
-                result.materialType = tagCollision.materials[line.surface.materialIndex].materialType;
-            }
-
-            collision = true;
-        }
-    }
-
-    return collision;
-}
-
 auto addObjectToCollideableCluster(int clusterIndex, GObject* object)
 {
     auto list = &collideableClusterObjectLists[clusterIndex];
@@ -1454,7 +1399,7 @@ bool calculateObjectLineCollisionRecurse(
         {
             ObjectLineResult objectResult = void;
 
-            if(collideObjectLine(o, position, segment, options.surface, objectResult)
+            if(o.collideObjectLine(position, segment, options.surface, objectResult)
                 && objectResult.percent < result.percent)
             {
                 result.collisionType = CollisionType.object;

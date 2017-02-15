@@ -2009,6 +2009,62 @@ bool implUpdateImportFunctions()
     return true;
 }
 
+bool collideObjectLine(Vec3 position, Vec3 segment, World.SurfaceOptions options, ref World.ObjectLineResult result)
+{
+    import Game.World.WorldLine : WorldLine;
+
+    bool collision = false;
+    result.percent = float.max;
+
+    auto tagObject = Cache.get!TagObject(tagIndex);
+
+    if(!tagObject.collisionModel)
+    {
+        return false;
+    }
+
+    auto tagCollision = Cache.get!TagModelCollisionGeometry(tagObject.collisionModel);
+
+    foreach(int i, ref node ; tagCollision.nodes)
+    {
+        if(node.region == indexNone) continue;
+        if(node.bsps.size == 0)      continue;
+
+        int bspIndex = clamp(regionPermutationIndices[node.region], 0, node.bsps.size - 1);
+        Tag.Bsp* bsp = node.bsps + bspIndex;
+
+        Transform inverseTransform = inverse(transforms[i]);
+
+        Vec3 p = inverseTransform * position;
+        Vec3 s = inverseTransform.mat3 * (inverseTransform.scale * segment);
+
+        WorldLine line = WorldLine(options, false, p, s, bsp, result.percent);
+
+        if(line && line.percent < result.percent)
+        {
+            result.percent      = line.percent;
+            result.surface      = line.surface;
+            result.regionIndex  = node.region;
+            result.nodeIndex    = i;
+            result.bspIndex     = bspIndex;
+            result.surfacePlane = bsp.planes[line.surface.planeIndex & int.max].plane;
+
+            if(line.surface.materialIndex == indexNone)
+            {
+                result.materialType = TagEnums.MaterialType.invalid;
+            }
+            else
+            {
+                result.materialType = tagCollision.materials[line.surface.materialIndex].materialType;
+            }
+
+            collision = true;
+        }
+    }
+
+    return collision;
+}
+
 bool implDebugUi()
 {
     igSetNextTreeNodeOpen(true, ImGuiSetCond.FirstUseEver);
