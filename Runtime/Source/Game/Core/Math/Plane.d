@@ -19,7 +19,7 @@ pragma(inline, true) @nogc nothrow pure:
         return Plane2(-normal, -d);
     }
 
-    float distanceToPoint(Vec2 point)
+    float distanceToPoint(Vec2 point) const
     {
         return dot(normal, point) - d;
     }
@@ -37,7 +37,7 @@ pragma(inline, true) @nogc nothrow pure:
         return Plane3(-normal, -d);
     }
 
-    float distanceToPoint(Vec3 point)
+    float distanceToPoint(Vec3 point) const
     {
         return dot(normal, point) - d;
     }
