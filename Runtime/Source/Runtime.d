@@ -535,7 +535,19 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
             {
                 if(field.isValid())
                 {
-                    tags ~= field.index.i;
+                    import std.algorithm.searching : canFind;
+                    int index = field.index.i;
+
+                    if(!canFind(tags, index))
+                    {
+                        tags ~= index;
+                    }
+                    else
+                    {
+                        char[256] name = void;
+                        snprintf(name.ptr, name.length, "%s##%d", Cache.inst.metaAt(index).path, index);
+                        igSetWindowFocus(name.ptr);
+                    }
                 }
             }
 
@@ -787,7 +799,9 @@ try
                         }
                         else
                         {
-                            igSetWindowFocus(Cache.inst.metaAt(index).path);
+                            char[256] name = void;
+                            snprintf(name.ptr, name.length, "%s##%d", Cache.inst.metaAt(index).path, index);
+                            igSetWindowFocus(name.ptr);
                         }
                     }
                 }
@@ -841,6 +855,24 @@ try
 
             if(igBegin("Selected Object Info", &opened))
             {
+                if(igButton("Open Tag"))
+                {
+                    import std.algorithm.searching : canFind;
+
+                    int index = selectedObject.tagIndex.i;
+
+                    if(!canFind(openedTags, index))
+                    {
+                        openedTags ~= index;
+                    }
+                    else
+                    {
+                        char[256] name = void;
+                        snprintf(name.ptr, name.length, "%s##%d", Cache.inst.metaAt(index).path, index);
+                        igSetWindowFocus(name.ptr);
+                    }
+                }
+
                 igPushID(selectedObject);
                 selectedObject.byTypeDebugUi();
                 igPopID();
