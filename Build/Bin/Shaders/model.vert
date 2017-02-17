@@ -33,7 +33,7 @@ out vec3 aNormal;
 
 void main()
 {
-    vec3 rNormal = mat3(nodes[node.x]) * normal * weight.x + mat3(nodes[node.y]) * normal * weight.y;
+    vec3 rNormal = normalize(mat3(nodes[node.x]) * normal * weight.x + mat3(nodes[node.y]) * normal * weight.y);
     vec3 rPosition = nodes[node.x] * vec4(position, 1.0) * weight.x + nodes[node.y] * vec4(position, 1.0) * weight.y;
 
     vec3 eyeVector = eyePosition - rPosition;
@@ -41,8 +41,9 @@ void main()
 
     vec3 lightSum = ambientColor;
 
-    float attenuationDistantLight0 = dot(rNormal, -distantLight0_direction);
-    float attenuationDistantLight1 = dot(rNormal, -distantLight1_direction);
+    // TODO transparency for distant light
+    float attenuationDistantLight0 = max(0.0, dot(rNormal, -distantLight0_direction));
+    float attenuationDistantLight1 = max(0.0, dot(rNormal, -distantLight1_direction));
 
     lightSum += attenuationDistantLight0 * distantLight0_color;
     lightSum += attenuationDistantLight1 * distantLight1_color;
