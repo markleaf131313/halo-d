@@ -118,6 +118,7 @@ def doBuild(buildTarget):
         postbuild()
     except subprocess.CalledProcessError as ex:
         print(ex.output.decode('ascii', errors='surrogateescape'))
+        print('--- failed ---')
 
 
 
