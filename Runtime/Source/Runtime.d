@@ -799,9 +799,9 @@ try
                         }
                         else
                         {
-                            char[256] name = void;
-                            snprintf(name.ptr, name.length, "%s##%d", Cache.inst.metaAt(index).path, index);
-                            igSetWindowFocus(name.ptr);
+                            char[256] windowName = void;
+                            snprintf(windowName.ptr, windowName.length, "%s##%d", Cache.inst.metaAt(index).path, index);
+                            igSetWindowFocus(windowName.ptr);
                         }
                     }
                 }
