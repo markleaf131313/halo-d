@@ -17,17 +17,27 @@ mixin template TagBitmap()
 
 mixin template BitmapDataBlock()
 {
+@nogc nothrow:
 
-    import Game.Core.Math;
-    import Game.Tags;
-    import Game.Render.Dxt;
-
-    @nogc ColorArgb8 pixelColorAt(const ubyte[] inputBuffer, Vec2 coord, float mipmapScale = 1.0f) const
+    auto pixelColorAt(const(ubyte)[] inputBuffer, Vec2 coord, float mipmapScale) const
     {
+        import Game.Core.Math;
+        import Game.Tags;
+        import Game.Render.Dxt;
+        import Game.Render.Private.Pixels : pixelFormatSize;
+
         ColorArgb8 result;
 
         uint width  = this.width;
         uint height = this.height;
+
+        for(int i = cast(int)(mipmapCount * mipmapScale); i > 0; --i)
+        {
+            inputBuffer = inputBuffer[pixelFormatSize(format, width, height) .. $];
+
+            width  = max(1, width  >> 1);
+            height = max(1, height >> 1);
+        }
 
         uint u = cast(uint)(width  * coord.x) % width;
         uint v = cast(uint)(height * coord.y) % height;

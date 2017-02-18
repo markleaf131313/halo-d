@@ -938,8 +938,8 @@ bool updateObjectLighting(ref World world, Vec3 position, ref GObject.Lighting l
         normalize(normal);
         normalize(lmNormal);
 
-        ColorRgb diffuseColor  = baseBitmap.pixelColorAt(baseMapPixels, uv);
-        ColorRgb lightmapColor = lightmapBitmap.pixelColorAt(lightmapPixels, lmUv);
+        ColorRgb diffuseColor  = baseBitmap.pixelColorAt(baseMapPixels, uv, 0.7f);
+        ColorRgb lightmapColor = lightmapBitmap.pixelColorAt(lightmapPixels, lmUv, 0.0f);
 
         float c0 = dot(lightmapColor.asVector, Vec3(0.299f, 0.587f, 0.114f));
 
@@ -1248,7 +1248,7 @@ void renderImGui()
 }
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// End //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 private ubyte[][uint] gBitmapLoadedPixels;
 
