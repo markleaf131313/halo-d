@@ -4,7 +4,7 @@ module Game.Tags.Types;
 import std.string : fromStringz;
 
 public import Game.Core.Math
-    : Vec2s, Vec2, Vec3, Vec4, Quat, Plane2, Plane3
+    : Vec2s, Vec2, Vec3, Vec4, Quat, Plane2, Plane3, Euler3
     , ColorRgb, ColorArgb, ColorRgb8, ColorArgb8;
 
 public import Game.Tags.Generated.Meta;

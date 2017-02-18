@@ -8,6 +8,7 @@ import std.conv     : to;
 import std.typecons : tuple;
 
 public import Game.Core.Math.Vector;
+import Game.Core.Math.Euler;
 import Game.Core.Math.Quaternion;
 
 import Game.Core.Meta : staticIota;
@@ -169,17 +170,21 @@ struct Matrix(int _cols, int _rows, _T) if(_cols >= 2 && _rows >= 2)
         return Matrix(c, s, 0, -s, c, 0, 0, 0, 1);
     }
 
-    static Matrix fromYawPitchRoll()(Type yaw, Type pitch, Type roll) if(isMatrix3)
+    // TODO better name, isn't "XYZ" but closer to: X_3 * -Y_2 * Z_1
+    static Matrix fromEulerXYZ()(Euler3 euler) if(isMatrix3)
     {
+        // using "X_roll * Y_pitch * Z_yaw" rotation
+        // where Y_pitch is rotating in opposite direction (negative sin())
+
         Matrix result = void;
 
-        Type sy = sin(yaw);   Type cy = cos(yaw);
-        Type sp = sin(pitch); Type cp = cos(pitch);
-        Type sr = sin(roll);  Type cr = cos(roll);
+        Type s0 =  sin(euler.roll);  Type c0 = cos(euler.roll);
+        Type s1 = -sin(euler.pitch); Type c1 = cos(euler.pitch);
+        Type s2 =  sin(euler.yaw);   Type c2 = cos(euler.yaw);
 
-        result[0] = Column(sy * sp * sr + cy * cr,  sr * cp,  cy * sp * sr - sy * cr);
-        result[1] = Column(sy * sp * cr - cy * sr,  cp * cr,  cy * sp * cr + sy * sr);
-        result[2] = Column(               sy * cp,      -sp,                 cy * cp);
+        result[0] = Column(c1 * c2,  c0 * s2 + c2 * s0 * s1, s0 * s2 - c0 * c2 * s1);
+        result[1] = Column(-c1 * s2, c0 * c2 - s0 * s1 * s2, c2 * s0 + c0 * s1 * s2);
+        result[2] = Column(s1,       -c1 * s0,               c0 * c1);
 
         return result;
     }

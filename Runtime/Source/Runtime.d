@@ -159,9 +159,8 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
             data.tagIndex = palette.name.index;
             data.position = scenery.position;
             data.regionPermutation = scenery.desiredPermutation;
-            data.velocity = Vec3(0);
 
-            Mat3 mat = Mat3.fromYawPitchRoll(scenery.rotation[2], scenery.rotation[1], scenery.rotation[0]);
+            Mat3 mat = Mat3.fromEulerXYZ(scenery.rotation);
 
             data.forward = mat[0];
             data.up      = mat[2];
@@ -174,19 +173,16 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         {
             auto palette = &Cache.inst.scenario.vehiclePalette[vehicle.type];
 
-            GObject.Creation data = void;
+            GObject.Creation data;
 
             data.tagIndex = palette.name.index;
             data.position = vehicle.position;
             data.regionPermutation = vehicle.desiredPermutation;
-            data.velocity = Vec3(0);
-            data.rotationalVelocity = Vec3(0);
 
-            data.forward = Vec3(1, 0, 0);
-            data.up      = Vec3(0, 0, 1); // todo better rotation
+            Mat3 mat = Mat3.fromEulerXYZ(vehicle.rotation);
 
-            data.forward.x = cos(vehicle.rotation[0]) * cos(vehicle.rotation[1]);
-            data.forward.y = sin(vehicle.rotation[0]) * cos(vehicle.rotation[1]);
+            data.forward = mat[0];
+            data.up      = mat[2];
 
             gameState.world.createObject(data);
         }

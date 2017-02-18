@@ -26,7 +26,7 @@ basicTypeName = {
     "vec3": "Vec3",
     "quat": "Quat",
     "angles2": "float[2]",
-    "angles3": "float[3]",
+    "angles3": "Euler3",
     "plane2": "Plane2",
     "plane3": "Plane3",
     "rgbf": "ColorRgb",
