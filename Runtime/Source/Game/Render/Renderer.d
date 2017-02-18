@@ -971,7 +971,7 @@ bool updateObjectLighting(ref World world, Vec3 position, ref GObject.Lighting l
         }
 
         float additive = (1.0f - lmNormalLength) * 0.5f;
-        lighting.shadowColor = clamp((additive + 1.0f) - lighting.distantLight[0].color, 0.3f, 1.0f);
+        lighting.shadowColor = clamp((additive + 1.0f) - lighting.distantLight[0].color, 0.03f, 1.0f);
 
         if(options.brighterThanItShouldBe)
         {
