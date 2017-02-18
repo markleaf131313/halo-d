@@ -951,7 +951,7 @@ bool updateObjectLighting(ref World world, Vec3 position, ref GObject.Lighting l
         lighting.distantLight[1].direction = normal;
         lighting.distantLightCount = 2;
 
-        lighting.reflectionTint.a   = saturate(c0 * 1.5f + 0.25f);;
+        lighting.reflectionTint.a   = saturate(c0 * 1.5f + 0.25f);
         lighting.reflectionTint.rgb = saturate(lightmapColor * 2 + 0.25f) * saturate(diffuseColor * 3 + 0.5f);
 
         enum float littleSqrt1_2 = SQRT1_2 - 0.0001f;
