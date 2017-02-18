@@ -5,6 +5,8 @@ import OpenGL;
 
 import Game.Tags;
 
+@nogc nothrow:
+
 private immutable pixelBitSize =
 [
         0x08, 0x08, 0x08, 0x10, 0x00, 0x00,
