@@ -2100,6 +2100,7 @@ bool implDebugUi()
         igColorEdit3("distant light 1 color", cachedLighting.desired.distantLight[1].color[]);
         igInputFloat3("distant light 1 vector", cachedLighting.desired.distantLight[1].direction[]);
         igColorEdit3("shadow color", cachedLighting.desired.shadowColor[]);
+        igInputFloat3("shadow vector", cachedLighting.desired.shadowVector[]);
         igColorEdit3("reflection tint", cachedLighting.desired.reflectionTint.rgb[]);
 
     }
