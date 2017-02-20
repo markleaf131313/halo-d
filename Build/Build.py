@@ -53,7 +53,7 @@ def doBuild(buildTarget):
             uniqueIdentifer = datetime.today().strftime('%Y%m%d-%H%M%S')
 
             dflags += [ '-of../Build/Bin/Windows/runtime_out.dll' ]
-            lflags += [ '-L/LTCG', '-L/PDB:../Build/Obj/runtime-' + uniqueIdentifer + '.pdb' ]
+            lflags += [ '-L/PDB:../Build/Obj/runtime-' + uniqueIdentifer + '.pdb' ]
             libs += [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'cimgui.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
             # possible .dll is created before .pdb, thus dll is loaded without symbols
