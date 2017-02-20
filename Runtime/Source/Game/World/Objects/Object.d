@@ -2103,6 +2103,10 @@ bool implDebugUi()
         igInputFloat3("shadow vector", cachedLighting.desired.shadowVector[]);
         igColorEdit3("reflection tint", cachedLighting.desired.reflectionTint.rgb[]);
 
+        igSeparator();
+        igDragFloat("health", &damage.health);
+        igDragFloat("shield", &damage.shield);
+
     }
 
 
