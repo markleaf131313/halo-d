@@ -251,7 +251,7 @@ private bool collideWorld(Vec3 segment, ref World.LineResult lineResult)
     return false;
 }
 
-private void doImpact(ref Vec3 position, ref Vec3 velocity, ref const World.LineResult line)
+private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult line)
 {
     const tagProjectile = Cache.get!TagProjectile(tagIndex);
 
@@ -279,8 +279,27 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref const World.Line
 
     if(line.collisionType == World.CollisionType.object && tagProjectile.impactDamage)
     {
-        // TODO create damage effect
-        // TODO set material type from damage effect result
+        GObject.DamageOptions options =
+        {
+            // TODO flags
+            // TODO instigator
+            tagIndex:  tagProjectile.impactDamage.index,
+            center:    position,
+            position:  position,
+            direction: velocity,
+            scale:     throttle,
+        };
+
+        normalize(options.direction);
+
+        line.model.object.dealDamage(options, line.model.nodeIndex, line.model.regionIndex, line.materialType);
+
+        if(options.material != TagEnums.MaterialType.invalid)
+        {
+            materialType = options.material;
+        }
+
+        // TODO use damage amount as scale for effect below (need to add to DamageOptions)
     }
 
     const(Tag.ProjectileMaterialResponseBlock)* response = &defaultMaterialResponse;
