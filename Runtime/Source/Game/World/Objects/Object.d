@@ -511,9 +511,24 @@ static auto byTypeInit(TagEnums.ObjectType type)
     return null;
 }
 
-bool isUnit() const
+inout(Unit)* isUnit() inout
 {
-    return GObjectTypeMask(TagEnums.ObjectType.biped, TagEnums.ObjectType.vehicle).isSet(type);
+    if(GObjectTypeMask(TagEnums.ObjectType.biped, TagEnums.ObjectType.vehicle).isSet(type))
+    {
+        return cast(inout(Unit)*)&this;
+    }
+
+    return null;
+}
+
+inout(Biped)* isBiped() inout
+{
+    if(type == TagEnums.ObjectType.biped)
+    {
+        return cast(inout(Biped)*)&this;
+    }
+
+    return null;
 }
 
 void createAttachments()
