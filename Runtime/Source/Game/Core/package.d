@@ -9,7 +9,7 @@ public
     import Game.Core.Containers;
     import Game.Core.Math;
 
-    import Game.Core.Algorithm;
+    import Game.Core.Algorithms;
     import Game.Core.Io;
     import Game.Core.Memory;
     import Game.Core.Meta;

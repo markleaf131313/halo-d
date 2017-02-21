@@ -1,5 +1,5 @@
 
-module Game.Core.Algorithm;
+module Game.Core.Algorithms;
 
 auto findFirst(alias pred, T, U)(T[] range, scope U needle)
 {
