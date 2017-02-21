@@ -40,6 +40,9 @@ enum State
 
     airborne,
 
+    airborneDead,
+    landingDead,
+
     entering,
     exiting,
 
@@ -503,7 +506,32 @@ void incrementFrames(State desiredState)
         case AnimationController.State.end:
             switch(animation.state)
             {
-            case State.entering: break;
+            case State.landingDead:
+                auto biped = isBiped;
+
+                if(tagUnit.flags.destroyedAfterDying)
+                {
+                    const tagBiped = cast(const(TagBiped)*)tagUnit;
+
+                    if(this.object.flags.atRest || biped && (!biped.flags.airborne || !tagBiped.flags.hasNoDyingAirborne))
+                    {
+                        // TODO destroy + spawned actors
+                        requestDeletion(); // TODO temporary
+                    }
+                }
+
+                if(biped)
+                {
+                    // TODO set body limp
+                }
+
+                // TODO animation flag
+
+                baseAnimation.frame -= 1;
+
+                break;
+            case State.entering:
+                break;
             case State.exiting:
 
                 // todo implement
@@ -593,6 +621,15 @@ void incrementFrames(State desiredState)
                 // turnLeft/Right auto terminates, so prevent idle from changing state
             if(desired == State.idle) return false;
             return true;
+        case State.landingDead:
+        case State.airborneDead:
+            switch(desired)
+            {
+            case State.landingDead:
+            case State.airborneDead: return true;
+            default:
+            }
+            return false;
         default:
         }
 
@@ -1083,8 +1120,13 @@ void setState(State desired)
 
     int index = indexNone;
 
+    // TODO this switch statement can be split into two (essentially)
+    //      by diving each different type of animation in half
     switch(desired)
     {
+
+    // Unit Weapon Animation
+
     case State.idle:       index = getAnimationIndex(TagEnums.UnitWeaponAnimation.idle); break;
     case State.turnLeft:   index = getAnimationIndex(TagEnums.UnitWeaponAnimation.turnLeft); break;
     case State.turnRight:  index = getAnimationIndex(TagEnums.UnitWeaponAnimation.turnRight); break;
@@ -1094,8 +1136,12 @@ void setState(State desired)
     case State.moveRight:  index = getAnimationIndex(TagEnums.UnitWeaponAnimation.moveRight); break;
     case State.airborne:   index = getAnimationIndex(TagEnums.UnitWeaponAnimation.airborne); break;
 
-    case State.entering:   index = getAnimationIndex(TagEnums.UnitSeatAnimation.enter); break;
-    case State.exiting:    index = getAnimationIndex(TagEnums.UnitSeatAnimation.exit); break;
+    // Unit Seat Animation
+
+    case State.airborneDead: index = getAnimationIndex(TagEnums.UnitSeatAnimation.airborneDead); break;
+    case State.landingDead:  index = getAnimationIndex(TagEnums.UnitSeatAnimation.landingDead);  break;
+    case State.entering:     index = getAnimationIndex(TagEnums.UnitSeatAnimation.enter);        break;
+    case State.exiting:      index = getAnimationIndex(TagEnums.UnitSeatAnimation.exit);         break;
 
     default: assert(0, "Need to implement something here.");
     }
@@ -1122,7 +1168,7 @@ void setState(State desired)
             case State.idle:
             case State.turnLeft:
             case State.turnRight:
-                interpolateLength = 0;
+                interpolateLength = 1;
                 break;
             default:
             }
