@@ -363,12 +363,15 @@ struct Flags
     mixin(bitfields!(
         bool, "hidden",                     1,
         bool, "inWater",                    1,
+        bool, "atRest",                     1,
         bool, "connectedToMap",             1,
         bool, "outsideMap",                 1,
         bool, "doesNotCastShadow",          1,
         bool, "hasCollisionModel",          1,
         bool, "deactivationCausesDeletion", 1,
         bool, "prohibitActivation",         1,
+        bool, "limp",                       1,
+        uint, "",                           6,
     ));
 }
 
