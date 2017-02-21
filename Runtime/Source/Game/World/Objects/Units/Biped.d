@@ -31,7 +31,8 @@ struct Flags
     mixin(bitfields!(
         bool, "airborne", 1,
         bool, "sliding",  1,
-        int, "", 6
+        bool, "limp",     1,
+        int, "", 5
     ));
 }
 
