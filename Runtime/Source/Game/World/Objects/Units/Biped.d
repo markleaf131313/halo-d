@@ -149,6 +149,7 @@ bool implUpdateLogic()
     else              ticksSliding = 0;
 
     // rotation update //
+    if(!damage.flags.healthDepleted)
     {
         // todo climb any surface, flying, flaming, alert etc..
         // this is only for base case of playing walking around
@@ -467,8 +468,22 @@ bool implUpdateLogic()
 
     // end of movement update //
 
-    if(flags.airborne)
+    if(damage.flags.healthDepleted)
     {
+        // TODO biped limping
+
+        if(ticksInAir <= 3 || tagBiped.flags.hasNoDyingAirborne)
+        {
+            desiredState = State.landingDead;
+        }
+        else
+        {
+            desiredState = State.airborneDead;
+        }
+    }
+    else if(flags.airborne)
+    {
+        // TODO state specific handling
         if(ticksInAir > 3 || animation.state == Unit.State.airborne)
         {
             desiredState = Unit.State.airborne;
