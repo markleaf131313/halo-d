@@ -660,7 +660,7 @@ int calculateNearbyObjects(
     {
         if(max == 0)
         {
-            return 0;
+            return total;
         }
 
         if(search == ObjectSearchType.collideable || search == ObjectSearchType.all)
