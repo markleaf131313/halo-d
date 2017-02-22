@@ -143,6 +143,9 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
             gameState.camera.position = data.position;
 
             gameState.players[0].biped = cast(Biped*)gameState.world.createObject(data);
+
+            data.position.x -= 0.5f;
+            gameState.world.createObject(data);
         }
 
         foreach(ref scenery ; Cache.inst.scenario.scenery)
