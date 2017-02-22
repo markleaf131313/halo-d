@@ -658,11 +658,6 @@ int calculateNearbyObjects(
 
     foreach(int clusterIndex ; clusters[0 .. count])
     {
-        if(max == 0)
-        {
-            return total;
-        }
-
         if(search == ObjectSearchType.collideable || search == ObjectSearchType.all)
         {
             foreach(object ; collideableClusterObjectLists[clusterIndex])
@@ -1166,6 +1161,7 @@ bool collidePlayer(
             Vec3  posV0  = center - v0;
             float dPosV0 = dot(d, posV0);
 
+            // TODO fix variable names
             float g = dot(velocity, posV0) * dd;
             float f = dPosV0 * vd - g;
 
