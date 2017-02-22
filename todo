@@ -1,0 +1,23 @@
+
+-> implement damage
+    -> projectile impact
+    -> projectile lifetime
+    -> projectile "force" (rockets/grenade moving other objects)
+    -> biped melee damage
+    -> biped throw grenade
+
+-> implment sound
+    -> looping sounds
+    -> spatial aware sounds (3d listener)
+    -> [extra] add "EAX" sound effects
+
+-> fix biped movement
+    -> not properly being connected/disconnected when doing physics
+    -> need to implement handling multiple surface connections
+    -> disable collision with certain object (weapons/bipeds)
+    -> handle biped-biped collision properly
+
+-> implement "point" collision for spherical/capsule collision
+
+-> particle rendering or hs compiler work
+    -> todo
