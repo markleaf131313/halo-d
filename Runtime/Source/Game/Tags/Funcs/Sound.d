@@ -3,11 +3,12 @@ module Game.Tags.Funcs.Sound;
 
 mixin template TagSound()
 {
+@nogc nothrow:
 
 import Game.Core : indexNone, randomValueFromZero, randomPercent;
 
 
-@nogc float getMaximumDistance() const
+float getMaximumDistance() const
 {
     static immutable float[51] defaultValues =
     [
@@ -72,7 +73,7 @@ import Game.Core : indexNone, randomValueFromZero, randomPercent;
     return maximumDistance;
 }
 
-@nogc int selectPitchRange(float pitch, int suggestedIndex = indexNone) const
+int selectPitchRange(float pitch, int suggestedIndex = indexNone) const
 {
     if(suggestedIndex != indexNone && suggestedIndex < pitchRanges.size)
     {
