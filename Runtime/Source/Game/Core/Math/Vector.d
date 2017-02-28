@@ -368,3 +368,26 @@ Vector3!T anyPerpendicularTo(T)(Vector!(3,T) vec)
         return Vector3!T(0, vec.z, -vec.y);
     }
 }
+
+Vector3!T reflect(T)(Vector!(3,T) normal, Vector!(3,T) vec)
+{
+    float d = dot(vec, normal);
+    return vec - (d + d) * normal;
+}
+
+// TODO would rather us return value, maybe once "auto tuple" is implemented?
+void reflectVectors(T)(Vector!(3,T) normal, Vector!(3,T) vec, ref Vector!(3,T) resultPerp, ref Vector!(3,T) resultParallel)
+{
+    float lenSqr = lengthSqr(normal);
+
+    if(lenSqr == 0.0f)
+    {
+        resultPerp = Vec3(0.0f);
+        resultParallel = vec;
+    }
+    else
+    {
+        resultPerp = (dot(normal, vec) / lenSqr) * normal;
+        resultParallel = vec - resultPerp;
+    }
+}
