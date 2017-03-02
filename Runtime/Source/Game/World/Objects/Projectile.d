@@ -40,8 +40,8 @@ struct Flags
         bool, "tracer", 1,
         bool, "_bit2_x04_", 1,
         bool, "_bit3_x08_", 1,
-        bool, "_bit4_x10_", 1,
-        bool, "_bit5_x20_", 1,
+        bool, "attemptCreationEffect", 1,
+        bool, "skipCreationEffect", 1,
         bool, "_bit6_x40_", 1,
         bool, "_bit7_x80_", 1,
         uint, "", 8,
@@ -62,9 +62,14 @@ GObject object;
 Flags flags;
 State state;
 
-GObject* sourceObject; // prevent hitting this object, until projectile ricochets off something else.
+SheepGObjectPtr sourceObject; // prevent hitting this object, until projectile ricochets off something else.
 SheepGObjectPtr targetObject; // guided homing target
                               // TODO make SheepGObjectPtr DatumIndex instead, See: Game.World.SheepGObjectPtr
+
+// TODO better comments/names
+float damagePerVelocity; // (init^2 - final^2) / (2 * (upper - lower))
+float damageRangeUpper;  // damage range (upper)
+float damageRangeScale;  // initial velocity / damage range (lower)
 
 bool implInitialize()
 {
@@ -82,7 +87,7 @@ bool implInitialize()
 
     // TODO initialize object.flags.inWater
     // TODO update rotation
-    // TODO update range
+    updateDamageRange();
 
     this.object.flags.doesNotCastShadow          = true;
     this.object.flags.deactivationCausesDeletion = true;
@@ -150,8 +155,8 @@ bool implUpdateLogic()
 
         if(collideWorld(velocity * percent, collision))
         {
-            percent = 1.0f - collision.percent;
-            sourceObject = null;
+            percent      = 1.0f - collision.percent;
+            sourceObject = SheepGObjectPtr();
 
             doImpact(position, velocity, collision);
         }
@@ -184,7 +189,7 @@ bool implUpdateLogic()
 
         connectToWorld(&collision.location);
 
-        if(percent != 0.0f && iteration != 0)
+        if(percent > 0.0f && iteration != 0)
         {
             // TODO add contrail point
         }
@@ -212,6 +217,25 @@ private void setState(State desired)
     }
 }
 
+private void updateDamageRange()
+{
+    const tagProjectile = Cache.get!TagProjectile(tagIndex);
+
+    TagBounds!float range = object.flags.inWater ? tagProjectile.waterDamageRange : tagProjectile.airDamageRange;
+
+    damageRangeUpper = range.upper;
+    damagePerVelocity = tagProjectile.getDamageRangePerVelocity(range.upper - range.lower);
+
+    if(range.lower > 0.0f)
+    {
+        damageRangeScale = range.lower / tagProjectile.initialVelocity;
+    }
+    else
+    {
+        // todo
+    }
+}
+
 private bool collideWorld(Vec3 segment, ref World.LineResult lineResult)
 {
     World.LineOptions options;
@@ -224,7 +248,7 @@ private bool collideWorld(Vec3 segment, ref World.LineResult lineResult)
     options.objects   = true;
     options.tryToKeepValidLocation = true;
 
-    if(world.collideLine(sourceObject, position, segment, options, lineResult))
+    if(world.collideLine(sourceObject.ptr, position, segment, options, lineResult))
     {
         return true;
     }
@@ -244,8 +268,8 @@ private bool collideWorld(Vec3 segment, ref World.LineResult lineResult)
 
         options.tryToKeepValidLocation = false;
 
-        if(world.collideLine(sourceObject, position + offset, segment, options, lineResult)) return true;
-        if(world.collideLine(sourceObject, position - offset, segment, options, lineResult)) return true;
+        if(world.collideLine(sourceObject.ptr, position + offset, segment, options, lineResult)) return true;
+        if(world.collideLine(sourceObject.ptr, position - offset, segment, options, lineResult)) return true;
     }
 
     return false;
@@ -302,20 +326,27 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
         // TODO use damage amount as scale for effect below (need to add to DamageOptions)
     }
 
-    const(Tag.ProjectileMaterialResponseBlock)* response = &defaultMaterialResponse;
+    const(Tag.ProjectileMaterialResponseBlock)* tagResponse = &defaultMaterialResponse;
 
     if(tagProjectile.materialResponses.inBounds(materialType))
     {
-        response = &tagProjectile.materialResponses[materialType];
+        tagResponse = &tagProjectile.materialResponses[materialType];
     }
 
-    // TODO check to see if we use the "potential" material reponse
-    auto       responseType   = response.defaultResponse;
-    DatumIndex responseEffect = response.defaultEffect.index;
+    TagEnums.MaterialResponse responseType   = tagResponse.defaultResponse;
+    DatumIndex                responseEffect = tagResponse.defaultEffect.index;
 
-    if(response.potentialResponse != TagEnums.MaterialResponse.disappear)
+    const float angle    = randomNoise(tagResponse.angularNoise)  + angleBetween(line.plane.normal, velocity) - PI_2;
+    const float hitSpeed = randomNoise(tagResponse.velocityNoise) - dot(line.plane.normal, velocity);
+
+    if(tagResponse.potentialResponse != TagEnums.MaterialResponse.disappear)
     {
-        // TODO potential response
+        if(tagResponse.angleBounds.upper    == 0.0f || tagResponse.angleBounds.inBounds!"[]"(angle))
+        if(tagResponse.velocityBounds.upper == 0.0f || tagResponse.velocityBounds.inBounds!"[]"(hitSpeed))
+        {
+            responseType   = tagResponse.potentialResponse;
+            responseEffect = tagResponse.potentialEffect.index;
+        }
     }
 
     if(line.collisionType == World.CollisionType.structure && line.surface.flags.breakable)
@@ -328,30 +359,128 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
     switch(responseType)
     {
     default:
-        // TODO
+        switch(line.collisionType)
+        {
+        case World.CollisionType.water:
+            object.flags.inWater = !object.flags.inWater;
+            updateDamageRange();
+            position -= line.plane.normal * 0.001f;
+            break;
+        case World.CollisionType.object:
+            velocity *= 1.0f - tagResponse.initialFriction;
+            sourceObject = line.model.object.selfPtr;
+            break;
+        default:
+            if(tagProjectile.timer.upper == 0.0f)
+            {
+                responseType = TagEnums.MaterialResponse.detonate;
+            }
+            else
+            {
+                responseType = TagEnums.MaterialResponse.attach;
+                flags._bit2_x04_ = true;
+                flags.attemptCreationEffect = true;
+            }
+
+            velocity = Vec3(0.0f);
+        }
         break;
     case TagEnums.MaterialResponse.overpenetrate:
-        // TODO
+        velocity = Vec3(0.0f);
         break;
     case TagEnums.MaterialResponse.reflect:
-        // TODO
+        Vec3 perp;
+        Vec3 parallel;
+        reflectVectors(line.plane.normal, velocity, perp, parallel);
+
+        velocity = (1.0f - tagResponse.parallelFriction) * parallel - (1.0f - tagResponse.perpendicularFriction) * perp;
         break;
     }
 
-    if(response.angularNoise != 0.0f)
+    if(tagResponse.angularNoise != 0.0f)
     {
-        // TODO angular noise
+        velocity = randomRotatedVector(velocity, TagBounds!float(0.0f, tagResponse.angularNoise));
     }
 
-    if(response.velocityNoise != 0.0f)
+    if(tagResponse.velocityNoise != 0.0f)
     {
-        // TODO velocity noise
+        float len = normalize(velocity);
+
+        if(len != 0.0f)
+        {
+            velocity *= len * (randomPercent() * 2 * tagResponse.velocityNoise) - tagResponse.velocityNoise;
+        }
     }
 
-    // TODO minimum velocity
-    // TODO scale effect by damage/angle
-    // TODO create reponseEffect
-    // TODO detonation started effect
+    const float velocityLengthSqr = lengthSqr(velocity);
+
+    if(responseType != TagEnums.MaterialResponse.attach)
+    {
+        if(velocityLengthSqr < sqr(tagProjectile.minimumVelocity))
+        {
+            setState(State.arming);
+        }
+    }
+
+    if(velocityLengthSqr < 0.0001f)
+    {
+        flags.attemptCreationEffect = true;
+
+        if(line.plane.normal.z > 0.3f)
+        {
+            flags.skipCreationEffect = true;
+
+            if(tagProjectile.timer.upper == 0.0f)
+            {
+                setState(State.arming);
+            }
+        }
+    }
+
+    float effectScale = 1.0f;
+
+    switch(tagResponse.scaleEffectsBy)
+    {
+    case TagEnums.ScaleEffectBy.damage: effectScale = saturate(throttle);       break;
+    case TagEnums.ScaleEffectBy.angle:  effectScale = saturate(angle * M_2_PI); break;
+    default:
+    }
+
+    World.EffectMarker[5] effectMarkers =
+    [
+        { "normal",            line.point, line.plane.normal                    },
+        { "incident",          line.point, velocity                             },
+        { "negative incident", line.point, -velocity                            },
+        { "reflection",        line.point, reflect(line.plane.normal, velocity) },
+        { "gravity",           line.point, Vec3(0.0f, 0.0f, -1.0f)              },
+    ];
+
+    if(hitSpeed > 1.0f / (4 * gameFramesPerSecond))
+    {
+        // TODO scaleA/scaleB for the following effect creations
+        if(line.collisionType == World.CollisionType.object)
+        {
+            world.createEffect(responseEffect, &this.object, line.model.object, line.model.nodeIndex,
+                effectMarkers, velocity, effectScale, 0.0f);
+        }
+        else
+        {
+            world.createEffect(responseEffect, &this.object, effectMarkers, velocity, effectScale, 0.0f);
+        }
+    }
+
+    if(!flags.skipCreationEffect && flags.attemptCreationEffect || responseType == TagEnums.MaterialResponse.attach)
+    {
+        // TODO detonation started effect
+        if(line.collisionType == World.CollisionType.object)
+        {
+            assert(0); // TODO
+        }
+        else
+        {
+            assert(0); // TODO
+        }
+    }
 
     switch(responseType)
     {
