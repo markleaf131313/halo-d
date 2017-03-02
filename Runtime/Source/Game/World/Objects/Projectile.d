@@ -17,8 +17,8 @@ private
     immutable Tag.ProjectileMaterialResponseBlock defaultMaterialResponse =
     {
         skipFraction:          0.0f,
-        between:               TagBounds!float(0.0f, 0.0f),
-        and:                   TagBounds!float(0.0f, 0.0f),
+        angleBounds:           TagBounds!float(0.0f, 0.0f),
+        velocityBounds:        TagBounds!float(0.0f, 0.0f),
         angularNoise:          0.0f,
         velocityNoise:         0.0f,
         initialFriction:       0.0f,

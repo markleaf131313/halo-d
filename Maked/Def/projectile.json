@@ -65,12 +65,12 @@
                     "type": "fraction"
                 },
                 {
-                    "name": "between",
+                    "name": "angle bounds",
                     "unit": "degrees",
                     "type": "bound angle"
                 },
                 {
-                    "name": "and",
+                    "name": "velocity bounds",
                     "unit": "world units per second",
                     "type": "bound float"
                 },
