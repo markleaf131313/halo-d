@@ -321,7 +321,6 @@ GObject* createObject(ref GObject.Creation data)
 
 void createEffectAttachedToObject(DatumIndex tagEffectIndex, GObject* object, int a, int b, int c)
 {
-
     // TODO(IMPLEMENT) allocation for "required for gameplay" effects, free unrequired if no room
 
     const tagEffect = Cache.get!TagEffect(tagEffectIndex);
@@ -335,10 +334,9 @@ void createEffectAttachedToObject(DatumIndex tagEffectIndex, GObject* object, in
     Effect* effect = &effects[index];
 
     effect.world = &this;
-    effect.selfIndex = index;
 
     effect.tagIndex = tagEffectIndex;
-    effect.object = object.selfPtr;
+    effect.parent = object.selfPtr;
 
     effect.flags._bit1_x02 = true; // TODO, rename, causes effect to persist once completed, object destroys?
 
@@ -355,7 +353,7 @@ void createEffectAttachedToObject(DatumIndex tagEffectIndex, GObject* object, in
 
     // effect.localPlayerIndex = // TODO(IMPLEMENT) get first person from object
 
-    effect.createLocations(&object.findMarkerTransform);
+    effect.createLocations(&object.findMarkerTransform, false);
 
     // TODO(IMPLEMENT, FIRSTPERSON) create first person nodes
 
@@ -375,10 +373,9 @@ void createEffectFromItem(DatumIndex tagEffectIndex, GObject* object, float scal
     Effect* effect = &effects[index];
 
     effect.world = &this;
-    effect.selfIndex = index;
 
     effect.tagIndex = tagEffectIndex;
-    effect.object = object.selfPtr;
+    effect.parent = object.selfPtr;
 
     effect.scaleA = scaleA;
     effect.scaleB = scaleB;
@@ -390,7 +387,7 @@ void createEffectFromItem(DatumIndex tagEffectIndex, GObject* object, float scal
     // effect.localPlayerIndex = // TODO(IMPLEMENT) get first person from object
     // TODO(IMPLEMENT) nonviolent flag
 
-    effect.createLocations(&object.findMarkerTransform);
+    effect.createLocations(&object.findMarkerTransform, false);
 
     // TODO(IMPLEMENT) first person node locations
 
@@ -399,14 +396,69 @@ void createEffectFromItem(DatumIndex tagEffectIndex, GObject* object, float scal
     effect.updateEvents(0.0f);
 }
 
-void createEffectFromMarkers(
+// used for creating effects against another object, eg Projectile hitting an object
+// in this case parentObject would be the Projectile and targetObject would be the object being hit
+// TODO rename to createEffectAttach ?
+void createEffect(
     DatumIndex           tagEffectIndex,
+    GObject*             object,
+    GObject*             targetObject,
+    int                  nodeIndex,
     const EffectMarker[] markers,
     Vec3                 velocity,
     float                scaleA,
     float                scaleB)
 {
     const tagEffect = Cache.get!TagEffect(tagEffectIndex);
+
+    if(tagEffect is null)
+    {
+        return;
+    }
+
+    DatumIndex index = effects.add();
+
+    if(!index)
+    {
+        return;
+    }
+
+    Effect* effect = &effects[index];
+
+    effect.world  = &this;
+    effect.parent = targetObject.selfPtr;
+
+    if(object)
+    {
+        effect.creationObject = object.selfPtr;
+    }
+
+    effect.tagIndex = tagEffectIndex;
+    effect.scaleA   = scaleA;
+    effect.scaleB   = scaleB;
+
+    // TODO script var effects_corpse_nonviolent
+
+    effect.createLocations(
+        &EffectCreateObjectLocations(markers, nodeIndex, &targetObject.transforms[nodeIndex]).evaluate, false);
+
+}
+
+void createEffect(
+    DatumIndex           tagEffectIndex,
+    GObject*             object,
+    const EffectMarker[] markers,
+    Vec3                 velocity,
+    float                scaleA,
+    float                scaleB)
+{
+    const tagEffect = Cache.get!TagEffect(tagEffectIndex);
+
+    if(tagEffect is null)
+    {
+        return;
+    }
+
     DatumIndex index = effects.add();
 
     if(index == DatumIndex.none)
@@ -416,9 +468,12 @@ void createEffectFromMarkers(
 
     Effect* effect = &effects[index];
 
-    effect.world = &this;
-    effect.selfIndex = index;
+    if(object)
+    {
+        effect.creationObject = object.selfPtr;
+    }
 
+    effect.world = &this;
     effect.location = findLocation(markers[0].position);
 
     effect.tagIndex = tagEffectIndex;
@@ -428,60 +483,7 @@ void createEffectFromMarkers(
 
     effect.color = ColorRgb(1, 1, 1);
 
-    effect.createLocations((const(char)[] name, int max, GObject.MarkerTransform* transforms) @nogc nothrow
-    {
-        assert(markers.length > 0 && max > 0);
-
-        static Transform createTransform(Vec3 position, Vec3 forward)
-        {
-            Transform result = void;
-
-            Vec3 up = anyPerpendicularTo(forward);
-            normalize(up);
-
-            result.scale    = 1.0f;
-            result.mat3     = Mat3.fromPerpUnitVectors(forward, up);
-            result.position = position;
-
-            return result;
-        }
-
-        int count = 0;
-
-        if(name.length > 0)
-        {
-            foreach(ref marker ; markers)
-            {
-                if(count >= max)
-                {
-                    break;
-                }
-
-                if(iequals(marker.name, name))
-                {
-                    GObject.MarkerTransform* transform = transforms + count;
-
-                    transform.node  = indexNone;
-                    transform.local = createTransform(marker.position, marker.direction);
-
-                    count += 1;
-                }
-            }
-        }
-
-        if(count == 0)
-        {
-            GObject.MarkerTransform*  transform = transforms;
-            const World.EffectMarker* marker    = &markers[0];
-
-            transform.node  = indexNone;
-            transform.local = createTransform(marker.position, marker.direction);
-
-            count += 1;
-        }
-
-        return count;
-    });
+    effect.createLocations(&EffectCreateObjectLocations(markers).evaluate, false);
 
     effect.updateEvents(0.0f);
 
@@ -1712,7 +1714,11 @@ struct SheepGObjectPtr
 
     @property inout(GObject)* ptr() inout
     {
-        assert(control);
+        if(control is null)
+        {
+            return null;
+        }
+
         return control.object;
     }
 

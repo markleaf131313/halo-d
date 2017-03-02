@@ -440,7 +440,7 @@ void createEffectOrSound(ref const TagRef tagRef, float scale)
             },
         ];
 
-        world.createEffectFromMarkers(tagRef.index, markers, velocity, scale, 0.0f);
+        world.createEffect(tagRef.index, null, markers, velocity, scale, 0.0f);
         break;
     }
     case TagId.sound:

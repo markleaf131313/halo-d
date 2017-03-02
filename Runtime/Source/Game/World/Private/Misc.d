@@ -135,3 +135,73 @@ bool calculateCoordInTriangle(Vec3 point, Vec3 v0, Vec3 v1, Vec3 v2, ref Vec2 re
 
     return true;
 }
+
+struct EffectCreateObjectLocations
+{
+@nogc nothrow:
+
+    import std.typecons : Tuple;
+
+    import Game.World.World;
+    import Game.World.Objects;
+
+    const(World.EffectMarker)[] markers;
+
+    int nodeIndex = indexNone;
+    const(Transform)* nodeTransform;
+
+    int evaluate(const(char)[] name, Tuple!(int, Transform)[] transforms)
+    {
+        assert(markers.length > 0 && transforms.length > 0);
+
+        static Transform createTransform(Vec3 position, Vec3 forward)
+        {
+            Transform result = void;
+
+            Vec3 up = anyPerpendicularTo(forward);
+            normalize(up);
+
+            result.scale    = 1.0f;
+            result.mat3     = Mat3.fromPerpUnitVectors(forward, up);
+            result.position = position;
+
+            return result;
+        }
+
+        int count = 0;
+
+        if(name.length > 0)
+        {
+            foreach(ref marker ; markers)
+            {
+                if(count >= transforms.length)
+                {
+                    break;
+                }
+
+                if(iequals(marker.name, name))
+                {
+                    auto transform = &transforms[count];
+
+                    (*transform)[0] = nodeIndex;
+                    (*transform)[1] = createTransform(marker.position, marker.direction);
+
+                    count += 1;
+                }
+            }
+        }
+
+        if(count == 0)
+        {
+            auto transform = &transforms[0];
+            auto marker    = &markers[0];
+
+            (*transform)[0] = nodeIndex;
+            (*transform)[1] = createTransform(marker.position, marker.direction);
+
+            count += 1;
+        }
+
+        return count;
+    }
+}

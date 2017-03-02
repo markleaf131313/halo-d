@@ -2,6 +2,7 @@
 module Game.World.Effects.Effect;
 
 import std.bitmanip : bitfields;
+import std.typecons : Tuple;
 
 import Game.World.Effects.Particle;
 
@@ -66,11 +67,11 @@ int primaryScaleIndex   = indexNone;
 int secondaryScaleIndex = indexNone;
 int changeColorIndex    = indexNone;
 
-ColorRgb color;
+ColorRgb color = ColorRgb(1.0f, 1.0f, 1.0f);
 Vec3     velocity;
 
-SheepGObjectPtr object;
-SheepGObjectPtr attachedObject;
+SheepGObjectPtr parent;         // object this effect is attached to
+SheepGObjectPtr creationObject; // the object that caused the creation of this effect
 
 float scaleA;
 float scaleB;
@@ -94,39 +95,38 @@ ubyte[TagConstants.Effect.maxParticlesPerEvent] particleCounts;
 }
 
 void createLocations(
-    scope int delegate(const(char)[], int, GObject.MarkerTransform*) @nogc nothrow findMarker,
-    bool firstPerson = false)
+    scope int delegate(const(char)[], Tuple!(int, Transform)[]) @nogc nothrow findMarker,
+    bool isFirstPerson)
 {
     const tagEffect = Cache.get!TagEffect(tagIndex);
 
     foreach(i, ref tagLocation ; tagEffect.locations)
     {
-        GObject.MarkerTransform[TagConstants.Model.maxLocationsPerMarker] markers = void;
+        Tuple!(int, Transform)[TagConstants.Model.maxLocationsPerMarker] markers = void;
 
-        int count = findMarker(tagLocation.markerName, markers.length, markers.ptr);
+        int count = findMarker(tagLocation.markerName, markers);
 
         foreach(ref marker ; markers[0 .. count])
         {
             Location* location = mallocCast!Location(Location.sizeof);
 
-            location.next = eventLocations[i];
+            location.next     = eventLocations[i];
             eventLocations[i] = location;
 
-            location.isFirstPerson = firstPerson;
-            location.nodeIndex = marker.node;
-            location.transform = marker.local;
+            location.isFirstPerson = isFirstPerson;
+            location.nodeIndex     = marker[0];
+            location.transform     = marker[1];
         }
     }
-
 }
 
 void updateEvents(float deltaTime)
 {
     const TagEffect* tagEffect = Cache.get!TagEffect(tagIndex);
 
-    if(object)
+    if(parent)
     {
-        if(GObject* object = object.ptr)
+        if(GObject* object = parent.ptr)
         {
             const GObject* absoluteObject = object.getAbsoluteParent();
 
@@ -439,7 +439,7 @@ void createParticlesAtLocation(ref const Tag.EffectParticlesBlock tagParticle, r
             Transform* transform
                 = location.isFirstPerson
                 ? &FirstPerson.inst(localPlayerIndex).transforms[location.nodeIndex]
-                : &object.ptr.transforms[location.nodeIndex];
+                : &parent.ptr.transforms[location.nodeIndex];
 
             data.offset    = *transform * data.offset;
             data.direction = transform.mat3 * data.direction;
@@ -455,7 +455,7 @@ void createParticlesAtLocation(ref const Tag.EffectParticlesBlock tagParticle, r
 
         if(tagParticle.flags.stayAttachedToMarker)
         {
-            data.object    = object.ptr;
+            data.object    = parent.ptr;
             data.nodeIndex = location.nodeIndex;
         }
         else
@@ -532,7 +532,7 @@ ref Transform getLocationTransform(ref Location location)
         return FirstPerson.inst(localPlayerIndex).transforms[location.nodeIndex];
     }
 
-    return object.ptr.transforms[location.nodeIndex];
+    return parent.ptr.transforms[location.nodeIndex];
 }
 
 private

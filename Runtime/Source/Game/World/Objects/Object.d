@@ -5,6 +5,7 @@ import std.bitmanip : bitfields;
 import std.conv     : to;
 import std.meta     : allSatisfy, anySatisfy, Filter;
 import std.traits   : Parameters, ReturnType, hasMember;
+import std.typecons : Tuple;
 
 import ImGui;
 
@@ -1070,6 +1071,42 @@ int findMarker(const(char)[] name)
     return indexNone;
 }
 
+int findMarkerTransform(const(char)[] name, Tuple!(int, Transform)[] output)
+{
+    int index = findMarker(name);
+
+    if(index == indexNone)
+    {
+        return 0;
+    }
+
+    const tagModel = Cache.get!TagGbxmodel(Cache.get!TagObject(tagIndex).model);
+    const marker   = &tagModel.markers[index];
+    int   count    = 0;
+
+    // todo return an identity matrix and root node matrix if no matirces found and we want 1 marker..
+
+    foreach(ref instance ; marker.instances)
+    {
+        if(count >= output.length)
+        {
+            break;
+        }
+
+        if(regionPermutationIndices[instance.regionIndex] == instance.permutationIndex)
+        {
+            auto result = &output[count];
+
+            (*result)[0] = instance.nodeIndex;
+            (*result)[1] = Transform(conjugate(instance.rotation), instance.translation);
+
+            count += 1;
+        }
+    }
+
+    return count;
+}
+
 int findMarkerTransform(const(char)[] name, int size, MarkerTransform* output)
 {
     int index = findMarker(name);
@@ -1080,29 +1117,27 @@ int findMarkerTransform(const(char)[] name, int size, MarkerTransform* output)
     }
 
     const tagModel = Cache.get!TagGbxmodel(Cache.get!TagObject(tagIndex).model);
-    const marker = &tagModel.markers[index];
-    int count = 0;
+    const marker   = &tagModel.markers[index];
+    int   count    = 0;
 
     // todo return an identity matrix and root node matrix if no matirces found and we want 1 marker..
 
     foreach(ref instance ; marker.instances)
     {
-        if(count < size)
-        {
-            if(regionPermutationIndices[instance.regionIndex] == instance.permutationIndex)
-            {
-                auto result = &output[count];
-
-                result.node  = instance.nodeIndex;
-                result.local = Transform(conjugate(instance.rotation), instance.translation);
-                result.world = transforms[instance.nodeIndex] * result.local;
-
-                count += 1;
-            }
-        }
-        else
+        if(count >= size)
         {
             break;
+        }
+
+        if(regionPermutationIndices[instance.regionIndex] == instance.permutationIndex)
+        {
+            auto result = &output[count];
+
+            result.node  = instance.nodeIndex;
+            result.local = Transform(conjugate(instance.rotation), instance.translation);
+            result.world = transforms[instance.nodeIndex] * result.local;
+
+            count += 1;
         }
     }
 
@@ -2088,6 +2123,15 @@ bool implDebugUi()
     igSetNextTreeNodeOpen(true, ImGuiSetCond.FirstUseEver);
     if(igCollapsingHeader("Object"))
     {
+        igText("%p", &this);
+
+        igListBoxHeader("occupied clusters");
+        foreach(ref node ; occupiedClusters[0 .. occupiedClustersCount])
+        {
+            igText("%d", node.cluster);
+        }
+        igListBoxFooter();
+
         igText(Cache.inst.metaAt(tagIndex).path);
         igText(enumName(type).ptr);
 
