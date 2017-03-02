@@ -44,6 +44,11 @@ float randomPercent()
     enum large = 2 ^^ 22;
     return randomValue(0, large) / float(large - 1);
 }
+@nogc nothrow
+float randomNoise(float noise)
+{
+    return (noise + noise) * randomPercent() - noise;
+}
 
 @nogc nothrow
 Vec3 randomUnitVector()
