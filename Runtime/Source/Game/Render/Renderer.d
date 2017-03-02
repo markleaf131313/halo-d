@@ -380,7 +380,7 @@ void render(ref World world, ref Camera camera)
             simpleWorldShader.setUniform(0, camera.viewproj);
 
             simpleWorldVertexArray
-                .bufferData(0, verticesCount * simpleWorldVertexArray.sizeof, vertices.ptr, GL_STREAM_DRAW);
+                .bufferData(0, verticesCount * SimpleWorldVertex.sizeof, vertices.ptr, GL_STREAM_DRAW);
 
             glDisable(GL_DEPTH_TEST);
             glDrawArrays(GL_LINES, 0, verticesCount);
