@@ -471,14 +471,17 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
 
     if(!flags._bit6_x20_ && (flags.createDetonationEffect || responseType == TagEnums.MaterialResponse.attach))
     {
-        // TODO detonation started effect
+        DatumIndex detonationEffect = tagProjectile.detonationStarted.index;
+
+        // TODO scaleA/scaleB for the following effect creations
         if(line.collisionType == World.CollisionType.object)
         {
-            assert(0); // TODO
+            world.createEffect(detonationEffect, &this.object, line.model.object, line.model.nodeIndex,
+                effectMarkers, velocity, effectScale, 0.0f);
         }
         else
         {
-            assert(0); // TODO
+            world.createEffect(detonationEffect, &this.object, effectMarkers, velocity, effectScale, 0.0f);
         }
     }
 
