@@ -40,8 +40,8 @@ struct Flags
         bool, "tracer", 1,
         bool, "_bit2_x04_", 1,
         bool, "_bit3_x08_", 1,
-        bool, "attemptCreationEffect", 1,
-        bool, "skipCreationEffect", 1,
+        bool, "createDetonationEffect", 1,
+        bool, "_bit6_x20_", 1,
         bool, "_bit6_x40_", 1,
         bool, "_bit7_x80_", 1,
         uint, "", 8,
@@ -379,7 +379,7 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
             {
                 responseType = TagEnums.MaterialResponse.attach;
                 flags._bit2_x04_ = true;
-                flags.attemptCreationEffect = true;
+                flags.createDetonationEffect = true;
             }
 
             velocity = Vec3(0.0f);
@@ -424,11 +424,11 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
 
     if(velocityLengthSqr < 0.0001f)
     {
-        flags.attemptCreationEffect = true;
+        flags.createDetonationEffect = true;
 
         if(line.plane.normal.z > 0.3f)
         {
-            flags.skipCreationEffect = true;
+            this.object.flags.atRest = true;
 
             if(tagProjectile.timer.upper == 0.0f)
             {
@@ -469,7 +469,7 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
         }
     }
 
-    if(!flags.skipCreationEffect && flags.attemptCreationEffect || responseType == TagEnums.MaterialResponse.attach)
+    if(!flags._bit6_x20_ && (flags.createDetonationEffect || responseType == TagEnums.MaterialResponse.attach))
     {
         // TODO detonation started effect
         if(line.collisionType == World.CollisionType.object)
