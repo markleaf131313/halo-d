@@ -154,20 +154,6 @@ struct EffectCreateObjectLocations
     {
         assert(markers.length > 0 && transforms.length > 0);
 
-        static Transform createTransform(Vec3 position, Vec3 forward)
-        {
-            Transform result = void;
-
-            Vec3 up = anyPerpendicularTo(forward);
-            normalize(up);
-
-            result.scale    = 1.0f;
-            result.mat3     = Mat3.fromPerpUnitVectors(forward, up);
-            result.position = position;
-
-            return result;
-        }
-
         int count = 0;
 
         if(name.length > 0)
@@ -184,7 +170,7 @@ struct EffectCreateObjectLocations
                     auto transform = &transforms[count];
 
                     (*transform)[0] = nodeIndex;
-                    (*transform)[1] = createTransform(marker.position, marker.direction);
+                    (*transform)[1] = createTransform(marker.direction, marker.position);
 
                     count += 1;
                 }
@@ -197,11 +183,35 @@ struct EffectCreateObjectLocations
             auto marker    = &markers[0];
 
             (*transform)[0] = nodeIndex;
-            (*transform)[1] = createTransform(marker.position, marker.direction);
+            (*transform)[1] = createTransform(marker.direction, marker.position);
 
             count += 1;
         }
 
         return count;
+    }
+
+    private Transform createTransform(Vec3 forward, Vec3 position)
+    {
+        Transform result = void;
+
+        if(nodeTransform)
+        {
+            result.scale = 1.0f;
+
+            const Transform transformInverse = inverse(*nodeTransform);
+
+            forward  = transformInverse.mat3 * forward;
+            position = transformInverse * position;
+        }
+
+        Vec3 up = anyPerpendicularTo(forward);
+        normalize(up);
+
+        result.scale    = 1.0f;
+        result.mat3     = Mat3.fromPerpUnitVectors(forward, up);
+        result.position = position;
+
+        return result;
     }
 }
