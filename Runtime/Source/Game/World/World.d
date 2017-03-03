@@ -1420,6 +1420,7 @@ bool calculateObjectLineCollisionRecurse(
                 result.percent       = objectResult.percent;
                 result.materialType  = objectResult.materialType;
                 result.surface       = objectResult.surface;
+                result.point         = objectResult.percent * segment + position;
 
                 result.model.object      = o;
                 result.model.bspIndex    = objectResult.bspIndex;
