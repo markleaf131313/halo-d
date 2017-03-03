@@ -359,6 +359,9 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
     switch(responseType)
     {
     default:
+        velocity = Vec3(0.0f);
+        break;
+    case TagEnums.MaterialResponse.overpenetrate:
         switch(line.collisionType)
         {
         case World.CollisionType.water:
@@ -384,9 +387,6 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
 
             velocity = Vec3(0.0f);
         }
-        break;
-    case TagEnums.MaterialResponse.overpenetrate:
-        velocity = Vec3(0.0f);
         break;
     case TagEnums.MaterialResponse.reflect:
         Vec3 perp;
