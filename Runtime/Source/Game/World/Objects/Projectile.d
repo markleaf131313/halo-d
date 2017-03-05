@@ -408,7 +408,7 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
 
         if(len != 0.0f)
         {
-            velocity *= len * (randomPercent() * 2 * tagResponse.velocityNoise) - tagResponse.velocityNoise;
+            velocity *= len + randomNoise(tagResponse.velocityNoise);
         }
     }
 
