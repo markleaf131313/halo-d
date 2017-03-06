@@ -77,7 +77,6 @@ float damageRangeTimer = 0.0f;
 float damageRangeRate  = 0.0f;  // initial velocity / damage range (lower)
 float damagePerVelocity; // (init^2 - final^2) / (2 * (upper - lower))
 float damageRangeUpper;  // damage range (upper)
-float damageRangeScale;  // initial velocity / damage range (lower)
 
 bool implInitialize()
 {
