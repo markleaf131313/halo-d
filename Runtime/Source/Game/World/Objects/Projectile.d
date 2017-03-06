@@ -37,11 +37,11 @@ struct Flags
 {
     mixin(bitfields!(
         bool, "_bit0_x01_", 1,
-        bool, "tracer", 1,
+        bool, "tracer",     1,
         bool, "_bit2_x04_", 1,
-        bool, "_bit3_x08_", 1,
-        bool, "createDetonationEffect", 1,
-        bool, "_bit6_x20_", 1,
+        bool, "attached",   1,
+        bool, "startArming", 1,
+        bool, "detonating", 1,
         bool, "_bit6_x40_", 1,
         bool, "_bit7_x80_", 1,
         uint, "", 8,
@@ -52,7 +52,7 @@ struct Flags
 enum State
 {
     idle,
-    arming,
+    detonating,
     detonated,
 }
 
@@ -66,7 +66,14 @@ SheepGObjectPtr sourceObject; // prevent hitting this object, until projectile r
 SheepGObjectPtr targetObject; // guided homing target
                               // TODO make SheepGObjectPtr DatumIndex instead, See: Game.World.SheepGObjectPtr
 
+float armingTimer = 0.0f;
+float armingRate  = 0.0f;
+
+float safetyTimer = 0.0f;
+float safetyRate  = 0.0f;
+
 // TODO better comments/names
+float damageRangeTimer;
 float damagePerVelocity; // (init^2 - final^2) / (2 * (upper - lower))
 float damageRangeUpper;  // damage range (upper)
 float damageRangeScale;  // initial velocity / damage range (lower)
@@ -78,6 +85,13 @@ bool implInitialize()
     flags.tracer = true;
 
     // TODO sourceObject, taken from object and the absoluteParent() of (need to implement in object)
+
+    const float safetyRate = tagProjectile.armingTime * gameFramesPerSecond;
+
+    if(safetyRate >= 1.0f)
+    {
+        this.safetyRate = safetyRate;
+    }
 
     // TODO timer
     // TODO arming timer
@@ -99,6 +113,35 @@ bool implUpdateLogic()
 {
     const tagProjectile = Cache.get!TagProjectile(tagIndex);
 
+    damageRangeTimer += damageRangeScale;
+    safetyTimer      += safetyTimer;
+
+    if(!flags.tracer)
+    {
+        // TODO remove contrail
+    }
+
+    bool startDetonationTimer;
+
+    switch(tagProjectile.detonationTimerStarts)
+    {
+    case TagEnums.DetonationTimer.afterFirstBounce:
+    case TagEnums.DetonationTimer.whenAtRest:        startDetonationTimer = flags.startArming; break;
+    default:                                         startDetonationTimer = true;              break;
+    }
+
+    if(flags.detonating || !flags.attached || startDetonationTimer)
+    {
+        flags.detonating = true;
+
+        armingTimer += armingRate;
+
+        if(armingTimer >= 1.0f)
+        {
+            setState(State.detonating);
+        }
+    }
+
     // TODO update import function values here, for some reason, hack?
 
     float percent   = 1.0f;
@@ -109,13 +152,15 @@ bool implUpdateLogic()
 
     while(percent > 0.0f)
     {
-        if(state == State.arming)
+        if(state == State.detonating)
         {
-            // TODO values that determine if this loop is run
+            if(safetyRate == 0.0f || safetyTimer >= 1.0f)
+            {
+                break;
+            }
         }
 
-        // TODO don't run if at rest
-        if(state == State.detonated || parent !is null)
+        if(state == State.detonated || this.object.flags.atRest || parent !is null)
         {
             break;
         }
@@ -130,18 +175,12 @@ bool implUpdateLogic()
             }
         }
 
-        if(iteration == maxUpdateIterations)
+        if(damageRangeTimer >= 1.0f)
         {
-            setState(State.arming);
-            percent = 0.0f;
-            break;
-        }
-        else if(state == State.detonated)
-        {
-            percent = 0.0f;
-            break;
+            // TODO
         }
 
+        // TODO maximum range
         // TODO modify velocity, gravity, maximum distance traveled, final/inital speed, etc...
 
         float gravity = gameGravity;
@@ -151,12 +190,31 @@ bool implUpdateLogic()
 
         velocity.z -= gravity;
 
+        if(iteration >= maxUpdateIterations)
+        {
+            setState(State.detonating);
+            percent = 0.0f;
+            break;
+        }
+        else if(state == State.detonated)
+        {
+            percent = 0.0f;
+            break;
+        }
+
         World.LineResult collision = void;
 
         if(collideWorld(velocity * percent, collision))
         {
+            iteration += 1;
+
             percent      = 1.0f - collision.percent;
             sourceObject = SheepGObjectPtr();
+
+            if(percent < 0.0001f)
+            {
+                percent = 0.0f;
+            }
 
             doImpact(position, velocity, collision);
         }
@@ -197,9 +255,13 @@ bool implUpdateLogic()
 
     switch(state)
     {
-    case State.arming:
-        // TODO detonation
-        goto case;
+    case State.detonating:
+        if(safetyRate == 0.0f || safetyTimer >= 1.0f)
+        {
+            // TODO detonation
+            requestDeletion();
+        }
+        break;
     case State.detonated:
         requestDeletion();
         break;
@@ -382,7 +444,7 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
             {
                 responseType = TagEnums.MaterialResponse.attach;
                 flags._bit2_x04_ = true;
-                flags.createDetonationEffect = true;
+                flags.startArming = true;
             }
 
             velocity = Vec3(0.0f);
@@ -418,13 +480,13 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
     {
         if(velocityLengthSqr < sqr(tagProjectile.minimumVelocity))
         {
-            setState(State.arming);
+            setState(State.detonating);
         }
     }
 
     if(velocityLengthSqr < 0.0001f)
     {
-        flags.createDetonationEffect = true;
+        flags.startArming = true;
 
         if(line.plane.normal.z > 0.3f)
         {
@@ -432,7 +494,7 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
 
             if(tagProjectile.timer.upper == 0.0f)
             {
-                setState(State.arming);
+                setState(State.detonating);
             }
         }
     }
@@ -469,7 +531,7 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
         }
     }
 
-    if(!flags._bit6_x20_ && (flags.createDetonationEffect || responseType == TagEnums.MaterialResponse.attach))
+    if(!flags.detonating && (flags.startArming || responseType == TagEnums.MaterialResponse.attach))
     {
         DatumIndex detonationEffect = tagProjectile.detonationStarted.index;
 
@@ -491,7 +553,7 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
         setState(State.detonated);
         break;
     case TagEnums.MaterialResponse.detonate:
-        setState(State.arming);
+        setState(State.detonating);
         break;
     case TagEnums.MaterialResponse.attach:
         // TODO attach to object
