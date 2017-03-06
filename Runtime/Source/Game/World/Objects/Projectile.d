@@ -66,10 +66,10 @@ SheepGObjectPtr sourceObject; // prevent hitting this object, until projectile r
 SheepGObjectPtr targetObject; // guided homing target
                               // TODO make SheepGObjectPtr DatumIndex instead, See: Game.World.SheepGObjectPtr
 
-float armingTimer = 0.0f;
+float armingTimer = 0.0f; // counting upwards to 1.0f by armingrate
 float armingRate  = 0.0f;
 
-float safetyTimer = 0.0f;
+float safetyTimer = 0.0f; // counting upwards to 1.0f by safetyRate
 float safetyRate  = 0.0f;
 
 // TODO better comments/names
