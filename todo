@@ -1,4 +1,6 @@
 
+** fix Biped not being properly connected and disconnected from the map when doing physics.
+
 -> implement damage
     -> projectile impact
     -> projectile lifetime
