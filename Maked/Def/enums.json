@@ -2099,7 +2099,7 @@
         },
         {
             "index": "79",
-            "name": "enum79",
+            "name": "detonation timer",
             "values": [
                 {
                     "name": "immediately"
