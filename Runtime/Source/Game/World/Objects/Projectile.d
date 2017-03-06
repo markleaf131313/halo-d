@@ -87,15 +87,25 @@ bool implInitialize()
 
     // TODO sourceObject, taken from object and the absoluteParent() of (need to implement in object)
 
+    float armingRate = tagProjectile.timer.lower * gameFramesPerSecond;
+
+    if(!tagProjectile.flags.detonationMaxTimeIfAttached && !tagProjectile.flags.minimumUnattachedDetonationTime)
+    {
+        armingRate = randomValue(tagProjectile.timer) * gameFramesPerSecond;
+    }
+
+    if(armingRate >= 1.0f)
+    {
+        this.armingRate = 1.0f / armingRate;
+    }
+
     const float safetyRate = tagProjectile.armingTime * gameFramesPerSecond;
 
     if(safetyRate >= 1.0f)
     {
-        this.safetyRate = safetyRate;
+        this.safetyRate = 1.0f / safetyRate;
     }
 
-    // TODO timer
-    // TODO arming timer
     // TODO contrail
 
     velocity += rotation.forward * tagProjectile.initialVelocity;
