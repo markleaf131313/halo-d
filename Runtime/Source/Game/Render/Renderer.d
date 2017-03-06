@@ -19,6 +19,7 @@ import Game.Render.VertexArray;
 
 import Game.Cache;
 import Game.Core;
+import Game.Debug;
 import Game.Tags;
 import Game.World;
 
@@ -394,6 +395,21 @@ void render(ref World world, ref Camera camera)
         }
     }
 
+    if(Debug.lines.length)
+    {
+        simpleWorldShader.useProgram();
+        simpleWorldVertexArray.bind();
+
+        simpleWorldShader.setUniform(0, camera.viewproj);
+
+        simpleWorldVertexArray
+            .createBuffer(0)
+            .vertexBuffer(0, 0, 0, SimpleWorldVertex.sizeof)
+            .bufferData(0, Debug.lines.length * 2 * SimpleWorldVertex.sizeof, Debug.lines.ptr, GL_STREAM_DRAW);
+
+        glDrawArrays(GL_LINES, 0, cast(uint)Debug.lines.length * 2);
+
+    }
 
     // Rendering "framebuffer" to the Default FrameBuffer ///////////////////////////////////////////////////////////////
 

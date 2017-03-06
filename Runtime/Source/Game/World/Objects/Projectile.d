@@ -8,6 +8,7 @@ import Game.World.World;
 
 import Game.Cache;
 import Game.Core;
+import Game.Debug;
 import Game.Tags;
 
 private
@@ -239,6 +240,8 @@ bool implUpdateLogic()
         {
             // TODO rotate
         }
+
+        Debug.addLine(this.position, position);
 
         disconnectFromWorld();
 
