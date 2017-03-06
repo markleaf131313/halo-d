@@ -73,7 +73,8 @@ float safetyTimer = 0.0f;
 float safetyRate  = 0.0f;
 
 // TODO better comments/names
-float damageRangeTimer;
+float damageRangeTimer = 0.0f;
+float damageRangeRate  = 0.0f;  // initial velocity / damage range (lower)
 float damagePerVelocity; // (init^2 - final^2) / (2 * (upper - lower))
 float damageRangeUpper;  // damage range (upper)
 float damageRangeScale;  // initial velocity / damage range (lower)
@@ -113,8 +114,8 @@ bool implUpdateLogic()
 {
     const tagProjectile = Cache.get!TagProjectile(tagIndex);
 
-    damageRangeTimer += damageRangeScale;
-    safetyTimer      += safetyTimer;
+    damageRangeTimer += damageRangeRate;
+    safetyTimer      += safetyRate;
 
     if(!flags.tracer)
     {
@@ -290,11 +291,12 @@ private void updateDamageRange()
 
     if(range.lower > 0.0f)
     {
-        damageRangeScale = range.lower / tagProjectile.initialVelocity;
+        damageRangeRate = range.lower / tagProjectile.initialVelocity;
     }
     else
     {
-        // todo
+        damageRangeTimer = 1.0f;
+        damageRangeRate  = 0.0f;
     }
 }
 
