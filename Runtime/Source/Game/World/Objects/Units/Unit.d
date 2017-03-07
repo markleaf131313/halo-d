@@ -687,7 +687,7 @@ bool getCameraOrigin(ref Vec3 result)
         Biped* biped = cast(Biped*)&this;
         const tagBiped = Cache.get!TagBiped(tagIndex);
 
-        result = getPosition();
+        result = getWorldPosition();
 
         // TODO airbourne crouching compensation for camera movement
 

@@ -676,7 +676,7 @@ void setVisible(bool visible)
     }
 }
 
-Vec3 getPosition() const
+Vec3 getWorldPosition() const
 {
     if(parent)
     {
@@ -685,6 +685,20 @@ Vec3 getPosition() const
     else
     {
         return position;
+    }
+}
+
+Rotation getWorldRotation() const
+{
+    if(parent)
+    {
+        return Rotation(
+            parent.transforms[parentNodeIndex].mat3 * rotation.forward,
+            parent.transforms[parentNodeIndex].mat3 * rotation.up);
+    }
+    else
+    {
+        return rotation;
     }
 }
 
