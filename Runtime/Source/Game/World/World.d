@@ -232,6 +232,7 @@ TagScenarioStructureBsp* getCurrentSbsp()
     return currentSbsp;
 }
 
+// TODO remove, move to a GameTime object.
 int getTickCounter()
 {
     return tickCounter;
