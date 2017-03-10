@@ -67,6 +67,8 @@ SheepGObjectPtr sourceObject; // prevent hitting this object, until projectile r
 SheepGObjectPtr targetObject; // guided homing target
                               // TODO make SheepGObjectPtr DatumIndex instead, See: Game.World.SheepGObjectPtr
 
+TagEnums.MaterialType materialType;
+
 float armingTimer = 0.0f; // counting upwards to 1.0f by armingrate
 float armingRate  = 0.0f;
 
@@ -271,7 +273,7 @@ bool implUpdateLogic()
     case State.detonating:
         if(safetyRate == 0.0f || safetyTimer >= 1.0f)
         {
-            // TODO detonation
+            doDetonation(percent, iteration != 0);
             requestDeletion();
         }
         break;
@@ -386,7 +388,7 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
             tagIndex:  tagProjectile.impactDamage.index,
             center:    position,
             position:  position,
-            direction: velocity,
+            direction: direction,
             scale:     throttle,
         };
 
@@ -401,6 +403,8 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
 
         // TODO use damage amount as scale for effect below (need to add to DamageOptions)
     }
+
+    this.materialType = materialType;
 
     const(Tag.ProjectileMaterialResponseBlock)* tagResponse = &defaultMaterialResponse;
 
@@ -574,6 +578,65 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
         break;
     default:
     }
+}
+
+private void doDetonation(float percent, bool updateContrail)
+{
+    const tagProjectile = Cache.get!TagProjectile(tagIndex);
+
+    DatumIndex effectIndex = tagProjectile.effect.index;
+
+    if(tagProjectile.flags.hasSuperCombiningExplosion)
+    {
+        assert(0); // TODO
+    }
+
+    if(updateContrail)
+    {
+        // TODO add contrail
+    }
+
+    Vec3 worldPosition = getWorldPosition();
+    auto worldRotation = getWorldRotation();
+
+    World.EffectMarker[2] effectMarkers =
+    [
+        { name: "",        position: worldPosition, direction: worldRotation.forward },
+        { name: "gravity", position: worldPosition, direction: Vec3(0, 0, -1)   },
+    ];
+
+    world.createEffect(effectIndex, &this.object, effectMarkers, Vec3(0.0f), 0.0f, 0.0f);
+
+    if(parent && tagProjectile.attachedDetonationDamage)
+    {
+        GObject.DamageOptions options =
+        {
+            // TODO flags
+            // TODO instigator
+            tagIndex: effectIndex,
+            center:   worldPosition,
+            position: worldPosition,
+            direction: worldRotation.forward,
+        };
+
+        parent.dealDamage(options, indexNone, indexNone, indexNone); // TODO indices
+    }
+
+    // TODO material reponse - detonation effect
+
+    if(materialType != TagEnums.MaterialType.invalid)
+    {
+        const(Tag.ProjectileMaterialResponseBlock)* tagResponse = &defaultMaterialResponse;
+
+        if(tagProjectile.materialResponses.inBounds(materialType))
+        {
+            tagResponse = &tagProjectile.materialResponses[materialType];
+        }
+
+        world.createEffect(tagResponse.detonationEffect.index, &this.object, effectMarkers, Vec3(0.0f), 0.0f, 0.0f);
+    }
+
+    // TODO
 }
 
 }
