@@ -82,7 +82,7 @@ struct Flags
     import std.bitmanip : bitfields;
 
     mixin(bitfields!(
-        bool, "sleeping", 1,
+        bool, "sleeping", 1, // TODO use object.flag.atRest
         bool, "grounded", 1,
         bool, "blur",     1,
         bool, "brakes",   1,
@@ -1241,5 +1241,27 @@ void doVehiclePhysicsToObject(TagVehicle* tagVehicle, TagPhysics* tagPhysics)
     }
 }
 
+void applyForce(Vec3 force)
+{
+    const tagVehicle = Cache.get!TagVehicle(tagIndex);
+
+    if(!tagVehicle.physics)
+    {
+        return;
+    }
+
+    velocity += force;
+
+    Vec3 perp = cross(Vec3(0, 0, 1), force);
+    float length = normalize(perp);
+
+    if(length != 0.0f)
+    {
+        rotationalVelocity += (length * PI) * perp;
+    }
+
+    flags.sleeping = false;
+
+}
 
 }

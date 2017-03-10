@@ -167,7 +167,19 @@ struct AimVectors
     Vec3 velocity;
 }
 
+struct Flags
+{
+    import std.bitmanip : bitfields;
+
+    mixin(bitfields!(
+        bool, "impervious", 1,
+        uint, "", 7,
+    ));
+}
+
 GObject object;
+
+Flags flags;
 
 DatumIndex controllingPlayerIndex;
 

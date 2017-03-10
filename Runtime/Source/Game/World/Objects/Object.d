@@ -1609,6 +1609,60 @@ void dealDamageToHealth(
     damageDealt = dealt;
 }
 
+private
+void reactToDamage(ref DamageOptions options)
+{
+    const tagObject       = Cache.get!TagObject(tagIndex);
+    const tagDamageEffect = Cache.get!TagDamageEffect(options.tagIndex);
+
+    if(tagObject.accelerationScale >= 0.0001f)
+    {
+        Vec3 force = options.direction;
+        force.z += 0.45f;
+
+        normalize(force);
+
+        force *= tagObject.accelerationScale * tagDamageEffect.instantaneousAcceleration * (1.0f / gameFramesPerSecond);
+
+        switch(type)
+        {
+        case TagEnums.ObjectType.biped:
+            Biped* biped = cast(Biped*)&this;
+
+            if(!biped.unit.flags.impervious)
+            {
+
+                assert(0); // TODO
+            }
+            break;
+        case TagEnums.ObjectType.vehicle:
+            Vehicle* vehicle = cast(Vehicle*)&this;
+
+            if(!vehicle.unit.flags.impervious)
+            {
+                if(tagDamageEffect.damageFlags.detonatesExplosives)
+                {
+                    force += force;
+                }
+
+                vehicle.applyForce(force);
+            }
+            break;
+        case TagEnums.ObjectType.weapon:
+        case TagEnums.ObjectType.equipment:
+        case TagEnums.ObjectType.garbage:
+            assert(0); // TODO
+            break;
+        case TagEnums.ObjectType.projectile:
+            assert(0); // TODO
+            break;
+        default:
+        }
+    }
+
+    // TODO
+}
+
 void dealDamage(ref DamageOptions options, int nodeIndex, int regionIndex, int materialIndex)
 {
     const tagDamageEffect = Cache.get!TagDamageEffect(options.tagIndex);
@@ -1748,6 +1802,8 @@ void dealDamage(ref DamageOptions options, int nodeIndex, int regionIndex, int m
             // TODO check first damage, set options output result to that amount
             // TODO update shields if damage dealt to it
             // TODO acceleration scale related update
+
+            reactToDamage(options); // TODO
         }
     }
 }
