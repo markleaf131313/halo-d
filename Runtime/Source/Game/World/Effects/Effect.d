@@ -71,7 +71,7 @@ ColorRgb color = ColorRgb(1.0f, 1.0f, 1.0f);
 Vec3     velocity;
 
 SheepGObjectPtr parent;         // object this effect is attached to
-SheepGObjectPtr creationObject; // the object that caused the creation of this effect
+SheepGObjectPtr creationObject; // object that caused the creation of this effect
 
 float scaleA;
 float scaleB;
