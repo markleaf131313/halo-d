@@ -333,29 +333,53 @@ void createParts()
 }
 
 private
-void createSinglePart(ref const Tag.EffectPartBlock tagPart, ref Location location, Transform transform, float scale)
+void createSinglePart(ref const Tag.EffectPartBlock tagPart, ref Location location, Transform transform, float effectScale)
 {
-    // TODO(IMPLEMENT) creation of follow types, not all types are present..
     switch(tagPart.type.id)
     {
     case TagId.damageEffect:
     {
+        GObject.DamageOptions options =
+        {
+            // TODO world location
+            tagIndex:  tagPart.type.index,
+            scale:     effectScale,
+            center:    transform.position,
+            position:  transform.position,
+            direction: transform.forward,
+        };
+
+        if(GObject* object = parent.ptr)
+        {
+            // TODO instigator for damage options
+        }
+
+        world.dealAreaDamage(options);
+        break;
+    }
+    case TagId.decal:
+    {
+        // TODO implement creation
         break;
     }
     case TagId.particleSystem:
     {
+        // TODO implement creation
         break;
     }
     case TagId.light:
     {
+        // TODO implement creation
         break;
     }
     case TagId.sound:
     {
+        // TODO implement creation
         break;
     }
     case TagId.object:
     {
+        // TODO implement creation
         break;
     }
     default:
