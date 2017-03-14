@@ -1631,8 +1631,7 @@ void reactToDamage(ref DamageOptions options)
 
             if(!biped.unit.flags.impervious)
             {
-
-                assert(0); // TODO
+                // TODO implement biped reaction
             }
             break;
         case TagEnums.ObjectType.vehicle:
@@ -1651,16 +1650,18 @@ void reactToDamage(ref DamageOptions options)
         case TagEnums.ObjectType.weapon:
         case TagEnums.ObjectType.equipment:
         case TagEnums.ObjectType.garbage:
-            assert(0); // TODO
+            // TODO implement item reaction
             break;
         case TagEnums.ObjectType.projectile:
-            assert(0); // TODO
+            // TODO implement projectile reaction
             break;
         default:
         }
     }
 
-    // TODO
+    // TODO damage related
+    // TODO unit related
+
 }
 
 void dealDamage(ref DamageOptions options, int nodeIndex, int regionIndex, int materialIndex)
