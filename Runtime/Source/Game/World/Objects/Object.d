@@ -1018,6 +1018,43 @@ void interpolateCurrent(int frames)
     }
 }
 
+void attachTo(GObject* other, int nodeIndex)
+{
+    for(GObject* next = other; next; next = next.parent)
+    {
+        if(next is &this)
+        {
+            return;
+        }
+    }
+
+    bool wasConnectedToWorld = flags.connectedToMap;
+
+    if(wasConnectedToWorld)
+    {
+        disconnectFromWorld();
+    }
+
+    Transform inverseNode = inverse(transforms[nodeIndex]);
+
+    position         = inverseNode * position;
+    rotation.forward = inverseNode.mat3 * rotation.forward;
+    rotation.up      = inverseNode.mat3 * rotation.up;
+
+    parent = other;
+    parentNodeIndex = nodeIndex;
+
+    headerFlags.active = false;
+
+    if(wasConnectedToWorld)
+    {
+        connectToWorld();
+    }
+
+    updateMatrices();
+
+}
+
 void attachTo(const(char)[] gripName, GObject* other, const(char)[] handName)
 {
     disconnectFromWorld();
@@ -1049,6 +1086,7 @@ void attachTo(const(char)[] gripName, GObject* other, const(char)[] handName)
     headerFlags.active = false;
 
     connectToWorld();
+    updateMatrices();
 }
 
 int getParentHierarchy(GObject** values, int max)
