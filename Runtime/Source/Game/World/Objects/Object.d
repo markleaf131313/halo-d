@@ -257,6 +257,12 @@ struct AnimationController
         return animationIndex != indexNone;
     }
 
+    void reset()
+    {
+        animationIndex = indexNone;
+        frame          = 0;
+    }
+
     State increment(const TagModelAnimations* anim)
     {
         if(!hasAnimation) return State.invalid;
