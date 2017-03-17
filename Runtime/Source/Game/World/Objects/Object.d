@@ -683,6 +683,15 @@ void setVisible(bool visible)
     }
 }
 
+void setRotationVertical(Vec2 direction)
+{
+    if(parent is null)
+    {
+        rotation.forward = Vec3(direction, 0.0f);
+        rotation.up      = Vec3(0, 0, 1);
+    }
+}
+
 Vec3 getWorldPosition() const
 {
     if(parent)
