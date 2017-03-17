@@ -110,6 +110,7 @@ struct Rotation
     Vec3 forward;
     Vec3 up;
 
+    // TODO rename "left"
     Vec3 side()   const { return cross(up, forward); }
     Mat3 toMat3() const { return Mat3.fromPerpUnitVectors(forward, up); }
 }
