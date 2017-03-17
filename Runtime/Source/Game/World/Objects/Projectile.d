@@ -622,8 +622,6 @@ private void doDetonation(float percent, bool updateContrail)
         parent.dealDamage(options, indexNone, indexNone, indexNone); // TODO indices
     }
 
-    // TODO material reponse - detonation effect
-
     if(materialType != TagEnums.MaterialType.invalid)
     {
         const(Tag.ProjectileMaterialResponseBlock)* tagResponse = &defaultMaterialResponse;
@@ -636,7 +634,6 @@ private void doDetonation(float percent, bool updateContrail)
         world.createEffect(tagResponse.detonationEffect.index, &this.object, effectMarkers, Vec3(0.0f), 0.0f, 0.0f);
     }
 
-    // TODO
 }
 
 }
