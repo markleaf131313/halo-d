@@ -86,6 +86,7 @@ struct Unit
     enum maxPoweredSeats = 2;
     enum maxHeldWeapons = 4;
     enum maxCountedHeldWeapons = 2;
+    enum maxGrenadeTypes = 4;
 
     static assert(maxCountedHeldWeapons <= maxHeldWeapons);
 }

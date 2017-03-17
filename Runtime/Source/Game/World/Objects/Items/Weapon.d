@@ -1239,8 +1239,30 @@ bool canMelee()
     }
 }
 
+bool canThrowGrenade()
+{
+    const tagWeapon = Cache.get!TagWeapon(tagIndex);
+
+    bool result = !tagWeapon.flags.preventsGrenadeThrowing;
+
+    switch(state)
+    {
+    case State.reload1:
+    case State.reload2:
+    case State.charged1:
+    case State.charged2:
+    case State.ready:
+    case State.putAway:
+        return false;
+    default:
+    }
+
+    return result;
+}
+
 void attemptFirstPersonAction(FirstPerson.Action action)
 {
+    // TODO
 }
 
 int getFirstPersonAnimationFrameCount(TagEnums.FirstPersonAnimation i, bool keyFrame = false)

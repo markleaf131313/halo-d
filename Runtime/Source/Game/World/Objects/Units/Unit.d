@@ -2,8 +2,7 @@
 module Game.World.Units.Unit;
 
 import Game.World.FirstPerson;
-import Game.World.Objects.Object;
-import Game.World.Items;
+import Game.World.Objects;
 import Game.World.World;
 
 import Game.Cache;
@@ -89,6 +88,14 @@ enum BaseSeat
     flaming,
 
     none = indexNone,
+}
+
+enum GrenadeState
+{
+    idle,
+    begin,
+    holding,
+    thrown,
 }
 
 struct Control
@@ -189,6 +196,16 @@ Animation animation;
 int currentWeaponIndex     = indexNone;
 int nextWeaponIndex        = indexNone;
 int enteredParentSeatIndex = indexNone;
+
+GrenadeState grenadeState;
+int          grenadeTime;
+int          grenadeThrowTime;
+Projectile*  heldGrenade;
+
+int currentGrenadeIndex = indexNone;
+int nextGrenadeIndex    = indexNone;
+
+int[TagConstants.Unit.maxGrenadeTypes] grenades;
 
 ubyte aimingChange; // TODO(IMPLEMENT)
 
@@ -315,7 +332,36 @@ bool implUpdateLogic()
             // todo implement
         }
 
-        // todo grenade state
+        switch(grenadeState)
+        {
+        case GrenadeState.idle:
+            if(control.secondaryTrigger)
+            {
+                attemptGrenadeThrow();
+            }
+            break;
+        case GrenadeState.begin:
+            if(baseAnimation.frame >= 2)
+            {
+                beginGrenadeThrow();
+            }
+            break;
+        case GrenadeState.holding:
+            grenadeTime += 1;
+
+            if(animation.state != State.throwingGrenade)
+            {
+                assert(0); // TODO throw grenade
+            }
+            break;
+        case GrenadeState.thrown:
+            if(animation.state != State.throwingGrenade && !control.secondaryTrigger)
+            {
+                grenadeState = GrenadeState.idle;
+            }
+            break;
+        default:
+        }
 
         if(auto weapon = currentWeapon())
         {
@@ -1125,7 +1171,85 @@ void updateWeapons()
 
 }
 
-void setState(State desired)
+void attemptGrenadeThrow()
+{
+    const tagUnit = Cache.get!TagUnit(tagIndex);
+
+    if(currentGrenadeIndex == indexNone || grenades[currentGrenadeIndex] <= 0)
+    {
+        return;
+    }
+
+    Weapon* currentWeapon = currentWeapon();
+
+    if(currentWeapon is null || !currentWeapon.canThrowGrenade())
+    {
+        return;
+    }
+
+    currentWeapon.resetTriggers();
+
+    if(auto biped = this.isBiped)
+    {
+        biped.ticksMeleeDuration = 0; // stop biped melee
+    }
+
+    animation.replacementState = ReplacementState.none;
+    animation.replacement.reset();
+
+    if(!setState(State.throwingGrenade))
+    {
+        return;
+    }
+
+    const tagAnimations = Cache.get!TagModelAnimations(tagUnit.animationGraph);
+    const tagAnimation  = &tagAnimations.animations[baseAnimation.animationIndex];
+
+    grenadeState     = GrenadeState.begin;
+    grenadeThrowTime = tagAnimation.keyFrameIndex + 1;
+    grenadeTime      = 0;
+
+    Vec2 direction = aim.direction.xy;
+
+    if(normalize(direction) != 0.0f)
+    {
+        setRotationVertical(direction);
+    }
+
+    // TODO first person throw grenade
+
+    if(DatumIndex throwingEffect = Cache.inst.globals.grenades[currentGrenadeIndex].throwingEffect.index)
+    {
+        // TODO throw effect
+    }
+}
+
+void beginGrenadeThrow()
+{
+    const tagGrenade = &Cache.inst.globals.grenades[currentGrenadeIndex];
+
+    grenades[currentGrenadeIndex] -= 1;
+    auto leftHandMarker = findMarkerTransform("left hand");
+
+    GObject.Creation creation =
+    {
+        tagIndex: tagGrenade.projectile.index,
+    };
+
+    if(Projectile* grenade = cast(Projectile*)world.createObject(creation))
+    {
+        heldGrenade  = grenade;
+        grenadeState = GrenadeState.holding;
+
+        heldGrenade.attachTo(&this.object, leftHandMarker.node);
+    }
+    else
+    {
+        grenadeState = GrenadeState.thrown;
+    }
+}
+
+bool setState(State desired)
 {
     auto tagUnit       = Cache.get!TagUnit(tagIndex);
     auto tagAnimations = Cache.get!TagModelAnimations(tagUnit.animationGraph);
@@ -1158,65 +1282,78 @@ void setState(State desired)
     default: assert(0, "Need to implement something here.");
     }
 
+    if(index == indexNone)
+    {
+        switch(desired)
+        {
+        // TODO melee, leap, leap melee, etc...
+        case State.throwingGrenade:
+            return false;
+        default:
+        }
+    }
+
     auto animUnitWeapon = animation.unitWeapon(tagAnimations);
     auto animUnitSeat   = animation.unitSeat(tagAnimations);
 
-    if(index != indexNone)
+    // TODO handle index == indexNone better
+    // TODO randomize animation selection
+
+    baseAnimation.animationIndex = index;
+    baseAnimation.frame = 0;
+
+    // todo interpolate frame length;
+
+    int interpolateLength = 6;
+
+    switch(desired)
     {
-        baseAnimation.animationIndex = index;
-        baseAnimation.frame = 0;
-
-        // todo interpolate frame length;
-
-        int interpolateLength = 6;
-
-        switch(desired)
+    case State.idle:
+    case State.turnLeft:
+    case State.turnRight:
+        switch(animation.state)
         {
         case State.idle:
         case State.turnLeft:
         case State.turnRight:
-            switch(animation.state)
-            {
-            case State.idle:
-            case State.turnLeft:
-            case State.turnRight:
-                interpolateLength = 1;
-                break;
-            default:
-            }
+            interpolateLength = 1;
             break;
         default:
         }
-
-        switch(desired)
-        {
-        case State.idle:
-        case State.turnLeft:
-        case State.turnRight:
-            animation.weaponAimAnimation = getAnimationIndex(TagEnums.UnitWeaponAnimation.aimStill);
-            break;
-
-        case State.moveFront:
-        case State.moveBack:
-        case State.moveLeft:
-        case State.moveRight:
-            animation.weaponAimAnimation = getAnimationIndex(TagEnums.UnitWeaponAnimation.aimMove);
-            break;
-        default:
-        }
-
-        if(animation.weaponAimAnimation == indexNone)
-        {
-            animation.headAimAnimation = getAnimationIndex(TagEnums.UnitSeatAnimation.look);
-        }
-        else
-        {
-            animation.headAimAnimation = indexNone;
-        }
-
-        interpolateCurrent(interpolateLength);
-        animation.state = desired;
+        break;
+    default:
     }
+
+    switch(desired)
+    {
+    case State.idle:
+    case State.turnLeft:
+    case State.turnRight:
+        animation.weaponAimAnimation = getAnimationIndex(TagEnums.UnitWeaponAnimation.aimStill);
+        break;
+
+    case State.moveFront:
+    case State.moveBack:
+    case State.moveLeft:
+    case State.moveRight:
+        animation.weaponAimAnimation = getAnimationIndex(TagEnums.UnitWeaponAnimation.aimMove);
+        break;
+    default:
+    }
+
+    if(animation.weaponAimAnimation == indexNone)
+    {
+        animation.headAimAnimation = getAnimationIndex(TagEnums.UnitSeatAnimation.look);
+    }
+    else
+    {
+        animation.headAimAnimation = indexNone;
+    }
+
+    interpolateCurrent(interpolateLength);
+    animation.state = desired;
+
+    return true;
 }
 
 void setOverlay(OverlayState desired)
