@@ -1229,6 +1229,14 @@ bool findMarkerTransform(const(char)[] name, ref MarkerTransform transform)
     return true;
 }
 
+MarkerTransform findMarkerTransform(const(char)[] name)
+{
+    MarkerTransform result;
+    findMarkerTransform(name, result);
+
+    return result;
+}
+
 bool setRegionsPermutations(int desiredPermutation)
 {
     auto tagModel = Cache.get!TagGbxmodel(Cache.get!TagObject(tagIndex).model);
