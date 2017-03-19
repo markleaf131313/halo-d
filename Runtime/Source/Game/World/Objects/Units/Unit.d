@@ -45,7 +45,7 @@ enum State
     entering,
     exiting,
 
-    throwingGrenade,
+    throwGrenade,
 
     none = indexNone,
 }
@@ -202,10 +202,10 @@ int          grenadeTime;
 int          grenadeThrowTime;
 Projectile*  heldGrenade;
 
-int currentGrenadeIndex = indexNone;
+int currentGrenadeIndex = 0; // TODO initialize to indexNone
 int nextGrenadeIndex    = indexNone;
 
-int[TagConstants.Unit.maxGrenadeTypes] grenades;
+int[TagConstants.Unit.maxGrenadeTypes] grenades = [ 99 ]; // TODO initialize to zero
 
 ubyte aimingChange; // TODO(IMPLEMENT)
 
@@ -349,13 +349,13 @@ bool implUpdateLogic()
         case GrenadeState.holding:
             grenadeTime += 1;
 
-            if(animation.state != State.throwingGrenade)
+            if(animation.state != State.throwGrenade)
             {
-                assert(0); // TODO throw grenade
+                throwHeldGrenade();
             }
             break;
         case GrenadeState.thrown:
-            if(animation.state != State.throwingGrenade && !control.secondaryTrigger)
+            if(animation.state != State.throwGrenade && !control.secondaryTrigger)
             {
                 grenadeState = GrenadeState.idle;
             }
@@ -461,8 +461,8 @@ bool implUpdateMatrices()
 
             switch(unit.animation.state)
             {
-            case State.throwingGrenade: return false;
-            default:                    return true;
+            case State.throwGrenade: return false;
+            default:                 return true;
             }
         }
 
@@ -558,8 +558,14 @@ void incrementFrames(State desiredState)
         switch(baseAnimation.increment(tagAnimations))
         {
         case AnimationController.State.key:
-            // todo grenade throw related
-            // todo all melee realted
+            switch(animation.state)
+            {
+            // todo all melee related (ai)
+            case State.throwGrenade:
+                throwHeldGrenade();
+                break;
+            default:
+            }
             break;
         case AnimationController.State.end:
             switch(animation.state)
@@ -626,6 +632,7 @@ void incrementFrames(State desiredState)
             {
             case State.entering:
             case State.exiting:
+            case State.throwGrenade:
                 forceState = true;
                 break;
             default:
@@ -673,7 +680,8 @@ void incrementFrames(State desiredState)
         switch(current)
         {
         case State.exiting:
-        case State.entering: return false;
+        case State.entering:
+        case State.throwGrenade: return false;
         case State.turnLeft:
         case State.turnRight:
             // turnLeft/Right auto terminates, so prevent idle from changing state
@@ -1199,7 +1207,7 @@ void attemptGrenadeThrow()
     animation.replacementState = ReplacementState.none;
     animation.replacement.reset();
 
-    if(!setState(State.throwingGrenade))
+    if(!setState(State.throwGrenade))
     {
         return;
     }
@@ -1251,6 +1259,60 @@ void beginGrenadeThrow()
     }
 }
 
+void throwHeldGrenade()
+{
+    const tagUnit = Cache.get!TagUnit(tagIndex);
+
+    if(grenadeState != GrenadeState.holding)
+    {
+        return;
+    }
+
+    grenadeState = GrenadeState.thrown;
+
+    if(heldGrenade is null)
+    {
+        return;
+    }
+
+    heldGrenade.placeInWorldRelativeToParent();
+
+    // TODO if is player
+    {
+        const tagPlayerInfo = &Cache.inst.globals.playerInformation[0];
+
+        Vec3 left = cross(Vec3(0, 0, 1), aim.direction);
+
+        if(normalize(left) == 0.0f)
+        {
+            left = Vec3(0, 0, 1);
+        }
+
+        Vec3 up = cross(aim.direction, left);
+        normalize(up);
+
+        Vec3 grenadePosition = getCameraOrigin();
+
+        // TODO create matrix from direction, with "UP"
+        //      below is basically a mat3 transform
+
+        grenadePosition += tagPlayerInfo.grenadeOrigin * aim.direction;
+        grenadePosition += tagPlayerInfo.grenadeOrigin * up;
+        grenadePosition += tagPlayerInfo.grenadeOrigin * left;
+
+        heldGrenade.move(grenadePosition);
+    }
+
+    Vec3 grenadeVelocity = aim.direction * tagUnit.grenadeVelocity * (1.0f / gameFramesPerSecond);
+
+    // TODO randomize if not player
+
+    heldGrenade.applyForce(grenadeVelocity);
+
+    // TODO camera to grenade position collision check
+
+}
+
 bool setState(State desired)
 {
     auto tagUnit       = Cache.get!TagUnit(tagIndex);
@@ -1265,14 +1327,15 @@ bool setState(State desired)
 
     // Unit Weapon Animation
 
-    case State.idle:       index = getAnimationIndex(TagEnums.UnitWeaponAnimation.idle); break;
-    case State.turnLeft:   index = getAnimationIndex(TagEnums.UnitWeaponAnimation.turnLeft); break;
-    case State.turnRight:  index = getAnimationIndex(TagEnums.UnitWeaponAnimation.turnRight); break;
-    case State.moveFront:  index = getAnimationIndex(TagEnums.UnitWeaponAnimation.moveFront); break;
-    case State.moveBack:   index = getAnimationIndex(TagEnums.UnitWeaponAnimation.moveBack); break;
-    case State.moveLeft:   index = getAnimationIndex(TagEnums.UnitWeaponAnimation.moveLeft); break;
-    case State.moveRight:  index = getAnimationIndex(TagEnums.UnitWeaponAnimation.moveRight); break;
-    case State.airborne:   index = getAnimationIndex(TagEnums.UnitWeaponAnimation.airborne); break;
+    case State.idle:         index = getAnimationIndex(TagEnums.UnitWeaponAnimation.idle);         break;
+    case State.turnLeft:     index = getAnimationIndex(TagEnums.UnitWeaponAnimation.turnLeft);     break;
+    case State.turnRight:    index = getAnimationIndex(TagEnums.UnitWeaponAnimation.turnRight);    break;
+    case State.moveFront:    index = getAnimationIndex(TagEnums.UnitWeaponAnimation.moveFront);    break;
+    case State.moveBack:     index = getAnimationIndex(TagEnums.UnitWeaponAnimation.moveBack);     break;
+    case State.moveLeft:     index = getAnimationIndex(TagEnums.UnitWeaponAnimation.moveLeft);     break;
+    case State.moveRight:    index = getAnimationIndex(TagEnums.UnitWeaponAnimation.moveRight);    break;
+    case State.airborne:     index = getAnimationIndex(TagEnums.UnitWeaponAnimation.airborne);     break;
+    case State.throwGrenade: index = getAnimationIndex(TagEnums.UnitWeaponAnimation.throwGrenade); break;
 
     // Unit Seat Animation
 
@@ -1280,7 +1343,6 @@ bool setState(State desired)
     case State.landingDead:  index = getAnimationIndex(TagEnums.UnitSeatAnimation.landingDead);  break;
     case State.entering:     index = getAnimationIndex(TagEnums.UnitSeatAnimation.enter);        break;
     case State.exiting:      index = getAnimationIndex(TagEnums.UnitSeatAnimation.exit);         break;
-
     default: assert(0, "Need to implement something here.");
     }
 
@@ -1289,7 +1351,7 @@ bool setState(State desired)
         switch(desired)
         {
         // TODO melee, leap, leap melee, etc...
-        case State.throwingGrenade:
+        case State.throwGrenade:
             return false;
         default:
         }

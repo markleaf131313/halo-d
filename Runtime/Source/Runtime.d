@@ -973,7 +973,8 @@ try
             control.action     =  state[SDL_SCANCODE_E] != 0;
             control.melee      =  state[SDL_SCANCODE_F] != 0;
             control.reload     =  state[SDL_SCANCODE_R] != 0;
-            control.primaryTrigger = (SDL_GetMouseState(null, null) & SDL_BUTTON_LMASK) != 0;
+            control.primaryTrigger   = (SDL_GetMouseState(null, null) & SDL_BUTTON_LMASK) != 0;
+            control.secondaryTrigger = (SDL_GetMouseState(null, null) & SDL_BUTTON_RMASK) != 0;
             control.swapWeapon =  state[SDL_SCANCODE_E] != 0; // todo need weapon ticks from globals tag
 
             int forward = 0;

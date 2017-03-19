@@ -1000,6 +1000,16 @@ void move(ref Vec3 position, ref Vec3 forward, ref Vec3 up)
     connectToWorld();
 }
 
+void move(ref Vec3 position)
+{
+    disconnectFromWorld();
+
+    this.position = position;
+
+    updateMatrices();
+    connectToWorld();
+}
+
 void interpolateCurrent(int frames)
 {
     auto tagModel = Cache.get!TagGbxmodel(Cache.get!TagObject(tagIndex).model);
