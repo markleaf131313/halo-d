@@ -700,7 +700,7 @@ void incrementFrames(State desiredState)
     }
 }
 
-bool getCameraOrigin(ref Vec3 result)
+Vec3 getCameraOrigin()
 {
     GObject.MarkerTransform transform = void;
 
@@ -708,7 +708,7 @@ bool getCameraOrigin(ref Vec3 result)
     {
         if(!parent.isUnit() || enteredParentSeatIndex == indexNone)
         {
-            return false;
+            return parent.position;
         }
 
         Unit* parentUnit = cast(Unit*)parent;
@@ -717,11 +717,12 @@ bool getCameraOrigin(ref Vec3 result)
 
         if(parentUnit.type == TagEnums.ObjectType.vehicle && !tagSeat.cameraMarkerName)
         {
-            return false;
+            return parent.position;
         }
 
         parent.findMarkerTransform(tagSeat.cameraMarkerName, transform);
-        result = transform.world.position;
+
+        return transform.world.position;
     }
     else if(damage.flags.healthDepleted || type != TagEnums.ObjectType.biped)
     {
@@ -736,7 +737,7 @@ bool getCameraOrigin(ref Vec3 result)
             findMarkerTransform("head", transform);
         }
 
-        result = transform.world.position;
+        return transform.world.position;
     }
     else
     {
@@ -745,14 +746,14 @@ bool getCameraOrigin(ref Vec3 result)
         Biped* biped = cast(Biped*)&this;
         const tagBiped = Cache.get!TagBiped(tagIndex);
 
-        result = getWorldPosition();
+        Vec3 result = getWorldPosition();
 
         // TODO airbourne crouching compensation for camera movement
 
         result.z += mix(tagBiped.standingCameraHeight, tagBiped.crouchingCameraHeight, biped.crouchPercent);
-    }
 
-    return true;
+        return result;
+    }
 }
 
 bool weaponSeatExists(Weapon* weapon)

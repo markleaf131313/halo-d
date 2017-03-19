@@ -1329,13 +1329,10 @@ void createProjectiles(int triggerIndex)
 
             if(tagUnit.flags.firesFromCamera)
             {
-                Vec3 origin;
+                const Vec3 origin = host.getCameraOrigin();
 
-                if(host.getCameraOrigin(origin))
-                {
-                    // make new position same distance away in direction of projectile forward as previously.
-                    position = origin + dot(position - origin, forward) * forward;
-                }
+                // make new position same distance away in direction of projectile forward as previously.
+                position = origin + dot(position - origin, forward) * forward;
             }
 
             hostSpeed = dot(host.getAbsoluteParent().velocity, forward);
