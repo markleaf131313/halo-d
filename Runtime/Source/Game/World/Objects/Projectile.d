@@ -286,6 +286,19 @@ bool implUpdateLogic()
     return true;
 }
 
+void applyForce(Vec3 force)
+{
+    if(parent)
+    {
+        return;
+    }
+
+    velocity += force;
+
+    // TODO add random rotation
+
+}
+
 private void setState(State desired)
 {
     if(state < desired)
