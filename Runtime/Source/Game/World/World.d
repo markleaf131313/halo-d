@@ -244,8 +244,11 @@ void dealAreaDamage(ref GObject.DamageOptions options)
 
     Sphere sphere = {options.center, tagDamageEffect.radius.upper};
 
+    GObjectTypeMask mask;
+    mask.set(TagEnums.ObjectType.biped, TagEnums.ObjectType.vehicle);
+
     GObject*[64] objects = void;
-    int count = calculateNearbyObjects(ObjectSearchType.all, GObjectTypeMask(),
+    int count = calculateNearbyObjects(ObjectSearchType.all, mask,
         options.location, sphere, objects.ptr, objects.length);
 
     foreach(ref object ; objects[0 .. count])
