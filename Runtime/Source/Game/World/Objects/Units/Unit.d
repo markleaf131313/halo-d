@@ -676,8 +676,9 @@ void incrementFrames(State desiredState)
         case State.entering: return false;
         case State.turnLeft:
         case State.turnRight:
-                // turnLeft/Right auto terminates, so prevent idle from changing state
-            if(desired == State.idle) return false;
+            // turnLeft/Right auto terminates, so prevent idle from changing state
+            if(desired == State.idle)
+                return false;
             return true;
         case State.landingDead:
         case State.airborneDead:
