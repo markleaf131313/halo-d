@@ -333,7 +333,11 @@ void createParts()
 }
 
 private
-void createSinglePart(ref const Tag.EffectPartBlock tagPart, ref Location location, Transform transform, float effectScale)
+void createSinglePart(
+    ref const Tag.EffectPartBlock tagPart,
+    ref Location                  partLocation,
+    Transform                     transform,
+    float                         effectScale)
 {
     switch(tagPart.type.id)
     {
@@ -344,6 +348,7 @@ void createSinglePart(ref const Tag.EffectPartBlock tagPart, ref Location locati
             // TODO world location
             tagIndex:  tagPart.type.index,
             scale:     effectScale,
+            location:  location,
             center:    transform.position,
             position:  transform.position,
             direction: transform.forward,
