@@ -142,7 +142,7 @@ bool implUpdateLogic()
     default:                                         startDetonationTimer = true;              break;
     }
 
-    if(flags.detonating || !flags.attached || startDetonationTimer)
+    if(flags.detonating || flags.attached || startDetonationTimer)
     {
         flags.detonating = true;
 
