@@ -65,7 +65,6 @@ State state;
 
 SheepGObjectPtr sourceObject; // prevent hitting this object, until projectile ricochets off something else.
 SheepGObjectPtr targetObject; // guided homing target
-                              // TODO make SheepGObjectPtr DatumIndex instead, See: Game.World.SheepGObjectPtr
 
 TagEnums.MaterialType materialType;
 
