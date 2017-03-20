@@ -282,6 +282,11 @@ GObject* createObject(ref GObject.Creation data)
 
             object.world = &this;
 
+            if(data.ownerObject)
+            {
+                object.ownerObject = data.ownerObject.selfPtr;
+            }
+
             object.tagIndex = data.tagIndex;
             object.setVisible(tagObject.model.isValid());
 

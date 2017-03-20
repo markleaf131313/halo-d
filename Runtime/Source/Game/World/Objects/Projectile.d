@@ -87,6 +87,10 @@ bool implInitialize()
     flags.tracer = true;
 
     // TODO sourceObject, taken from object and the absoluteParent() of (need to implement in object)
+    if(auto owner = ownerObject.ptr)
+    {
+        sourceObject = owner.getAbsoluteParent().selfPtr;
+    }
 
     float armingRate = tagProjectile.timer.lower * gameFramesPerSecond;
 

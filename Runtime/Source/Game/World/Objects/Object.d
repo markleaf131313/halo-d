@@ -90,6 +90,8 @@ struct Creation
     Flags flags;
     DatumIndex tagIndex;
 
+    GObject* ownerObject;
+
     int regionPermutation = indexNone;
     int playerIndex       = indexNone;
 
@@ -401,6 +403,8 @@ int parentNodeIndex;
 GObject* parent;
 GObject* firstChildObject;
 GObject* nextSiblingObject;
+
+SheepGObjectPtr ownerObject;
 
 World.Location location; // TODO(IMPLEMENT), might be set when connecting to map?
 

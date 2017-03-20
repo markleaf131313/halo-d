@@ -1243,7 +1243,9 @@ void beginGrenadeThrow()
 
     GObject.Creation creation =
     {
-        tagIndex: tagGrenade.projectile.index,
+        // TODO parameters: team, etc...
+        tagIndex:    tagGrenade.projectile.index,
+        ownerObject: &this.object,
     };
 
     if(Projectile* grenade = cast(Projectile*)world.createObject(creation))
