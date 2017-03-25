@@ -616,7 +616,7 @@ void incrementFrames(State desiredState)
                 enteredParentSeatIndex = indexNone;
 
                 position = transforms[0].position + Vec3(0, 0, 0.2f);
-                animation.baseSeat = BaseSeat.none;
+                animation.baseSeat = BaseSeat.stand;
 
                 updateHierarchyMatrices();
 
@@ -815,7 +815,7 @@ bool enterSeat(Unit* desiredParent, int desiredSeatIndex)
     if(tagSeat.flags.driver) desiredParent.poweredSeats[0].rider = &this;
     if(tagSeat.flags.gunner) desiredParent.poweredSeats[1].rider = &this;
 
-    nextWeaponIndex = indexNone; // todo actual calculations for nextWeaponindex
+    currentWeaponIndex = indexNone; // todo actual calculations for nextWeaponindex
     // todo force weapon update (updates current weapon index)
 
     if(!setSeat(tagSeat.label, getWeaponLabel()))
