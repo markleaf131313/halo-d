@@ -150,7 +150,7 @@ static GLShader make(string debugName, string vertexSource, string fragmentSourc
 
     if(length)
     {
-        writeln(log);
+        writeln(log[0 .. length]);
     }
 
     static if(!is(Uniforms == void))
