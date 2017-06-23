@@ -4,7 +4,7 @@ module Game.Core.Random;
 import std.random : Xorshift, unpredictableSeed;
 
 import Game.Core.Math : Vec3, normalize, cross, rotate;
-import Game.Tags : TagBounds;
+import Game.Tags.Types : TagBounds;
 
 private __gshared Xorshift engine;
 
