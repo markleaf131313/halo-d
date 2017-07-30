@@ -10,6 +10,7 @@ import Game.World.FirstPerson : FirstPerson;
 import Game.World.Objects : GObject;
 import Game.World.World   : World, SheepGObjectPtr;
 
+import Game.Audio;
 import Game.Cache;
 import Game.Core;
 import Game.Tags;
@@ -379,7 +380,15 @@ void createSinglePart(
     }
     case TagId.sound:
     {
-        // TODO implement creation
+        if(parent)
+        {
+            Audio.inst.play(tagPart.type.index, parent.ptr, partLocation.nodeIndex,
+                partLocation.transform.position, partLocation.transform.forward, effectScale);
+        }
+        else
+        {
+            Audio.inst.play(tagPart.type.index, transform.position, transform.forward, Vec3(0), location);
+        }
         break;
     }
     case TagId.object:
