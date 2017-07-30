@@ -14,4 +14,4 @@ template staticIota(int start, int end)
     else                   alias staticIota = AliasSeq!();
 }
 
-enum declaresMember(T, string name) = IndexOf!(name, __traits(allMembers, T)) != -1;
+enum declaresMember(T, string name) = staticIndexOf!(name, __traits(allMembers, T)) != -1;
