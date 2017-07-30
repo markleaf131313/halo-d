@@ -38,8 +38,8 @@ struct Spatial
 
     Type type;
 
-    float volume;
-    float scale;
+    float volume = 1.0f;
+    float scale  = 1.0f;
 
     Vec3 position;
     Vec3 direction;
@@ -130,7 +130,6 @@ void update()
     int processed;
     alGetSourcei(source, AL_BUFFERS_PROCESSED, &processed);
 
-    bool removed;
     while(processed--)
     {
         uint buffer;
