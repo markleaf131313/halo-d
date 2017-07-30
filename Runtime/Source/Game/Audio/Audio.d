@@ -70,7 +70,6 @@ void update()
 
 void updateObjectLoopingSounds()
 {
-
     if(stopWatch.peek() - lastObjectLoopingUpdateTime >= gameFrameTimeMsecs)
     {
         foreach(ref objectLooping ; objectLoopingSounds)
@@ -89,19 +88,20 @@ void updateObjectLoopingSounds()
 
 DatumIndex playDebug(DatumIndex tagSoundIndex, int pitch, int permutation)
 {
-    DatumIndex index = play(tagSoundIndex);
-
-    if(index != DatumIndex.none)
+    if(DatumIndex index = play(tagSoundIndex))
     {
         Sound* sound = &sounds[index];
 
         sound.pitchRangeIndex  = pitch;
         sound.permutationIndex = permutation;
+
+        return index;
     }
 
-    return index;
+    return DatumIndex.none;
 }
 
+@nogc nothrow
 DatumIndex play(DatumIndex tagSoundIndex)
 {
     if(tagSoundIndex == DatumIndex.none)
@@ -119,6 +119,29 @@ DatumIndex play(DatumIndex tagSoundIndex)
     return play(tagSoundIndex, data);
 }
 
+@nogc nothrow
+DatumIndex play(DatumIndex tagSoundIndex, Vec3 position, Vec3 direction, Vec3 velocity, World.Location location)
+{
+    Sound.Spatial spatial =
+    {
+        type:      Sound.Spatial.Type.relativeToPlayers,
+        position:  position,
+        direction: direction,
+        velocity:  velocity,
+        location:  location,
+    };
+
+    return play(tagSoundIndex, spatial);
+}
+
+@nogc nothrow
+DatumIndex play(DatumIndex tagSoundIndex, GObject* object, int nodeIndex, Vec3 position, Vec3 forward, float scale)
+{
+    // TODO implement properly
+    return play(tagSoundIndex);
+}
+
+@nogc nothrow
 DatumIndex play(DatumIndex tagSoundIndex, ref const Sound.Spatial spatial)
 {
     auto tagSound = Cache.get!TagSound(tagSoundIndex);
@@ -277,6 +300,7 @@ DatumIndex createObjectLoopingSound(DatumIndex tagIndex)
     return DatumIndex.none;
 }
 
+@nogc nothrow
 int findClosestListener(ref const Sound.Spatial spatial, float maximumDistance)
 {
 
@@ -333,6 +357,7 @@ int findClosestListener(ref const Sound.Spatial spatial, float maximumDistance)
 
 }
 
+@nogc nothrow
 float distanceToListener(ref const Sound.Spatial spatial, int listenerIndex)
 in
 {
