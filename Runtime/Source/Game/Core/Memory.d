@@ -24,7 +24,7 @@ T* mallocEmplace(T, Args...)(Args args) if(is(T == struct))
         return null;
     }
 
-    return emplace(ptr, args);;
+    return emplace(ptr, args);
 }
 
 void destroyFree(T)(T* object)

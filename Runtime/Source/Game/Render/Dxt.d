@@ -63,7 +63,7 @@ ColorArgb8[4] evaluatePalette() const
 
 void decode(ref ColorArgb8[4][4] result) const
 {
-    ColorArgb8[4] palette = evaluatePalette();;
+    ColorArgb8[4] palette = evaluatePalette();
 
     uint index = this.index;
 
