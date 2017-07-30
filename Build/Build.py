@@ -102,7 +102,7 @@ def doBuild(buildTarget):
         '-m64',
         # '-w',           # warnings
         '-de',          # treat deprecation as errors
-        '-gc',          # debug symbols (C format)
+        '-g',           # debug symbols (C format)
         '-debug',
         #'-inline',
         *dflags,
