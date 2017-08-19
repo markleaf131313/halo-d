@@ -7,6 +7,70 @@ mixin template TagSound()
 
 import Game.Core : indexNone, randomValueFromZero, randomPercent;
 
+float getMinimumDistance() const
+{
+    static immutable float[51] defaultValues =
+    [
+        1.4f,       // projectile_impact
+        8.0f,       // projectile_detonation
+        float.nan,
+        float.nan,
+        4.0f,       // weapon_fire
+        1.0f,       // weapon_ready
+        1.0f,       // weapon_reload
+        1.0f,       // weapon_empty
+        1.0f,       // weapon_charge
+        1.0f,       // weapon_overheat
+        1.0f,       // weapon_idle
+        float.nan,
+        float.nan,
+        0.5f,       // object_impacts
+        0.5f,       // particle_impacts
+        0.5f,       // slow_particle_impacts
+        float.nan,
+        float.nan,
+        0.9f,      // unit_footsteps
+        3.0f,      // unit_dialog
+        float.nan,
+        float.nan,
+        1.4f,       // vehicle_collision
+        1.4f,       // vehicle_engine
+        float.nan,
+        float.nan,
+        0.9f,       // device_door
+        0.9f,       // device_force_field
+        0.9f,       // device_machinery
+        0.9f,       // device_nature
+        0.5f,       // device_computers
+        float.nan,
+        0.9f,       // music
+        0.9f,       // ambient_nature
+        0.9f,       // ambient_machinery
+        0.5f,       // ambient_computers
+        float.nan,
+        float.nan,
+        float.nan,
+        0.5f,       // first_person_damage
+        float.nan,
+        float.nan,
+        float.nan,
+        float.nan,
+        3.0f,       // scripted_dialog_player
+        2.0f,       // scripted_effect
+        3.0f,       // scripted_dialog_other
+        3.0f,       // scripted_dialog_force_unspatialized
+        float.nan,
+        float.nan,
+        3.0f,       // game_event
+    ];
+
+    if(minimumDistance == 0.0f)
+    {
+        return defaultValues[soundClass];
+    }
+
+    return minimumDistance;
+}
 
 float getMaximumDistance() const
 {
