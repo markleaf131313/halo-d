@@ -1,7 +1,7 @@
 
 module Game.Audio.Audio;
 
-import std.datetime : StopWatch, Duration, msecs;
+import std.datetime.stopwatch : StopWatch, Duration, msecs;
 
 import OpenAL;
 import Vorbis;
@@ -78,7 +78,7 @@ void updateObjectLoopingSounds()
         }
 
         objectLoopingTickCounter += 1;
-        lastObjectLoopingUpdateTime = cast(Duration)stopWatch.peek();
+        lastObjectLoopingUpdateTime = stopWatch.peek();
     }
     else
     {
