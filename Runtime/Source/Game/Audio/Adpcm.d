@@ -5,8 +5,12 @@ import std.traits : isIntegral;
 
 import Game.Core;
 
+@nogc nothrow:
+
 private struct ReadBuffer
 {
+@nogc nothrow:
+
     const(void)* ptr;
     size_t length;
 
@@ -32,6 +36,8 @@ private struct ReadBuffer
 
 private struct WriteBuffer
 {
+@nogc nothrow:
+
     const(void)* ptr;
     size_t length;
     size_t writtenLength;
