@@ -34,6 +34,7 @@ int      objectLoopingTickCounter;
 Duration lastObjectLoopingUpdateTime;
 
 Listener[TagConstants.Player.maxLocalPlayers] listeners;
+SoundBuffer[32] soundBuffers;
 
 DatumArray!Sound              sounds;
 DatumArray!LoopingSound       loopingSounds;
@@ -50,6 +51,12 @@ void initialize()
     sounds.allocate(128, multichar!"s!");
     loopingSounds.allocate(128, multichar!"lp");
     objectLoopingSounds.allocate(32, multichar!"ol");
+
+    foreach(ref soundBuffer ; soundBuffers)
+    {
+        soundBuffer.audio = &this;
+        soundBuffer.initialize();
+    }
 }
 
 int addSampleData(void* ptr)
@@ -59,11 +66,58 @@ int addSampleData(void* ptr)
     return result;
 }
 
-void update()
+float getVolume(TagEnums.SoundClass soundClass)
 {
+    return 1.0; // TODO implement volume controls
+}
+
+int findSoundBufferForSound(DatumIndex index)
+{
+    if(!index)
+    {
+        return indexNone;
+    }
+
+    auto sound = &sounds[index];
+
+    if(sound.soundBufferIndex != indexNone)
+    {
+        return sound.soundBufferIndex;
+    }
+
+    foreach(int i, ref soundBuffer ; soundBuffers)
+    {
+        if(soundBuffer.soundIndex)
+        {
+            if(soundBuffer.soundIndex == index)
+            {
+                return i;
+            }
+
+            continue; // TODO check if same parent
+        }
+
+        // TODO check requirements, mono, compressed, etc...
+
+        return i;
+    }
+
+    return indexNone;
+}
+
+void update(Vec3 position)
+{
+    listeners[0].active = true;
+    listeners[0].transform.position = position;
+
     foreach(ref sound ; sounds)
     {
         sound.update();
+    }
+
+    foreach(int i, ref soundBuffer ; soundBuffers)
+    {
+        soundBuffer.update(i);
     }
 
 }
@@ -258,7 +312,8 @@ DatumIndex createLoopingSound(DatumIndex tagIndex, DatumIndex ownerIndex, float 
     return DatumIndex.none;
 }
 
-DatumIndex createObjectLoopingSound(DatumIndex tagIndex, ref GObject object, const(char)[] markerName)
+@nogc nothrow
+DatumIndex createObjectLoopingSound(DatumIndex tagIndex, ref GObject object, const(char)[] markerName, int functionIndex)
 {
     if(tagIndex == DatumIndex.none)
     {
@@ -271,6 +326,14 @@ DatumIndex createObjectLoopingSound(DatumIndex tagIndex, ref GObject object, con
 
         objectLooping.audio    = &this;
         objectLooping.tagIndex = tagIndex;
+        objectLooping.object   = object.selfPtr;
+        objectLooping.scaleFunctionIndex = functionIndex;
+
+        auto markerTransform = object.findMarkerTransform(markerName);
+
+        objectLooping.nodeIndex = markerTransform.node;
+        objectLooping.forward   = markerTransform.local.forward;
+        objectLooping.position  = markerTransform.local.position;
 
         return index;
     }
@@ -278,6 +341,7 @@ DatumIndex createObjectLoopingSound(DatumIndex tagIndex, ref GObject object, con
     return DatumIndex.none;
 }
 
+@nogc nothrow
 DatumIndex createObjectLoopingSound(DatumIndex tagIndex)
 {
     if(tagIndex == DatumIndex.none)
@@ -298,6 +362,26 @@ DatumIndex createObjectLoopingSound(DatumIndex tagIndex)
     }
 
     return DatumIndex.none;
+}
+
+@nogc nothrow
+void deleteSound(DatumIndex index)
+{
+    if(!index)
+    {
+        return;
+    }
+
+    auto sound = &sounds[index];
+
+    // assert(0); // TODO implement
+
+    if(sound.state != Sound.State.linear)
+    {
+        // TODO looping sound invalidate index in loopingSound, if current track
+    }
+
+    sounds.remove(index);
 }
 
 @nogc nothrow
@@ -379,9 +463,9 @@ body
 
 void updateCallbacksOnReload()
 {
-    foreach(ref sound ; sounds)
+    foreach(ref soundBuffer ; soundBuffers)
     {
-        sound.updateOggCallbacks();
+        soundBuffer.updateOggCallbacks();
     }
 }
 
