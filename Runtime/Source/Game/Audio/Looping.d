@@ -75,9 +75,9 @@ DatumIndex loopingSoundIndex;
 float backgroundSoundScale;
 
 int lastTickCounter = indexNone;
-int scaleFunctionIndex;
+int scaleFunctionIndex = indexNone;
 
-int nodeIndex;
+int nodeIndex = indexNone;
 Vec3 position;
 Vec3 forward;
 
