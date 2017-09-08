@@ -189,7 +189,7 @@ int selectPermutation(int pitchRangeIndex, int prevPermutationIndex = indexNone)
 
     if(flags.splitLongSoundIntoPermutations && prevPermutationIndex != indexNone)
     {
-        return pitchRange[prevPermutationIndex].nextPermutationIndex;
+        return pitchRange.permutations[prevPermutationIndex].nextPermutationIndex;
     }
 
     int index = randomValueFromZero(pitchRange.actualPermutationCount);
