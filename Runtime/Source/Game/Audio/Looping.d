@@ -2,7 +2,7 @@
 module Game.Audio.Looping;
 
 import std.bitmanip : bitfields;
-import std.datetime : Duration;
+import core.time : Duration, msecs;
 
 import Game.Audio.Audio;
 import Game.Audio.Sound;
@@ -133,7 +133,11 @@ private void updateImpl()
         scale        = 1.0f;
     }
 
-    Sound.Spatial spatial = { scale: 1.0f }; // TODO, fill with real values
+    Sound.Spatial spatial =
+    {
+        // TODO, fill with real values
+        scale: scaleIsValid ? scale : 1.0f
+    };
 
     if(scaleIsValid)
     {
@@ -150,7 +154,7 @@ private void updateImpl()
 
         state = State.idle__;
 
-        if(!updateLoopingSound(desired, spatial, float.nan))
+        if(!updateLoopingSound(desired, spatial, Duration.zero))
         {
             if(flags.isBackgroundSound)
             {
@@ -165,7 +169,7 @@ private void updateImpl()
     }
     else
     {
-        if(!outdated && !updateLoopingSound(LoopingSound.State.end, spatial, float.nan)) // TODO
+        if(!outdated && !updateLoopingSound(LoopingSound.State.end, spatial, Duration.zero)) // TODO
         {
             state = State.stopped__;
         }
@@ -186,7 +190,7 @@ private void updateImpl()
     lastTickCounter = audio.objectLoopingTickCounter;
 }
 
-private bool updateLoopingSound(LoopingSound.State desiredState, ref Sound.Spatial spatial, float fadeTime)
+private bool updateLoopingSound(LoopingSound.State desiredState, ref Sound.Spatial spatial, Duration fadeTime)
 {
     const         tagSoundLooping = Cache.get!TagSoundLooping(tagIndex);
     LoopingSound* loopingSound    = audio.loopingSounds.at(loopingSoundIndex);
@@ -236,12 +240,12 @@ private bool updateLoopingSound(LoopingSound.State desiredState, ref Sound.Spati
                 continue;
             }
 
-            if(fadeTime == 0.0f)
+            if(fadeTime == Duration.zero)
             {
                 if(loopingSound.trackSounds[i] && tagTrack.flags.fadeOutAtStop
                     || !tagTrack.end && !tagSoundLooping.flags.notALoop)
                 {
-                    // TODO(IMPLEMENT) fading
+                    audio.sounds[loopingSound.trackSounds[i]].fadeOut((cast(long)(tagTrack.fadeOutDuration * 1000.0f)).msecs);
                 }
 
                 if(!tagTrack.end)
@@ -270,7 +274,10 @@ private bool updateLoopingSound(LoopingSound.State desiredState, ref Sound.Spati
             }
             else
             {
-                // TODO(IMPLEMENT) fading
+                if(loopingSound.trackSounds[i])
+                {
+                    audio.sounds[loopingSound.trackSounds[i]].fadeOut(fadeTime);
+                }
             }
         }
         else
@@ -317,7 +324,7 @@ private bool updateLoopingSound(LoopingSound.State desiredState, ref Sound.Spati
 
     loopingSound.state = desiredState;
 
-    return true;
+    return false;
 }
 
 }

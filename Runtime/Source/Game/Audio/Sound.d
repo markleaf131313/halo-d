@@ -1,6 +1,8 @@
 
 module Game.Audio.Sound;
 
+import core.time : Duration, seconds, msecs;
+
 import OpenAL;
 import Vorbis;
 
@@ -24,8 +26,10 @@ uint[3] buffers = AL_NONE;
 uint    unqueuedBufferCount;
 uint[3] unqueuedBuffers = AL_NONE;
 
-bool isOggInit;
+bool bufferExhausted;
 uint readOffset;
+
+bool isOggInit;
 align(OggVorbis_File.alignof) void[OggVorbis_File.sizeof] oggFileBuffer = void;
 
 @nogc nothrow
@@ -49,10 +53,45 @@ void initialize()
     unqueuedBufferCount = buffers.length;
 }
 
+void overlapBuffer()
+{
+    auto  sound    = &audio.sounds[soundIndex];
+    const tagSound = Cache.get!TagSound(sound.tagIndex);
+
+    readOffset = 0;
+    bufferExhausted = false;
+
+    if(isOggInit)
+    {
+        ov_clear(oggFile);
+        isOggInit = false;
+    }
+
+    switch(tagSound.compression)
+    {
+    case TagEnums.SoundCompression.ogg:
+        ov_callbacks callbacks =
+        {
+            close_func: null,
+            tell_func:  null,
+            seek_func:  null,
+            read_func:  &readOggCallback,
+        };
+
+        ov_open_callbacks(&this, oggFile, null, 0, callbacks);
+
+        isOggInit = true;
+        break;
+    default:
+    }
+}
+
 private void reset()
 {
     soundIndex = DatumIndex.none;
     readOffset = 0;
+
+    bufferExhausted = false;
 
     alSourceStop(source);
 
@@ -88,6 +127,13 @@ void update(int index)
     const tagSound       = Cache.get!TagSound(sound.tagIndex);
     const tagPitchRange  = &tagSound.pitchRanges[sound.pitchRangeIndex];
     const tagPermutation = &tagPitchRange.permutations[sound.permutationIndex];
+
+    if(sound.getGain() <= 0.0f && sound.fadeEndGain <= 0.0f)
+    {
+        audio.deleteSound(soundIndex);
+        reset();
+        return;
+    }
 
     if(sound.state == Sound.State.linear)
     {
@@ -146,7 +192,6 @@ private void updateLinearSound(int index)
         if(readOffset >= tagPermutation.samples.size)
         {
             audio.deleteSound(soundIndex);
-
             reset();
         }
         else
@@ -159,7 +204,7 @@ private void updateLinearSound(int index)
 private void updateLoopingSound(int index)
 {
     auto  sound          = &audio.sounds[soundIndex];
-    const tagSound       = Cache.get!TagSound(sound.tagIndex);
+    auto  tagSound       = Cache.get!TagSound(sound.tagIndex);
     const tagPitchRange  = &tagSound.pitchRanges[sound.pitchRangeIndex];
     const tagPermutation = &tagPitchRange.permutations[sound.permutationIndex];
 
@@ -169,6 +214,8 @@ private void updateLoopingSound(int index)
 
     float minDistance = tagSound.getMinimumDistance();
     float volume = audio.getVolume(tagSound.soundClass);
+
+    float pitch = mix(tagSound.pitchModifier0, tagSound.pitchModifier1, loopingSound.spatial.scale);
 
     if(sound.soundBufferIndex == indexNone)
     {
@@ -197,38 +244,61 @@ private void updateLoopingSound(int index)
     {
         // TODO music destroy sound if setting is zero
 
-        if(sound.state == Sound.State.looping)
+        if(sound.state == Sound.State.looping && !sound.isFadingOut())
         {
-            // TODO select new pitch range
-        }
+            if(tagSound.selectPitchRange(pitch, sound.pitchRangeIndex) != sound.pitchRangeIndex)
+            {
+                if(loopingSound.trackSounds[sound.trackIndex] == sound.selfIndex)
+                {
+                    if(auto newSound = audio.createSoundForLooping(sound.tagIndex, sound.ownerIndex, sound.trackIndex, Sound.State.looping))
+                    {
+                        sound.fadeOut(500.msecs, true);
+                        audio.sounds[newSound].fadeIn(500.msecs, true);
 
+                        loopingSound.trackSounds[sound.trackIndex] = newSound;
+                    }
+                }
+            }
+        }
 
         if(sound.state != Sound.State.end && sound.state != Sound.State.start || !tagTrack.flags.fadeInAtStart)
         {
+            if(bufferExhausted || sound.desiredTagIndex && tagPermutation.nextPermutationIndex != indexNone)
+            {
+                if(sound.desiredTagIndex && tagPermutation.nextPermutationIndex != indexNone)
+                {
+                    // TODO switchTag
+                }
+                else
+                {
+                    int nextPermutationIndex = tagSound.selectPermutation(sound.pitchRangeIndex, sound.permutationIndex);
 
+                    if(nextPermutationIndex != indexNone)
+                    {
+                        sound.permutationIndex = nextPermutationIndex;
+                        overlapBuffer();
+                    }
+                    else
+                    {
+                        // TODO
+                    }
+                }
+            }
         }
 
         unqueueProcessedBuffers();
         fillBuffers();
     }
 
+    alSourcef(source, AL_PITCH, pitch * tagPitchRange.naturalPitchModifier);
+    alSourcef(source, AL_GAIN, sound.getGain() * volume);
+
     int sourceState;
     alGetSourcei(source, AL_SOURCE_STATE, &sourceState);
 
     if(sourceState != AL_PLAYING)
     {
-        // TODO better way to determine done playing
-        //      ogg's readOffset can be "done" but still have data it needs to play
-        if(readOffset >= tagPermutation.samples.size)
-        {
-            audio.deleteSound(soundIndex);
-
-            reset();
-        }
-        else
-        {
-            alSourcePlay(source);
-        }
+        alSourcePlay(source);
     }
 }
 
@@ -246,7 +316,7 @@ private bool fillBuffers()
 
     foreach_reverse(uint buffer ; unqueuedBuffers[0 .. unqueuedBufferCount])
     {
-        byte[8256] data = void;
+        byte[2048] data = void;
         ptrdiff_t length;
 
         int  numChannels = 2;
@@ -266,6 +336,7 @@ private bool fillBuffers()
 
             if(readOffset >= tagPermutation.samples.size)
             {
+                bufferExhausted = true;
                 return false;
             }
 
@@ -283,6 +354,7 @@ private bool fillBuffers()
 
                 if(ret <= 0)
                 {
+                    bufferExhausted = true;
                     break;
                 }
 
@@ -398,6 +470,13 @@ int pitchRangeIndex;
 int permutationIndex;
 int trackIndex;
 
+
+bool fadeNonLinearly;
+float fadeStartGain;
+float fadeEndGain;
+Duration fadeStartTime;
+Duration fadeEndTime;
+
 void update()
 {
     const tagSound       = Cache.get!TagSound(tagIndex);
@@ -504,7 +583,73 @@ void update()
     // }
 }
 
+float getGain()
+{
+    if(fadeStartTime >= fadeEndTime)
+    {
+        return 1.0f;
+    }
 
+    float diffDesired = float((fadeEndTime       - fadeStartTime).total!"msecs");
+    float diffCurrent = float((audio.currentTime - fadeStartTime).total!"msecs");
+
+    float percent = saturate(diffCurrent / diffDesired);
+
+    if(fadeNonLinearly)
+    {
+        if(fadeEndGain <= fadeStartGain)
+        {
+            percent = 1.0f - pow(1.0f - percent, 1.0f / 2.5f);
+        }
+        else
+        {
+            percent = pow(percent, 1.0f / 2.5f);
+        }
+    }
+
+    if(percent >= 1.0f)
+    {
+        percent = 1.0f;
+
+        fadeStartTime = Duration();
+        fadeEndTime   = Duration();
+    }
+
+    return mix(fadeStartGain, fadeEndGain, percent);
+}
+
+bool isFadingOut()
+{
+    return fadeStartTime < fadeEndTime && fadeEndGain <= 0.0f;
+}
+
+void fadeIn(Duration duration, bool useNonLinearFading = false)
+{
+    float currentGain = getGain();
+
+    if(fadeStartTime == fadeEndTime) fadeStartGain = 0.0f;
+    else                             fadeStartGain = currentGain;
+
+    fadeEndGain = 1.0f;
+
+    fadeStartTime = audio.currentTime;
+    fadeEndTime   = fadeStartTime + duration;
+
+    fadeNonLinearly = useNonLinearFading;
+}
+
+void fadeOut(Duration duration, bool useNonLinearFading = false)
+{
+    float currentGain = getGain();
+
+    fadeStartGain = currentGain;
+    fadeEndGain = 0.0f;
+
+    fadeStartTime = audio.currentTime;
+    fadeEndTime   = fadeStartTime + duration;
+
+    fadeNonLinearly = useNonLinearFading;
+}
 
 void setDesiredTag(DatumIndex index)
 {
@@ -514,6 +659,10 @@ void setDesiredTag(DatumIndex index)
     }
 }
 
+void switchSoundTag(DatumIndex index)
+{
+    assert(0); // TODO
+}
 
 
 }
