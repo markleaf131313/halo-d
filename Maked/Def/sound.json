@@ -88,8 +88,9 @@
                     "size": 2
                 },
                 {
-                    "type": "pad",
-                    "size": 4
+                    "name": "natural pitch modifier",
+                    "comment": "pitch is multiplied by this, only for use when sending for use with DirectSound",
+                    "type": "float"
                 },
                 {
                     "name": "played permutation bits",
