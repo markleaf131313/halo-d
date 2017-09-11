@@ -620,11 +620,12 @@ void updateLogic()
         updateVitality();
     }
 
-    updateExportFunctions();
+    byTypeUpdateImportFunctions();
 
     // todo limping flag, dont update matrices
-
     updateMatrices();
+
+    updateExportFunctions();
 
     if(firstChildObject)
     {
@@ -2167,7 +2168,7 @@ bool implUpdateImportFunctions()
         default: continue;
         }
 
-        float value;
+        float value = 0.0f;
 
         switch(type) with(TagEnums.ObjectImport)
         {
@@ -2325,6 +2326,13 @@ bool implDebugUi()
         igSeparator();
         igDragFloat("health", &damage.health);
         igDragFloat("shield", &damage.shield);
+
+        igSeparator();
+        foreach(int i, float value ; exportFunctionValues)
+        {
+            const(char)* cond =  exportFunctionValidities[i] ? "true" : "false";
+            igText("Export Value %d (%s): %f", i, cond, value);
+        }
 
     }
 
