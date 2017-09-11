@@ -526,6 +526,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
             if(igButton("clear"))
             {
                 field.index = DatumIndex.none;
+                field.path = null;
             }
 
             igSameLine();

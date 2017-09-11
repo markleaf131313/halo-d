@@ -67,6 +67,8 @@ bool checkNeedsReload()
 
 bool doReloadLibrary()
 {
+    import core.runtime : Runtime;
+
     version(Windows)
     {
         import core.sys.windows.windows;
