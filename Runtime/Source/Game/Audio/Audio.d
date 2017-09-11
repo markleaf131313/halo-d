@@ -110,6 +110,8 @@ void update(Vec3 position)
     listeners[0].active = true;
     listeners[0].transform.position = position;
 
+    currentTime = stopWatch.peek(); // TODO only check every 33 ms?
+
     foreach(ref sound ; sounds)
     {
         sound.update();
