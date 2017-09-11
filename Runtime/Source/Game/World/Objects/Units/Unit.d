@@ -499,6 +499,7 @@ bool implUpdateImportFunctions()
 
         switch(type)
         {
+        case TagEnums.UnitImport.none: continue;
         case TagEnums.UnitImport.driverSeatPower: value = poweredSeats[0].power; break;
         case TagEnums.UnitImport.gunnerSeatPower: value = poweredSeats[1].power; break;
         case TagEnums.UnitImport.aimingChange:    value = aimingChange / float(ubyte.max); break;

@@ -565,6 +565,7 @@ bool implUpdateImportFunctions()
 
         switch(type)
         {
+        case TagEnums.WeaponImport.none: continue;
         case TagEnums.WeaponImport.heat:
             value = this.heat;
             break;

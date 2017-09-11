@@ -679,6 +679,8 @@ bool implUpdateImportFunctions()
 
         switch(type)
         {
+        case TagEnums.VehicleImport.none:
+            continue;
         case TagEnums.VehicleImport.frontLeftTireVelocity:
         case TagEnums.VehicleImport.frontRightTireVelocity:
         case TagEnums.VehicleImport.backLeftTireVelocity:
