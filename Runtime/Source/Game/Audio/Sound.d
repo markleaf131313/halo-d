@@ -263,11 +263,14 @@ private void updateLoopingSound(int index)
 
         if(sound.state != Sound.State.end && sound.state != Sound.State.start || !tagTrack.flags.fadeInAtStart)
         {
-            if(bufferExhausted || sound.desiredTagIndex && tagPermutation.nextPermutationIndex != indexNone)
+            if(bufferExhausted || sound.desiredTagIndex && tagPermutation.nextPermutationIndex == indexNone)
             {
-                if(sound.desiredTagIndex && tagPermutation.nextPermutationIndex != indexNone)
+                if(sound.desiredTagIndex && tagPermutation.nextPermutationIndex == indexNone)
                 {
-                    // TODO switchTag
+                    if(bufferExhausted)
+                    {
+                        sound.switchSoundTag(pitch);
+                    }
                 }
                 else
                 {
@@ -659,9 +662,18 @@ void setDesiredTag(DatumIndex index)
     }
 }
 
-void switchSoundTag(DatumIndex index)
+void switchSoundTag(float temp)
 {
-    assert(0); // TODO
+    tagIndex = desiredTagIndex;
+    desiredTagIndex = DatumIndex.none;
+
+    auto tagSound = Cache.get!TagSound(tagIndex);
+
+    // TODO pitch randomizer
+    pitchRangeIndex = tagSound.selectPitchRange(temp);
+    permutationIndex = tagSound.selectPermutation(pitchRangeIndex);
+
+
 }
 
 

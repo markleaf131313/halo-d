@@ -105,9 +105,14 @@ void update()
 
 private void updateImpl()
 {
+    scope(exit)
+    {
+        lastTickCounter = audio.objectLoopingTickCounter;
+    }
+
     const tagSoundLooping = Cache.get!TagSoundLooping(tagIndex);
 
-    bool outdated = lastTickCounter == indexNone || lastTickCounter != audio.objectLoopingTickCounter - 1;
+    bool outdated = lastTickCounter == indexNone || lastTickCounter == audio.objectLoopingTickCounter - 1;
 
     bool scaleIsValid = false;
     float scale;
@@ -154,7 +159,7 @@ private void updateImpl()
 
         state = State.idle__;
 
-        if(!updateLoopingSound(desired, spatial, Duration.zero))
+        if(updateLoopingSound(desired, spatial, Duration.zero))
         {
             if(flags.isBackgroundSound)
             {
@@ -169,7 +174,12 @@ private void updateImpl()
     }
     else
     {
-        if(!outdated && !updateLoopingSound(LoopingSound.State.end, spatial, Duration.zero)) // TODO
+        if(state == State.stopped__)
+        {
+            return;
+        }
+
+        if(outdated && !updateLoopingSound(LoopingSound.State.end, spatial, Duration.zero)) // TODO
         {
             state = State.stopped__;
         }
@@ -187,7 +197,7 @@ private void updateImpl()
         }
     }
 
-    lastTickCounter = audio.objectLoopingTickCounter;
+
 }
 
 private bool updateLoopingSound(LoopingSound.State desiredState, ref Sound.Spatial spatial, Duration fadeTime)
@@ -304,7 +314,14 @@ private bool updateLoopingSound(LoopingSound.State desiredState, ref Sound.Spati
                     continue;
                 }
 
-                // TODO(IMPLEMENT) fading
+                if(desiredState == LoopingSound.State.start && tagTrack.flags.fadeInAtStart)
+                {
+                    audio.sounds[soundIndex].fadeIn((cast(long)(tagTrack.fadeInDuration * 1000.0f)).msecs);
+                }
+                else
+                {
+                    audio.sounds[soundIndex].fadeIn(2000.msecs);
+                }
 
                 loopingSound.trackSounds[i] = soundIndex;
             }
