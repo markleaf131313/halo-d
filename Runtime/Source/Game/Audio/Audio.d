@@ -27,6 +27,8 @@ struct Listener
     Transform transform;
 }
 
+World* world;
+
 StopWatch stopWatch;
 Duration  currentTime;
 
@@ -43,8 +45,10 @@ DatumArray!ObjectLoopingSound objectLoopingSounds;
 int lastSample;
 void*[2048] samples; // TODO use padding in TagData instead?
 
-void initialize()
+void initialize(World* world)
 {
+    this.world = world;
+
     stopWatch.reset();
     stopWatch.start();
 
@@ -327,8 +331,9 @@ DatumIndex createObjectLoopingSound(DatumIndex tagIndex, ref GObject object, con
         ObjectLoopingSound* objectLooping = &objectLoopingSounds[index];
 
         objectLooping.audio    = &this;
+        objectLooping.world    = world;
         objectLooping.tagIndex = tagIndex;
-        objectLooping.object   = object.selfPtr;
+        objectLooping.object   = object.selfIndex;
         objectLooping.scaleFunctionIndex = functionIndex;
 
         auto markerTransform = object.findMarkerTransform(markerName);
@@ -356,6 +361,7 @@ DatumIndex createObjectLoopingSound(DatumIndex tagIndex)
         ObjectLoopingSound* objectLooping = &objectLoopingSounds[index];
 
         objectLooping.audio    = &this;
+        objectLooping.world    = world;
         objectLooping.tagIndex = tagIndex;
 
         objectLooping.flags.isBackgroundSound = true;

@@ -63,8 +63,8 @@ GObject object;
 Flags flags;
 State state;
 
-SheepGObjectPtr sourceObject; // prevent hitting this object, until projectile ricochets off something else.
-SheepGObjectPtr targetObject; // guided homing target
+DatumIndex sourceObject; // prevent hitting this object, until projectile ricochets off something else.
+DatumIndex targetObject; // guided homing target
 
 TagEnums.MaterialType materialType;
 
@@ -87,9 +87,9 @@ bool implInitialize()
     flags.tracer = true;
 
     // TODO sourceObject, taken from object and the absoluteParent() of (need to implement in object)
-    if(auto owner = ownerObject.ptr)
+    if(auto owner = world.objects.at(ownerObject))
     {
-        sourceObject = owner.getAbsoluteParent().selfPtr;
+        sourceObject = owner.getAbsoluteParent().selfIndex;
     }
 
     float armingRate = tagProjectile.timer.lower * gameFramesPerSecond;
@@ -185,7 +185,7 @@ bool implUpdateLogic()
 
         if(targetObject && tagProjectile.guidedAngularVelocity > 0.0f)
         {
-            if(auto target = targetObject.ptr)
+            if(auto target = world.objects.at(targetObject))
             {
                 // TODO guiding projectile to target
             }
@@ -225,7 +225,7 @@ bool implUpdateLogic()
             iteration += 1;
 
             percent      = 1.0f - collision.percent;
-            sourceObject = SheepGObjectPtr();
+            sourceObject = DatumIndex.none;
 
             if(percent < 0.0001f)
             {
@@ -342,7 +342,7 @@ private bool collideWorld(Vec3 segment, ref World.LineResult lineResult)
     options.objects   = true;
     options.tryToKeepValidLocation = true;
 
-    if(world.collideLine(sourceObject.ptr, position, segment, options, lineResult))
+    if(world.collideLine(&world.objects[sourceObject], position, segment, options, lineResult))
     {
         return true;
     }
@@ -362,8 +362,8 @@ private bool collideWorld(Vec3 segment, ref World.LineResult lineResult)
 
         options.tryToKeepValidLocation = false;
 
-        if(world.collideLine(sourceObject.ptr, position + offset, segment, options, lineResult)) return true;
-        if(world.collideLine(sourceObject.ptr, position - offset, segment, options, lineResult)) return true;
+        if(world.collideLine(&world.objects[sourceObject], position + offset, segment, options, lineResult)) return true;
+        if(world.collideLine(&world.objects[sourceObject], position - offset, segment, options, lineResult)) return true;
     }
 
     return false;
@@ -467,7 +467,7 @@ private void doImpact(ref Vec3 position, ref Vec3 velocity, ref World.LineResult
             break;
         case World.CollisionType.object:
             velocity *= 1.0f - tagResponse.initialFriction;
-            sourceObject = line.model.object.selfPtr;
+            sourceObject = line.model.object.selfIndex;
             break;
         default:
             if(tagProjectile.timer.upper == 0.0f)

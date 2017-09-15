@@ -215,10 +215,9 @@ void render(ref World world, ref Camera camera)
 
     modelVertexArray.bind();
 
-    foreach(ref overseer ; world.objects)
+    foreach(ref object ; world.objects)
     {
         Mat4x3[TagConstants.Animation.maxNodes] inversedMatrices = void;
-        auto object = overseer.ptr;
 
         if(!object.flags.hidden)
         {
@@ -253,15 +252,13 @@ void render(ref World world, ref Camera camera)
     simpleWorldShader.useProgram();
     sphereVertexArray.bind();
 
-    foreach(ref overseer ; world.objects)
+    foreach(ref object ; world.objects)
     {
-        auto object = overseer.ptr;
-
         if(!object.flags.hidden)
         {
             if(object.type == TagEnums.ObjectType.biped)
             {
-                Biped* biped = cast(Biped*)object;
+                Biped* biped = cast(Biped*)&object;
 
                 const tagBiped = Cache.get!TagBiped(biped.tagIndex);
 

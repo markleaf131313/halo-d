@@ -212,7 +212,7 @@ void initialize()
 {
     effects  .allocate(512,  multichar!"ef");
     particles.allocate(2048, multichar!"pl");
-
+    objectList.allocate(2048, multichar!"oj");
 }
 
 @property ref auto objects()
@@ -261,15 +261,17 @@ void dealAreaDamage(ref GObject.DamageOptions options)
 
 GObject* createObject(ref GObject.Creation data)
 {
-    auto tagObject = Cache.get!TagObject(data.tagIndex);
-    auto overseer  = OverseerGObjectPtr.make(GObject.byTypeInit(tagObject.objectType));
-    auto iter      = objectList.insertFront(overseer);
+    const tagObject = Cache.get!TagObject(data.tagIndex);
 
-    GObject* object = iter.value.ptr;
-
-    if(object)
+    if(auto init = GObject.byTypeInit(tagObject.objectType))
     {
-        object.selfPtr = iter.value.makeSheep();
+        import std.c.string : memcpy;
+
+        GObject* object = mallocCast!GObject(init.length);
+        memcpy(object, init.ptr, init.length);
+
+        object.selfIndex = objectList.add();
+        objectList.dataIndex(object.selfIndex).ptr = object;
 
         object.type = tagObject.objectType; // required to be set to make the PreInitialize call below
                                             // TODO(REFACTOR) would be better to pass this as a parameter instead
@@ -284,7 +286,7 @@ GObject* createObject(ref GObject.Creation data)
 
             if(data.ownerObject)
             {
-                object.ownerObject = data.ownerObject.selfPtr;
+                object.ownerObject = data.ownerObject.selfIndex;
             }
 
             object.tagIndex = data.tagIndex;
@@ -321,9 +323,11 @@ GObject* createObject(ref GObject.Creation data)
                 return object;
             }
         }
-    }
 
-    objectList.removeFront();
+        objectList.remove(object.selfIndex);
+        object.byTypeDestruct();
+        free(object);
+    }
 
     return null;
 }
@@ -345,7 +349,7 @@ void createEffectAttachedToObject(DatumIndex tagEffectIndex, GObject* object, in
     effect.world = &this;
 
     effect.tagIndex = tagEffectIndex;
-    effect.parent = object.selfPtr;
+    effect.parent = object.selfIndex;
 
     effect.flags._bit1_x02 = true; // TODO, rename, causes effect to persist once completed, object destroys?
 
@@ -384,7 +388,7 @@ void createEffectFromItem(DatumIndex tagEffectIndex, GObject* object, float scal
     effect.world = &this;
 
     effect.tagIndex = tagEffectIndex;
-    effect.parent = object.selfPtr;
+    effect.parent = object.selfIndex;
 
     effect.scaleA = scaleA;
     effect.scaleB = scaleB;
@@ -435,11 +439,11 @@ void createEffect(
     Effect* effect = &effects[index];
 
     effect.world  = &this;
-    effect.parent = targetObject.selfPtr;
+    effect.parent = targetObject.selfIndex;
 
     if(object)
     {
-        effect.creationObject = object.selfPtr;
+        effect.creationObject = object.selfIndex;
     }
 
     effect.tagIndex = tagEffectIndex;
@@ -479,7 +483,7 @@ void createEffect(
 
     if(object)
     {
-        effect.creationObject = object.selfPtr;
+        effect.creationObject = object.selfIndex;
     }
 
     effect.world = &this;
@@ -1390,7 +1394,7 @@ TagScenarioStructureBsp* currentSbsp;
 MasterComputeIdentifier masterComputeId;
 SlaveComputeIdentifier[TagConstants.StructureBsp.maxClusters] clusterComputeIds;
 
-DList!OverseerGObjectPtr objectList;
+DatumArrayPtr!GObject objectList;
 DList!(GObject*)[TagConstants.StructureBsp.maxClusters] collideableClusterObjectLists;
 DList!(GObject*)[TagConstants.StructureBsp.maxClusters] noncollideableClusterObjectLists;
 
@@ -1608,137 +1612,3 @@ bool calculateRenderSurface(
 }
 }
 
-// End of World struct //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-// TODO(REFACTOR) move these two ptr structures into a separate module
-struct OverseerGObjectPtr
-{
-@nogc nothrow:
-
-    import core.stdc.string : memcpy;
-
-    @disable this(this);
-
-    private Control* control;
-
-    static OverseerGObjectPtr make(const(void)[] init)
-    {
-        OverseerGObjectPtr result;
-
-        if(init)
-        {
-            // todo merge control and object into one malloc?
-            result.control        = mallocCast!Control(Control.sizeof);
-            result.control.object = mallocCast!GObject(init.length);
-            result.control.count  = 1;
-
-            memcpy(result.control.object, init.ptr, init.length);
-        }
-
-        return result;
-    }
-
-    ~this()
-    {
-        if(control)
-        {
-            control.destroyObject();
-            control.count -= 1;
-
-            if(control.count == 0)
-            {
-                free(control);
-            }
-        }
-    }
-
-    @property GObject* ptr()
-    {
-        return control ? control.object : null;
-    }
-
-    SheepGObjectPtr makeSheep()
-    {
-        return control.makeSheep();
-    }
-
-    private struct Control
-    {
-    @nogc nothrow:
-
-        @disable this(this);
-
-        int      count = 1;
-        GObject* object;
-
-        SheepGObjectPtr makeSheep()
-        {
-            return SheepGObjectPtr(this);
-        }
-
-        void destroyObject()
-        {
-            if(object)
-            {
-                object.byTypeDestruct();
-                free(object);
-                object = null;
-            }
-        }
-    }
-
-}
-
-// TODO remove this and use a DatumArray instead for objects?
-struct SheepGObjectPtr
-{
-@nogc nothrow:
-
-    this(this)
-    {
-        if(control)
-        {
-            control.count += 1;
-        }
-    }
-
-    ~this()
-    {
-        if(control)
-        {
-            control.count -= 1;
-
-            if(control.count == 0)
-            {
-                control.destroyObject();
-                free(control);
-            }
-        }
-    }
-
-    bool opCast(T : bool)() const
-    {
-        return control !is null;
-    }
-
-    @property inout(GObject)* ptr() inout
-    {
-        if(control is null)
-        {
-            return null;
-        }
-
-        return control.object;
-    }
-
-private:
-
-    OverseerGObjectPtr.Control* control;
-
-    this(ref OverseerGObjectPtr.Control c)
-    {
-        control = &c;
-        c.count += 1;
-    }
-}

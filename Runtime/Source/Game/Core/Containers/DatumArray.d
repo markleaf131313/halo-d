@@ -21,6 +21,115 @@ struct DatumIndex
     }
 }
 
+struct DatumArrayPtr(T)
+{
+
+struct Data
+{
+    DatumIndex selfIndex;
+    T* ptr;
+}
+
+private DatumArray!Data datumArray;
+
+int opApply(scope int delegate(ref T) dg)
+{
+    foreach(ref element ; datumArray.elements[0 .. datumArray.length])
+    {
+        if(element.selfIndex.salt >= 0)
+        {
+            continue;
+        }
+
+        if(int result = dg(*element.ptr))
+        {
+            return result;
+        }
+    }
+
+    return 0;
+}
+
+int opApply(scope int delegate(int, ref T) dg)
+{
+    foreach(int i, ref element ; datumArray.elements[0 .. datumArray.length])
+    {
+        if(element.selfIndex.salt >= 0)
+        {
+            continue;
+        }
+
+        if(int result = dg(i, *element.ptr))
+        {
+            return result;
+        }
+    }
+
+    return 0;
+}
+
+int opApply(scope int delegate(DatumIndex, ref T) dg)
+{
+    foreach(ref element ; datumArray.elements[0 .. datumArray.length])
+    {
+        if(element.selfIndex.salt >= 0)
+        {
+            continue;
+        }
+
+        if(int result = dg(element.selfIndex, *element.ptr))
+        {
+            return result;
+        }
+    }
+
+    return 0;
+}
+
+void clear()
+{
+    datumArray.clear();
+}
+
+void allocate(ushort numElements, short salt)
+{
+    datumArray.allocate(numElements, salt);
+}
+
+DatumIndex add()
+{
+    return datumArray.add();
+}
+
+void remove(DatumIndex index)
+{
+    datumArray.remove(index);
+}
+
+ref inout(T) opIndex(DatumIndex index) inout
+{
+    return *datumArray[index].ptr;
+}
+
+inout(T)* at(DatumIndex index) inout
+{
+    if(auto data = datumArray.at(index))
+    {
+        return data.ptr;
+    }
+
+    return null;
+}
+
+ref inout(Data) dataIndex(DatumIndex index) inout
+{
+    return datumArray[index];
+}
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 struct DatumArray(T)
 {
 

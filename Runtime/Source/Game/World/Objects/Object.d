@@ -10,7 +10,7 @@ import std.typecons : Tuple;
 import ImGui;
 
 import Game.World.Objects;
-import Game.World.World : World, SheepGObjectPtr;
+import Game.World.World : World;
 
 import Game.Cache;
 import Game.Core;
@@ -70,7 +70,7 @@ struct GObjectTypeMask
     private uint bits;
 }
 
-// TODO(REFACTOR) use GameObject or Entity instead of GObject
+// TODO(REFACTOR) use GameObject, WorldObject, or Entity instead of GObject
 struct GObject
 {
 @nogc nothrow:
@@ -387,9 +387,8 @@ struct Flags
 }
 
 
+DatumIndex selfIndex;
 World* world;
-
-SheepGObjectPtr selfPtr;
 
 HeaderFlags headerFlags;
 Flags flags;
@@ -405,7 +404,7 @@ GObject* parent;
 GObject* firstChildObject;
 GObject* nextSiblingObject;
 
-SheepGObjectPtr ownerObject;
+DatumIndex ownerObject;
 
 World.Location location; // TODO(IMPLEMENT), might be set when connecting to map?
 
@@ -446,6 +445,10 @@ int occupiedClustersCount;
 ClusterNode[TagConstants.Object.maxClusterPresence] occupiedClusters; // todo implement static_vector
 
 Damage damage;
+
+~this()
+{
+}
 
 bool byTypePreInitialize(Creation* creation) const
 {

@@ -4,7 +4,7 @@ module Game.World.Effects.Particle;
 import std.bitmanip : bitfields;
 
 import Game.World.Objects;
-import Game.World.World : World, SheepGObjectPtr;
+import Game.World.World : World;
 
 import Game.Cache;
 import Game.Core;
@@ -69,7 +69,7 @@ World*     world;
 
 Flags flags;
 DatumIndex tagIndex;
-SheepGObjectPtr object;
+DatumIndex object;
 
 int nodeIndex;
 int localPlayerIndex;
@@ -278,7 +278,7 @@ bool updatePointPhysics(float deltaTime)
 {
     if(flags.resting)
     {
-        if(object && object.ptr is null)
+        if(object && world.objects.at(object) is null)
         {
             world.particles.remove(selfIndex);
             return false;
@@ -294,7 +294,7 @@ bool updatePointPhysics(float deltaTime)
 
     if(object)
     {
-        if(object.ptr is null && !flags._bit6_x40)
+        if(world.objects.at(object) is null && !flags._bit6_x40)
         {
             world.particles.remove(selfIndex);
             return false;

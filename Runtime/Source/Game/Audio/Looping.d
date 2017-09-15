@@ -64,8 +64,9 @@ struct Flags
 DatumIndex selfIndex;
 DatumIndex tagIndex;
 Audio*     audio;
+World*     world;
 
-SheepGObjectPtr object;
+DatumIndex object;
 
 Flags flags;
 State state = State.outdated;
@@ -86,7 +87,7 @@ void update()
 {
     if(object)
     {
-        if(GObject* object = object.ptr)
+        if(GObject* object = world.objects.at(object))
         {
             if(!object.flags.connectedToMap)
             {
@@ -124,7 +125,7 @@ private void updateImpl()
     }
     else if(scaleFunctionIndex != indexNone)
     {
-        GObject* object = object.ptr;
+        GObject* object = &world.objects[object];
 
         if(object.exportFunctionValidities[scaleFunctionIndex])
         {

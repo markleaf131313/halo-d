@@ -111,7 +111,7 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         emplace(gameState);
 
         Audio.inst = &gameState.audio;
-        Audio.inst.initialize();
+        Audio.inst.initialize(&gameState.world);
 
         Cache.inst = &gameState.cache;
         gameState.cache.load("maps/bloodgulch.map");
@@ -1035,20 +1035,16 @@ try
         gameState.world.updateLogicEffects(1.0f / gameFramesPerSecond);
         gameState.world.updateLogicParticles(1.0f / gameFramesPerSecond); // TODO(REFACTOR) ordering is wrong
 
-        foreach(ref o ; gameState.world.objects)
+        foreach(ref object ; gameState.world.objects)
         {
-            GObject* object = o.ptr;
-
             if(object.headerFlags.active && !object.headerFlags.newlyCreated)
             {
                 object.updateLogic();
             }
         }
 
-        foreach(ref o ; gameState.world.objects)
+        foreach(ref object ; gameState.world.objects)
         {
-            GObject* object = o.ptr;
-
             if(object.headerFlags.newlyCreated)
             {
                 object.headerFlags.newlyCreated = false;
@@ -1057,19 +1053,17 @@ try
             }
         }
 
-        for(auto iter = gameState.world.objects.front(); !iter.empty;)
+        foreach(ref object ; gameState.world.objects)
         {
-            GObject* object = iter.value.ptr;
-
-            auto erase = iter;
-            iter.next();
-
             if(object.headerFlags.requestedDeletion)
             {
                 // TODO move to separate function in World
 
                 object.disconnectFromWorld();
-                gameState.world.objects.remove(erase);
+                gameState.world.objects.remove(object.selfIndex);
+
+                object.byTypeDestruct();
+                free(&object); // TODO validate no memory leaks
             }
         }
 

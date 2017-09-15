@@ -8,7 +8,7 @@ import Game.World.Effects.Particle;
 
 import Game.World.FirstPerson : FirstPerson;
 import Game.World.Objects : GObject;
-import Game.World.World   : World, SheepGObjectPtr;
+import Game.World.World   : World;
 
 import Game.Audio;
 import Game.Cache;
@@ -71,8 +71,8 @@ int changeColorIndex    = indexNone;
 ColorRgb color = ColorRgb(1.0f, 1.0f, 1.0f);
 Vec3     velocity;
 
-SheepGObjectPtr parent;         // object this effect is attached to
-SheepGObjectPtr creationObject; // object that caused the creation of this effect
+DatumIndex parent;         // object this effect is attached to
+DatumIndex creationObject; // object that caused the creation of this effect
 
 float scaleA;
 float scaleB;
@@ -127,7 +127,7 @@ void updateEvents(float deltaTime)
 
     if(parent)
     {
-        if(GObject* object = parent.ptr)
+        if(GObject* object = world.objects.at(parent))
         {
             const GObject* absoluteObject = object.getAbsoluteParent();
 
@@ -355,7 +355,7 @@ void createSinglePart(
             direction: transform.forward,
         };
 
-        if(GObject* object = parent.ptr)
+        if(GObject* object = world.objects.at(parent))
         {
             // TODO instigator for damage options
         }
@@ -382,7 +382,7 @@ void createSinglePart(
     {
         if(parent)
         {
-            Audio.inst.play(tagPart.type.index, parent.ptr, partLocation.nodeIndex,
+            Audio.inst.play(tagPart.type.index, world.objects.at(parent), partLocation.nodeIndex,
                 partLocation.transform.position, partLocation.transform.forward, effectScale);
         }
         else
@@ -477,7 +477,7 @@ void createParticlesAtLocation(ref const Tag.EffectParticlesBlock tagParticle, r
             Transform* transform
                 = location.isFirstPerson
                 ? &FirstPerson.inst(localPlayerIndex).transforms[location.nodeIndex]
-                : &parent.ptr.transforms[location.nodeIndex];
+                : &world.objects[parent].transforms[location.nodeIndex];
 
             data.offset    = *transform * data.offset;
             data.direction = transform.mat3 * data.direction;
@@ -493,7 +493,7 @@ void createParticlesAtLocation(ref const Tag.EffectParticlesBlock tagParticle, r
 
         if(tagParticle.flags.stayAttachedToMarker)
         {
-            data.object    = parent.ptr;
+            data.object    = &world.objects[parent];
             data.nodeIndex = location.nodeIndex;
         }
         else
@@ -570,7 +570,7 @@ ref Transform getLocationTransform(ref Location location)
         return FirstPerson.inst(localPlayerIndex).transforms[location.nodeIndex];
     }
 
-    return parent.ptr.transforms[location.nodeIndex];
+    return world.objects[parent].transforms[location.nodeIndex];
 }
 
 private
