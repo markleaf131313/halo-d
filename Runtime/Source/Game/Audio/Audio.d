@@ -18,6 +18,7 @@ import Game.World;
 struct Audio
 {
 
+deprecated("Try to avoid using this, so multiple Audio objects can exist with multiple World objects.")
 __gshared Audio* inst;
 
 struct Listener
