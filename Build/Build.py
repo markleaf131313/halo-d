@@ -101,7 +101,7 @@ def doBuild(buildTarget):
         'dmd',
         '-m64',
         # '-w',           # warnings
-        '-de',          # treat deprecation as errors
+        # '-de',          # treat deprecation as errors
         '-g',           # debug symbols (C format)
         '-debug',
         #'-inline',
