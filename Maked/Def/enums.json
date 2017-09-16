@@ -4529,7 +4529,7 @@
         },
         {
             "index": "141",
-            "name": "enum141",
+            "name": "script type",
             "values": [
                 {
                     "name": "startup"
@@ -4541,7 +4541,7 @@
                     "name": "continuous"
                 },
                 {
-                    "name": "static"
+                    "name": "_static"
                 },
                 {
                     "name": "stub"
