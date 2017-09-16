@@ -187,12 +187,12 @@ auto opSlice()
             }
         }
 
-        @property ref Element front()
+        ref Element front()
         {
             return begin.element;
         }
 
-        @property bool empty()
+        bool empty()
         {
             return begin == null;
         }

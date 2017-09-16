@@ -35,7 +35,7 @@ struct WorldLine
         hit = doNode3d(0, 0.0f, percent);
     }
 
-    @property bool checkHit() const
+    bool checkHit() const
     {
         return hit;
     }

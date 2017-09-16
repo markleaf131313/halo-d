@@ -32,14 +32,14 @@ struct Projector
     }
 
     pragma(inline, true)
-    @property int xIndex()
+    int xIndex()
     {
         immutable int[6] indices = [ 1, 2, 0, 2, 0, 1 ];
         return indices[index];
     }
 
     pragma(inline, true)
-    @property int yIndex()
+    int yIndex()
     {
         immutable int[6] indices = [ 2, 0, 1, 1, 2, 0 ];
         return indices[index];

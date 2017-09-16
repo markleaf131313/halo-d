@@ -126,7 +126,7 @@ struct TagData
 
     int pad2;
 
-    @property T* dataAs(T)() const
+    T* dataAs(T)() const
     {
         return cast(T*)data;
     }
@@ -171,17 +171,17 @@ struct TagString
 
     alias toStr this;
 
-    @property const(char)[] toStr() const
+    const(char)[] toStr() const
     {
         return fromStringz(buffer.ptr);
     }
 
-    @property bool isEmpty() const
+    bool isEmpty() const
     {
         return buffer[0] == '\0';
     }
 
-    @property inout(char)* ptr() inout
+    inout(char)* ptr() inout
     {
         return buffer.ptr;
     }

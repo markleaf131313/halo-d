@@ -69,7 +69,6 @@ extern(C) auto imguiGetClipboardText() nothrow @nogc
     return SDL_GetClipboardText();
 }
 
-@property
 bool toggleKeyPress(int p)()
 {
     static bool pressed;

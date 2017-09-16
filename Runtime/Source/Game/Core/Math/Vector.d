@@ -196,7 +196,7 @@ Vector opUnary(string op)() const if(op == "-" || op == "+")
     return result;
 }
 
-@property auto opDispatch(string op)() const
+auto opDispatch(string op)() const
 {
     Vector!(op.length, Type) result = void;
 
@@ -212,7 +212,7 @@ Vector opUnary(string op)() const if(op == "-" || op == "+")
     return result;
 }
 
-@property void opDispatch(string op, V)(auto ref V vec) if(isVector!V && op.length <= size && op.length == vec.size)
+void opDispatch(string op, V)(auto ref V vec) if(isVector!V && op.length <= size && op.length == vec.size)
 {
     foreach(i ; staticIota!(op.length))
     {

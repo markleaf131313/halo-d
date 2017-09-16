@@ -618,12 +618,12 @@ auto rangeOfLocations(int locationIndex, TagEnums.CreationPerspective perspectiv
             return false;
         }
 
-        @property bool empty()
+        bool empty()
         {
             return start is null;
         }
 
-        @property ref Location front()
+        ref Location front()
         {
             return *start;
         }

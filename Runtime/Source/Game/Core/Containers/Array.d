@@ -11,7 +11,7 @@ private int size = 0;
 private int max  = (Allocator.hasInlinedElements ? Allocator.inlinedSize : 0);
 private Allocator.Def!Element allocator;
 
-@property Element* ptr()
+Element* ptr()
 {
     return allocator.allocation();
 }
@@ -48,7 +48,7 @@ Element at(int index)
     return index >= 0 && index < size ? ptr[index] : null;
 }
 
-@property bool isEmpty() const
+bool isEmpty() const
 {
     return size == 0;
 }

@@ -75,7 +75,7 @@ union
     uint  bits;
 }
 
-@property @nogc nothrow
+@nogc nothrow
 T as(T)() const
 {
     static assert(T.sizeof <= this.sizeof);

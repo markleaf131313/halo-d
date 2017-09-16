@@ -215,7 +215,7 @@ void initialize()
     objectList.allocate(2048, multichar!"oj");
 }
 
-@property ref auto objects()
+ref auto objects()
 {
     return objectList;
 }

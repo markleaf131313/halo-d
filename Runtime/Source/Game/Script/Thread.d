@@ -24,7 +24,7 @@ struct StackFrame
     HsValue*    result;
     short       length;
 
-    @property void* data()
+    void* data()
     {
         return cast(void*)&this + length.offsetof + length.sizeof;
     }

@@ -68,7 +68,7 @@ struct ColorRgb
         mixin("return ColorRgb(r "~ op ~" scalar, g "~ op ~" scalar, b "~ op ~" scalar);");
     }
 
-    @property ref inout(Vec3) asVector() return inout
+    ref inout(Vec3) asVector() return inout
     {
         return *cast(typeof(return)*)&this;
     }

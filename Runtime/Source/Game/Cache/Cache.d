@@ -57,7 +57,7 @@ struct Meta
     bool external;
     int pad0;
 
-    @property T* tagData(T)()
+    T* tagData(T)()
     {
         return cast(T*)data;
     }
@@ -73,8 +73,8 @@ SharedResourceCache locCache;
 
 static @nogc nothrow pragma(inline, true)
 {
-    @property Cache* inst()                { return instance; }
-    @property void   inst(Cache* instance) { this.instance = instance; }
+    Cache* inst()                { return instance; }
+    void   inst(Cache* instance) { this.instance = instance; }
 
     T* get(T)(ref const(DatumIndex) i) { return i == DatumIndex.none ? null : cast(T*)inst.metas[i.i].data; }
     T* get(T)(ref const(TagRef)   r)   { return get!T(r.index); }
@@ -226,13 +226,13 @@ void readModelVertexData(ref ubyte[] vertexData, ref ubyte[] indexData)
 }
 
 @nogc nothrow pragma(inline, true)
-@property TagScenario* scenario()
+TagScenario* scenario()
 {
     return metas[0].tagData!TagScenario;
 }
 
 @nogc nothrow pragma(inline, true)
-@property TagGlobals* globals()
+TagGlobals* globals()
 {
     return metas[globalsIndex].tagData!TagGlobals;
 }

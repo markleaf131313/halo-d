@@ -254,7 +254,7 @@ struct AnimationController
     int frame;
 
 
-    @property bool hasAnimation() const
+    bool hasAnimation() const
     {
         return animationIndex != indexNone;
     }
