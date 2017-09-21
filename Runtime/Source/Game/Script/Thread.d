@@ -1,6 +1,7 @@
 
 module Game.Script.Thread;
 
+import Game.Script.Runtime;
 import Game.Script.Value;
 
 import Game.Core;
@@ -30,7 +31,12 @@ struct StackFrame
     }
 }
 
+enum dormantTime = indexNone - 1;
+
 DatumIndex selfIndex;
+
+HsRuntime* hsRuntime;
+
 Type type;
 int scriptIndex;
 int sleepUntil;
@@ -39,5 +45,10 @@ HsValue result;
 StackFrame* stackFrame;
 
 void[1024] stack;
+
+void run()
+{
+    assert(0); // TODO
+}
 
 }

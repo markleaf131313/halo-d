@@ -5,7 +5,7 @@ import std.bitmanip : bitfields;
 
 import Game.Script.Value;
 
-import Game.Core.Containers : DatumIndex;
+import Game.Core : DatumIndex, indexNone;
 
 enum HsScriptType
 {
@@ -29,7 +29,6 @@ struct HsFunction
 
 struct HsGlobal
 {
-
     HsType type;
     HsValue value;
 
@@ -38,25 +37,31 @@ struct HsGlobal
 struct HsSyntaxNode
 {
 
-DatumIndex selfIndex;
+static assert(this.sizeof == 0x14);
+
+struct Flags
+{
+    mixin(bitfields!(
+        bool, "isSymbol",                 1,
+        bool, "isScenarioScript",         1,
+        bool, "manuallyGarbageCollected", 1,
+        ushort, "", 13,
+    ));
+}
+
+short selfSalt;
 
 union
 {
-    HsType constantType;
-    short  index;
+    HsType symbolType;
+    short  functionIndex;
 }
 
 HsType type;
-
-mixin(bitfields!(
-    bool, "isScriptIndex",        1,
-    bool, "dontGarbageCollected", 1,
-    ushort, "", 14,
-));
+Flags flags;
 
 DatumIndex nextExpression;
-int offset;
+uint offset = indexNone;
 HsValue value;
-
 
 }

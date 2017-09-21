@@ -123,8 +123,11 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         gameState.world.setCurrentSbsp();
         gameState.world.initialize();
 
-        gameState.renderer.load();
+        gameState.hsRuntime.initialize();
+        gameState.hsRuntime.initializeScenario(gameState.cache.scenario);
+
         gameState.renderer.loadShaders();
+        gameState.renderer.load();
 
         gameState.window = window;
 

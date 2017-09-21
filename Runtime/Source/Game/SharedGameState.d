@@ -6,6 +6,7 @@ import SDL2;
 import Game.Audio;
 import Game.Cache;
 import Game.Render;
+import Game.Script;
 import Game.World;
 import Game.World.Player;
 
@@ -27,4 +28,5 @@ struct SharedGameState
     Audio audio;
     World world;
     Renderer renderer;
+    HsRuntime hsRuntime;
 }

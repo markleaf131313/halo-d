@@ -4541,7 +4541,7 @@
                     "name": "continuous"
                 },
                 {
-                    "name": "_static"
+                    "name": "static script"
                 },
                 {
                     "name": "stub"
