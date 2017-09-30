@@ -42,7 +42,7 @@ static assert(this.sizeof == 0x14);
 struct Flags
 {
     mixin(bitfields!(
-        bool, "isSymbol",                 1,
+        bool, "isPrimitive",              1,
         bool, "isScenarioScript",         1,
         bool, "manuallyGarbageCollected", 1,
         ushort, "", 13,

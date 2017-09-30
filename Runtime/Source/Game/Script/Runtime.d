@@ -162,7 +162,7 @@ void compileSource(char[] source)
         headSyntaxNode.value.as!DatumIndex = nameNodeIndex;
         headSyntaxNode.offset = syntaxNodes[index].offset;
 
-        nameSyntaxNode.flags.isSymbol = true;
+        nameSyntaxNode.flags.isPrimitive = true;
         nameSyntaxNode.nextExpression = index;
         nameSyntaxNode.type = HsType.functionName;
     }
@@ -225,7 +225,7 @@ private DatumIndex createSyntaxNode(ref char[] source)
         }
         else
         {
-            syntaxNode.flags.isSymbol = true;
+            syntaxNode.flags.isPrimitive = true;
 
             if(source.length && source[0] == '"')
             {
@@ -280,7 +280,7 @@ bool parseSyntaxNode(DatumIndex index, HsType type)
     {
         syntaxNode.type = type;
 
-        if(syntaxNode.flags.isSymbol)
+        if(syntaxNode.flags.isPrimitive)
         {
             syntaxNode.symbolType = type;
             return compileSymbol(index);
@@ -301,7 +301,7 @@ bool compileExpression(DatumIndex index)
     HsSyntaxNode* headNode = &syntaxNodes[index];
     HsSyntaxNode* node     = &syntaxNodes[headNode.value.as!DatumIndex];
 
-    if(node.flags.isSymbol)
+    if(node.flags.isPrimitive)
     {
         auto name = fromStringz(originalSource.ptr + node.offset);
 
