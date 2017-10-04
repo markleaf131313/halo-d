@@ -43,5 +43,5 @@ template enumNamesArray(T) if(is(T == enum))
     default:
     }
 
-    return null;
+    return "Invalid " ~ T.stringof;
 }
