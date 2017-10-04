@@ -1,7 +1,25 @@
 
 module Game.Script.Value;
 
-import Game.Core : indexNone;
+import Game.Core;
+
+private immutable HsValue function(HsValue) @nogc nothrow [HsType.max + 1][HsType.max + 1] conversionTable;
+
+shared static this()
+{
+
+    conversionTable[HsType.hsVoid][HsType.hsBool .. HsType.max] = function(HsValue v) { return HsValue(0); };
+
+    conversionTable[HsType.hsShort][HsType.hsInt]   = function(HsValue v) { return HsValue(cast(short)v.as!int); };
+    conversionTable[HsType.hsShort][HsType.hsFloat] = function(HsValue v) { return HsValue(cast(short)v.as!float); };
+
+    conversionTable[HsType.hsInt][HsType.hsShort] = function(HsValue v) { return HsValue(int(v.as!short)); };
+    conversionTable[HsType.hsInt][HsType.hsFloat] = function(HsValue v) { return HsValue(cast(int)v.as!float); };
+
+    conversionTable[HsType.hsFloat][HsType.hsShort] = function(HsValue v) { return HsValue(float(v.as!short)); };
+    conversionTable[HsType.hsFloat][HsType.hsInt]   = function(HsValue v) { return HsValue(float(v.as!int)); };
+
+}
 
 enum HsType : short
 {
@@ -134,17 +152,84 @@ HsType toHsType(const(char)[] text)
 }
 
 @nogc nothrow pure
-bool isConvertableTo(HsType from, HsType to)
+bool isObjectIndex(HsType type)
 {
-    if(from == HsType.passthrough || from == to)
+    return type >= HsType.object && type <= HsType.scenery;
+}
+
+@nogc nothrow pure
+bool isObjectName(HsType type)
+{
+    return type >= HsType.objectName && type <= HsType.sceneryName;
+}
+
+@nogc nothrow
+bool isConvertableTo(HsType fromType, HsType toType)
+{
+    static immutable conversion =
+    [
+        0xFFFF, // object
+        0x0003, // unit
+        0x0002, // vehicle
+        0x0004, // weapon
+        0x0040, // device
+        0x0080, // scenery
+    ];
+
+    if(fromType == HsType.passthrough || fromType == toType)
     {
         return true;
     }
 
-    assert(0); // TODO
+    if (toType.isObjectIndex)
+    {
+        int toIndex = toType - HsType.object;
+        int fromIndex;
 
-    return false;
+        if     (fromType.isObjectName)  fromIndex = fromType - HsType.objectName;
+        else if(fromType.isObjectIndex) fromIndex = fromType - HsType.object;
+        else                            return false;
+
+        return (conversion[fromIndex] & conversion[toIndex]) == conversion[fromIndex];
+    }
+    else if(toType.isObjectName)
+    {
+        int toIndex = toType - HsType.objectName;
+
+        if(fromType.isObjectName)
+        {
+            int fromIndex = fromType - HsType.objectName;
+            return (conversion[fromIndex] & conversion[toIndex]) == conversion[fromIndex];
+        }
+
+        return false;
+    }
+
+    return conversionTable[toType][fromType] !is null;
 }
+
+@nogc nothrow
+HsValue convertTo(HsType fromType, HsType toType, HsValue value)
+{
+    if(fromType != toType && fromType != HsType.passthrough && !toType.isObjectName)
+    {
+        if(toType.isObjectIndex)
+        {
+            if(fromType.isObjectName)
+            {
+                assert(0, "TODO implement object_name to object conversion"); // TODO
+            }
+        }
+        else
+        {
+            return conversionTable[toType][fromType](value);
+        }
+    }
+
+    return value;
+}
+
+//-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 struct HsValue
 {
@@ -154,6 +239,10 @@ static assert(this.sizeof == 4);
 union
 {
     uint bits;
+    DatumIndex index;
+    short asShort;
+    int   asInt;
+    float asFloat;
 }
 
 @nogc nothrow
@@ -164,3 +253,6 @@ ref inout(T) as(T)() inout
 }
 
 }
+
+
+

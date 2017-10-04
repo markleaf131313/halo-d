@@ -2,6 +2,7 @@
 module Game.Script.Thread;
 
 import Game.Script.Runtime;
+import Game.Script.Script;
 import Game.Script.Value;
 
 import Game.Core;
@@ -16,18 +17,39 @@ enum Type
     runtime,
 }
 
+struct Flags
+{
+    import std.bitmanip : bitfields;
+
+    mixin(bitfields!(
+        bool, "stackNeedsInit", 1,
+        ushort, "", 15
+    ));
+}
+
 struct StackFrame
 {
 @nogc:
 
     StackFrame* previous;
-    DatumIndex  expression;
     HsValue*    result;
+    DatumIndex  expression;
     short       length;
+    short       index;
 
     void* data()
     {
-        return cast(void*)&this + length.offsetof + length.sizeof;
+        return cast(void*)&this + index.offsetof + index.sizeof;
+    }
+
+    ref HsValue valueAt(int index)
+    {
+        return *cast(HsValue*)(data + index * HsValue.sizeof);
+    }
+
+    StackFrame* nextStackFrame()
+    {
+        return cast(StackFrame*)(data + length);
     }
 }
 
@@ -37,6 +59,7 @@ DatumIndex selfIndex;
 
 HsRuntime* hsRuntime;
 
+Flags flags;
 Type type;
 int scriptIndex;
 int sleepUntil;
@@ -49,6 +72,77 @@ void[1024] stack;
 void run()
 {
     assert(0); // TODO
+}
+
+void pushStack(DatumIndex nodeIndex, HsValue* result)
+{
+    StackFrame* prevStackFrame = stackFrame;
+
+    stackFrame = stackFrame.nextStackFrame;
+    *stackFrame = StackFrame(prevStackFrame, result, nodeIndex);
+
+    flags.stackNeedsInit = true;
+}
+
+private void evaluateSyntaxNode(DatumIndex nodeIndex, HsValue* result)
+{
+    HsSyntaxNode* node = &hsRuntime.syntaxNodes[nodeIndex];
+
+    if(node.flags.isPrimitive)
+    {
+        if(node.flags.isGlobalIndex)
+        {
+            if(node.value.as!short < 0)
+            {
+                assert(0); // TODO
+            }
+            else
+            {
+                assert(0); // TODO
+            }
+        }
+        else
+        {
+            *result = convertTo(node.constantType, node.type, node.value);
+        }
+    }
+    else
+    {
+        pushStack(nodeIndex, result);
+    }
+}
+
+HsValue* evaluateCurrentStack(const(HsType[]) parameters, bool stackNeedsInit)
+{
+
+    if(stackNeedsInit)
+    {
+        HsSyntaxNode* node = &hsRuntime.syntaxNodes[stackFrame.expression];
+
+        stackFrame.index      = 0;
+        stackFrame.length     = cast(short)(parameters.length * 4 + 4);
+        stackFrame.valueAt(0) = node.value;
+    }
+
+    if(stackFrame.index < parameters.length)
+    {
+        DatumIndex nodeIndex = stackFrame.valueAt(0).as!DatumIndex;
+        HsSyntaxNode* node = &hsRuntime.syntaxNodes[nodeIndex];
+
+        if(node.type == parameters[stackFrame.index])
+        {
+            evaluateSyntaxNode(nodeIndex, &stackFrame.valueAt(1 + stackFrame.index));
+
+            stackFrame.valueAt(0).index = node.nextExpression;
+            stackFrame.index += 1;
+
+            return null;
+        }
+
+        assert(0, "Type mismatch.");
+    }
+
+    return &stackFrame.valueAt(1);
 }
 
 }

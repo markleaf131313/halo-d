@@ -282,7 +282,7 @@ bool parseSyntaxNode(DatumIndex index, HsType type)
 
         if(syntaxNode.flags.isPrimitive)
         {
-            syntaxNode.symbolType = type;
+            syntaxNode.constantType = type;
             return compileSymbol(index);
         }
         else

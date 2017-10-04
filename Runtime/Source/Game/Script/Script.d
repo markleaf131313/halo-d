@@ -44,8 +44,9 @@ struct Flags
     mixin(bitfields!(
         bool, "isPrimitive",              1,
         bool, "isScenarioScript",         1,
+        bool, "isGlobalIndex",            1,
         bool, "manuallyGarbageCollected", 1,
-        ushort, "", 13,
+        ushort, "", 12,
     ));
 }
 
@@ -53,7 +54,7 @@ short selfSalt;
 
 union
 {
-    HsType symbolType;
+    HsType constantType;
     short  functionIndex;
 }
 
