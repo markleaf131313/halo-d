@@ -233,19 +233,25 @@ HsValue convertTo(HsType fromType, HsType toType, HsValue value)
 
 struct HsValue
 {
+@nogc nothrow:
 
 static assert(this.sizeof == 4);
 
 union
 {
-    uint bits;
+    uint       bits = uint.max;
+    short      asShort;
+    int        asInt;
+    float      asFloat;
     DatumIndex index;
-    short asShort;
-    int   asInt;
-    float asFloat;
 }
 
-@nogc nothrow
+
+this(short value)      { asShort = value; }
+this(int   value)      { asInt   = value; }
+this(float value)      { asFloat = value; }
+this(DatumIndex index) { this.index = index; }
+
 ref inout(T) as(T)() inout
 {
     static assert(T.sizeof <= this.sizeof);
