@@ -405,21 +405,21 @@ bool compileScriptFunction(DatumIndex index)
     assert(0);
 }
 
-private bool hasCompileError()
+bool hasCompileError()
 {
     return errorMessage !is null;
 }
 
-private void setCompileError(Args...)(string message, Args args)
+void setCompileError(Args...)(string message, Args args)
 {
     setCompileError(indexNone, message, args);
 }
 
-private void setCompileError(Args...)(size_t offset, string message, Args args)
+void setCompileError(Args...)(size_t offset, string message, Args args)
 {
     import core.stdc.stdio : snprintf;
 
-    static ref auto adjust(T)(ref T value)
+    static ref auto adjust(T)(auto ref T value)
     {
         static if(is(T == string))
         {
@@ -431,25 +431,34 @@ private void setCompileError(Args...)(size_t offset, string message, Args args)
         }
     }
 
-    template Map(string call, int count)
+    // TODO move to Core.Meta ?
+    pragma(inline, true)
+    static auto map(alias call, Args...)(Args args)
     {
-        import std.conv : to;
+        template Transform(Vrgs...)
+        {
+            import std.meta : AliasSeq;
 
-        static if(count > 1)
-        {
-            enum Map = Map!(call, count - 1) ~ ", " ~ call ~ "(args[" ~ to!string(count - 1) ~ "])";
+            static if(Vrgs.length) alias Transform = AliasSeq!(typeof(call(Vrgs[0].init)), Transform!(Vrgs[1 .. $]));
+            else                   alias Transform = AliasSeq!();
         }
-        else static if(count == 1)
+
+        static struct Result
         {
-            enum Map = ", " ~ call ~ "(args[0])";
+            Transform!Args args;
         }
-        else
+
+        Result result = void;
+
+        foreach(i, v ; args)
         {
-            enum Map = "";
+            result.args[i] = call(v);
         }
+
+        return result;
     }
 
-    size_t length = mixin("snprintf(errorBuffer.ptr, errorBuffer.length, message.ptr" ~ Map!("adjust", Args.length) ~ ")");
+    size_t length = snprintf(errorBuffer.ptr, errorBuffer.length, message.ptr, map!adjust(args).tupleof);
 
     errorMessage = errorBuffer[0 .. length];
     errorOffset  = cast(uint)offset;
