@@ -5,10 +5,12 @@ import Game.Script.Runtime;
 import Game.Script.Script;
 import Game.Script.Value;
 
+import Game.Cache;
 import Game.Core;
 
 struct HsThread
 {
+@nogc:
 
 enum Type
 {
@@ -74,7 +76,7 @@ void run()
     assert(0); // TODO
 }
 
-void pushStack(DatumIndex nodeIndex, HsValue* result)
+private void pushStack(DatumIndex nodeIndex, HsValue* result)
 {
     StackFrame* prevStackFrame = stackFrame;
 
@@ -84,7 +86,7 @@ void pushStack(DatumIndex nodeIndex, HsValue* result)
     flags.stackNeedsInit = true;
 }
 
-private void evaluateSyntaxNode(DatumIndex nodeIndex, HsValue* result)
+void evaluateSyntaxNode(DatumIndex nodeIndex, HsValue* result)
 {
     HsSyntaxNode* node = &hsRuntime.syntaxNodes[nodeIndex];
 
@@ -143,6 +145,25 @@ HsValue* evaluateCurrentStack(const(HsType[]) parameters, bool stackNeedsInit)
     }
 
     return &stackFrame.valueAt(1);
+}
+
+void returnCurrentStack(HsValue value)
+{
+    HsSyntaxNode* node = &hsRuntime.syntaxNodes[stackFrame.expression];
+
+    HsType type;
+
+    if(node.flags.isScenarioScript)
+    {
+        type = cast(HsType)Cache.inst.scenario.scripts[node.functionIndex].returnType;
+    }
+    else
+    {
+        assert(0);
+    }
+
+    *stackFrame.previous.result = convertTo(node.type, type, value);
+    stackFrame = stackFrame.previous;
 }
 
 }
