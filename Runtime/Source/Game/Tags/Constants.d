@@ -69,6 +69,10 @@ struct PointPhysics
     enum float densityOfAir      = densityConversion * 0.0011f;
     enum float densityOfWater    = densityConversion * 1.0f;
 }
+struct Scenario
+{
+    enum short maxNamedObjects = 512;
+}
 struct SoundLooping
 {
     @disable this();
