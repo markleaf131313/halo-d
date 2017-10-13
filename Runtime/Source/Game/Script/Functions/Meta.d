@@ -9,6 +9,7 @@ import Game.Core;
 
 
 private enum numOfFunctions = 528;
+package immutable hsFunctionMetas = buildFunctionList();
 
 private template ToHsType(Types...)
 {
@@ -26,15 +27,33 @@ private template ToHsType(Types...)
     else static assert(0, "Type is not associated with as HsType.");
 }
 
-template getHsFunctionIndex(alias func)
+template hsFunctionIndexOf(alias func)
 {
     import std.traits : hasUDA, getUDAs;
 
     static if(hasUDA!(func, HsFunctionDef))
     {
         static assert(getUDAs!(func, HsFunctionDef).length == 1);
-        enum getHsFunctionIndex = getUDAs!(func, HsFunctionDef)[0].index;
+        enum hsFunctionIndexOf = getUDAs!(func, HsFunctionDef)[0].index;
     }
+}
+
+template hsFunctionIndexOf(string name)
+{
+    import std.traits : getUDAs;
+
+    enum hsFunctionIndexOf =
+    {
+        foreach(i, ref def ; hsFunctionMetas)
+        {
+            if(def.name == name)
+            {
+                return i;
+            }
+        }
+
+        assert(0, name ~ " is not a valid function name.");
+    }();
 }
 
 struct HsFunctionDef
@@ -42,6 +61,8 @@ struct HsFunctionDef
     int    index;
     string name;
     string helpMessage;
+
+    HsType returnType;
     typeof(HsFunctionMeta.compileFunction) compileFunction;
 }
 
@@ -58,6 +79,12 @@ struct HsFunctionMeta
 
     HsType[] parameters;
 
+}
+
+@nogc nothrow
+ref immutable(HsFunctionMeta) hsFunctionMetaAt(int index)
+{
+    return hsFunctionMetas[index];
 }
 
 @nogc
@@ -138,11 +165,8 @@ private HsFunctionMeta[numOfFunctions] buildFunctionList()
         alias symbol = Alias!(__traits(getMember, mod, member));
         alias udas   = getUDAs!(symbol, HsFunctionDef);
 
-        static if(udas.length)
+        foreach(def ; udas)
         {
-            static assert(udas.length == 1, "Need exactly one instance of HsFunctionDef for: " ~ member);
-
-            HsFunctionDef def = udas[0];
             HsFunctionMeta* meta = &result[def.index];
 
             if(meta.name !is null)
@@ -152,8 +176,9 @@ private HsFunctionMeta[numOfFunctions] buildFunctionList()
 
             static if(is(typeof(&symbol) == typeof(HsFunctionMeta.runFunction)))
             {
-                meta.index = def.index;
-                meta.name = def.name;
+                meta.index      = def.index;
+                meta.name       = def.name;
+                meta.returnType = def.returnType;
                 meta.compileFunction = def.compileFunction;
 
                 meta.runFunction = &symbol;
@@ -170,21 +195,5 @@ private HsFunctionMeta[numOfFunctions] buildFunctionList()
     return result;
 }
 
-immutable functions = buildFunctionList();
 
-/*
-[
-
-    // 0: begin
-    // 1: begin_random
-    // 2: if
-    // 3: cond
-    // 4: set
-    // 5: and
-    // 6: or
-    // 7: +
-    // 8: -
-    // 9: *
-];
-*/
 

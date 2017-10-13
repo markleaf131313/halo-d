@@ -1,6 +1,7 @@
 
 module Game.Script.Runtime;
 
+import Game.Script.Functions.Meta;
 import Game.Script.Script;
 import Game.Script.Thread;
 import Game.Script.Value;
@@ -79,7 +80,7 @@ private bool stripCommentAndWhitespace(ref char[] str)
 
 struct HsRuntime
 {
-@nogc nothrow:
+@nogc:
 
 DatumArray!HsThread threads;
 DatumArrayBuffered!HsSyntaxNode syntaxNodes;
@@ -114,8 +115,12 @@ DatumIndex createThread(HsThread.Type type, int scriptIndex = indexNone)
     {
         HsThread* thread = &threads[index];
 
+        thread.hsRuntime = &this;
         thread.type = type;
         thread.scriptIndex = scriptIndex;
+        thread.stackFrame = cast(HsThread.StackFrame*)thread.stack.ptr;
+
+        thread.stackFrame.result = &thread.result;
 
         if(scriptIndex != indexNone)
         {
@@ -133,12 +138,20 @@ DatumIndex createThread(HsThread.Type type, int scriptIndex = indexNone)
     return DatumIndex();
 }
 
-short findFunction(const(char)[] name)
+short findFunctionIndex(const(char)[] name)
 {
-    assert(0); // TODO implement
+    foreach(i, ref meta ; hsFunctionMetas)
+    {
+        if(iequals(name, meta.name))
+        {
+            return cast(short)i;
+        }
+    }
+
+    return indexNone;
 }
 
-void compileSource(char[] source)
+DatumIndex compileSource(char[] source)
 {
     clearCompilerError();
 
@@ -153,7 +166,7 @@ void compileSource(char[] source)
 
         if(!headNodeIndex || !nameNodeIndex)
         {
-            return;
+            return DatumIndex.none;
         }
 
         HsSyntaxNode* headSyntaxNode = &syntaxNodes[headNodeIndex];
@@ -163,11 +176,22 @@ void compileSource(char[] source)
         headSyntaxNode.offset = syntaxNodes[index].offset;
 
         nameSyntaxNode.flags.isPrimitive = true;
+        nameSyntaxNode.functionIndex  = hsFunctionIndexOf!"inspect";
+        nameSyntaxNode.type           = HsType.functionName;
         nameSyntaxNode.nextExpression = index;
-        nameSyntaxNode.type = HsType.functionName;
+
+        if(parseSyntaxNode(headNodeIndex, HsType.hsVoid))
+        {
+            return headNodeIndex;
+        }
+
+        if(hasCompileError())
+        {
+            assert(0, errorMessage); // TODO print to console
+        }
     }
 
-    assert(0);
+    return DatumIndex.none;
 }
 
 private DatumIndex createSyntaxNode(ref char[] source)
@@ -178,8 +202,10 @@ private DatumIndex createSyntaxNode(ref char[] source)
 
         if(source[0] == '(')
         {
-            DatumIndex* nextExpression = &syntaxNode.nextExpression;
+            DatumIndex* nextExpression = &syntaxNode.value.index;
             syntaxNode.offset = cast(uint)(source.ptr - originalSource.ptr);
+
+            source = source[1 .. $];
 
             while(!hasCompileError())
             {
@@ -256,6 +282,7 @@ private DatumIndex createSyntaxNode(ref char[] source)
                 {
                     switch(source[0])
                     {
+                    case ')':
                     case ';':
                     case ' ':
                     case '\t':
@@ -303,12 +330,12 @@ bool compileExpression(DatumIndex index)
 
     if(node.flags.isPrimitive)
     {
-        auto name = fromStringz(originalSource.ptr + node.offset);
-
         if(node.type == HsType.specialForm)
         {
+            const(char)[] name = fromStringz(originalSource.ptr + node.offset);
+
             if     (iequals("global", name)) return compileGlobal(index);
-            else if(iequals("script", name)) return compileScriptFunction(index);
+            else if(iequals("script", name)) return compileScript(index);
             else                             setCompileError(node.offset, `Expected "script" or "global"`);
         }
         else
@@ -319,24 +346,24 @@ bool compileExpression(DatumIndex index)
                 return false;
             }
 
-            if(node.flags.isScenarioScript)
+            if(headNode.flags.isScenarioScript)
             {
                 auto tagScript = &Cache.inst.scenario.scripts[node.functionIndex];
 
                 if(tagScript.scriptType != TagEnums.ScriptType.staticScript || tagScript.scriptType != TagEnums.ScriptType.stub)
                 {
-                    setCompileError(node.offset, "Not a static script.");
+                    setCompileError(headNode.offset, "Not a static script.");
                     return false;
                 }
 
-                if(node.type == HsType.unparsed)
+                if(headNode.type == HsType.unparsed)
                 {
-                    node.type = cast(HsType)tagScript.returnType;
+                    headNode.type = cast(HsType)tagScript.returnType;
                 }
-                else if(!isConvertableTo(cast(HsType)tagScript.returnType, node.type))
+                else if(!isConvertableTo(cast(HsType)tagScript.returnType, headNode.type))
                 {
                     setCompileError(node.offset, "Expected a %s, but this script returns %s.",
-                        enumName(node.type), enumName(cast(HsType)tagScript.returnType));
+                        enumName(headNode.type), enumName(cast(HsType)tagScript.returnType));
                     return false;
                 }
 
@@ -344,10 +371,28 @@ bool compileExpression(DatumIndex index)
             }
             else
             {
-                assert(0); // TODO
-            }
+                auto meta = &hsFunctionMetaAt(headNode.functionIndex);
 
-            assert(0); // TODO
+                if(headNode.type != HsType.unparsed)
+                {
+                    if(!isConvertableTo(meta.returnType, headNode.type))
+                    {
+                        setCompileError(node.offset, "Expected a %s, but this function returns %s.",
+                            enumName(node.type), enumName(meta.returnType));
+                        return false;
+                    }
+                }
+
+                // TODO check if blocking allowed
+                // TODO check if variable assignment allowed
+
+                if(headNode.type == HsType.unparsed && meta.returnType != HsType.passthrough)
+                {
+                    headNode.type = meta.returnType;
+                }
+
+                return meta.compileFunction(this, *meta, index);
+            }
         }
     }
     else
@@ -372,9 +417,9 @@ short compileFunctionOrScript(DatumIndex index)
     }
 
     const(char)[] name = fromStringz(originalSource.ptr + nameNode.offset);
-    nameNode.type = HsType.functionName;
 
-    headNode.functionIndex = findFunction(name);
+    nameNode.type = HsType.functionName;
+    headNode.functionIndex = findFunctionIndex(name);
 
     if(headNode.functionIndex == indexNone)
     {
@@ -390,9 +435,53 @@ short compileFunctionOrScript(DatumIndex index)
     return nameNode.functionIndex = headNode.functionIndex;
 }
 
+bool compileVariable(DatumIndex index)
+{
+    return false; // TODO find by name
+}
+
 bool compileSymbol(DatumIndex index)
 {
-    assert(0); // TODO implement with script compiler, not used in console command line
+    HsSyntaxNode* node = &syntaxNodes[index];
+
+    if(node.type == HsType.specialForm)
+    {
+        setCompileError(node.offset, "Expected a script or variable definition.");
+        return false;
+    }
+
+    if(node.type == HsType.hsVoid)
+    {
+        setCompileError(node.offset, "Value in this expression can never be used.");
+        return false;
+    }
+
+    if(compileVariable(index))
+    {
+        return true;
+    }
+
+    if(node.type == HsType.unparsed || hasCompileError)
+    {
+        return false;
+    }
+
+    switch(node.type)
+    {
+    case HsType.hsFloat:
+        import core.stdc.stdio : sscanf;
+
+        char[] str = fromStringz(originalSource.ptr + node.offset);
+        if(sscanf(str.ptr, "%f", &node.value.asFloat) != 1)
+        {
+            setCompileError(node.offset, "Failed to convert '%s' to float.", str);
+            return false;
+        }
+        break;
+    default: assert(0); // TODO
+    }
+
+    return true;
 }
 
 bool compileGlobal(DatumIndex index)
@@ -400,9 +489,9 @@ bool compileGlobal(DatumIndex index)
     assert(0); // TODO implement with script compiler, not used in console command line
 }
 
-bool compileScriptFunction(DatumIndex index)
+bool compileScript(DatumIndex index)
 {
-    assert(0);
+    assert(0); // TODO implement with script compiler, not used in console command line
 }
 
 bool hasCompileError()
@@ -421,9 +510,11 @@ void setCompileError(Args...)(size_t offset, string message, Args args)
 
     static ref auto adjust(T)(auto ref T value)
     {
-        static if(is(T == string))
+        import std.traits : isSomeString;
+
+        static if(isSomeString!T)
         {
-            return cast(const(char)*)value.ptr;
+            return cast(const(typeof(value[0]))*)value.ptr;
         }
         else
         {

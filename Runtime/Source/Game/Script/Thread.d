@@ -1,6 +1,7 @@
 
 module Game.Script.Thread;
 
+import Game.Script.Functions.Meta;
 import Game.Script.Runtime;
 import Game.Script.Script;
 import Game.Script.Value;
@@ -73,16 +74,39 @@ void[1024] stack;
 
 void run()
 {
-    assert(0); // TODO
+    // TODO temporary implementation
+    // TODO sleeping
+
+
+    while(stackFrame !is stack.ptr)
+    {
+        HsSyntaxNode* node = &hsRuntime.syntaxNodes[stackFrame.expression];
+
+        bool initStack = flags.stackNeedsInit;
+        flags.stackNeedsInit = false;
+
+        if(node.flags.isScenarioScript)
+        {
+            assert(0); // TODO
+        }
+        else
+        {
+            auto meta = &hsFunctionMetaAt(node.functionIndex);
+            meta.runFunction(*hsRuntime, *meta, selfIndex, initStack);
+        }
+    }
+
+    // TODO kill thread ?
 }
 
 private void pushStack(DatumIndex nodeIndex, HsValue* result)
 {
     StackFrame* prevStackFrame = stackFrame;
 
-    stackFrame = stackFrame.nextStackFrame;
-    *stackFrame = StackFrame(prevStackFrame, result, nodeIndex);
+    prevStackFrame.result = result;
 
+    stackFrame = stackFrame.nextStackFrame;
+    *stackFrame = StackFrame(prevStackFrame, null, nodeIndex);
     flags.stackNeedsInit = true;
 }
 
@@ -159,7 +183,7 @@ void returnCurrentStack(HsValue value)
     }
     else
     {
-        assert(0);
+        type = hsFunctionMetas[node.functionIndex].returnType;
     }
 
     *stackFrame.previous.result = convertTo(node.type, type, value);

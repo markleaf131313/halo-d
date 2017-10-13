@@ -15,9 +15,9 @@ import Game.Tags;
 
 @nogc:
 
-enum beginRandomMaxExpressions = 32;
+private enum hsBeginRandomMaxExpressions = 32;
 
-@HsFunctionDef(0, "begin", null, &hsBeginCompile)
+@HsFunctionDef(0, "begin", null, HsType.passthrough, &hsBeginCompile)
 void hsBegin(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta, DatumIndex threadIndex, bool initStack)
 {
     HsThread* thread = &hsRuntime.threads[threadIndex];
@@ -43,7 +43,7 @@ void hsBegin(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta, DatumI
     }
 }
 
-@HsFunctionDef(1, "begin_random", null, &hsBeginCompile)
+@HsFunctionDef(1, "begin_random", null, HsType.passthrough, &hsBeginCompile)
 void hsBeginRandom(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta, DatumIndex threadIndex, bool initStack)
 {
     HsThread* thread = &hsRuntime.threads[threadIndex];
@@ -59,7 +59,7 @@ void hsBeginRandom(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta, 
             count += 1;
         }
 
-        count = min(count, beginRandomMaxExpressions);
+        count = min(count, hsBeginRandomMaxExpressions);
 
         thread.stackFrame.valueAt(0).asInt = 0;
         thread.stackFrame.valueAt(1).asInt = count;
@@ -114,7 +114,7 @@ bool hsBeginCompile(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta,
             DatumIndex index = node.nextExpression;
             node = &hsRuntime.syntaxNodes[node.nextExpression];
 
-            if(meta.index == getHsFunctionIndex!hsBegin)
+            if(meta.index == hsFunctionIndexOf!hsBegin)
             {
                 valid = hsRuntime.parseSyntaxNode(index, node.nextExpression ? HsType.hsVoid : root.type);
 
@@ -143,10 +143,10 @@ bool hsBeginCompile(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta,
                 return false;
             }
 
-            if(meta.index == getHsFunctionIndex!hsBeginRandom && num > beginRandomMaxExpressions)
+            if(meta.index == hsFunctionIndexOf!hsBeginRandom && num > hsBeginRandomMaxExpressions)
             {
                 hsRuntime.setCompileError(root.offset,
-                    "begin_random can take at most %d arguments.", beginRandomMaxExpressions);
+                    "begin_random can take at most %d arguments.", hsBeginRandomMaxExpressions);
                 return false;
             }
 
@@ -155,6 +155,145 @@ bool hsBeginCompile(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta,
     }
 
     return true;
+}
+
+@HsFunctionDef(7,  "+",   null, HsType.hsFloat, &hsArithmeticCompile)
+@HsFunctionDef(8,  "-",   null, HsType.hsFloat, &hsArithmeticCompile)
+@HsFunctionDef(9,  "*",   null, HsType.hsFloat, &hsArithmeticCompile)
+@HsFunctionDef(10, "/",   null, HsType.hsFloat, &hsArithmeticCompile)
+@HsFunctionDef(11, "min", null, HsType.hsFloat, &hsArithmeticCompile)
+@HsFunctionDef(12, "max", null, HsType.hsFloat, &hsArithmeticCompile)
+void hsArithmetic(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta, DatumIndex threadIndex, bool initStack)
+{
+    HsThread* thread = &hsRuntime.threads[threadIndex];
+
+    DatumIndex* expression = &thread.stackFrame.valueAt(0).index;
+    float* parameterResult = &thread.stackFrame.valueAt(1).asFloat;
+    float* result          = &thread.stackFrame.valueAt(2).asFloat;
+
+    if(initStack)
+    {
+        HsSyntaxNode* node = &hsRuntime.syntaxNodes[thread.stackFrame.expression];
+
+        thread.stackFrame.length = 16;
+
+        thread.stackFrame.index = 0;
+        *expression      = hsRuntime.syntaxNodes[node.value.index].nextExpression;
+        *parameterResult = 0.0f;
+        *result          = 0.0f;
+    }
+    else
+    {
+        if(thread.stackFrame.index == 0)
+        {
+            *result = *parameterResult;
+        }
+        else
+        {
+            switch(meta.index)
+            {
+            case hsFunctionIndexOf!"+":   *result += *parameterResult; break;
+            case hsFunctionIndexOf!"-":   *result -= *parameterResult; break;
+            case hsFunctionIndexOf!"*":   *result *= *parameterResult; break;
+            case hsFunctionIndexOf!"/":   *result /= *parameterResult; break;
+            case hsFunctionIndexOf!"min": *result = min(*result, *parameterResult); break;
+            case hsFunctionIndexOf!"max": *result = max(*result, *parameterResult); break;
+            default:
+            }
+        }
+
+        thread.stackFrame.index += 1;
+    }
+
+    if(DatumIndex index = *expression)
+    {
+        *expression = hsRuntime.syntaxNodes[index].nextExpression;
+        thread.evaluateSyntaxNode(index, &thread.stackFrame.valueAt(1));
+    }
+    else
+    {
+        thread.returnCurrentStack(thread.stackFrame.valueAt(2));
+    }
+
+}
+
+bool hsArithmeticCompile(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta, DatumIndex nodeIndex)
+{
+    HsSyntaxNode* root = &hsRuntime.syntaxNodes[nodeIndex];
+
+    int count = 0;
+
+    for(DatumIndex index = hsRuntime.syntaxNodes[root.value.index].nextExpression;
+        index;
+        index = hsRuntime.syntaxNodes[index].nextExpression)
+    {
+        count += 1;
+
+        if(!hsRuntime.parseSyntaxNode(index, HsType.hsFloat))
+        {
+            return false;
+        }
+    }
+
+    if(count < 2 || meta.index == hsFunctionIndexOf!"/" && count != 2)
+    {
+        hsRuntime.setCompileError(root.offset, "Function '%s' requires %s2 arguments.",
+            meta.name, meta.index == hsFunctionIndexOf!"/" ? "" : "at least ");
+
+        return false;
+    }
+
+    return true;
+}
+
+@HsFunctionDef(22, "inspect", null, HsType.hsVoid, &hsInspectCompile)
+void hsInspect(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta, DatumIndex threadIndex, bool initStack)
+{
+    HsThread* thread = &hsRuntime.threads[threadIndex];
+
+    HsSyntaxNode* node = &hsRuntime.syntaxNodes[thread.stackFrame.expression];
+    DatumIndex next = hsRuntime.syntaxNodes[node.value.index].nextExpression;
+
+    if(initStack)
+    {
+        thread.stackFrame.length = 4;
+        thread.evaluateSyntaxNode(next, &thread.stackFrame.valueAt(0));
+        return;
+    }
+
+
+    import core.stdc.stdio : printf;
+
+    HsSyntaxNode* paramNode = &hsRuntime.syntaxNodes[next];
+
+    if(paramNode.type != HsType.hsFloat)
+    {
+        assert(0); // TODO allow more types
+    }
+
+    printf("%f", thread.stackFrame.valueAt(0).asFloat);
+
+    thread.returnCurrentStack(HsValue());
+}
+
+bool hsInspectCompile(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta, DatumIndex nodeIndex)
+{
+    // TODO validate number of parameters
+    HsSyntaxNode* headNode = &hsRuntime.syntaxNodes[nodeIndex];
+    HsSyntaxNode* node = &hsRuntime.syntaxNodes[headNode.value.index];
+
+    if(hsRuntime.parseSyntaxNode(node.nextExpression, HsType.unparsed))
+    {
+        return true;
+    }
+
+    if(!hsRuntime.hasCompileError)
+    {
+        uint offset = headNode.offset;
+        hsRuntime.setCompileError(offset, "Not a global variable reference, function call, or script.");
+    }
+
+    return false;
 }
 
 @HsFunctionDef(38, "object_create")
