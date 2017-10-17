@@ -30,6 +30,7 @@ struct Renderer
 
 @disable this(this);
 
+// TODO split into initialize and initializeScenario ?
 void load()
 {
     int width  = 1920; // todo unhardcode

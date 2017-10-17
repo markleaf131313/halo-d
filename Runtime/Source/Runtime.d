@@ -174,7 +174,7 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
 
             GObject.Creation data;
 
-            data.tagIndex = ic.itemPermutations[0].item.index; // todo randomize
+            data.tagIndex = ic.itemPermutations[0].item.index; // TODO randomize
             data.position = q.position;
             data.regionPermutation = 0;
 
@@ -373,10 +373,7 @@ try
     default:
     }
 
-
-
     {
-
         static StopWatch stopWatch;
         auto io = igGetIO();
 
