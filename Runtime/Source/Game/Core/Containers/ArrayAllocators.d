@@ -24,8 +24,7 @@ struct FixedArrayAllocator(int _inlinedSize)
         }
 
     private:
-        mixin("align(" ~ to!string(Element.alignof) ~ ") alias ElementAsBytes = byte[Element.sizeof];");
-
+        align(Element.alignof) alias ElementAsBytes = byte[Element.sizeof];
         ElementAsBytes[inlinedSize] data;
     }
 
