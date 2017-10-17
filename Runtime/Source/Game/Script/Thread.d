@@ -8,6 +8,7 @@ import Game.Script.Value;
 
 import Game.Cache;
 import Game.Core;
+import Game.Tags;
 
 struct HsThread
 {
@@ -77,6 +78,13 @@ void run()
     // TODO temporary implementation
     // TODO sleeping
 
+    if(stackFrame is stack.ptr && type == Type.script)
+    {
+        TagScenario* tagScenario = Cache.inst.scenario;
+        const tagScript = &tagScenario.scripts[scriptIndex];
+
+        evaluateSyntaxNode(*cast(DatumIndex*)&tagScript.rootExpressionIndex, &result);
+    }
 
     while(stackFrame !is stack.ptr)
     {

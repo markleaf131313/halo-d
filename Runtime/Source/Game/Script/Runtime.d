@@ -109,6 +109,22 @@ void initializeScenario(const(TagScenario)* tagScenario)
     }
 }
 
+void runConsoleCommand(char[] command)
+{
+
+    if(DatumIndex nodeIndex   = compileSource(command))
+    if(DatumIndex threadIndex = createThread(HsThread.Type.runtime))
+    {
+        HsThread* thread = &threads[threadIndex];
+
+        thread.evaluateSyntaxNode(nodeIndex, &thread.result);
+        thread.run();
+
+        threads.remove(threadIndex);
+    }
+
+}
+
 DatumIndex createThread(HsThread.Type type, int scriptIndex = indexNone)
 {
     if(DatumIndex index = threads.add())
@@ -187,7 +203,8 @@ DatumIndex compileSource(char[] source)
 
         if(hasCompileError())
         {
-            assert(0, errorMessage); // TODO print to console
+            import core.stdc.stdio : printf;
+            printf("%s", errorMessage.ptr); // TODO print to console
         }
     }
 
@@ -559,11 +576,6 @@ private void clearCompilerError()
 {
     errorMessage = null;
     errorOffset  = indexNone;
-}
-
-void run()
-{
-
 }
 
 }
