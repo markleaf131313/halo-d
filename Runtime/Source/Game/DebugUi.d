@@ -188,8 +188,6 @@ struct DebugUi
 
         if(igBegin("Console"))
         {
-            CircularQueue!(char[128], FixedArrayAllocator!32) queue;
-
             static char[128] buffer;
             if(igInputText("##ConsoleInput", buffer.ptr, buffer.length, ImGuiInputTextFlags.EnterReturnsTrue))
             {
