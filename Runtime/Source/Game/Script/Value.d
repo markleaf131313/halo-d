@@ -152,6 +152,70 @@ HsType toHsType(const(char)[] text)
 }
 
 @nogc nothrow pure
+string toString(HsType type)
+{
+    static immutable string[] typeStrings =
+    [
+        "unparsed",
+        "special_form",
+        "function_name",
+        "passthrough",
+        "void",
+        "bool",
+        "float",
+        "short",
+        "int",
+        "string",
+        "script",
+        "trigger_volume",
+        "cutscene_flag",
+        "cutscene_camera_point",
+        "cutscene_title",
+        "cutscene_recording",
+        "device_group",
+        "ai",
+        "ai_command_list",
+        "starting_profile",
+        "conversation",
+        "navpoint",
+        "hud_message",
+        "object_list",
+        "sound",
+        "effect",
+        "damage",
+        "looping_sound",
+        "animation_graph",
+        "actor_variant",
+        "damage_effect",
+        "object_definition",
+        "game_difficulty",
+        "team",
+        "ai_default_state",
+        "actor_type",
+        "hud_corner",
+        "object",
+        "unit",
+        "vehicle",
+        "weapon",
+        "device",
+        "scenery",
+        "object_name",
+        "unit_name",
+        "vehicle_name",
+        "weapon_name",
+        "device_name",
+        "scenery_name",
+    ];
+
+    if(type >= 0 && type < typeStrings.length)
+    {
+        return typeStrings[type];
+    }
+
+    return "unknown_hs_type";
+}
+
+@nogc nothrow pure
 bool isObjectIndex(HsType type)
 {
     return type >= HsType.object && type <= HsType.scenery;

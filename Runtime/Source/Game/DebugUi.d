@@ -28,8 +28,13 @@ struct DebugUi
 
     GObject* selectedObject;
 
+    char[128] consoleBuffer;
+
     void loadCacheTagPaths()
     {
+        import std.algorithm.sorting : sort;
+        import std.string : fromStringz;
+
         foreach(int i, ref meta ; Cache.inst.getMetas())
         {
             if(meta.path)
@@ -47,9 +52,6 @@ struct DebugUi
 
         foreach(ref group ; cacheTagPaths)
         {
-            import std.algorithm.sorting : sort;
-            import std.string : fromStringz;
-
             sort!((a, b) => icmp(fromStringz(Cache.inst.metaAt(a).path), fromStringz(Cache.inst.metaAt(b).path)) < 0)(group);
         }
     }
@@ -57,7 +59,7 @@ struct DebugUi
     void doUi()
     {
         import core.memory : GC;
-        import core.stdc.stdio : snprintf;
+        import std.algorithm.searching : canFind;
 
         auto io = igGetIO();
 
@@ -90,8 +92,6 @@ struct DebugUi
                 {
                     if(igSelectable(Cache.inst.metaAt(index).path))
                     {
-                        import std.algorithm.searching : canFind;
-
                         if(!canFind(openedTags, index))
                         {
                             openedTags ~= index;
@@ -99,7 +99,7 @@ struct DebugUi
                         else
                         {
                             char[256] windowName = void;
-                            snprintf(windowName.ptr, windowName.length, "%s##%d", Cache.inst.metaAt(index).path, index);
+                            snprintf(windowName, "%s##%d", Cache.inst.metaAt(index).path, index);
                             igSetWindowFocus(windowName.ptr);
                         }
                     }
@@ -113,13 +113,11 @@ struct DebugUi
 
         foreach(int j, ref int i ; openedTags)
         {
-            import core.stdc.stdio : snprintf;
-
             auto meta = &Cache.inst.metaAt(i);
             bool opened = true;
 
             char[1024] buffer = void;
-            snprintf(buffer.ptr, buffer.length, "%s##%d", meta.path, i);
+            snprintf(buffer, "%s##%d", meta.path, i);
 
             igSetNextWindowPosCenter(ImGuiSetCond.FirstUseEver);
             if(igBegin(buffer.ptr, &opened, ImVec2(600, 500), -1.0f, ImGuiWindowFlags.NoSavedSettings))
@@ -156,8 +154,6 @@ struct DebugUi
             {
                 if(igButton("Open Tag"))
                 {
-                    import std.algorithm.searching : canFind;
-
                     int index = selectedObject.tagIndex.i;
 
                     if(!canFind(openedTags, index))
@@ -167,7 +163,7 @@ struct DebugUi
                     else
                     {
                         char[256] name = void;
-                        snprintf(name.ptr, name.length, "%s##%d", Cache.inst.metaAt(index).path, index);
+                        snprintf(name, "%s##%d", Cache.inst.metaAt(index).path, index);
                         igSetWindowFocus(name.ptr);
                     }
                 }
@@ -178,31 +174,16 @@ struct DebugUi
             }
             igEnd();
 
-
             if(!opened)
             {
                 selectedObject = null;
             }
-
         }
 
-        if(igBegin("Console"))
-        {
-            static char[128] buffer;
-            if(igInputText("##ConsoleInput", buffer.ptr, buffer.length, ImGuiInputTextFlags.EnterReturnsTrue))
-            {
-                igSetKeyboardFocusHere();
-
-                gameState.hsRuntime.runConsoleCommand(fromStringz(buffer.ptr));
-
-                buffer[0] = '\0';
-            }
-        }
-        igEnd();
+        Console.doUi(gameState.hsRuntime);
 
         igShowMetricsWindow();
     }
-
 }
 
 private void setViewEnum(Field)(const(char)* identifier, ref Field field)
@@ -289,7 +270,6 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
     import std.meta   : Alias;
     import std.traits : getUDAs;
     import std.algorithm.searching : canFind;
-    import core.stdc.stdio : snprintf;
     import core.stdc.string : strlen;
 
     T* fields = cast(T*)f;
@@ -416,7 +396,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
                     else
                     {
                         char[256] name = void;
-                        snprintf(name.ptr, name.length, "%s##%d", Cache.inst.metaAt(index).path, index);
+                        snprintf(name, "%s##%d", Cache.inst.metaAt(index).path, index);
                         igSetWindowFocus(name.ptr);
                     }
                 }

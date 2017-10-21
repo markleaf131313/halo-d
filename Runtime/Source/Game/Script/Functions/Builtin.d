@@ -261,17 +261,18 @@ void hsInspect(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta, Datu
         return;
     }
 
-
-    import core.stdc.stdio : printf;
-
     HsSyntaxNode* paramNode = &hsRuntime.syntaxNodes[next];
 
-    if(paramNode.type != HsType.hsFloat)
+    HsValue* value = &thread.stackFrame.valueAt(0);
+
+    switch(paramNode.type)
     {
-        assert(0); // TODO allow more types
+    case HsType.hsShort: Console.log("%d", value.asShort); break;
+    case HsType.hsInt:   Console.log("%d", value.asInt);   break;
+    case HsType.hsFloat: Console.log("%f", value.asFloat); break;
+    default:             Console.log("Unsupported type to inspect (%s)", toString(paramNode.type));
     }
 
-    printf("%f", thread.stackFrame.valueAt(0).asFloat);
 
     thread.returnCurrentStack(HsValue());
 }
@@ -289,8 +290,7 @@ bool hsInspectCompile(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) met
 
     if(!hsRuntime.hasCompileError)
     {
-        uint offset = headNode.offset;
-        hsRuntime.setCompileError(offset, "Not a global variable reference, function call, or script.");
+        hsRuntime.setCompileError(headNode.offset, "Not a global variable reference, function call, or script.");
     }
 
     return false;

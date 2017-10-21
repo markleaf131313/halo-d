@@ -516,57 +516,14 @@ bool hasCompileError()
     return errorMessage !is null;
 }
 
-void setCompileError(Args...)(string message, Args args)
+void setCompileError(Args...)(string message, auto ref Args args)
 {
     setCompileError(indexNone, message, args);
 }
 
-void setCompileError(Args...)(size_t offset, string message, Args args)
+void setCompileError(Args...)(size_t offset, string message, auto ref Args args)
 {
-    import core.stdc.stdio : snprintf;
-
-    static ref auto adjust(T)(auto ref T value)
-    {
-        import std.traits : isSomeString;
-
-        static if(isSomeString!T)
-        {
-            return cast(const(typeof(value[0]))*)value.ptr;
-        }
-        else
-        {
-            return value;
-        }
-    }
-
-    // TODO move to Core.Meta ?
-    pragma(inline, true)
-    static auto map(alias call, Args...)(Args args)
-    {
-        template Transform(Vrgs...)
-        {
-            import std.meta : AliasSeq;
-
-            static if(Vrgs.length) alias Transform = AliasSeq!(typeof(call(Vrgs[0].init)), Transform!(Vrgs[1 .. $]));
-            else                   alias Transform = AliasSeq!();
-        }
-
-        static struct Result
-        {
-            Transform!Args args;
-        }
-
-        Result result = void;
-
-        foreach(i, v ; args)
-        {
-            result.args[i] = call(v);
-        }
-
-        return result;
-    }
-
-    size_t length = snprintf(errorBuffer.ptr, errorBuffer.length, message.ptr, map!adjust(args).tupleof);
+    size_t length = snprintf(errorBuffer, message, args);
 
     errorMessage = errorBuffer[0 .. length];
     errorOffset  = cast(uint)offset;

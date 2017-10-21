@@ -3,6 +3,11 @@ module Game.Core.Containers.Array;
 
 import std.traits : hasElaborateDestructor, isNumeric;
 
+import Game.Core.Containers.ArrayAllocators : FixedArrayAllocator;
+
+
+alias FixedArray(T, int num) = Array!(T, FixedArrayAllocator!num);
+
 
 struct Array(Element, Allocator)
 {

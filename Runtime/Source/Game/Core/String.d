@@ -62,3 +62,44 @@ int icmp(const(char)[] a, const(char)[] b)
     }
 }
 
+@nogc nothrow
+auto snprintf(Args...)(char[] output, string format, auto ref Args args)
+{
+    import core.stdc.stdio : snprintf;
+    import std.traits : isSomeString;
+
+    static ref auto adjust(T)(auto ref T value)
+    {
+        static if(isSomeString!T) return cast(const(typeof(value[0]))*)value.ptr;
+        else                      return value;
+    }
+
+    // TODO move to separate module ?
+    pragma(inline, true)
+    static auto map(alias call, Args...)(auto ref Args args)
+    {
+        template Transform(Vrgs...)
+        {
+            import std.meta : AliasSeq;
+
+            static if(Vrgs.length) alias Transform = AliasSeq!(typeof(call(Vrgs[0].init)), Transform!(Vrgs[1 .. $]));
+            else                   alias Transform = AliasSeq!();
+        }
+
+        static struct Result
+        {
+            Transform!Args args;
+        }
+
+        Result result = void;
+
+        foreach(i, v ; args)
+        {
+            result.args[i] = call(v);
+        }
+
+        return result;
+    }
+
+    return snprintf(output.ptr, output.length, format.ptr, map!adjust(args).tupleof);
+}
