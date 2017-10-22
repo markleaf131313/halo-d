@@ -21,6 +21,8 @@ uint prevIndex(uint index) const             { return (index - 1) & mask; }
 bool empty() const                           { return headIndex == tailIndex; }
 bool full() const                            { return headIndex == nextIndex(tailIndex); }
 
+size_t length() const { return (headIndex <= tailIndex) ? tailIndex - headIndex : mask - headIndex + tailIndex + 1; }
+
 ref inout(Element) front() inout { return ptr[headIndex]; }
 ref inout(Element) back()  inout { return ptr[prevIndex(tailIndex)]; }
 
