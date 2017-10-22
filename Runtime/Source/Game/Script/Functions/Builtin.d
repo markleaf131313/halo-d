@@ -274,7 +274,6 @@ void hsInspect(ref HsRuntime hsRuntime, ref immutable(HsFunctionMeta) meta, Datu
     default:             Console.log("Unsupported type to inspect (%s)", toString(paramNode.type));
     }
 
-
     thread.returnCurrentStack(HsValue());
 }
 
