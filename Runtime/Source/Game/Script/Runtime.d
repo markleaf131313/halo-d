@@ -7,6 +7,7 @@ import Game.Script.Thread;
 import Game.Script.Value;
 
 import Game.Cache;
+import Game.Console;
 import Game.Core;
 import Game.Tags;
 
@@ -203,8 +204,7 @@ DatumIndex compileSource(char[] source)
 
         if(hasCompileError())
         {
-            import core.stdc.stdio : printf;
-            printf("%s", errorMessage.ptr); // TODO print to console
+            Console.log("%s", errorMessage);
         }
     }
 
@@ -213,6 +213,11 @@ DatumIndex compileSource(char[] source)
 
 private DatumIndex createSyntaxNode(ref char[] source)
 {
+    if(source.length == 0)
+    {
+        return DatumIndex();
+    }
+
     if(DatumIndex index = syntaxNodes.add())
     {
         HsSyntaxNode* syntaxNode = &syntaxNodes[index];
