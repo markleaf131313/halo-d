@@ -1,11 +1,10 @@
 
-module Game.Core.Console;
+module Game.Console;
 
 import ImGui;
 
 import Game.Script;
-import Game.Core.Containers;
-import Game.Core.String;
+import Game.Core;
 
 private __gshared ConsoleImpl consoleImpl;
 
@@ -84,8 +83,16 @@ private struct ConsoleImpl
 
             char[] text = data.Buf[0 .. data.BufTextLen];
 
-            FixedArray!(immutable(HsFunctionMeta)*, 32) metas;
+            foreach_reverse(i, c ; text)
+            {
+                if(c == '(' || c == ' ' || c == '\t')
+                {
+                    text = text[i + 1 .. $];
+                    break;
+                }
+            }
 
+            FixedArray!(immutable(HsFunctionMeta)*, 32) metas;
 
             foreach(ref meta ; hsFunctionMetas)
             {

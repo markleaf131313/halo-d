@@ -9,6 +9,7 @@ import Game.SharedGameState;
 import Game.World : GObject;
 
 import Game.Cache;
+import Game.Console;
 import Game.Core;
 import Game.Tags;
 
@@ -27,8 +28,6 @@ struct DebugUi
     int[] openedTags;
 
     GObject* selectedObject;
-
-    char[128] consoleBuffer;
 
     void loadCacheTagPaths()
     {

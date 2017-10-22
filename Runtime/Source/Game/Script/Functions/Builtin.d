@@ -9,6 +9,7 @@ import Game.Script.Thread;
 import Game.Script.Functions.Meta;
 
 import Game.Cache;
+import Game.Console;
 import Game.Core;
 import Game.Tags;
 
