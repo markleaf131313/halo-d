@@ -164,7 +164,7 @@ struct Animation
 struct PoweredSeat
 {
     Unit* rider;
-    float  power = 0.0f;
+    float power = 0.0f;
 }
 
 struct AimVectors

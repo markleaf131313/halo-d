@@ -39,13 +39,13 @@ else
 
 private void setValues(in Type* values, int length)
 {
-            static if(is(Type == float))  glUniform1fv(location, length, values);
+    static      if(is(Type == float))  glUniform1fv(location, length, values);
     else static if(is(Type == int))    glUniform1iv(location, length, values);
     else static if(is(Type == Mat4))   glUniformMatrix4fv(location, length, false, cast(float*)values);
     else static if(is(Type == Mat4x3)) glUniformMatrix4x3fv(location, length, false, cast(float*)values);
     else static if(isVector!Type)
     {
-                static if(is(Type.Type == int))   enum typeIdentifier = "i";
+        static      if(is(Type.Type == int))   enum typeIdentifier = "i";
         else static if(is(Type.Type == float)) enum typeIdentifier = "f";
         else static assert(false, "Unknown Vector component Type: " ~ T.Type.stringof);
 
