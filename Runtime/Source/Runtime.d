@@ -574,7 +574,7 @@ try
 
         }
 
-        gameState.audio.update(); // TODO REFACTOR
+        gameState.audio.update(gameState.camera.position); // TODO REFACTOR
         gameState.world.updateLogicEffects(1.0f / gameFramesPerSecond);
         gameState.world.updateLogicParticles(1.0f / gameFramesPerSecond); // TODO(REFACTOR) ordering is wrong
 
