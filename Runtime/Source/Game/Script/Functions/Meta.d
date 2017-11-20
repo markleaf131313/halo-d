@@ -24,7 +24,7 @@ private template ToHsType(Types...)
     else static if(is(Types[0] == float)) alias ToHsType = AliasSeq!(HsType.hsFloat, ToHsType!(Types[1 .. $]));
     else static if(is(Types[0] == int))   alias ToHsType = AliasSeq!(HsType.hsInt,   ToHsType!(Types[1 .. $]));
     else static if(is(Types[0] == short)) alias ToHsType = AliasSeq!(HsType.hsShort, ToHsType!(Types[1 .. $]));
-    else static assert(0, "Type is not associated with as HsType.");
+    else static assert(0, "Type is not associated with a HsType.");
 }
 
 template hsFunctionIndexOf(alias func)
