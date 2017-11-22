@@ -464,6 +464,8 @@ bool compileVariable(DatumIndex index)
 
 bool compileSymbol(DatumIndex index)
 {
+    import core.stdc.stdio : sscanf;
+
     HsSyntaxNode* node = &syntaxNodes[index];
 
     if(node.type == HsType.specialForm)
@@ -491,8 +493,6 @@ bool compileSymbol(DatumIndex index)
     switch(node.type)
     {
     case HsType.hsFloat:
-        import core.stdc.stdio : sscanf;
-
         char[] str = fromStringz(originalSource.ptr + node.offset);
         if(sscanf(str.ptr, "%f", &node.value.asFloat) != 1)
         {
