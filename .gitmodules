@@ -1,0 +1,3 @@
+[submodule "Build/Lib"]
+	path = Build/Lib
+	url = https://gitlab.com/skl131313/Editor-Lib.git
