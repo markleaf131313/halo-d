@@ -429,6 +429,11 @@ bool implUpdateLogic()
 
     world.collidePlayer(&this.object, position, tagBiped.collisionRadius, height, velocity, colls, count);
 
+    // TODO //////////////////////////////////////////////////////////////////////////////////////////////
+    disconnectFromWorld(); // TODO fix, needs reworking, temporary hack to make biped connect to map properly
+    connectToWorld();
+    // TODO END //////////////////////////////////////////////////////////////////////////////////////////
+
     velocity.z -= crouchVelocity;
 
     flags.airborne = true;
