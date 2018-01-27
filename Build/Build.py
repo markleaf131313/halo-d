@@ -29,7 +29,7 @@ def doBuild(buildTarget):
 
     if platform.system() == 'Windows':
         dflags += [ '-mscrtlib=msvcrt', ]
-        lflags += [ '-L/LIBPATH:../Build/Lib/', ]
+        lflags += [ '-L/LIBPATH:../Build/Lib/Windows/x64', ]
 
         if buildTarget == 'Impl':
             dflags += [
@@ -47,7 +47,7 @@ def doBuild(buildTarget):
                 '-of../Build/Bin/Windows/opengl.dll',
             ]
 
-            lflags += [ '-L/IMPLIB:../Build/Lib/opengl.lib' ]
+            lflags += [ '-L/IMPLIB:../Build/Lib/Windows/x64/opengl.lib' ]
 
         elif buildTarget == 'Runtime':
             uniqueIdentifer = datetime.today().strftime('%Y%m%d-%H%M%S')
@@ -60,39 +60,38 @@ def doBuild(buildTarget):
             # so store it else where and copy it after everything is linked and ready
             postbuild = lambda: copyfile('../Build/Bin/Windows/runtime_out.dll', '../Build/Bin/Windows/runtime.dll')
     elif platform.system() == 'Linux':
-        if buildTarget == 'Impl':
-            dflags = [
-                '-defaultlib=libphobos2.so',
-                '-of../Build/Bin/Linux/impl',
-                '-I../OpenGL/Source/',
-                '-I../Runtime/Source/',
-                '-I../Build/Imports/',
-            ]
+        print("Support for building on Linux removed for now")
+        return
+        # if buildTarget == 'Impl':
+        #     dflags = [
+        #         '-defaultlib=libphobos2.so',
+        #         '-of../Build/Bin/Linux/impl',
+        #         '-I../OpenGL/Source/',
+        #         '-I../Runtime/Source/',
+        #         '-I../Build/Imports/',
+        #     ]
 
-            lflags = [ '-L-L../Build/Bin/Linux/' ]
-            libs = [ '-L-lopenal', '-L-lopengl', '-L-lSDL2', '-L-lvorbis', '-L-lvorbisfile' ]
+        #     lflags = [ '-L-L../Build/Bin/Linux/' ]
+        #     libs = [ '-L-lopenal', '-L-lopengl', '-L-lSDL2', '-L-lvorbis', '-L-lvorbisfile' ]
 
-        elif buildTarget == 'OpenGL':
-            dflags = [
-                '-defaultlib=libphobos2.so',
-                '-shared',
-                '-fPIC',
-                '-of../Build/Bin/Linux/libopengl.so',
-            ]
+        # elif buildTarget == 'OpenGL':
+        #     dflags = [
+        #         '-defaultlib=libphobos2.so',
+        #         '-shared',
+        #         '-fPIC',
+        #         '-of../Build/Bin/Linux/libopengl.so',
+        #     ]
 
-        elif buildTarget == 'Runtime':
-            dflags += [
-                '-defaultlib=libphobos2.so',
-                '-fPIC',
-                '-of../Build/Bin/Linux/libruntime.so',
-            ]
+        # elif buildTarget == 'Runtime':
+        #     dflags += [
+        #         '-defaultlib=libphobos2.so',
+        #         '-fPIC',
+        #         '-of../Build/Bin/Linux/libruntime.so',
+        #     ]
 
-            lflags = [ '-L-L../Build/Bin/Linux/' ]
-            libs = [ '-L-lopenal', '-L-lopengl', '-L-lSDL2', '-L-lcimgui', '-L-lvorbis', '-L-lvorbisfile' ]
+        #     lflags = [ '-L-L../Build/Bin/Linux/' ]
+        #     libs = [ '-L-lopenal', '-L-lopengl', '-L-lSDL2', '-L-lcimgui', '-L-lvorbis', '-L-lvorbisfile' ]
 
-            # possible .dll is created before .pdb, thus dll is loaded without symbols
-            # so store it else where and copy it after everything is linked and ready
-            # postbuild = lambda: copyfile('../build/bin/runtime_out.dll', '../build/bin/runtime.dll')
     else:
         print('Error: Unknown platform ' + platform.system() + '.')
         return
