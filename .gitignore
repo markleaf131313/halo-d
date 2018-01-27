@@ -1,4 +1,14 @@
-Runtime/Source/Game/Tags/Generated/*
+.gradle/
+.idea/
+.externalNativeBuild/
+
+build/
+!/Build/
+
+/Runtime/Source/Game/Tags/Generated/*
+
+local.properties
+
 *.pdb
 *.obj
 *.ilk
@@ -7,3 +17,4 @@ Runtime/Source/Game/Tags/Generated/*
 *.map
 *.dll
 *.lib
+*.iml
