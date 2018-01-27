@@ -493,7 +493,8 @@ bool compileSymbol(DatumIndex index)
     switch(node.type)
     {
     case HsType.hsFloat:
-        char[] str = fromStringz(originalSource.ptr + node.offset);
+        const(char)[] str = fromStringz(originalSource.ptr + node.offset);
+
         if(sscanf(str.ptr, "%f", &node.value.asFloat) != 1)
         {
             setCompileError(node.offset, "Failed to convert '%s' to float.", str);
