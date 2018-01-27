@@ -7,7 +7,7 @@ import Game.Cache;
 import Game.Core;
 import Game.Tags;
 
-struct Actor
+struct AiActor
 {
 
 DatumIndex selfIndex;

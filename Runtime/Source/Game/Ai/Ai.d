@@ -1,7 +1,9 @@
 
 module Game.Ai.Ai;
 
+import Game.Ai.Actor;
 import Game.Ai.Encounter;
+import Game.Ai.Prop;
 
 import Game.Cache;
 import Game.Core;
@@ -13,13 +15,18 @@ struct Ai
 
 World* world;
 
-DatumArray!Encounter encounters;
-Squad[1024]          squads;
-Platoon[256]         platoons;
+DatumArray!AiActor     actors;
+DatumArray!AiEncounter encounters;
+AiSquad[1024]          squads;
+AiPlatoon[256]         platoons;
+
+DatumArray!AiProp      props;
 
 void initialize()
 {
+    actors.allocate(256, multichar!"ac");
     encounters.allocate(128, multichar!"ec");
+    props.allocate(1024, multichar!"pr");
 }
 
 }

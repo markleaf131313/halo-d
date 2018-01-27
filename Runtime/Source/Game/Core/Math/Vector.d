@@ -53,6 +53,15 @@ union
     }
 }
 
+static if(size <= 3 && isFloatingPoint!Type)
+{
+    static auto fromAngleZ(Type angle)
+    {
+        static if(size == 2) return Vector(cos(angle), sin(angle));
+        else                 return Vector(cos(angle), sin(angle), Type(0));
+    }
+}
+
 this(Type v)
 {
     values = v;
