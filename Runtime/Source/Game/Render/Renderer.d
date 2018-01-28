@@ -67,6 +67,24 @@ struct SwapChainSupportDetails
     VkPresentModeKHR[]       presentModes;
 }
 
+struct FrameBufferAttachment
+{
+    VkImage image;
+    VkDeviceMemory mem;
+    VkImageView view;
+    VkFormat format;
+}
+
+struct FrameBuffer
+{
+    uint width;
+    uint height;
+    VkFramebuffer frameBuffer;
+    FrameBufferAttachment position, normal, albedo;
+    FrameBufferAttachment depth;
+    VkRenderPass renderPass;
+}
+
 version(Android)
 {
     static immutable const(char)*[] validationLayers =
@@ -126,6 +144,9 @@ VkCommandBuffer[]        commandBuffers;
 
 VkBuffer                 vertexBuffer;
 VkDeviceMemory           vertexBufferMemory;
+
+FrameBuffer              offscreenFramebuffer;
+VkSampler                colorSampler;
 
 VkSemaphore              imageAvailableSemaphore;
 VkSemaphore              renderFinishedSemaphore;
@@ -269,7 +290,7 @@ void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayo
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
 
-    if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    if(oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
     {
         barrier.srcAccessMask = 0;
         barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -277,7 +298,7 @@ void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayo
         sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
         destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     }
-    else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+    else if(oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
     {
         barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
@@ -299,6 +320,206 @@ void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayo
         0, null,
         1, &barrier
     );
+}
+
+void createAttachment(VkFormat format, VkImageUsageFlagBits usage, FrameBufferAttachment* attachment)
+{
+    VkImageAspectFlags aspectMask;
+    VkImageLayout imageLayout;
+
+    attachment.format = format;
+
+    if(usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
+    {
+        aspectMask  = VK_IMAGE_ASPECT_COLOR_BIT;
+        imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    }
+
+    if(usage & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)
+    {
+        aspectMask  = VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+        imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    }
+
+    VkImageCreateInfo image;
+
+    image.imageType = VK_IMAGE_TYPE_2D;
+    image.format = format;
+    image.extent.width = offscreenFramebuffer.width;
+    image.extent.height = offscreenFramebuffer.height;
+    image.extent.depth = 1;
+    image.mipLevels = 1;
+    image.arrayLayers = 1;
+    image.samples = VK_SAMPLE_COUNT_1_BIT;
+    image.tiling = VK_IMAGE_TILING_OPTIMAL;
+    image.usage = usage | VK_IMAGE_USAGE_SAMPLED_BIT;
+
+    VkMemoryRequirements memReqs;
+
+    vkCreateImage(device, &image, null, &attachment.image);
+
+    vkGetImageMemoryRequirements(device, attachment.image, &memReqs);
+
+    VkMemoryAllocateInfo memAlloc;
+    memAlloc.allocationSize = memReqs.size;
+    memAlloc.memoryTypeIndex = findMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    vkAllocateMemory(device, &memAlloc, null, &attachment.mem);
+    vkBindImageMemory(device, attachment.image, attachment.mem, 0);
+
+    VkImageViewCreateInfo imageView;
+    imageView.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    imageView.format = format;
+    imageView.subresourceRange.aspectMask = aspectMask;
+    imageView.subresourceRange.baseMipLevel = 0;
+    imageView.subresourceRange.levelCount = 1;
+    imageView.subresourceRange.baseArrayLayer = 0;
+    imageView.subresourceRange.layerCount = 1;
+    imageView.image = attachment.image;
+
+    vkCreateImageView(device, &imageView, null, &attachment.view);
+}
+
+VkFormat findSupportedFormat(VkFormat[] candidates, VkImageTiling tiling, VkFormatFeatureFlags features)
+{
+    foreach(VkFormat format ; candidates)
+    {
+        VkFormatProperties props;
+        vkGetPhysicalDeviceFormatProperties(physicalDevice, format, &props);
+
+        if(tiling == VK_IMAGE_TILING_LINEAR && (props.linearTilingFeatures & features) == features)
+        {
+            return format;
+        }
+        else if(tiling == VK_IMAGE_TILING_OPTIMAL && (props.optimalTilingFeatures & features) == features)
+        {
+            return format;
+        }
+    }
+
+    assert(0);
+}
+
+VkFormat findDepthFormat()
+{
+    VkFormat[3] formats = [ VK_FORMAT_D32_SFLOAT, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_FORMAT_D24_UNORM_S8_UINT ];
+    return findSupportedFormat(formats, VK_IMAGE_TILING_OPTIMAL, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT);
+}
+
+void createOffscreenFramebuffer()
+{
+    offscreenFramebuffer.width = 1920;
+    offscreenFramebuffer.height = 1080;
+
+    createAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.position);
+    createAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.normal);
+    createAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.albedo);
+
+    VkFormat attDepthFormat= findDepthFormat();
+
+    createAttachment(attDepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, &offscreenFramebuffer.depth);
+
+    VkAttachmentDescription[4] attachmentDescs;
+
+    foreach(i, ref attachmentDesc ; attachmentDescs)
+    {
+        attachmentDesc.samples        = VK_SAMPLE_COUNT_1_BIT;
+        attachmentDesc.loadOp         = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        attachmentDesc.storeOp        = VK_ATTACHMENT_STORE_OP_STORE;
+        attachmentDesc.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+        attachmentDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+
+        if(i == 3)
+        {
+            attachmentDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            attachmentDesc.finalLayout   = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        }
+        else
+        {
+            attachmentDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+            attachmentDesc.finalLayout   = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        }
+    }
+
+    // Formats
+    attachmentDescs[0].format = offscreenFramebuffer.position.format;
+    attachmentDescs[1].format = offscreenFramebuffer.normal.format;
+    attachmentDescs[2].format = offscreenFramebuffer.albedo.format;
+    attachmentDescs[3].format = offscreenFramebuffer.depth.format;
+
+    VkAttachmentReference[3] colorReferences =
+    [
+        VkAttachmentReference(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+        VkAttachmentReference(1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+        VkAttachmentReference(2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+    ];
+
+    VkAttachmentReference depthReference;
+    depthReference.attachment = 3;
+    depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+    VkSubpassDescription subpass;
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.pColorAttachments = colorReferences.ptr;
+    subpass.colorAttachmentCount = colorReferences.length32;
+    subpass.pDepthStencilAttachment = &depthReference;
+
+    VkSubpassDependency[2] dependencies;
+
+    dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+    dependencies[0].dstSubpass = 0;
+    dependencies[0].srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependencies[0].srcAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[0].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+    dependencies[1].srcSubpass = 0;
+    dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+    dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    dependencies[1].dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+    dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependencies[1].dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+    dependencies[1].dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT;
+
+    VkRenderPassCreateInfo renderPassInfo;
+    renderPassInfo.pAttachments = attachmentDescs.ptr;
+    renderPassInfo.attachmentCount = attachmentDescs.length32;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+    renderPassInfo.dependencyCount = dependencies.length32;
+    renderPassInfo.pDependencies = dependencies.ptr;
+
+    vkCreateRenderPass(device, &renderPassInfo, null, &offscreenFramebuffer.renderPass);
+
+    VkImageView[4] attachments;
+    attachments[0] = offscreenFramebuffer.position.view;
+    attachments[1] = offscreenFramebuffer.normal.view;
+    attachments[2] = offscreenFramebuffer.albedo.view;
+    attachments[3] = offscreenFramebuffer.depth.view;
+
+    VkFramebufferCreateInfo fbufCreateInfo;
+    fbufCreateInfo.renderPass = offscreenFramebuffer.renderPass;
+    fbufCreateInfo.pAttachments = attachments.ptr;
+    fbufCreateInfo.attachmentCount = attachments.length32;
+    fbufCreateInfo.width = offscreenFramebuffer.width;
+    fbufCreateInfo.height = offscreenFramebuffer.height;
+    fbufCreateInfo.layers = 1;
+    vkCreateFramebuffer(device, &fbufCreateInfo, null, &offscreenFramebuffer.frameBuffer);
+
+    VkSamplerCreateInfo sampler;
+    sampler.magFilter = VK_FILTER_NEAREST;
+    sampler.minFilter = VK_FILTER_NEAREST;
+    sampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    sampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    sampler.addressModeV = sampler.addressModeU;
+    sampler.addressModeW = sampler.addressModeU;
+    sampler.mipLodBias = 0.0f;
+    sampler.maxAnisotropy = 1.0f;
+    sampler.minLod = 0.0f;
+    sampler.maxLod = 1.0f;
+    sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+    vkCreateSampler(device, &sampler, null, &colorSampler);
 }
 
 void createBuffer(
@@ -460,6 +681,8 @@ void createLogicalDevice()
     }
 
     VkPhysicalDeviceFeatures features;
+    features.textureCompressionBC = true;
+
     VkDeviceCreateInfo info;
 
     info.pQueueCreateInfos       = queueInfos.ptr;
