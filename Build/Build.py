@@ -24,6 +24,7 @@ def doBuild(buildTarget):
             '-shared',
             '-I../Build/Imports/',
             '-JText/',
+            '-JData/',
         ]
 
     if platform.system() == 'Windows':
