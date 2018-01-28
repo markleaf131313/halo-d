@@ -15,14 +15,6 @@
             ]
         },
         {
-            "taskName": "opengl",
-            "suppressTaskName": true,
-            "args": [
-                "${workspaceRoot}/build/build.py",
-                "OpenGL"
-            ]
-        },
-        {
             "taskName": "runtime",
             "suppressTaskName": true,
             "isBuildCommand": true,
