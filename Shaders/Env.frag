@@ -22,26 +22,30 @@
     #error Missing FUNCT_MICRO macro
 #endif
 
-uniform sampler2D basemap;
-uniform sampler2D d0map;
-uniform sampler2D d1map;
-uniform sampler2D micromap;
-uniform sampler2D bumpmap;
-uniform sampler2D lightmap;
-uniform samplerCube cubemap;
+layout(binding = 0) uniform sampler2D basemap;
+layout(binding = 1) uniform sampler2D d0map;
+layout(binding = 2) uniform sampler2D d1map;
+layout(binding = 3) uniform sampler2D micromap;
+layout(binding = 4) uniform sampler2D bumpmap;
+layout(binding = 5) uniform sampler2D lightmap;
+layout(binding = 6) uniform samplerCube cubemap;
 
-uniform vec4 perpendicularColor;
-uniform vec4 parallelColor;
+layout(push_constant) uniform PushConstants
+{
+    uniform vec4 perpendicularColor;
+    uniform vec4 parallelColor;
+    uniform float specularColorControl;
+} reg;
 
-uniform float specularColorControl;
+layout(location = 0) in vec2 coord[5];
+layout(location = 6) in vec2 lmcoord;
+layout(location = 7) in vec3 aNormal;
+layout(location = 8) in vec3 v0;
+layout(location = 9) in vec3 v1;
+layout(location = 10) in vec3 v2;
+layout(location = 11) in vec3 eyeVector;
 
-in vec2 coord[5];
-in vec2 lmcoord;
-in vec3 aNormal;
-in vec3 v0, v1, v2;
-in vec3 eyeVector;
-
-out vec4[3] outputColor;
+layout(location = 0) out vec4[3] outputColor;
 
 void main()
 {
@@ -111,9 +115,9 @@ void main()
 
     vec3 spec = pow(cube, vec3(8.0)) / 4.0;
 
-    vec4 c1 = clamp(mix(parallelColor, perpendicularColor, coeff), 0.0, 1.0);
+    vec4 c1 = clamp(mix(reg.parallelColor, reg.perpendicularColor, coeff), 0.0, 1.0);
     c1.rgb = mix(spec, cube, c1.a);
 
-    outputColor[1]     = vec4(c1.rgb * specularColorControl * c0.a, 1);
+    outputColor[1]     = vec4(c1.rgb * reg.specularColorControl * c0.a, 1);
     outputColor[2].xyz = normal;
 }

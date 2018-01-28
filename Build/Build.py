@@ -10,11 +10,32 @@ import time
 from datetime import datetime, timedelta
 from shutil import copyfile
 
+def genMultiLoop(*args):
+
+    values = [ 0 ] * len(args)
+
+    while True:
+        yield values
+
+        values[-1] += 1
+
+        i = len(args) - 1
+        while values[i] > args[i]:
+            if i <= 0:
+                return
+
+            values[i] = 0
+            values[i - 1] += 1
+            i -= 1
+
+
+
 def doBuild(buildTarget):
 
     dflags = []
     lflags = []
     libs = []
+    prebuild = lambda: None
     postbuild = lambda: None
 
     dsrcs = glob.iglob('Source/**/*.d', recursive = True)
@@ -41,6 +62,34 @@ def doBuild(buildTarget):
             libs += [ 'OpenAL32.lib', 'vulkan-1.lib', 'SDL2.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
         elif buildTarget == 'Runtime':
+            def buildShaders():
+                prog = 'glslangValidator'
+
+                args = [
+                    prog,
+                    '-V', '../Shaders/Env.vert',
+                    '-o', './Data/Env-vert.spv',
+                ]
+
+                print('Running: ', ' '.join(args))
+                print(subprocess.check_output(args).decode('ascii', errors='surrogateescape'))
+
+                for t, detail, micro in genMultiLoop(2, 2, 2):
+                    args = [
+                        prog,
+                        '-DTYPE={}'.format(t),
+                        '-DFUNCT_DETAIL={}'.format(detail),
+                        '-DFUNCT_MICRO={}'.format(micro),
+                        '-V', '../Shaders/Env.frag',
+                        '-o', './Data/Env-frag-{}-{}-{}.spv'.format(t, detail, micro),
+                    ]
+
+                    print('Running: ', ' '.join(args))
+                    print(subprocess.check_output(args).decode('ascii', errors='surrogateescape'))
+
+
+            prebuild = buildShaders
+
             uniqueIdentifer = datetime.today().strftime('%Y%m%d-%H%M%S')
 
             dflags += [ '-of../Build/Bin/Windows/runtime_out.dll' ]
@@ -104,6 +153,7 @@ def doBuild(buildTarget):
     print('running: ' + ' '.join(args), flush=True)
 
     try:
+        prebuild()
         print(subprocess.check_output(args).decode('ascii', errors='surrogateescape'))
         postbuild()
     except subprocess.CalledProcessError as ex:
