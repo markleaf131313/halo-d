@@ -22,7 +22,6 @@ def doBuild(buildTarget):
     if buildTarget == 'Runtime':
         dflags = [
             '-shared',
-            '-I../OpenGL/Source/',
             '-I../Build/Imports/',
             '-JText/',
         ]
@@ -34,27 +33,18 @@ def doBuild(buildTarget):
         if buildTarget == 'Impl':
             dflags += [
                 '-of../Build/Bin/Windows/impl.exe',
-                '-I../OpenGL/Source/',
                 '-I../Runtime/Source/',
                 '-I../Build/Imports/',
             ]
 
-            libs += [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
-
-        elif buildTarget == 'OpenGL':
-            dflags += [
-                '-shared',
-                '-of../Build/Bin/Windows/opengl.dll',
-            ]
-
-            lflags += [ '-L/IMPLIB:../Build/Lib/Windows/x64/opengl.lib' ]
+            libs += [ 'OpenAL32.lib', 'vulkan-1.lib', 'SDL2.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
         elif buildTarget == 'Runtime':
             uniqueIdentifer = datetime.today().strftime('%Y%m%d-%H%M%S')
 
             dflags += [ '-of../Build/Bin/Windows/runtime_out.dll' ]
             lflags += [ '-L/PDB:../Build/Obj/runtime-' + uniqueIdentifer + '.pdb' ]
-            libs += [ 'OpenAL32.lib', 'opengl.lib', 'sdl2.lib', 'cimgui.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
+            libs += [ 'OpenAL32.lib', 'vulkan-1.lib', 'SDL2.lib', 'cimgui.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
             # possible .dll is created before .pdb, thus dll is loaded without symbols
             # so store it else where and copy it after everything is linked and ready
@@ -126,12 +116,12 @@ def doBuild(buildTarget):
 startTime = datetime.now()
 
 parser = argparse.ArgumentParser()
-parser.add_argument('build', action='append', choices = ['Impl', 'OpenGL', 'Runtime', 'all'])
+parser.add_argument('build', action='append', choices = ['Impl', 'Runtime', 'all'])
 args = parser.parse_args()
 
 
 if args.build[0] == 'all':
-    args.build = [ 'OpenGL', 'Impl', 'Runtime' ] # order matters!
+    args.build = [ 'Impl', 'Runtime' ] # order matters!
 
 for b in args.build:
     os.chdir(b)
