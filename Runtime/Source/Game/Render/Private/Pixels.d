@@ -1,6 +1,7 @@
 
 module Game.Render.Private.Pixels;
 
+import Vulkan;
 
 import Game.Tags;
 
@@ -22,10 +23,22 @@ private immutable pixelBitSize =
         0x08,
 ];
 
-uint pixelFormatGLFormat(TagEnums.BitmapPixelFormat format)
+VkFormat getPixelFormat(TagEnums.BitmapPixelFormat format)
 {
+    switch(format) with(TagEnums.BitmapPixelFormat)
+    {
+    case a1r5g5b5: return VK_FORMAT_A1R5G5B5_UNORM_PACK16;
+    case r5g6b5:   return VK_FORMAT_R5G5B5A1_UNORM_PACK16;
+    case a4r4g4b4: return VK_FORMAT_R4G4B4A4_UNORM_PACK16;
+    case a8r8g8b8: return VK_FORMAT_R8G8B8A8_UNORM;
+    case x8r8g8b8: return VK_FORMAT_R8G8B8_UNORM;
+    case dxt1: return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
+    case dxt3: return VK_FORMAT_BC2_UNORM_BLOCK;
+    case dxt5: return VK_FORMAT_BC3_UNORM_BLOCK;
+    default:
+    }
 
-    return 0;
+    assert(0);
 }
 
 bool pixelFormatSupported(TagEnums.BitmapPixelFormat format)

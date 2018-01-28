@@ -108,21 +108,27 @@ VkDevice                 device;
 VkQueue                  graphicsQueue;
 VkQueue                  presentQueue;
 VkSurfaceKHR             surface;
+
 VkSwapchainKHR           swapchain;
 VkFormat                 swapchainImageFormat;
 VkExtent2D               swapchainExtent;
 VkImage[]                swapchainImages;
 VkImageView[]            swapchainImageViews;
+VkFramebuffer[]          swapchainFramebuffers;
+
 VkRenderPass             renderPass;
 VkPipelineLayout         pipelineLayout;
 VkPipeline               graphicsPipeline;
-VkFramebuffer[]          swapchainFramebuffers;
+
 VkCommandPool            commandPool;
 VkCommandBuffer[]        commandBuffers;
+
+
 VkBuffer                 vertexBuffer;
+VkDeviceMemory           vertexBufferMemory;
+
 VkSemaphore              imageAvailableSemaphore;
 VkSemaphore              renderFinishedSemaphore;
-VkDeviceMemory           vertexBufferMemory;
 
 
 uint windowWidth = 1080;
@@ -209,6 +215,124 @@ void createInstance(SDL_Window* window)
         SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateInstance(): %s", result.to!string.ptr);
         assert(0);
     }
+}
+
+VkCommandBuffer beginSingleTimeCommands()
+{
+    VkCommandBufferAllocateInfo allocInfo;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer;
+    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    return commandBuffer;
+}
+
+void endSingleTimeCommands(VkCommandBuffer commandBuffer)
+{
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(graphicsQueue);
+
+    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+}
+
+void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+{
+    VkCommandBuffer command = beginSingleTimeCommands();
+    scope(exit) endSingleTimeCommands(command);
+
+    VkImageMemoryBarrier barrier;
+    barrier.oldLayout = oldLayout;
+    barrier.newLayout = newLayout;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.image = image;
+    barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.levelCount = 1;
+    barrier.subresourceRange.baseArrayLayer = 0;
+    barrier.subresourceRange.layerCount = 1;
+
+    VkPipelineStageFlags sourceStage;
+    VkPipelineStageFlags destinationStage;
+
+    if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL)
+    {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+        sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+        destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    }
+    else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
+    {
+        barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+        sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+        destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    }
+    else
+    {
+        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "Invalid transition.");
+        assert(0);
+    }
+
+    vkCmdPipelineBarrier(
+        command,
+        sourceStage, destinationStage,
+        0,
+        0, null,
+        0, null,
+        1, &barrier
+    );
+}
+
+void createBuffer(
+    VkDeviceSize          size,
+    VkBufferUsageFlags    usage,
+    VkMemoryPropertyFlags properties,
+    ref VkBuffer          buffer,
+    ref VkDeviceMemory    bufferMemory)
+{
+    VkBufferCreateInfo bufferInfo;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    if(VkResult result = vkCreateBuffer(device, &bufferInfo, null, &buffer))
+    {
+        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateBuffer(): %s", result.to!string.ptr);
+        assert(0);
+    }
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(device, buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
+
+    if(VkResult result = vkAllocateMemory(device, &allocInfo, null, &bufferMemory))
+    {
+        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkAllocateMemory(): %s", result.to!string.ptr);
+        assert(0);
+    }
+
+    vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
 
 uint debugCallback(
@@ -1039,9 +1163,97 @@ void bindTexture(
     assert(0);
 }
 
-static
 void loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer)
 {
+    import Game.Render.Private.Pixels;
+
+    if(bitmap.glTexture != indexNone || !pixelFormatSupported(bitmap.format))
+    {
+        return;
+    }
+
+    switch(bitmap.type)
+    {
+    default:
+        bitmap.glTexture = 0;
+        return;
+    case TagEnums.BitmapType.texture2d:
+
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingBufferMemory;
+        createBuffer(buffer.length32, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        scope(exit)
+        {
+            vkDestroyBuffer(device, stagingBuffer, null);
+            vkFreeMemory(device, stagingBufferMemory, null);
+        }
+
+        void* data;
+        vkMapMemory(device, stagingBufferMemory, 0, buffer.length32, 0, &data);
+        data[0 .. buffer.length32] = buffer[];
+        vkUnmapMemory(device, stagingBufferMemory);
+
+        VkImage image;
+        VkDeviceMemory imageMemory;
+
+        VkImageCreateInfo imageInfo;
+
+        imageInfo.imageType     = VK_IMAGE_TYPE_2D;
+        imageInfo.extent.width  = bitmap.width;
+        imageInfo.extent.height = bitmap.height;
+        imageInfo.extent.depth  = 1;
+        imageInfo.mipLevels     = bitmap.mipmapCount + 1;
+        imageInfo.arrayLayers   = 1;
+        imageInfo.format        = getPixelFormat(bitmap.format);
+        imageInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
+        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageInfo.samples       = VK_SAMPLE_COUNT_1_BIT;
+        imageInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
+
+        vkCreateImage(device, &imageInfo, null, &image);
+
+        VkMemoryRequirements memRequirements;
+        vkGetImageMemoryRequirements(device, image, &memRequirements);
+
+        VkMemoryAllocateInfo allocInfo;
+        allocInfo.allocationSize  = memRequirements.size;
+        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+        vkAllocateMemory(device, &allocInfo, null, &imageMemory);
+        vkBindImageMemory(device, image, imageMemory, 0);
+
+        transitionImageLayout(image, getPixelFormat(bitmap.format),
+            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+        uint offset = 0;
+        foreach(i ; 0 .. bitmap.mipmapCount + 1)
+        {
+            uint width  = max(1, bitmap.width  << i);
+            uint height = max(1, bitmap.height << i);
+
+            VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+            VkBufferImageCopy region;
+            region.bufferOffset                = offset;
+            region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            region.imageSubresource.mipLevel   = i;
+            region.imageSubresource.layerCount = 1;
+            region.imageExtent                 = VkExtent3D(width, height, 1);
+
+            vkCmdCopyBufferToImage(commandBuffer, stagingBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+            endSingleTimeCommands(commandBuffer);
+
+            offset += pixelFormatSize(bitmap.format, width, height);
+        }
+
+        transitionImageLayout(image, getPixelFormat(bitmap.format),
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+        assert(0); // Store vk image somewhere
+        break;
+    }
+
     assert(0);
 }
 
