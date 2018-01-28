@@ -2208,6 +2208,7 @@ enum {
     SDL_WINDOW_FOREIGN = 0x00000800,
     SDL_WINDOW_ALLOW_HIGHDPI = 0x00002000,
     SDL_WINDOW_MOUSE_CAPTURE = 0x00004000,
+    SDL_WINDOW_VULKAN        = 0x10000000,
 }
 
 enum SDL_WINDOWPOS_UNDEFINED_MASK = 0x1FFF0000;
@@ -2805,6 +2806,17 @@ extern( C ) @nogc nothrow {
     int SDL_GL_GetSwapInterval();
     void SDL_GL_SwapWindow( SDL_Window* );
     void SDL_GL_DeleteContext( SDL_GLContext );
+
+    import Vulkan : VkInstance, VkSurfaceKHR;
+
+    // SDL_vulkan.h
+    int SDL_Vulkan_LoadLibrary(const(char)* path);
+    void* SDL_Vulkan_GetVkGetInstanceProcAddr();
+    void SDL_Vulkan_UnloadLibrary();
+
+    SDL_bool SDL_Vulkan_GetInstanceExtensions(SDL_Window*, uint* count, const(char)** names);
+    SDL_bool SDL_Vulkan_CreateSurface(SDL_Window*, VkInstance, VkSurfaceKHR*);
+    void SDL_Vulkan_GetDrawableSize(SDL_Window*, int* width, int* height);
 }
 
 @nogc nothrow {
