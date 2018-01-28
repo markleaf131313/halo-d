@@ -1,5 +1,6 @@
 
 #version 450 core
+#extension GL_ARB_separate_shader_objects : enable
 
 #define TYPE_NORMAL             0
 #define TYPE_BLENDED            1

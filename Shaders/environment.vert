@@ -1,5 +1,6 @@
 
 #version 450 core
+#extension GL_ARB_separate_shader_objects : enable
 
 uniform mat4 viewproj;
 uniform vec2 uvscales[5];
