@@ -3,6 +3,11 @@ module Game.Core.Misc;
 
 enum indexNone = -1;
 
+uint length32(T)(T[] array)
+{
+    return cast(uint)array.length;
+}
+
 template multichar(string op)
 {
     static if(op.length == 2)
