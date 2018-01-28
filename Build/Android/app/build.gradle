@@ -1,0 +1,48 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 24
+    buildToolsVersion "27.0.3"
+
+    defaultConfig {
+        applicationId "org.libsdl.app"
+        minSdkVersion 24
+        targetSdkVersion 24
+
+        ndk {
+            abiFilters 'armeabi-v7a'
+        }
+
+        externalNativeBuild {
+            ndkBuild {
+                arguments "V=1", "NDK_LOG=1"
+            }
+        }
+    }
+
+    externalNativeBuild {
+        ndkBuild {
+            path 'src/main/jni/Android.mk'
+        }
+    }
+
+    sourceSets {
+        main {
+            jniLibs {
+                srcDir android.ndkDirectory.absolutePath + '/sources/third_party/vulkan/src/build-android/jniLibs'
+            }
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+}
