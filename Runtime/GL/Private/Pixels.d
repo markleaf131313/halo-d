@@ -1,10 +1,10 @@
 
 module Game.Render.Private.Pixels;
 
-import OpenGL;
 
 import Game.Tags;
 
+version(none):
 @nogc nothrow:
 
 private immutable pixelBitSize =
@@ -32,9 +32,9 @@ uint pixelFormatGLFormat(TagEnums.BitmapPixelFormat format)
     case a4r4g4b4: return GL_RGBA4;
     case a8r8g8b8: return GL_RGBA8;
     case x8r8g8b8: return GL_RGB8;
-    case dxt1: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-    case dxt3: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-    case dxt5: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+    case dxt1: assert(0);
+    case dxt3: assert(0);
+    case dxt5: assert(0);
     default:
     }
 

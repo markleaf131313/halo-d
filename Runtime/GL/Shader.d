@@ -1,7 +1,7 @@
 
 module Game.Render.Shader;
 
-import std.stdio;
+import std.stdio : writeln;
 import std.conv : to;
 
 import OpenGL;

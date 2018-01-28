@@ -1,7 +1,7 @@
 
 module Game.Render.Framebuffer;
 
-import OpenGL;
+version(none):
 
 struct GLFramebuffer
 {

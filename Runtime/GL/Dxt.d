@@ -5,7 +5,6 @@ import std.bitmanip : bitfields;
 
 import Game.Core.Math;
 
-// TODO(COPYRIGHT, ?) DXT decompression from nv texture tools
 
 struct Dxt1Block
 {
