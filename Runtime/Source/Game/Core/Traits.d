@@ -14,7 +14,7 @@ private template EnumNamesAliasSeqImpl(T...)
     {
         alias EnumNamesAliasSeqImpl = AliasSeq!(T[0].stringof);
     }
-    else static if (T.length > 0)
+    else static if(T.length > 0)
     {
         alias EnumNamesAliasSeqImpl = AliasSeq!(
             T[0].stringof,

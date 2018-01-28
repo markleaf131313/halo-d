@@ -245,7 +245,7 @@ bool isConvertableTo(HsType fromType, HsType toType)
         return true;
     }
 
-    if (toType.isObjectIndex)
+    if(toType.isObjectIndex)
     {
         int toIndex = toType - HsType.object;
         int fromIndex;
