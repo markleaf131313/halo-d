@@ -197,24 +197,8 @@ void main(string[] args)
 
         // Video ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        enforce(SDL_Init(SDL_INIT_VIDEO) == 0);
-
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
-
         SDL_Window* window = SDL_CreateWindow(null, 100, 100, 1920, 810, SDL_WINDOW_VULKAN);
-        SDL_GLContext context = SDL_GL_CreateContext(window);
 
-        enforce(gladLoadGL(x => SDL_GL_GetProcAddress(x)));
-        openglEnableDebugging();
-
-        SDL_GL_SetSwapInterval(0);
-
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glFrontFace(GL_CW);
-        glCullFace(GL_BACK);
 
         // Audio ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
