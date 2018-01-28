@@ -126,68 +126,6 @@ bool doReloadLibrary()
     }
 }
 
-extern(System) nothrow @nogc
-static void openglDebugCallback(
-    GLenum source,
-    GLenum type,
-    GLuint id,
-    GLenum severity,
-    GLsizei length,
-    const(GLchar*) message,
-    void* userParam)
-{
-    import core.stdc.stdio : printf, stdout;
-
-    static const(char*) to(T : char*)(GLenum value)
-    {
-        switch(value)
-        {
-        // sources
-        case GL_DEBUG_SOURCE_API: return "API";
-        case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "Window System";
-        case GL_DEBUG_SOURCE_SHADER_COMPILER: return "Shader Compiler";
-        case GL_DEBUG_SOURCE_THIRD_PARTY: return "Third Party";
-        case GL_DEBUG_SOURCE_APPLICATION: return "Application";
-        case GL_DEBUG_SOURCE_OTHER: return "Other";
-
-        // error types
-        case GL_DEBUG_TYPE_ERROR: return "Error";
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "Deprecated Behaviour";
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: return "Undefined Behaviour";
-        case GL_DEBUG_TYPE_PORTABILITY: return "Portability";
-        case GL_DEBUG_TYPE_PERFORMANCE: return "Performance";
-        case GL_DEBUG_TYPE_MARKER: return "Marker";
-        case GL_DEBUG_TYPE_PUSH_GROUP: return "Push Group";
-        case GL_DEBUG_TYPE_POP_GROUP: return "Pop Group";
-        case GL_DEBUG_TYPE_OTHER: return "Other";
-
-            // severity markers
-        case GL_DEBUG_SEVERITY_HIGH: return "High";
-        case GL_DEBUG_SEVERITY_MEDIUM: return "Medium";
-        case GL_DEBUG_SEVERITY_LOW: return "Low";
-        case GL_DEBUG_SEVERITY_NOTIFICATION: return "Notification";
-
-        default: return "(undefined)";
-        }
-    }
-
-    printf("Message: %s \nSource: %s \nType: %s \nID: %d\nSeverity: %s\n\n",
-        message, to!(char*)(source), to!(char*)(type), id, to!(char*)(severity));
-
-    fflush(stdout);
-
-    if(severity == GL_DEBUG_SEVERITY_HIGH)
-    {
-        printf("Aborting...\n");
-        assert(0);
-    }
-
-}
-
-void openglEnableDebugging()
-{
-}
-
 void main(string[] args)
 {
     try
@@ -197,8 +135,8 @@ void main(string[] args)
 
         // Video ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+        SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
         SDL_Window* window = SDL_CreateWindow(null, 100, 100, 1920, 810, SDL_WINDOW_VULKAN);
-
 
         // Audio ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
