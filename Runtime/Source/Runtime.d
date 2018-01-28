@@ -304,6 +304,21 @@ bool initSharedGameState(SharedGameState* gameState)
     SDL_GetWindowWMInfo(gameState.window, &wmInfo);
     version(Windows) io.ImeWindowHandle = wmInfo.info.win.window;
 
+    gameState.renderer.createInstance(gameState.window);
+    gameState.renderer.setupDebugCallback();
+    gameState.renderer.createSurface(gameState.window);
+    gameState.renderer.pickPhysicalDevice();
+    gameState.renderer.createLogicalDevice();
+    gameState.renderer.createSwapChain();
+    gameState.renderer.createImageViews();
+    gameState.renderer.createRenderPass();
+    gameState.renderer.createGraphicsPipeline();
+    gameState.renderer.createFramebuffers();
+    gameState.renderer.createCommandPool();
+    gameState.renderer.createVertexBuffer();
+    gameState.renderer.createCommandBuffers();
+    gameState.renderer.createSemaphores();
+
     frameStopWatch.start();
 
     return true;
