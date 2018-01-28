@@ -1,8 +1,6 @@
 
 
 import OpenAL;
-import OpenGL;
-import OpenGL.Loader;
 import SDL2;
 import Vorbis;
 
@@ -188,14 +186,6 @@ static void openglDebugCallback(
 
 void openglEnableDebugging()
 {
-    glEnable(GL_DEBUG_OUTPUT);
-    glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-
-    glDebugMessageCallback(&openglDebugCallback, null);
-
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, null, true);
-    glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, null, false);
-
 }
 
 void main(string[] args)
@@ -213,7 +203,7 @@ void main(string[] args)
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
 
-        SDL_Window* window = SDL_CreateWindow(null, 100, 100, 1920, 810, SDL_WINDOW_OPENGL);
+        SDL_Window* window = SDL_CreateWindow(null, 100, 100, 1920, 810, SDL_WINDOW_VULKAN);
         SDL_GLContext context = SDL_GL_CreateContext(window);
 
         enforce(gladLoadGL(x => SDL_GL_GetProcAddress(x)));
