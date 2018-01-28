@@ -7,7 +7,6 @@ import std.stdio;
 import std.string    : fromStringz;
 import std.traits    : EnumMembers;
 
-import OpenGL;
 import SDL2;
 import ImGui;
 
@@ -89,7 +88,7 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         Audio.inst.initialize(&gameState.world);
 
         Cache.inst = &gameState.cache;
-        gameState.cache.load("maps/bloodgulch.map");
+        gameState.cache.load("maps/moj.map");
 
         gameState.camera.near = 0.0065f;
         gameState.camera.far  = 1024.0f;
@@ -240,11 +239,7 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
             }
         }
 
-        glGenTextures(1, &gameState.imguiTexture);
-        glBindTexture(GL_TEXTURE_2D, gameState.imguiTexture);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glBindTexture(GL_TEXTURE_2D, 0);
+        // TODO imgui initialization
 
     }
     catch(Exception ex)
@@ -277,9 +272,7 @@ bool initSharedGameState(SharedGameState* gameState)
 
     io.Fonts.GetTexDataAsRGBA32(&pixels, &width, &height, null);
 
-    glBindTexture(GL_TEXTURE_2D, gameState.imguiTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    // TODO IMGUI initialization
 
     io.Fonts.SetTexID(cast(ImTextureID)gameState.imguiTexture);
 
