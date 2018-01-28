@@ -652,8 +652,6 @@ try
     gameState.camera.updateMatrices();
     gameState.renderer.render(gameState.world, gameState.camera);
 
-    SDL_GL_SwapWindow(gameState.window);
-
     return true;
 }
 catch(Exception ex)
