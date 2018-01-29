@@ -145,6 +145,16 @@ VkCommandBuffer[]        commandBuffers;
 VkBuffer                 vertexBuffer;
 VkDeviceMemory           vertexBufferMemory;
 
+VkBuffer                 sbspVertexBuffer;
+VkDeviceMemory           sbspVertexBufferMemory;
+VkBuffer                 lightmapVertexBuffer;
+VkDeviceMemory           lightmapVertexBufferMemory;
+VkBuffer                 sbspIndexBuffer;
+VkDeviceMemory           sbspIndexBufferMemory;
+
+VkPipelineLayout         sbspEnvPipelineLayout;
+VkPipeline[3][3][3]      sbspEnvPipelines;
+
 FrameBuffer              offscreenFramebuffer;
 VkSampler                colorSampler;
 
@@ -270,7 +280,7 @@ void endSingleTimeCommands(VkCommandBuffer commandBuffer)
     vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
 
-void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+void transitionImageLayout(VkImage image, int mipmap, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
     VkCommandBuffer command = beginSingleTimeCommands();
     scope(exit) endSingleTimeCommands(command);
@@ -282,7 +292,7 @@ void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayo
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.image = image;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    barrier.subresourceRange.baseMipLevel = 0;
+    barrier.subresourceRange.baseMipLevel = mipmap;
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
@@ -1000,7 +1010,6 @@ void createGraphicsPipeline()
     VkRect2D scissor;
     scissor.extent = swapchainExtent;
 
-
     VkPipelineViewportStateCreateInfo viewportState;
     viewportState.viewportCount = 1;
     viewportState.pViewports = &viewport;
@@ -1047,7 +1056,7 @@ void createGraphicsPipeline()
     }
 
     VkGraphicsPipelineCreateInfo pipelineInfo;
-    pipelineInfo.stageCount = shaderStages.length;
+    pipelineInfo.stageCount = shaderStages.length32;
     pipelineInfo.pStages = shaderStages.ptr;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
@@ -1065,6 +1074,182 @@ void createGraphicsPipeline()
         SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateGraphicsPipelines(): %s", result.to!string.ptr);
         assert(0);
     }
+}
+
+void createBaseSbspEnvPipeline(
+    VkPipelineShaderStageCreateInfo[] shaderStages,
+    ref VkPipelineLayout              pipelineLayout,
+    ref VkPipeline                    graphicsPipeline)
+{
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+
+    VkVertexInputBindingDescription[2] bindingDesc =
+    [
+        VkVertexInputBindingDescription(0, TagBspVertex.sizeof,         VK_VERTEX_INPUT_RATE_VERTEX),
+        VkVertexInputBindingDescription(1, TagBspLightmapVertex.sizeof, VK_VERTEX_INPUT_RATE_VERTEX),
+    ];
+
+    VkVertexInputAttributeDescription[7] attributeDescs =
+    [
+        VkVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, TagBspVertex.position.offsetof),
+        VkVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32_SFLOAT, TagBspVertex.normal.offsetof),
+        VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32B32_SFLOAT, TagBspVertex.binormal.offsetof),
+        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32B32_SFLOAT, TagBspVertex.tangent.offsetof),
+        VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT,    TagBspVertex.coord.offsetof),
+        VkVertexInputAttributeDescription(5, 1, VK_FORMAT_R32G32B32_SFLOAT, TagBspLightmapVertex.normal.offsetof),
+        VkVertexInputAttributeDescription(6, 1, VK_FORMAT_R32G32_SFLOAT,    TagBspVertex.coord.offsetof),
+    ];
+
+    vertexInputInfo.vertexBindingDescriptionCount   = bindingDesc.length32;
+    vertexInputInfo.pVertexBindingDescriptions      = bindingDesc.ptr;
+    vertexInputInfo.vertexAttributeDescriptionCount = attributeDescs.length32;
+    vertexInputInfo.pVertexAttributeDescriptions    = attributeDescs.ptr;
+
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly;
+
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+    VkViewport viewport;
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = float(swapchainExtent.width);
+    viewport.height = float(swapchainExtent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor;
+    scissor.extent = swapchainExtent;
+
+    VkPipelineViewportStateCreateInfo viewportState;
+    viewportState.viewportCount = 1;
+    viewportState.pViewports = &viewport;
+    viewportState.scissorCount = 1;
+    viewportState.pScissors = &scissor;
+
+    VkPipelineRasterizationStateCreateInfo rasterizer;
+    rasterizer.depthClampEnable = VK_FALSE;
+    rasterizer.rasterizerDiscardEnable = VK_FALSE;
+    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizer.lineWidth = 1.0f;
+    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+
+    VkPipelineMultisampleStateCreateInfo multisampling;
+    multisampling.sampleShadingEnable = VK_FALSE;
+
+    VkPipelineColorBlendAttachmentState colorBlendAttachment;
+    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    colorBlendAttachment.blendEnable = VK_FALSE;
+
+    VkPipelineColorBlendStateCreateInfo colorBlending;
+    colorBlending.logicOpEnable = VK_FALSE;
+    colorBlending.attachmentCount = 1;
+    colorBlending.pAttachments = &colorBlendAttachment;
+
+    VkDynamicState[2] dynamicStates =
+    [
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_LINE_WIDTH,
+    ];
+
+    VkPipelineDynamicStateCreateInfo dynamicState;
+    dynamicState.dynamicStateCount = dynamicStates.length;
+    dynamicState.pDynamicStates = dynamicStates.ptr;
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+
+    if(VkResult result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &pipelineLayout))
+    {
+        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreatePipelineLayout(): %s", result.to!string.ptr);
+        assert(0);
+    }
+
+    VkGraphicsPipelineCreateInfo pipelineInfo;
+    pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
+    pipelineInfo.stageCount = shaderStages.length32;
+    pipelineInfo.pStages = shaderStages.ptr;
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.layout = pipelineLayout;
+
+    pipelineInfo.renderPass = offscreenFramebuffer.renderPass;
+    pipelineInfo.subpass = 0;
+
+    if(VkResult result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &graphicsPipeline))
+    {
+        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateGraphicsPipelines(): %s", result.to!string.ptr);
+        assert(0);
+    }
+}
+
+void createSbspEnvPipelines()
+{
+    static const(void)[][3][3][3] createEnvFragBinaries()
+    {
+        import std.conv : to;
+
+        const(void)[][3][3][3] result;
+
+        static foreach(type ; 0 .. 2)
+        static foreach(detail ; 0 .. 2)
+        static foreach(micro ; 0 .. 2)
+        {
+            result[type][detail][micro]
+                = mixin("import(\"Env-frag-" ~ type.to!string ~ "-" ~ detail.to!string ~ "-" ~ micro.to!string ~ ".spv\")");
+        }
+
+        return result;
+    }
+
+    static immutable void[][3][3][3] fragBinaries = createEnvFragBinaries();
+    static immutable void[] vertBinary = import("Env-vert.spv");
+
+    VkShaderModule vertShaderModule = createShaderModule(vertBinary);
+    scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
+
+    VkPipelineShaderStageCreateInfo[2] shaderStages;
+    shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+    shaderStages[0].module_ = vertShaderModule;
+    shaderStages[0].pName = "main";
+
+    shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    shaderStages[1].pName = "main";
+
+
+    foreach(type ; 0 .. 2)
+    foreach(detail ; 0 .. 2)
+    foreach(micro ; 0 .. 2)
+    {
+        VkShaderModule fragShaderModule = createShaderModule(fragBinaries[type][detail][micro]);
+        scope(exit) vkDestroyShaderModule(device, fragShaderModule, null);
+
+        shaderStages[1].module_ = fragShaderModule;
+
+        if(type == 0 && detail == 0 && micro == 0)
+        {
+            createBaseSbspEnvPipeline(shaderStages, sbspEnvPipelineLayout, sbspEnvPipelines[type][detail][micro]);
+            break;
+        }
+
+        VkGraphicsPipelineCreateInfo pipelineInfo;
+        pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
+        pipelineInfo.stageCount = shaderStages.length32;
+        pipelineInfo.pStages = shaderStages.ptr;
+
+        pipelineInfo.basePipelineHandle = sbspEnvPipelines[0][0][0];
+
+        if(VkResult result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &sbspEnvPipelines[type][detail][micro]))
+        {
+            SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateGraphicsPipelines(): %s", result.to!string.ptr);
+            assert(0);
+        }
+    }
+
 }
 
 void createFramebuffers()
@@ -1224,39 +1409,39 @@ void drawFrame()
     vkQueuePresentKHR(presentQueue, &presentInfo);
 }
 
-void createVertexBuffer()
+void createVertexBuffer(T)(T[] vertices, ref VkBuffer vertexBuffer, ref VkDeviceMemory vertexBufferMemory)
 {
-    VkBufferCreateInfo bufferInfo;
-    bufferInfo.size = Vertex.sizeof * vertices.length;
-    bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    uint bufferSize = cast(uint)T.sizeof * vertices.length32;
 
-    if(VkResult result = vkCreateBuffer(device, &bufferInfo, null, &vertexBuffer))
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    scope(exit)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateBuffer(): %s", result.to!string.ptr);
-        assert(0);
+        vkDestroyBuffer(device, stagingBuffer, null);
+        vkFreeMemory(device, stagingBufferMemory, null);
     }
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(device, vertexBuffer, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo ;
-    allocInfo.allocationSize = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
-
-    if(VkResult result = vkAllocateMemory(device, &allocInfo, null, &vertexBufferMemory))
-    {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkAllocateMemory(): %s", result.to!string.ptr);
-        assert(0);
-    }
-
-    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
 
     void* data;
-    vkMapMemory(device, vertexBufferMemory, 0, bufferInfo.size, 0, &data);
-    data[0 .. cast(uint)bufferInfo.size] = vertices[];
-    vkUnmapMemory(device, vertexBufferMemory);
+    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    data[0 .. bufferSize] = vertices[];
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+    copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+
+    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
+}
+
+void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+{
+    VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+    VkBufferCopy copyRegion;
+    copyRegion.size = size;
+    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+    endSingleTimeCommands(commandBuffer);
 }
 
 uint findMemoryType(uint typeFilter, VkMemoryPropertyFlags properties)
@@ -1274,6 +1459,63 @@ uint findMemoryType(uint typeFilter, VkMemoryPropertyFlags properties)
 
     SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "No supported memory type.");
     assert(0);
+}
+
+void createSbspVertexBuffer()
+{
+    TagScenario* scenario = Cache.inst.scenario();
+    TagScenarioStructureBsp* sbsp = Cache.get!TagScenarioStructureBsp(scenario.structureBsps[0].structureBsp);
+
+    TagBspVertex[] bspVertices;
+    TagBspLightmapVertex[] lightmapBspVertices;
+
+    structureVertexIndexOffsets.length = sbsp.lightmaps.size;
+
+    foreach(i, ref lightmap ; sbsp.lightmaps)
+    {
+        structureVertexIndexOffsets[i].length = lightmap.materials.size;
+
+        foreach(j, ref material ; lightmap.materials)
+        {
+            structureVertexIndexOffsets[i][j] = bspVertices.length32;
+
+            uint vertexCount       = material.vertexBuffers[0].count;
+            TagBspVertex* vertices = material.uncompressedVertices.dataAs!TagBspVertex;
+
+            bspVertices         ~= vertices[0 .. vertexCount];
+            lightmapBspVertices ~= (cast(TagBspLightmapVertex*)&vertices[vertexCount])[0 .. vertexCount];
+        }
+    }
+
+    createVertexBuffer(bspVertices, sbspVertexBuffer, sbspVertexBufferMemory);
+    createVertexBuffer(lightmapBspVertices, lightmapVertexBuffer, lightmapVertexBufferMemory);
+
+    // Index buffer
+
+    uint bufferSize = cast(uint)sbsp.surfaces[0].sizeof * sbsp.surfaces.size;
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        stagingBuffer, stagingBufferMemory);
+
+    scope(exit)
+    {
+        vkDestroyBuffer(device, stagingBuffer, null);
+        vkFreeMemory(device, stagingBufferMemory, null);
+    }
+
+    void* data;
+    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    data[0 .. bufferSize] = sbsp.surfaces[];
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, sbspIndexBuffer, sbspIndexBufferMemory);
+
+    copyBuffer(stagingBuffer, sbspIndexBuffer, bufferSize);
+
 }
 
 // TODO split into initialize and initializeScenario ?
@@ -1320,7 +1562,7 @@ struct SimpleWorldVertex
     uint color = ~0;
 }
 
-
+Array!(Array!uint) structureVertexIndexOffsets;
 
 void loadEnvironmentShaders()
 {
@@ -1363,19 +1605,16 @@ bool updateObjectLighting(ref World world, Vec3 position, ref GObject.Lighting l
     assert(0);
 }
 
-static
 void bindTexture2D(int textureIndex, DatumIndex i, int bitmapIndex, DefaultTexture defaultType)
 {
     bindTexture(textureIndex, Cache.inst.globals.rasterizerData.default2d.index, bitmapIndex, i, defaultType);
 }
 
-static
 void bindTextureCube(int textureIndex, DatumIndex i, int bitmapIndex, DefaultTexture defaultType)
 {
     bindTexture(textureIndex, Cache.inst.globals.rasterizerData.defaultCubeMap.index, bitmapIndex, i, defaultType);
 }
 
-static
 void bindTexture(
     int            textureIndex,
     DatumIndex     defaultIndex,
@@ -1383,6 +1622,27 @@ void bindTexture(
     DatumIndex     tagIndex,
     DefaultTexture defaultType)
 {
+    Tag.BitmapDataBlock* bitmap;
+
+    if(tagIndex == DatumIndex.none)
+    {
+        bitmap = &Cache.get!TagBitmap(defaultIndex).bitmaps[int(defaultType)];
+    }
+    else
+    {
+        bitmap = &Cache.get!TagBitmap(tagIndex).bitmaps[bitmapIndex];
+    }
+
+    if(bitmap.glTexture == indexNone)
+    {
+        byte[] buffer = new byte[](bitmap.pixelsSize);
+
+        if(bitmap.flags.externalPixelData) Cache.inst.bitmapCache.read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
+        else                               Cache.inst            .read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
+
+        loadPixelData(bitmap, buffer);
+    }
+
     assert(0);
 }
 
@@ -1446,14 +1706,13 @@ void loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer)
         vkAllocateMemory(device, &allocInfo, null, &imageMemory);
         vkBindImageMemory(device, image, imageMemory, 0);
 
-        transitionImageLayout(image, getPixelFormat(bitmap.format),
-            VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
         uint offset = 0;
         foreach(i ; 0 .. bitmap.mipmapCount + 1)
         {
             uint width  = max(1, bitmap.width  << i);
             uint height = max(1, bitmap.height << i);
+
+            transitionImageLayout(image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
             VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -1467,11 +1726,10 @@ void loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer)
             vkCmdCopyBufferToImage(commandBuffer, stagingBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
             endSingleTimeCommands(commandBuffer);
 
+            transitionImageLayout(image, i, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
             offset += pixelFormatSize(bitmap.format, width, height);
         }
-
-        transitionImageLayout(image, getPixelFormat(bitmap.format),
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
         assert(0); // Store vk image somewhere
         break;

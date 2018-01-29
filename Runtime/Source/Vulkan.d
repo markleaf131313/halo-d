@@ -2368,7 +2368,7 @@ struct VkGraphicsPipelineCreateInfo
     VkRenderPass renderPass;
     uint subpass;
     VkPipeline basePipelineHandle;
-    int basePipelineIndex;
+    int basePipelineIndex = -1;
 }
 
 struct VkComputePipelineCreateInfo

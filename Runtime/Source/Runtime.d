@@ -84,6 +84,8 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
     {
         emplace(gameState);
 
+        gameState.window = window;
+
         Audio.inst = &gameState.audio;
         Audio.inst.initialize(&gameState.world);
 
@@ -101,10 +103,24 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         gameState.hsRuntime.initialize();
         gameState.hsRuntime.initializeScenario(gameState.cache.scenario);
 
-        gameState.renderer.loadShaders();
-        gameState.renderer.load();
+        gameState.renderer.createInstance(gameState.window);
+        gameState.renderer.setupDebugCallback();
+        gameState.renderer.createSurface(gameState.window);
+        gameState.renderer.pickPhysicalDevice();
+        gameState.renderer.createLogicalDevice();
 
-        gameState.window = window;
+        gameState.renderer.createSwapChain();
+        gameState.renderer.createImageViews();
+        gameState.renderer.createRenderPass();
+        gameState.renderer.createFramebuffers();
+
+        gameState.renderer.createGraphicsPipeline();
+        gameState.renderer.createSbspEnvPipelines();
+        gameState.renderer.createSbspVertexBuffer();
+
+        gameState.renderer.createCommandPool();
+        gameState.renderer.createCommandBuffers();
+        gameState.renderer.createSemaphores();
 
         {
             auto locs = &Cache.inst.scenario.playerStartingLocations;
@@ -303,21 +319,6 @@ bool initSharedGameState(SharedGameState* gameState)
     wmInfo.version_ = SDL_VERSION;
     SDL_GetWindowWMInfo(gameState.window, &wmInfo);
     version(Windows) io.ImeWindowHandle = wmInfo.info.win.window;
-
-    gameState.renderer.createInstance(gameState.window);
-    gameState.renderer.setupDebugCallback();
-    gameState.renderer.createSurface(gameState.window);
-    gameState.renderer.pickPhysicalDevice();
-    gameState.renderer.createLogicalDevice();
-    gameState.renderer.createSwapChain();
-    gameState.renderer.createImageViews();
-    gameState.renderer.createRenderPass();
-    gameState.renderer.createGraphicsPipeline();
-    gameState.renderer.createFramebuffers();
-    gameState.renderer.createCommandPool();
-    gameState.renderer.createVertexBuffer();
-    gameState.renderer.createCommandBuffers();
-    gameState.renderer.createSemaphores();
 
     frameStopWatch.start();
 
