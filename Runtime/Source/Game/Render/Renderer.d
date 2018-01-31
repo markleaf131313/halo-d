@@ -25,6 +25,16 @@ struct Renderer
 
 @disable this(this);
 
+static void vkCheck(VkResult result, uint line = __LINE__)
+{
+    import std.conv : to;
+
+    if(result != VK_SUCCESS)
+    {
+        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "Error (%d): %s", line, result.to!string.ptr);
+    }
+}
+
 struct Vertex
 {
     float[2] pos;
@@ -60,6 +70,28 @@ struct Vertex
 
 }
 
+struct EnvPushConstants
+{
+    // 128 bytes is minimal support of Vulkan Push Constants
+    static assert(this.sizeof <= 128);
+
+    Vec2[5] uvScales;
+    Vec4 perpendicularColor;
+    Vec4 parallelColor;
+    float specularColorControl;
+}
+
+struct EnvUnifomBuffer
+{
+    Mat4 projview;
+    Vec3 eyePos;
+}
+
+struct ShaderInstance
+{
+    VkDescriptorSet descriptorSet;
+}
+
 struct SwapChainSupportDetails
 {
     VkSurfaceCapabilitiesKHR capabilities;
@@ -80,7 +112,7 @@ struct FrameBuffer
     uint width;
     uint height;
     VkFramebuffer frameBuffer;
-    FrameBufferAttachment position, normal, albedo;
+    FrameBufferAttachment albedo, specular, position, normal;
     FrameBufferAttachment depth;
     VkRenderPass renderPass;
 }
@@ -130,17 +162,15 @@ VkSurfaceKHR             surface;
 VkSwapchainKHR           swapchain;
 VkFormat                 swapchainImageFormat;
 VkExtent2D               swapchainExtent;
-VkImage[]                swapchainImages;
-VkImageView[]            swapchainImageViews;
-VkFramebuffer[]          swapchainFramebuffers;
+
+FixedArray!(VkImage, 3)       swapchainImages;
+FixedArray!(VkImageView, 3)   swapchainImageViews;
+FixedArray!(VkFramebuffer, 3) swapchainFramebuffers;
 
 VkRenderPass             renderPass;
-VkPipelineLayout         pipelineLayout;
-VkPipeline               graphicsPipeline;
 
 VkCommandPool            commandPool;
 VkCommandBuffer[]        commandBuffers;
-
 
 VkBuffer                 vertexBuffer;
 VkDeviceMemory           vertexBufferMemory;
@@ -152,6 +182,18 @@ VkDeviceMemory           lightmapVertexBufferMemory;
 VkBuffer                 sbspIndexBuffer;
 VkDeviceMemory           sbspIndexBufferMemory;
 
+VkDescriptorPool         descriptorPool;
+
+VkBuffer                 envUnifomBuffer;
+VkDeviceMemory           envUnifomBufferMemory;
+
+VkDescriptorSetLayout    sceneGlobalsDescriptorSetLayout;
+VkDescriptorSet          sceneGlobalsDescriptorSet;
+
+VkDescriptorSetLayout    lightmapDescriptorSetLayout;
+VkDescriptorSet          lightmapDescriptorSet;
+
+VkDescriptorSetLayout    sbspEnvDescriptorSetLayout;
 VkPipelineLayout         sbspEnvPipelineLayout;
 VkPipeline[3][3][3]      sbspEnvPipelines;
 
@@ -161,6 +203,7 @@ VkSampler                colorSampler;
 VkSemaphore              imageAvailableSemaphore;
 VkSemaphore              renderFinishedSemaphore;
 
+ShaderInstance[DatumIndex] shaderInstances;
 
 uint windowWidth = 1080;
 uint windowHeight = 1920;
@@ -364,10 +407,10 @@ void createAttachment(VkFormat format, VkImageUsageFlagBits usage, FrameBufferAt
     image.tiling = VK_IMAGE_TILING_OPTIMAL;
     image.usage = usage | VK_IMAGE_USAGE_SAMPLED_BIT;
 
-    VkMemoryRequirements memReqs;
 
     vkCreateImage(device, &image, null, &attachment.image);
 
+    VkMemoryRequirements memReqs;
     vkGetImageMemoryRequirements(device, attachment.image, &memReqs);
 
     VkMemoryAllocateInfo memAlloc;
@@ -421,15 +464,16 @@ void createOffscreenFramebuffer()
     offscreenFramebuffer.width = 1920;
     offscreenFramebuffer.height = 1080;
 
+    createAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.albedo);
+    createAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.specular);
     createAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.position);
     createAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.normal);
-    createAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.albedo);
 
-    VkFormat attDepthFormat= findDepthFormat();
+    VkFormat attDepthFormat = findDepthFormat();
 
     createAttachment(attDepthFormat, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, &offscreenFramebuffer.depth);
 
-    VkAttachmentDescription[4] attachmentDescs;
+    VkAttachmentDescription[5] attachmentDescs;
 
     foreach(i, ref attachmentDesc ; attachmentDescs)
     {
@@ -439,7 +483,7 @@ void createOffscreenFramebuffer()
         attachmentDesc.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachmentDesc.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 
-        if(i == 3)
+        if(i == attachmentDescs.length - 1)
         {
             attachmentDesc.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
             attachmentDesc.finalLayout   = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -452,20 +496,22 @@ void createOffscreenFramebuffer()
     }
 
     // Formats
-    attachmentDescs[0].format = offscreenFramebuffer.position.format;
-    attachmentDescs[1].format = offscreenFramebuffer.normal.format;
-    attachmentDescs[2].format = offscreenFramebuffer.albedo.format;
-    attachmentDescs[3].format = offscreenFramebuffer.depth.format;
+    attachmentDescs[0].format = offscreenFramebuffer.albedo.format;
+    attachmentDescs[1].format = offscreenFramebuffer.specular.format;
+    attachmentDescs[2].format = offscreenFramebuffer.position.format;
+    attachmentDescs[3].format = offscreenFramebuffer.normal.format;
+    attachmentDescs[4].format = offscreenFramebuffer.depth.format;
 
-    VkAttachmentReference[3] colorReferences =
+    VkAttachmentReference[4] colorReferences =
     [
         VkAttachmentReference(0, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
         VkAttachmentReference(1, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
         VkAttachmentReference(2, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
+        VkAttachmentReference(3, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL),
     ];
 
     VkAttachmentReference depthReference;
-    depthReference.attachment = 3;
+    depthReference.attachment = 4;
     depthReference.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
     VkSubpassDescription subpass;
@@ -502,11 +548,14 @@ void createOffscreenFramebuffer()
 
     vkCreateRenderPass(device, &renderPassInfo, null, &offscreenFramebuffer.renderPass);
 
-    VkImageView[4] attachments;
-    attachments[0] = offscreenFramebuffer.position.view;
-    attachments[1] = offscreenFramebuffer.normal.view;
-    attachments[2] = offscreenFramebuffer.albedo.view;
-    attachments[3] = offscreenFramebuffer.depth.view;
+    VkImageView[5] attachments =
+    [
+        offscreenFramebuffer.albedo.view,
+        offscreenFramebuffer.specular.view,
+        offscreenFramebuffer.position.view,
+        offscreenFramebuffer.normal.view,
+        offscreenFramebuffer.depth.view,
+    ];
 
     VkFramebufferCreateInfo fbufCreateInfo;
     fbufCreateInfo.renderPass = offscreenFramebuffer.renderPass;
@@ -567,14 +616,14 @@ void createBuffer(
 }
 
 uint debugCallback(
-    VkDebugReportFlagsEXT flags,
+    VkDebugReportFlagsEXT      flags,
     VkDebugReportObjectTypeEXT objectType,
-    ulong object,
-    size_t location,
-    int messageCode,
-    const(char)* pLayerPrefix,
-    const(char)* pMessage,
-    void* pUserData)
+    ulong                      object,
+    size_t                     location,
+    int                        messageCode,
+    const(char)*               pLayerPrefix,
+    const(char)*               pMessage,
+    void*                      pUserData)
 {
     SDL_Log(pMessage);
 
@@ -833,7 +882,8 @@ void createSwapChain()
     swapchainExtent = extent;
 
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, null);
-    swapchainImages = new VkImage[imageCount];
+
+    swapchainImages.resize(imageCount);
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.ptr);
 }
 
@@ -846,9 +896,9 @@ void cleanupSwapchain()
 
     vkFreeCommandBuffers(device, commandPool, commandBuffers.length32, commandBuffers.ptr);
 
-    vkDestroyPipeline(device, graphicsPipeline, null);
-    vkDestroyPipelineLayout(device, pipelineLayout, null);
-    vkDestroyRenderPass(device, renderPass, null);
+    // vkDestroyPipeline(device, graphicsPipeline, null);
+    // vkDestroyPipelineLayout(device, pipelineLayout, null);
+    // vkDestroyRenderPass(device, renderPass, null);
 
     foreach(swapchainImageView ; swapchainImageViews)
     {
@@ -865,16 +915,16 @@ void recreateSwapchain()
     cleanupSwapchain();
 
     createSwapChain();
-    createImageViews();
-    createRenderPass();
-    createGraphicsPipeline();
-    createFramebuffers();
-    createCommandBuffers();
+    // createImageViews();
+    // createRenderPass();
+    // createGraphicsPipeline();
+    // createFramebuffers();
+    // createCommandBuffers();
 }
 
 void createImageViews()
 {
-    swapchainImageViews = new VkImageView[swapchainImages.length];
+    swapchainImageViews.resize(swapchainImages.length);
 
     foreach(i, image ; swapchainImages)
     {
@@ -919,161 +969,202 @@ VkShaderModule createShaderModule(const(void)[] code)
     return result;
 }
 
-void createRenderPass()
+// void createRenderPass()
+// {
+//     VkSubpassDependency dependency;
+//     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+//     dependency.dstSubpass = 0;
+//     dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+//     dependency.srcAccessMask = 0;
+//     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+//     dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+//     VkAttachmentDescription colorAttachment;
+//     colorAttachment.format = swapchainImageFormat;
+//     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+//     colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+//     colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+//     colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+//     colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+//     VkAttachmentReference colorAttachmentRef;
+//     colorAttachmentRef.attachment = 0;
+//     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+//     VkSubpassDescription subpass;
+//     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+//     subpass.colorAttachmentCount = 1;
+//     subpass.pColorAttachments = &colorAttachmentRef;
+
+
+//     VkRenderPassCreateInfo renderPassInfo;
+//     renderPassInfo.attachmentCount = 1;
+//     renderPassInfo.pAttachments = &colorAttachment;
+//     renderPassInfo.subpassCount = 1;
+//     renderPassInfo.pSubpasses = &subpass;
+//     renderPassInfo.dependencyCount = 1;
+//     renderPassInfo.pDependencies = &dependency;
+
+//     if(VkResult result = vkCreateRenderPass(device, &renderPassInfo, null, &renderPass))
+//     {
+//         SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateRenderPass(): %s", result.to!string.ptr);
+//         assert(0);
+//     }
+
+// }
+
+void createDescriptorPool()
 {
-    VkSubpassDependency dependency;
-    dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-    dependency.dstSubpass = 0;
-    dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.srcAccessMask = 0;
-    dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    VkDescriptorPoolSize[2] poolSize =
+    [
+        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 256),
+        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 256),
+    ];
 
-    VkAttachmentDescription colorAttachment;
-    colorAttachment.format = swapchainImageFormat;
-    colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-    colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    VkDescriptorPoolCreateInfo poolInfo;
+    poolInfo.poolSizeCount = poolSize.length32;
+    poolInfo.pPoolSizes = poolSize.ptr;
+    poolInfo.maxSets = 128;
 
-    VkAttachmentReference colorAttachmentRef;
-    colorAttachmentRef.attachment = 0;
-    colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-    VkSubpassDescription subpass;
-    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-    subpass.colorAttachmentCount = 1;
-    subpass.pColorAttachments = &colorAttachmentRef;
-
-
-    VkRenderPassCreateInfo renderPassInfo;
-    renderPassInfo.attachmentCount = 1;
-    renderPassInfo.pAttachments = &colorAttachment;
-    renderPassInfo.subpassCount = 1;
-    renderPassInfo.pSubpasses = &subpass;
-    renderPassInfo.dependencyCount = 1;
-    renderPassInfo.pDependencies = &dependency;
-
-    if(VkResult result = vkCreateRenderPass(device, &renderPassInfo, null, &renderPass))
-    {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateRenderPass(): %s", result.to!string.ptr);
-        assert(0);
-    }
+    vkCheck(vkCreateDescriptorPool(device, &poolInfo, null, &descriptorPool));
 
 }
 
-void createGraphicsPipeline()
+void createEnvUniformBuffer()
 {
-    const(void)[] fragFile = import("frag.spv");
-    const(void)[] vertFile = import("vert.spv");
+    createBuffer(EnvUnifomBuffer.sizeof, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, envUnifomBuffer, envUnifomBufferMemory);
+}
 
-    VkShaderModule vertShaderModule = createShaderModule(vertFile);
-    scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
+void updateUniformBuffer(ref Camera camera)
+{
+    EnvUnifomBuffer uniform;
 
-    VkShaderModule fragShaderModule = createShaderModule(fragFile);
-    scope(exit) vkDestroyShaderModule(device, fragShaderModule, null);
+    uniform.projview = camera.viewproj;
+    uniform.eyePos = camera.position;
 
-    VkPipelineShaderStageCreateInfo[2] shaderStages;
-    shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-    shaderStages[0].module_ = vertShaderModule;
-    shaderStages[0].pName = "main";
+    void* data;
+    vkMapMemory(device, envUnifomBuffer, 0, EnvUnifomBuffer.sizeof, 0, &data);
+    data[0 .. EnvUnifomBuffer.sizeof] = (&uniform)[0 .. 1];
+    vkUnmapMemory(device, envUnifomBuffer);
+}
 
-    shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    shaderStages[1].module_ = fragShaderModule;
-    shaderStages[1].pName = "main";
-
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
-
-    auto bindingDesc = Vertex.getBindingDescription();
-    auto attributeDescs = Vertex.getAttributeDescriptions();
-
-    vertexInputInfo.vertexBindingDescriptionCount = 1;
-    vertexInputInfo.pVertexBindingDescriptions = &bindingDesc;
-
-    vertexInputInfo.vertexAttributeDescriptionCount = attributeDescs.length32;
-    vertexInputInfo.pVertexAttributeDescriptions = attributeDescs.ptr;
-
-    VkPipelineInputAssemblyStateCreateInfo inputAssembly;
-
-    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-    VkViewport viewport;
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = float(swapchainExtent.width);
-    viewport.height = float(swapchainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-
-    VkRect2D scissor;
-    scissor.extent = swapchainExtent;
-
-    VkPipelineViewportStateCreateInfo viewportState;
-    viewportState.viewportCount = 1;
-    viewportState.pViewports = &viewport;
-    viewportState.scissorCount = 1;
-    viewportState.pScissors = &scissor;
-
-    VkPipelineRasterizationStateCreateInfo rasterizer;
-    rasterizer.depthClampEnable = VK_FALSE;
-    rasterizer.rasterizerDiscardEnable = VK_FALSE;
-    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-
-    VkPipelineMultisampleStateCreateInfo multisampling;
-    multisampling.sampleShadingEnable = VK_FALSE;
-
-    VkPipelineColorBlendAttachmentState colorBlendAttachment;
-    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable = VK_FALSE;
-
-    VkPipelineColorBlendStateCreateInfo colorBlending;
-    colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    colorBlending.logicOpEnable = VK_FALSE;
-    colorBlending.attachmentCount = 1;
-    colorBlending.pAttachments = &colorBlendAttachment;
-
-    VkDynamicState[2] dynamicStates =
+void createUniformDescriptorSet()
+{
+    VkDescriptorSetLayout[1] layouts =
     [
-        VK_DYNAMIC_STATE_VIEWPORT,
-        VK_DYNAMIC_STATE_LINE_WIDTH,
+        sceneGlobalsDescriptorSetLayout,
     ];
 
-    VkPipelineDynamicStateCreateInfo dynamicState;
-    dynamicState.dynamicStateCount = dynamicStates.length;
-    dynamicState.pDynamicStates = dynamicStates.ptr;
+    VkDescriptorSetAllocateInfo allocInfo;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = layouts.length32;
+    allocInfo.pSetLayouts = layouts.ptr;
 
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+    vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &sceneGlobalsDescriptorSet));
 
-    if(VkResult result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &pipelineLayout))
+    VkDescriptorBufferInfo bufferInfo;
+    bufferInfo.buffer = envUnifomBuffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = EnvUnifomBuffer.sizeof;
+
+    VkWriteDescriptorSet descriptorWrite;
+
+    descriptorWrite.dstSet = sceneGlobalsDescriptorSet;
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pBufferInfo = &bufferInfo;
+
+    vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, null);
+}
+
+void createSceneGlobalsDescriptorSetLayout()
+{
+    VkDescriptorSetLayoutBinding[1] setLayoutBindings =
+    [
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_ALL_GRAPHICS),
+    ];
+
+    VkDescriptorSetLayoutCreateInfo descriptorLayout;
+    descriptorLayout.bindingCount = setLayoutBindings.length32;
+    descriptorLayout.pBindings = setLayoutBindings.ptr;
+
+    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &sceneGlobalsDescriptorSetLayout));
+}
+
+void createEnvDescriptorSetLayout()
+{
+    VkDescriptorSetLayoutBinding[7] setLayoutBindings =
+    [
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
+    ];
+
+    VkDescriptorSetLayoutCreateInfo descriptorLayout;
+    descriptorLayout.bindingCount = setLayoutBindings.length32;
+    descriptorLayout.pBindings = setLayoutBindings.ptr;
+
+    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &sbspEnvDescriptorSetLayout));
+}
+
+void createLightmapDescriptorSetLayout(TagScenarioStructureBsp* sbsp)
+{
+    FixedArray!(VkDescriptorSetLayoutBinding, 96) setLayoutBindings;
+
+    auto tagBitmap = Cache.get!TagBitmap(sbsp.lightmapsBitmap.index);
+
+    foreach(i ; 0 .. tagBitmap.bitmaps.size)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreatePipelineLayout(): %s", result.to!string.ptr);
-        assert(0);
+        setLayoutBindings.add(
+            VkDescriptorSetLayoutBinding(i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT));
     }
 
-    VkGraphicsPipelineCreateInfo pipelineInfo;
-    pipelineInfo.stageCount = shaderStages.length32;
-    pipelineInfo.pStages = shaderStages.ptr;
-    pipelineInfo.pVertexInputState = &vertexInputInfo;
-    pipelineInfo.pInputAssemblyState = &inputAssembly;
-    pipelineInfo.pViewportState = &viewportState;
-    pipelineInfo.pRasterizationState = &rasterizer;
-    pipelineInfo.pMultisampleState = &multisampling;
-    pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = pipelineLayout;
+    VkDescriptorSetLayoutCreateInfo descriptorLayout;
+    descriptorLayout.bindingCount = setLayoutBindings.length;
+    descriptorLayout.pBindings = setLayoutBindings.ptr;
 
-    pipelineInfo.renderPass = renderPass;
-    pipelineInfo.subpass = 0;
+    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &lightmapDescriptorSetLayout));
+}
 
-    if(VkResult result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &graphicsPipeline))
+void createLightmapDescriptorSet(TagScenarioStructureBsp* sbsp)
+{
+    VkDescriptorSetLayout[1] layouts =
+    [
+        lightmapDescriptorSetLayout,
+    ];
+
+    VkDescriptorSetAllocateInfo allocInfo;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = layouts.length32;
+    allocInfo.pSetLayouts = layouts.ptr;
+
+    vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &lightmapDescriptorSet));
+
+    VkDescriptorBufferInfo bufferInfo;
+    bufferInfo.buffer = envUnifomBuffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = EnvUnifomBuffer.sizeof;
+
+    FixedArray!(VkWriteDescriptorSet, 96) descriptorWrites;
+
+    auto tagBitmap = Cache.get!TagBitmap(sbsp.lightmapsBitmap.index);
+
+    foreach(i, ref tagBitmapData ; tagBitmap.bitmaps)
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateGraphicsPipelines(): %s", result.to!string.ptr);
-        assert(0);
+        // descriptorWrite.dstSet = lightmapDescriptorSet;
+        // descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        // descriptorWrite.descriptorCount = 1;
+        // descriptorWrite.pBufferInfo = &bufferInfo;
     }
+
+    assert(0);
+
+    vkUpdateDescriptorSets(device, descriptorWrites.length, descriptorWrites.ptr, 0, null);
 }
 
 void createBaseSbspEnvPipeline(
@@ -1138,14 +1229,21 @@ void createBaseSbspEnvPipeline(
     VkPipelineMultisampleStateCreateInfo multisampling;
     multisampling.sampleShadingEnable = VK_FALSE;
 
-    VkPipelineColorBlendAttachmentState colorBlendAttachment;
-    colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-    colorBlendAttachment.blendEnable = VK_FALSE;
+    VkPipelineColorBlendAttachmentState[4] colorBlendAttachments;
+
+    foreach(ref colorBlendAttachment ; colorBlendAttachments)
+    {
+        colorBlendAttachment.colorWriteMask =
+            VK_COLOR_COMPONENT_R_BIT |
+            VK_COLOR_COMPONENT_G_BIT |
+            VK_COLOR_COMPONENT_B_BIT |
+            VK_COLOR_COMPONENT_A_BIT;
+    }
 
     VkPipelineColorBlendStateCreateInfo colorBlending;
     colorBlending.logicOpEnable = VK_FALSE;
-    colorBlending.attachmentCount = 1;
-    colorBlending.pAttachments = &colorBlendAttachment;
+    colorBlending.attachmentCount = colorBlendAttachments.length32;
+    colorBlending.pAttachments = colorBlendAttachments.ptr;
 
     VkDynamicState[2] dynamicStates =
     [
@@ -1157,13 +1255,29 @@ void createBaseSbspEnvPipeline(
     dynamicState.dynamicStateCount = dynamicStates.length;
     dynamicState.pDynamicStates = dynamicStates.ptr;
 
-    VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+    VkPipelineDepthStencilStateCreateInfo depthStencilState;
+    depthStencilState.depthTestEnable = true;
+    depthStencilState.depthWriteEnable = true;
+    depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 
-    if(VkResult result = vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &pipelineLayout))
-    {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreatePipelineLayout(): %s", result.to!string.ptr);
-        assert(0);
-    }
+    VkDescriptorSetLayout[2] descriptorSetLayouts =
+    [
+        sceneGlobalsDescriptorSetLayout,
+        sbspEnvDescriptorSetLayout,
+    ];
+
+    VkPushConstantRange[1] pushConstantRanges =
+    [
+        VkPushConstantRange(VK_SHADER_STAGE_ALL_GRAPHICS, 0, EnvPushConstants.sizeof),
+    ];
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+    pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.length32;
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.ptr;
+    pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.length32;
+    pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.ptr;
+
+    vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &pipelineLayout));
 
     VkGraphicsPipelineCreateInfo pipelineInfo;
     pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
@@ -1171,6 +1285,7 @@ void createBaseSbspEnvPipeline(
     pipelineInfo.pStages = shaderStages.ptr;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pDepthStencilState = &depthStencilState;
     pipelineInfo.pViewportState = &viewportState;
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
@@ -1180,11 +1295,8 @@ void createBaseSbspEnvPipeline(
     pipelineInfo.renderPass = offscreenFramebuffer.renderPass;
     pipelineInfo.subpass = 0;
 
-    if(VkResult result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &graphicsPipeline))
-    {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateGraphicsPipelines(): %s", result.to!string.ptr);
-        assert(0);
-    }
+    vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &graphicsPipeline));
+
 }
 
 void createSbspEnvPipelines()
@@ -1252,32 +1364,32 @@ void createSbspEnvPipelines()
 
 }
 
-void createFramebuffers()
-{
-    swapchainFramebuffers = new VkFramebuffer[swapchainImageViews.length];
+// void createFramebuffers()
+// {
+//     swapchainFramebuffers = new VkFramebuffer[swapchainImageViews.length];
 
-    foreach(i, imageView ; swapchainImageViews)
-    {
-        VkImageView[1] attachments =
-        [
-            imageView,
-        ];
+//     foreach(i, imageView ; swapchainImageViews)
+//     {
+//         VkImageView[1] attachments =
+//         [
+//             imageView,
+//         ];
 
-        VkFramebufferCreateInfo info;
-        info.renderPass = renderPass;
-        info.attachmentCount = attachments.length;
-        info.pAttachments = attachments.ptr;
-        info.width = swapchainExtent.width;
-        info.height = swapchainExtent.height;
-        info.layers = 1;
+//         VkFramebufferCreateInfo info;
+//         info.renderPass = renderPass;
+//         info.attachmentCount = attachments.length;
+//         info.pAttachments = attachments.ptr;
+//         info.width = swapchainExtent.width;
+//         info.height = swapchainExtent.height;
+//         info.layers = 1;
 
-        if(VkResult result = vkCreateFramebuffer(device, &info, null, &swapchainFramebuffers[i]))
-        {
-            SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateFramebuffer(): %s", result.to!string.ptr);
-            assert(0);
-        }
-    }
-}
+//         if(VkResult result = vkCreateFramebuffer(device, &info, null, &swapchainFramebuffers[i]))
+//         {
+//             SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateFramebuffer(): %s", result.to!string.ptr);
+//             assert(0);
+//         }
+//     }
+// }
 
 void createCommandPool()
 {
@@ -1302,44 +1414,7 @@ void createCommandBuffers()
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = commandBuffers.length32;
 
-    if(VkResult result = vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.ptr))
-    {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkAllocateCommandBuffers(): %s", result.to!string.ptr);
-        assert(0);
-    }
-
-    foreach(i, commandBuffer ; commandBuffers)
-    {
-        VkCommandBufferBeginInfo beginInfo;
-        beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
-
-        vkBeginCommandBuffer(commandBuffer, &beginInfo);
-
-        VkRenderPassBeginInfo renderPassInfo = {};
-        renderPassInfo.renderPass = renderPass;
-        renderPassInfo.framebuffer = swapchainFramebuffers[i];
-        renderPassInfo.renderArea.extent = swapchainExtent;
-
-        VkClearValue clearColor;
-        clearColor.color = VkClearColorValue([0.0f, 0.0f, 0.0f, 1.0f]);
-        renderPassInfo.clearValueCount = 1;
-        renderPassInfo.pClearValues = &clearColor;
-
-        vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-        vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-        VkBuffer[] vertexBuffers = [ vertexBuffer ];
-        VkDeviceSize[] offsets = [ 0 ];
-        vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
-        vkCmdDraw(commandBuffer, vertices.length32, 1, 0, 0);
-        vkCmdEndRenderPass(commandBuffer);
-
-        if(VkResult result = vkEndCommandBuffer(commandBuffer))
-        {
-            SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkEndCommandBuffer(): %s", result.to!string.ptr);
-            assert(0);
-        }
-    }
+    vkCheck(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.ptr));
 }
 
 void createSemaphores()
@@ -1357,56 +1432,6 @@ void createSemaphores()
         SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateSemaphore(): %s", result);
         assert(0);
     }
-}
-
-void drawFrame()
-{
-    vkQueueWaitIdle(presentQueue);
-
-    uint imageIndex;
-    switch(vkAcquireNextImageKHR(device, swapchain, ulong.max, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex))
-    {
-    case VK_ERROR_OUT_OF_DATE_KHR:
-        recreateSwapchain();
-        return;
-    default:
-        assert(0);
-    case VK_SUCCESS:
-    case VK_SUBOPTIMAL_KHR:
-    }
-
-    VkSubmitInfo submitInfo;
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
-    VkSemaphore[1]          waitSemaphores = [ imageAvailableSemaphore ];
-    VkPipelineStageFlags[1] waitStages     = [ VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT ];
-    submitInfo.waitSemaphoreCount = waitSemaphores.length;
-    submitInfo.pWaitSemaphores = waitSemaphores.ptr;
-    submitInfo.pWaitDstStageMask = waitStages.ptr;
-
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
-
-    VkSemaphore[1] signalSemaphores = [ renderFinishedSemaphore ];
-    submitInfo.signalSemaphoreCount = signalSemaphores.length;
-    submitInfo.pSignalSemaphores = signalSemaphores.ptr;
-
-    if(VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE))
-    {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkQueueSubmit(): %s", result);
-        assert(0);
-    }
-
-    VkPresentInfoKHR presentInfo;
-    presentInfo.waitSemaphoreCount = signalSemaphores.length;
-    presentInfo.pWaitSemaphores = signalSemaphores.ptr;
-
-    VkSwapchainKHR[1] swapchains = [ swapchain ];
-    presentInfo.swapchainCount = swapchains.length;
-    presentInfo.pSwapchains = swapchains.ptr;
-    presentInfo.pImageIndices = &imageIndex;
-
-    vkQueuePresentKHR(presentQueue, &presentInfo);
 }
 
 void createVertexBuffer(T)(T[] vertices, ref VkBuffer vertexBuffer, ref VkDeviceMemory vertexBufferMemory)
@@ -1518,6 +1543,36 @@ void createSbspVertexBuffer()
 
 }
 
+void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
+{
+    createInstance(window);
+    setupDebugCallback();
+    createSurface(window);
+    pickPhysicalDevice();
+    createLogicalDevice();
+
+    createSwapChain();
+    createImageViews();
+    // createRenderPass();
+    createOffscreenFramebuffer();
+
+    createDescriptorPool();
+
+    createSceneGlobalsDescriptorSetLayout();
+    createLightmapDescriptorSetLayout(sbsp);
+    createEnvDescriptorSetLayout();
+
+    createSbspEnvPipelines();
+
+    createSbspVertexBuffer();
+    createEnvUniformBuffer();
+    createUniformDescriptorSet();
+    createLightmapDescriptorSet(sbsp);
+
+    createCommandPool();
+    createSemaphores();
+}
+
 // TODO split into initialize and initializeScenario ?
 void load()
 {
@@ -1534,7 +1589,103 @@ void loadShaders()
 
 void render(ref World world, ref Camera camera)
 {
-    drawFrame();
+    vkQueueWaitIdle(presentQueue);
+
+    uint imageIndex;
+    switch(vkAcquireNextImageKHR(device, swapchain, ulong.max, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex))
+    {
+    case VK_ERROR_OUT_OF_DATE_KHR:
+        recreateSwapchain();
+        return;
+    default:
+        assert(0);
+    case VK_SUCCESS:
+    case VK_SUBOPTIMAL_KHR:
+    }
+
+    VkSubmitInfo submitInfo;
+
+    VkSemaphore[1]          waitSemaphores = [ imageAvailableSemaphore ];
+    VkPipelineStageFlags[1] waitStages     = [ VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT ];
+    submitInfo.waitSemaphoreCount = waitSemaphores.length;
+    submitInfo.pWaitSemaphores = waitSemaphores.ptr;
+    submitInfo.pWaitDstStageMask = waitStages.ptr;
+
+    auto commandBuffer = commandBuffers[imageIndex];
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    // Build Command Buffer
+
+    VkCommandBufferBeginInfo beginInfo;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    VkRenderPassBeginInfo renderPassInfo;
+    renderPassInfo.renderPass = offscreenFramebuffer.renderPass;
+    renderPassInfo.framebuffer = offscreenFramebuffer.frameBuffer;
+    renderPassInfo.renderArea.extent = swapchainExtent;
+
+    VkClearValue[5] clearColors =
+    [
+        VkClearValue(VkClearColorValue([0.0f, 0.0f, 0.0f, 0.0f])),
+        VkClearValue(VkClearColorValue([0.0f, 0.0f, 0.0f, 0.0f])),
+        VkClearValue(VkClearColorValue([0.0f, 0.0f, 0.0f, 0.0f])),
+        VkClearValue(VkClearColorValue([0.0f, 0.0f, 0.0f, 0.0f])),
+        VkClearValue(),
+    ];
+
+    clearColors[$ - 1].depthStencil = VkClearDepthStencilValue(1.0f, 0);
+
+    renderPassInfo.clearValueCount = clearColors.length32;
+    renderPassInfo.pClearValues = clearColors.ptr;
+
+    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    updateUniformBuffer(camera);
+
+    VkBuffer[2] vertexBuffers = [ sbspVertexBuffer, lightmapVertexBuffer ];
+    VkDeviceSize[1] offsets = [ 0 ];
+    vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
+    vkCmdBindIndexBuffer(commandBuffer, sbspIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+    auto sbsp = world.getCurrentSbsp;
+
+    foreach(int i, ref lightmap ; sbsp.lightmaps)
+    {
+        if(lightmap.bitmap != indexNone)
+        {
+            renderOpaqueStructureBsp(camera, sbsp, i);
+        }
+    }
+
+    vkCmdEndRenderPass(commandBuffer);
+    vkCheck(vkEndCommandBuffer(commandBuffer));
+
+    VkSemaphore[1] signalSemaphores = [ renderFinishedSemaphore ];
+    submitInfo.signalSemaphoreCount = signalSemaphores.length;
+    submitInfo.pSignalSemaphores = signalSemaphores.ptr;
+
+    if(VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE))
+    {
+        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkQueueSubmit(): %s", result);
+        assert(0);
+    }
+
+    // Queue Present for Swapchain
+
+    VkPresentInfoKHR presentInfo;
+    presentInfo.waitSemaphoreCount = signalSemaphores.length;
+    presentInfo.pWaitSemaphores = signalSemaphores.ptr;
+
+    VkSwapchainKHR[1] swapchains = [ swapchain ];
+    presentInfo.swapchainCount = swapchains.length;
+    presentInfo.pSwapchains = swapchains.ptr;
+    presentInfo.pImageIndices = &imageIndex;
+
+    vkQueuePresentKHR(presentQueue, &presentInfo);
 
 }
 
@@ -1563,21 +1714,6 @@ struct SimpleWorldVertex
 }
 
 Array!(Array!uint) structureVertexIndexOffsets;
-
-void loadEnvironmentShaders()
-{
-
-}
-
-void loadModelShaders()
-{
-
-}
-
-void loadChicagoShaders()
-{
-
-}
 
 void renderOpaqueStructureBsp(ref Camera camera, TagScenarioStructureBsp* sbsp, int lightmapIndex)
 {
@@ -1730,6 +1866,10 @@ void loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer)
 
             offset += pixelFormatSize(bitmap.format, width, height);
         }
+
+        VkImageViewCreateInfo viewCreateInfo;
+
+        // create view
 
         assert(0); // Store vk image somewhere
         break;

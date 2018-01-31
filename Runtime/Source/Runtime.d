@@ -103,24 +103,7 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         gameState.hsRuntime.initialize();
         gameState.hsRuntime.initializeScenario(gameState.cache.scenario);
 
-        gameState.renderer.createInstance(gameState.window);
-        gameState.renderer.setupDebugCallback();
-        gameState.renderer.createSurface(gameState.window);
-        gameState.renderer.pickPhysicalDevice();
-        gameState.renderer.createLogicalDevice();
-
-        gameState.renderer.createSwapChain();
-        gameState.renderer.createImageViews();
-        gameState.renderer.createRenderPass();
-        gameState.renderer.createFramebuffers();
-
-        gameState.renderer.createGraphicsPipeline();
-        gameState.renderer.createSbspEnvPipelines();
-        gameState.renderer.createSbspVertexBuffer();
-
-        gameState.renderer.createCommandPool();
-        gameState.renderer.createCommandBuffers();
-        gameState.renderer.createSemaphores();
+        gameState.renderer.initialize(window, gameState.world.getCurrentSbsp);
 
         {
             auto locs = &Cache.inst.scenario.playerStartingLocations;
