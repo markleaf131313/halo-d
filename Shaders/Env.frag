@@ -22,16 +22,17 @@
     #error Missing FUNCT_MICRO macro
 #endif
 
-layout(binding = 0) uniform sampler2D basemap;
-layout(binding = 1) uniform sampler2D d0map;
-layout(binding = 2) uniform sampler2D d1map;
-layout(binding = 3) uniform sampler2D micromap;
-layout(binding = 4) uniform sampler2D bumpmap;
-layout(binding = 5) uniform sampler2D lightmap;
-layout(binding = 6) uniform samplerCube cubemap;
+layout(binding = 1) uniform sampler2D basemap;
+layout(binding = 2) uniform sampler2D d0map;
+layout(binding = 3) uniform sampler2D d1map;
+layout(binding = 4) uniform sampler2D micromap;
+layout(binding = 5) uniform sampler2D bumpmap;
+layout(binding = 6) uniform sampler2D lightmap;
+layout(binding = 7) uniform samplerCube cubemap;
 
 layout(push_constant) uniform PushConstants
 {
+    uniform vec2 uvscales[5];
     uniform vec4 perpendicularColor;
     uniform vec4 parallelColor;
     uniform float specularColorControl;
@@ -45,7 +46,10 @@ layout(location = 9) in vec3 v1;
 layout(location = 10) in vec3 v2;
 layout(location = 11) in vec3 eyeVector;
 
-layout(location = 0) out vec4[3] outputColor;
+layout(location = 0) out vec4 outAlbedo;
+layout(location = 1) out vec4 outSpecular;
+layout(location = 2) out vec4 outPosition;
+layout(location = 3) out vec4 outNormal;
 
 void main()
 {
@@ -103,7 +107,7 @@ void main()
         c0.a = micro.a * c0.a;
     #endif
 
-    outputColor[0] = c0 * texture(lightmap, lmcoord);
+    outAlbedo = c0 * texture(lightmap, lmcoord);
 
     vec3 bump       = (2.0 * texture(bumpmap, coord[4]).xyz) - 1.0;
     vec3 normal     = normalize(vec3(dot(v0.xyz, bump), dot(v1.xyz, bump), dot(v2.xyz, bump)));
@@ -118,6 +122,6 @@ void main()
     vec4 c1 = clamp(mix(reg.parallelColor, reg.perpendicularColor, coeff), 0.0, 1.0);
     c1.rgb = mix(spec, cube, c1.a);
 
-    outputColor[1]     = vec4(c1.rgb * reg.specularColorControl * c0.a, 1);
-    outputColor[2].xyz = normal;
+    outSpecular   = vec4(c1.rgb * reg.specularColorControl * c0.a, 1);
+    outNormal.xyz = normal;
 }
