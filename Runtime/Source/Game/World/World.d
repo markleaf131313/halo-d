@@ -790,7 +790,7 @@ bool collideLine(GObject* object, Vec3 position, Vec3 segment, LineOptions optio
         }
     }
 
-    if(!line.leaves.isEmpty)
+    if(!line.leaves.empty)
     {
         int leaf = line.leaves[$ - 1];
 

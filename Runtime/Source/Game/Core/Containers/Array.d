@@ -1,6 +1,7 @@
 
 module Game.Core.Containers.Array;
 
+import std.conv : emplace;
 import std.traits : hasElaborateDestructor, isNumeric;
 
 import Game.Core.Containers.ArrayAllocators : FixedArrayAllocator;
@@ -53,7 +54,30 @@ Element at(int index)
     return index >= 0 && index < size ? ptr[index] : null;
 }
 
-bool isEmpty() const
+void resize(int newSize)
+{
+    if(newSize > max)
+    {
+        assert(0); // TODO implement for other allocators
+    }
+
+    if(newSize > size)
+    {
+        foreach(ref element ; ptr[size .. newSize - 1])
+        {
+            emplace(&element);
+        }
+    }
+
+    size = newSize;
+}
+
+void resizeToMax()
+{
+    resize(max);
+}
+
+bool empty() const
 {
     return size == 0;
 }
