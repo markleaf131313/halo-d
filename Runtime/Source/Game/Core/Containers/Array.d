@@ -21,12 +21,12 @@ Element* ptr()
     return allocator.allocation();
 }
 
-size_t length() const
+uint length() const
 {
     return size;
 }
 
-size_t opDollar() const
+uint opDollar() const
 {
     return size;
 }
