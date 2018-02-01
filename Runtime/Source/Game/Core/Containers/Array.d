@@ -87,10 +87,11 @@ bool capcityReached() const
     return size >= max;
 }
 
-void add()(auto ref Element element)
+uint add()(auto ref Element element)
 {
     ptr[size] = element;
     size += 1;
+    return size - 1;
 }
 
 void addOverthrowFull()(auto ref Element element)
