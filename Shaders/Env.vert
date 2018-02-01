@@ -2,18 +2,19 @@
 #version 450 core
 #extension GL_ARB_separate_shader_objects : enable
 
-layout(binding = 0) uniform Ubo
+layout(set = 0, binding = 0) uniform Ubo
 {
-    uniform mat4 viewproj;
-    uniform vec3 eyePos;
+    mat4 viewproj;
+    vec3 eyePos;
 } ubo;
 
 layout(push_constant) uniform PushConstant
 {
-    uniform vec2 uvscales[5];
-    uniform vec4 perpendicularColor;
-    uniform vec4 parallelColor;
-    uniform float specularColorControl;
+    vec2 uvscales[5];
+    vec4 perpendicularColor;
+    vec4 parallelColor;
+    float specularColorControl;
+    uint lightmapIndex;
 } reg;
 
 layout(location = 0) in vec3 position;

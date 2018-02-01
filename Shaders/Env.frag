@@ -22,27 +22,29 @@
     #error Missing FUNCT_MICRO macro
 #endif
 
-layout(binding = 1) uniform sampler2D basemap;
-layout(binding = 2) uniform sampler2D d0map;
-layout(binding = 3) uniform sampler2D d1map;
-layout(binding = 4) uniform sampler2D micromap;
-layout(binding = 5) uniform sampler2D bumpmap;
-layout(binding = 6) uniform sampler2D lightmap;
-layout(binding = 7) uniform samplerCube cubemap;
+layout(set = 1, binding = 0) uniform sampler2D basemap;
+layout(set = 1, binding = 1) uniform sampler2D d0map;
+layout(set = 1, binding = 2) uniform sampler2D d1map;
+layout(set = 1, binding = 3) uniform sampler2D micromap;
+layout(set = 1, binding = 4) uniform sampler2D bumpmap;
+layout(set = 1, binding = 5) uniform samplerCube cubemap;
+
+layout(set = 2, binding = 0) uniform sampler2D lightmapTextures[64];
 
 layout(push_constant) uniform PushConstants
 {
-    uniform vec2 uvscales[5];
-    uniform vec4 perpendicularColor;
-    uniform vec4 parallelColor;
-    uniform float specularColorControl;
+    vec2 uvscales[5];
+    vec4 perpendicularColor;
+    vec4 parallelColor;
+    float specularColorControl;
+    uint lightmapIndex;
 } reg;
 
-layout(location = 0) in vec2 coord[5];
-layout(location = 6) in vec2 lmcoord;
-layout(location = 7) in vec3 aNormal;
-layout(location = 8) in vec3 v0;
-layout(location = 9) in vec3 v1;
+layout(location = 0)  in vec2 coord[5];
+layout(location = 6)  in vec2 lmcoord;
+layout(location = 7)  in vec3 aNormal;
+layout(location = 8)  in vec3 v0;
+layout(location = 9)  in vec3 v1;
 layout(location = 10) in vec3 v2;
 layout(location = 11) in vec3 eyeVector;
 
@@ -107,7 +109,7 @@ void main()
         c0.a = micro.a * c0.a;
     #endif
 
-    outAlbedo = c0 * texture(lightmap, lmcoord);
+    outAlbedo = c0 * texture(lightmapTextures[reg.lightmapIndex], lmcoord);
 
     vec3 bump       = (2.0 * texture(bumpmap, coord[4]).xyz) - 1.0;
     vec3 normal     = normalize(vec3(dot(v0.xyz, bump), dot(v1.xyz, bump), dot(v2.xyz, bump)));
