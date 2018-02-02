@@ -10,11 +10,11 @@ layout(set = 0, binding = 0) uniform Ubo
 
 layout(std430, push_constant) uniform PushConstant
 {
-    layout(offset = 0)  vec4 perpendicularColor;
-    layout(offset = 16) vec4 parallelColor;
-    layout(offset = 32) vec2 uvscales[5];
-    layout(offset = 72) float specularColorControl;
-    layout(offset = 76) uint lightmapIndex;
+    vec4 perpendicularColor;
+    vec4 parallelColor;
+    vec2 uvscales[5];
+    float specularColorControl;
+    uint lightmapIndex;
 } reg;
 
 layout(location = 0) in vec3 position;
