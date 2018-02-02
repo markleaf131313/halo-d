@@ -8,7 +8,7 @@ layout(set = 0, binding = 0) uniform Ubo
     vec3 eyePos;
 } ubo;
 
-layout(push_constant) uniform PushConstant
+layout(std140, push_constant) uniform PushConstant
 {
     vec2 uvscales[5];
     vec4 perpendicularColor;

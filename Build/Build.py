@@ -62,30 +62,38 @@ def doBuild(buildTarget):
             libs += [ 'OpenAL32.lib', 'vulkan-1.lib', 'SDL2.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
         elif buildTarget == 'Runtime':
-            def buildShaders():
+            def buildBinary(src, dst, defines=[]):
                 prog = 'glslangValidator'
 
                 args = [
                     prog,
-                    '-V', '../Shaders/Env.vert',
-                    '-o', './Data/Env-vert.spv',
+                    '-V', src,
+                    '-o', dst,
+                    *defines,
                 ]
 
                 print('Running: ', ' '.join(args))
                 print(subprocess.check_output(args).decode('ascii', errors='surrogateescape'))
 
-                for t, detail, micro in genMultiLoop(2, 2, 2):
-                    args = [
-                        prog,
-                        '-DTYPE={}'.format(t),
-                        '-DFUNCT_DETAIL={}'.format(detail),
-                        '-DFUNCT_MICRO={}'.format(micro),
-                        '-V', '../Shaders/Env.frag',
-                        '-o', './Data/Env-frag-{}-{}-{}.spv'.format(t, detail, micro),
-                    ]
+            def buildShaders():
+                buildBinary('../Shaders/DebugFrameBuffer.vert', './Data/DebugFrameBuffer-vert.spv')
+                buildBinary('../Shaders/DebugFrameBuffer.frag', './Data/DebugFrameBuffer-frag.spv')
 
-                    print('Running: ', ' '.join(args))
-                    print(subprocess.check_output(args).decode('ascii', errors='surrogateescape'))
+                buildBinary('../Shaders/Env.vert', './Data/Env-vert.spv')
+
+                for t, detail, micro in genMultiLoop(2, 2, 2):
+                    buildBinary(
+                        '../Shaders/Env.frag', './Data/Env-frag-{}-{}-{}.spv'.format(t, detail, micro),
+                        [
+                            '-DTYPE={}'.format(t),
+                            '-DFUNCT_DETAIL={}'.format(detail),
+                            '-DFUNCT_MICRO={}'.format(micro),
+                        ]
+                    )
+
+                    # TODO fix ordering of print
+                    # print('Running: ', ' '.join(args))
+                    subprocess.check_output(args).decode('ascii', errors='surrogateescape')
 
 
             prebuild = buildShaders

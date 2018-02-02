@@ -31,7 +31,7 @@ layout(set = 1, binding = 5) uniform samplerCube cubemap;
 
 layout(set = 2, binding = 0) uniform sampler2D lightmapTextures[64];
 
-layout(push_constant) uniform PushConstants
+layout(std140, push_constant) uniform PushConstants
 {
     vec2 uvscales[5];
     vec4 perpendicularColor;
