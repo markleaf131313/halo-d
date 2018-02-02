@@ -1053,9 +1053,9 @@ void updateUniformBuffer(ref Camera camera)
     uniform.eyePos = camera.position;
 
     void* data;
-    vkMapMemory(device, envUnifomBuffer, 0, EnvUnifomBuffer.sizeof, 0, &data);
+    vkMapMemory(device, envUnifomBufferMemory, 0, EnvUnifomBuffer.sizeof, 0, &data);
     data[0 .. EnvUnifomBuffer.sizeof] = (&uniform)[0 .. 1];
-    vkUnmapMemory(device, envUnifomBuffer);
+    vkUnmapMemory(device, envUnifomBufferMemory);
 }
 
 void createUniformDescriptorSet()
@@ -1735,12 +1735,15 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
     pickPhysicalDevice();
     createLogicalDevice();
 
+    createCommandPool();
+
     createSwapChain();
     createImageViews();
     createRenderPass();
+    createFramebuffers();
+    createCommandBuffers();
     createOffscreenFramebuffer();
 
-    createCommandPool();
     createDescriptorPool();
 
     createSceneGlobalsDescriptorSetLayout();
@@ -1816,7 +1819,7 @@ void render(ref World world, ref Camera camera)
 
     {
         VkBuffer[2] vertexBuffers = [ sbspVertexBuffer, lightmapVertexBuffer ];
-        VkDeviceSize[1] offsets = [ 0 ];
+        VkDeviceSize[2] offsets = [ 0, 0 ];
         vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
         vkCmdBindIndexBuffer(commandBuffer, sbspIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
     }
@@ -2195,8 +2198,8 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
         uint offset = 0;
         foreach(i ; 0 .. bitmap.mipmapCount + 1)
         {
-            uint width  = max(1, bitmap.width  << i);
-            uint height = max(1, bitmap.height << i);
+            uint width  = max(1, bitmap.width  >> i);
+            uint height = max(1, bitmap.height >> i);
 
             // TODO optimize, too many command buffers being used here
             //      each transition uses it's own one time buffer, entire process can use one command buffer
