@@ -72,8 +72,9 @@ def doBuild(buildTarget):
                     *defines,
                 ]
 
-                print('Running: ', ' '.join(args))
-                print(subprocess.check_output(args).decode('ascii', errors='surrogateescape'))
+                # TODO fix ordering of print
+                # print('Running: ', ' '.join(args))
+                subprocess.check_output(args).decode('ascii', errors='surrogateescape')
 
             def buildShaders():
                 buildBinary('../Shaders/DebugFrameBuffer.vert', './Data/DebugFrameBuffer-vert.spv')
@@ -90,10 +91,6 @@ def doBuild(buildTarget):
                             '-DFUNCT_MICRO={}'.format(micro),
                         ]
                     )
-
-                    # TODO fix ordering of print
-                    # print('Running: ', ' '.join(args))
-                    subprocess.check_output(args).decode('ascii', errors='surrogateescape')
 
 
             prebuild = buildShaders
