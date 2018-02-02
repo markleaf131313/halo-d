@@ -3,10 +3,10 @@
 #extension GL_ARB_separate_shader_objects : enable
 
 
-layout(binding = 0) uniform sampler2D tex0;
-layout(binding = 1) uniform sampler2D tex1;
-layout(binding = 2) uniform sampler2D tex2;
-layout(binding = 3) uniform sampler2D tex3;
+layout(set = 0, binding = 0) uniform sampler2D tex0;
+layout(set = 0, binding = 1) uniform sampler2D tex1;
+layout(set = 0, binding = 2) uniform sampler2D tex2;
+layout(set = 0, binding = 3) uniform sampler2D tex3;
 
 layout(location = 0) in vec2 inCoord;
 

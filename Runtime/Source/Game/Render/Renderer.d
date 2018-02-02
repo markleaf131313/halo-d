@@ -75,10 +75,11 @@ struct EnvPushConstants
     // 128 bytes is minimal support of Vulkan Push Constants
     static assert(this.sizeof <= 128);
 
-    Vec2[5] uvScales;
     ColorArgb perpendicularColor;
     ColorArgb parallelColor;
+    Vec2[5] uvScales;
     float specularColorControl;
+    uint lightmapIndex;
 }
 
 struct EnvUnifomBuffer
@@ -749,6 +750,7 @@ void createLogicalDevice()
 
     VkPhysicalDeviceFeatures features;
     features.textureCompressionBC = true;
+    features.samplerAnisotropy = true;
 
     VkDeviceCreateInfo info;
 
@@ -1089,7 +1091,7 @@ void createSceneGlobalsDescriptorSetLayout()
 {
     VkDescriptorSetLayoutBinding[1] setLayoutBindings =
     [
-        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0, VK_SHADER_STAGE_ALL_GRAPHICS),
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS),
     ];
 
     VkDescriptorSetLayoutCreateInfo descriptorLayout;
@@ -1103,13 +1105,13 @@ void createEnvDescriptorSetLayout()
 {
     VkDescriptorSetLayoutBinding[7] setLayoutBindings =
     [
-        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
     ];
 
     VkDescriptorSetLayoutCreateInfo descriptorLayout;
@@ -1119,17 +1121,12 @@ void createEnvDescriptorSetLayout()
     vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &sbspEnvDescriptorSetLayout));
 }
 
-void createLightmapDescriptorSetLayout(TagScenarioStructureBsp* sbsp)
+void createLightmapDescriptorSetLayout()
 {
-    FixedArray!(VkDescriptorSetLayoutBinding, 96) setLayoutBindings;
-
-    auto tagBitmap = Cache.get!TagBitmap(sbsp.lightmapsBitmap.index);
-
-    foreach(i ; 0 .. tagBitmap.bitmaps.size)
-    {
-        setLayoutBindings.add(
-            VkDescriptorSetLayoutBinding(i, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT));
-    }
+    VkDescriptorSetLayoutBinding[1] setLayoutBindings =
+    [
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 64, VK_SHADER_STAGE_FRAGMENT_BIT),
+    ];
 
     VkDescriptorSetLayoutCreateInfo descriptorLayout;
     descriptorLayout.bindingCount = setLayoutBindings.length;
@@ -1159,7 +1156,7 @@ void createLightmapDescriptorSet(TagScenarioStructureBsp* sbsp)
 
     foreach(uint i, ref tagBitmapData ; tagBitmap.bitmaps)
     {
-        Texture* texture = findOrLoadTexture(sbsp.lightmapsBitmap.index, i, DefaultTexture.multiplicative);
+        Texture* texture = findOrLoadTexture2D(sbsp.lightmapsBitmap.index, i, DefaultTexture.multiplicative);
 
         VkDescriptorImageInfo imageInfo;
         imageInfo.imageView = texture.imageView;
@@ -1181,11 +1178,39 @@ void createLightmapDescriptorSet(TagScenarioStructureBsp* sbsp)
     vkUpdateDescriptorSets(device, descriptorWrites.length, descriptorWrites.ptr, 0, null);
 }
 
-void createBaseSbspEnvPipeline(
-    VkPipelineShaderStageCreateInfo[] shaderStages,
-    ref VkPipelineLayout              pipelineLayout,
-    ref VkPipeline                    graphicsPipeline)
+void createBaseSbspEnvPipeline()
 {
+    static const(void)[][3][3][3] createEnvFragBinaries()
+    {
+        import std.conv : to;
+
+        const(void)[][3][3][3] result;
+
+        static foreach(type   ; 0 .. 2)
+        static foreach(detail ; 0 .. 2)
+        static foreach(micro  ; 0 .. 2)
+        {
+            result[type][detail][micro]
+                = mixin("import(\"Env-frag-" ~ type.to!string ~ "-" ~ detail.to!string ~ "-" ~ micro.to!string ~ ".spv\")");
+        }
+
+        return result;
+    }
+
+    static immutable void[][3][3][3] fragBinaries = createEnvFragBinaries();
+    static immutable void[] vertBinary = import("Env-vert.spv");
+
+    VkShaderModule vertShaderModule = createShaderModule(vertBinary);
+    scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
+
+    VkPipelineShaderStageCreateInfo[2] shaderStages;
+    shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+    shaderStages[0].module_ = vertShaderModule;
+    shaderStages[0].pName = "main";
+
+    shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    shaderStages[1].pName = "main";
+
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
 
     VkVertexInputBindingDescription[2] bindingDesc =
@@ -1274,10 +1299,11 @@ void createBaseSbspEnvPipeline(
     depthStencilState.depthWriteEnable = true;
     depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 
-    VkDescriptorSetLayout[2] descriptorSetLayouts =
+    VkDescriptorSetLayout[3] descriptorSetLayouts =
     [
         sceneGlobalsDescriptorSetLayout,
         sbspEnvDescriptorSetLayout,
+        lightmapDescriptorSetLayout,
     ];
 
     VkPushConstantRange[1] pushConstantRanges =
@@ -1291,7 +1317,7 @@ void createBaseSbspEnvPipeline(
     pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.length32;
     pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.ptr;
 
-    vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &pipelineLayout));
+    vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &sbspEnvPipelineLayout));
 
     VkGraphicsPipelineCreateInfo pipelineInfo;
     pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
@@ -1304,48 +1330,9 @@ void createBaseSbspEnvPipeline(
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.layout = pipelineLayout;
+    pipelineInfo.layout = sbspEnvPipelineLayout;
 
     pipelineInfo.renderPass = offscreenFramebuffer.renderPass;
-    pipelineInfo.subpass = 0;
-
-    vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &graphicsPipeline));
-
-}
-
-void createSbspEnvPipelines()
-{
-    static const(void)[][3][3][3] createEnvFragBinaries()
-    {
-        import std.conv : to;
-
-        const(void)[][3][3][3] result;
-
-        static foreach(type   ; 0 .. 2)
-        static foreach(detail ; 0 .. 2)
-        static foreach(micro  ; 0 .. 2)
-        {
-            result[type][detail][micro]
-                = mixin("import(\"Env-frag-" ~ type.to!string ~ "-" ~ detail.to!string ~ "-" ~ micro.to!string ~ ".spv\")");
-        }
-
-        return result;
-    }
-
-    static immutable void[][3][3][3] fragBinaries = createEnvFragBinaries();
-    static immutable void[] vertBinary = import("Env-vert.spv");
-
-    VkShaderModule vertShaderModule = createShaderModule(vertBinary);
-    scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
-
-    VkPipelineShaderStageCreateInfo[2] shaderStages;
-    shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-    shaderStages[0].module_ = vertShaderModule;
-    shaderStages[0].pName = "main";
-
-    shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    shaderStages[1].pName = "main";
-
 
     foreach(type   ; 0 .. 2)
     foreach(detail ; 0 .. 2)
@@ -1356,25 +1343,13 @@ void createSbspEnvPipelines()
 
         shaderStages[1].module_ = fragShaderModule;
 
-        if(type == 0 && detail == 0 && micro == 0)
-        {
-            createBaseSbspEnvPipeline(shaderStages, sbspEnvPipelineLayout, sbspEnvPipelines[type][detail][micro]);
-            break;
-        }
-
-        VkGraphicsPipelineCreateInfo pipelineInfo;
-        pipelineInfo.flags = VK_PIPELINE_CREATE_DERIVATIVE_BIT;
-        pipelineInfo.stageCount = shaderStages.length32;
-        pipelineInfo.pStages = shaderStages.ptr;
-
-        pipelineInfo.basePipelineHandle = sbspEnvPipelines[0][0][0];
-
-        if(VkResult result = vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &sbspEnvPipelines[type][detail][micro]))
-        {
-            SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateGraphicsPipelines(): %s", result.to!string.ptr);
-            assert(0);
-        }
+        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &sbspEnvPipelines[type][detail][micro]));
     }
+}
+
+void createSbspEnvPipelines()
+{
+    createBaseSbspEnvPipeline();
 
 }
 
@@ -1461,7 +1436,6 @@ void createVertexBuffer(T)(T[] vertices, ref VkBuffer vertexBuffer, ref VkDevice
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
     copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
 
-    vkBindBufferMemory(device, vertexBuffer, vertexBufferMemory, 0);
 }
 
 void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
@@ -1681,10 +1655,10 @@ void createDebugFrameBufferDescriptorSet()
 {
     VkDescriptorSetLayoutBinding[4] setLayoutBindings =
     [
-        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
     ];
 
     VkDescriptorSetLayoutCreateInfo descriptorLayout;
@@ -1763,13 +1737,14 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
 
     createSwapChain();
     createImageViews();
-    // createRenderPass();
+    createRenderPass();
     createOffscreenFramebuffer();
 
+    createCommandPool();
     createDescriptorPool();
 
     createSceneGlobalsDescriptorSetLayout();
-    createLightmapDescriptorSetLayout(sbsp);
+    createLightmapDescriptorSetLayout();
     createEnvDescriptorSetLayout();
 
     createSbspEnvPipelines();
@@ -1783,7 +1758,6 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
     createDebugFrameBufferPipeline();
     createQuad();
 
-    createCommandPool();
     createSemaphores();
 }
 
@@ -2019,7 +1993,8 @@ void renderOpaqueStructureBsp(VkCommandBuffer commandBuffer, ref Camera camera, 
 
                 foreach(uint j, ref tex ; textures)
                 {
-                    Texture* texture = findOrLoadTexture(tex[0], 0, tex[1]);
+                    Texture* texture =
+                        (j == 5) ? findOrLoadTextureCubemap(tex[0], 0, tex[1]) : findOrLoadTexture2D(tex[0], 0, tex[1]);
 
                     VkDescriptorImageInfo imageInfo;
                     imageInfo.imageView = texture.imageView;
@@ -2070,6 +2045,7 @@ void renderOpaqueStructureBsp(VkCommandBuffer commandBuffer, ref Camera camera, 
 
             pushConstants.perpendicularColor = ColorArgb(1.0f, shader.perpendicularColor) * shader.perpendicularBrightness;
             pushConstants.parallelColor      = ColorArgb(1.0f, shader.parallelColor)      * shader.parallelBrightness;
+            pushConstants.lightmapIndex      = lightmapIndex;
 
             if(shader.reflectionType == TagEnums.ShaderEnvironmentReflectionType.bumpedCubeMap
                 && shader.reflectionCubeMap)
@@ -2115,29 +2091,19 @@ bool updateObjectLighting(ref World world, Vec3 position, ref GObject.Lighting l
     assert(0);
 }
 
-// void bindTexture2D(int textureIndex, DatumIndex i, int bitmapIndex, DefaultTexture defaultType)
-// {
-//     bindTexture(textureIndex, Cache.inst.globals.rasterizerData.default2d.index, bitmapIndex, i, defaultType);
-// }
+Texture* findOrLoadTexture2D(DatumIndex tagIndex, int bitmapIndex, DefaultTexture defaultType)
+{
+    return findOrLoadTexture(tagIndex, bitmapIndex, Cache.inst.globals.rasterizerData.default2d.index, defaultType);
+}
 
-// void bindTextureCube(int textureIndex, DatumIndex i, int bitmapIndex, DefaultTexture defaultType)
-// {
-//     bindTexture(textureIndex, Cache.inst.globals.rasterizerData.defaultCubeMap.index, bitmapIndex, i, defaultType);
-// }
+Texture* findOrLoadTextureCubemap(DatumIndex tagIndex, int bitmapIndex, DefaultTexture defaultType)
+{
+    return findOrLoadTexture(tagIndex, bitmapIndex, Cache.inst.globals.rasterizerData.defaultCubeMap.index, defaultType);
+}
 
-
-Texture* findOrLoadTexture(DatumIndex tagIndex, int bitmapIndex, DefaultTexture defaultType)
+Texture* findOrLoadTexture(DatumIndex tagIndex, int bitmapIndex, DatumIndex defaultIndex, DefaultTexture defaultType)
 {
     Tag.BitmapDataBlock* bitmap;
-
-    DatumIndex defaultIndex;
-
-    switch(bitmap.type)
-    {
-    case TagEnums.BitmapType.texture2d: defaultIndex = Cache.inst.globals.rasterizerData.default2d.index; break;
-    case TagEnums.BitmapType.cubeMap: defaultIndex = Cache.inst.globals.rasterizerData.defaultCubeMap.index; break;
-    default: assert(0);
-    }
 
     if(tagIndex == DatumIndex.none)  bitmap = &Cache.get!TagBitmap(defaultIndex).bitmaps[int(defaultType)];
     else                             bitmap = &Cache.get!TagBitmap(tagIndex).bitmaps[bitmapIndex];

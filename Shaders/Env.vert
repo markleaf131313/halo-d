@@ -8,13 +8,13 @@ layout(set = 0, binding = 0) uniform Ubo
     vec3 eyePos;
 } ubo;
 
-layout(std140, push_constant) uniform PushConstant
+layout(std430, push_constant) uniform PushConstant
 {
-    vec2 uvscales[5];
-    vec4 perpendicularColor;
-    vec4 parallelColor;
-    float specularColorControl;
-    uint lightmapIndex;
+    layout(offset = 0)  vec4 perpendicularColor;
+    layout(offset = 16) vec4 parallelColor;
+    layout(offset = 32) vec2 uvscales[5];
+    layout(offset = 72) float specularColorControl;
+    layout(offset = 76) uint lightmapIndex;
 } reg;
 
 layout(location = 0) in vec3 position;
