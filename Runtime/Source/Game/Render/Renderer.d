@@ -216,7 +216,7 @@ ShaderInstance[DatumIndex] shaderInstances;
 FixedArray!(Texture, 1024) textureInstances; // TODO increase limit?
 
 uint windowWidth = 1920;
-uint windowHeight = 1080;
+uint windowHeight = 810;
 
 struct Queues
 {
@@ -861,6 +861,8 @@ void createSwapChain()
     VkPresentModeKHR   presentMode   = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D         extent        = chooseSwapExtent(swapChainSupport.capabilities);
 
+    assert(extent.width == windowWidth && extent.height == windowHeight);
+
     uint imageCount = swapChainSupport.capabilities.minImageCount + 1;
     if(swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
     {
@@ -1225,7 +1227,7 @@ void createBaseSbspEnvPipeline()
         VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32B32_SFLOAT, TagBspVertex.tangent.offsetof),
         VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT,    TagBspVertex.coord.offsetof),
         VkVertexInputAttributeDescription(5, 1, VK_FORMAT_R32G32B32_SFLOAT, TagBspLightmapVertex.normal.offsetof),
-        VkVertexInputAttributeDescription(6, 1, VK_FORMAT_R32G32_SFLOAT,    TagBspVertex.coord.offsetof),
+        VkVertexInputAttributeDescription(6, 1, VK_FORMAT_R32G32_SFLOAT,    TagBspLightmapVertex.coord.offsetof),
     ];
 
     vertexInputInfo.vertexBindingDescriptionCount   = bindingDesc.length32;
@@ -1582,7 +1584,7 @@ void createDebugFrameBufferPipeline()
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_NONE;
+    rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 
     VkPipelineMultisampleStateCreateInfo multisampling;
@@ -2320,7 +2322,7 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
 
                 void* data;
                 vkMapMemory(device, stagingBufferMemory, 0, size, 0, &data);
-                data[offset .. offset + size] = buffer[offset .. offset + size];
+                data[0 .. size] = buffer[offset .. offset + size];
                 vkUnmapMemory(device, stagingBufferMemory);
 
                 VkCommandBuffer commandBuffer = beginSingleTimeCommands();
