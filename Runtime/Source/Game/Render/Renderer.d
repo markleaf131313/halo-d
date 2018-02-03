@@ -201,6 +201,7 @@ VkDescriptorSet          debugFrameBufferDescriptorSet;
 VkPipelineLayout         debugFrameBufferPipelineLayout;
 VkPipeline               debugFrameBufferPipeline;
 
+VkCommandBuffer          offScreenCmdBuffer;
 FrameBuffer              offscreenFramebuffer;
 VkSampler                colorSampler;
 
@@ -332,7 +333,7 @@ void endSingleTimeCommands(VkCommandBuffer commandBuffer)
     vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
 }
 
-void transitionImageLayout(VkImage image, int mipmap, VkImageLayout oldLayout, VkImageLayout newLayout)
+void transitionImageLayout(VkImage image, int mipmap, int layerCount, VkImageLayout oldLayout, VkImageLayout newLayout)
 {
     VkCommandBuffer command = beginSingleTimeCommands();
     scope(exit) endSingleTimeCommands(command);
@@ -347,7 +348,7 @@ void transitionImageLayout(VkImage image, int mipmap, VkImageLayout oldLayout, V
     barrier.subresourceRange.baseMipLevel = mipmap;
     barrier.subresourceRange.levelCount = 1;
     barrier.subresourceRange.baseArrayLayer = 0;
-    barrier.subresourceRange.layerCount = 1;
+    barrier.subresourceRange.layerCount = layerCount;
 
     VkPipelineStageFlags sourceStage;
     VkPipelineStageFlags destinationStage;
@@ -1150,7 +1151,6 @@ void createLightmapDescriptorSet(TagScenarioStructureBsp* sbsp)
     vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &lightmapDescriptorSet));
 
     FixedArray!(VkDescriptorImageInfo, 96) imageInfos;
-    FixedArray!(VkWriteDescriptorSet, 96) descriptorWrites;
 
     auto tagBitmap = Cache.get!TagBitmap(sbsp.lightmapsBitmap.index);
 
@@ -1164,18 +1164,16 @@ void createLightmapDescriptorSet(TagScenarioStructureBsp* sbsp)
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
         imageInfos.add(imageInfo);
-
-        VkWriteDescriptorSet desc;
-        desc.dstSet = lightmapDescriptorSet;
-        desc.dstBinding = i;
-        desc.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        desc.descriptorCount = 1;
-        desc.pImageInfo = &imageInfos[i];
-
-        descriptorWrites.add(desc);
     }
 
-    vkUpdateDescriptorSets(device, descriptorWrites.length, descriptorWrites.ptr, 0, null);
+    VkWriteDescriptorSet desc;
+    desc.dstSet = lightmapDescriptorSet;
+    desc.dstBinding = 0;
+    desc.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    desc.descriptorCount = imageInfos.length;
+    desc.pImageInfo = imageInfos.ptr;
+
+    vkUpdateDescriptorSets(device, 1, &desc, 0, null);
 }
 
 void createBaseSbspEnvPipeline()
@@ -1263,7 +1261,7 @@ void createBaseSbspEnvPipeline()
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
     VkPipelineMultisampleStateCreateInfo multisampling;
     multisampling.sampleShadingEnable = VK_FALSE;
@@ -1385,6 +1383,7 @@ void createCommandPool()
     auto queues = findGraphicsQueueIndex(physicalDevice);
 
     VkCommandPoolCreateInfo poolInfo;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     poolInfo.queueFamilyIndex = queues.graphicsQueue;
 
     if(VkResult result = vkCreateCommandPool(device, &poolInfo, null, &commandPool))
@@ -1404,6 +1403,12 @@ void createCommandBuffers()
     allocInfo.commandBufferCount = commandBuffers.length;
 
     vkCheck(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.ptr));
+
+    allocInfo.commandPool = commandPool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = 1;
+
+    vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &offScreenCmdBuffer));
 }
 
 void createSemaphores()
@@ -1577,7 +1582,7 @@ void createDebugFrameBufferPipeline()
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode = VK_CULL_MODE_NONE;
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 
     VkPipelineMultisampleStateCreateInfo multisampling;
@@ -1610,9 +1615,6 @@ void createDebugFrameBufferPipeline()
     dynamicState.pDynamicStates = dynamicStates.ptr;
 
     VkPipelineDepthStencilStateCreateInfo depthStencilState;
-    depthStencilState.depthTestEnable = true;
-    depthStencilState.depthWriteEnable = true;
-    depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 
     VkDescriptorSetLayout[1] descriptorSetLayouts =
     [
@@ -1717,10 +1719,10 @@ void createQuad()
 {
     TexVertex[4] vertices =
     [
-        TexVertex(Vec3(-1.0f, -1.0f, 0), Vec2(0.0f, 0.0f)),
-        TexVertex(Vec3(-1.0f,  1.0f, 0), Vec2(0.0f, 1.0f)),
-        TexVertex(Vec3( 1.0f,  1.0f, 0), Vec2(1.0f, 1.0f)),
-        TexVertex(Vec3( 1.0f, -1.0f, 0), Vec2(1.0f, 0.0f)),
+        TexVertex(Vec3(-1.0f, -1.0f, 0), Vec2(0.0f, 1.0f)),
+        TexVertex(Vec3(-1.0f,  1.0f, 0), Vec2(0.0f, 0.0f)),
+        TexVertex(Vec3( 1.0f, -1.0f, 0), Vec2(1.0f, 1.0f)),
+        TexVertex(Vec3( 1.0f,  1.0f, 0), Vec2(1.0f, 0.0f)),
     ];
 
     createVertexBuffer(vertices, quadVertexBuffer, quadVertexBufferMemory);
@@ -1767,6 +1769,7 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
 void render(ref World world, ref Camera camera)
 {
     vkQueueWaitIdle(presentQueue);
+    vkQueueWaitIdle(graphicsQueue);
 
     uint imageIndex;
     switch(vkAcquireNextImageKHR(device, swapchain, ulong.max, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex))
@@ -1782,17 +1785,15 @@ void render(ref World world, ref Camera camera)
     }
 
 
-
     auto commandBuffer = commandBuffers[imageIndex];
     auto frameBuffer   = swapchainFramebuffers[imageIndex];
-
 
     // Build Command Buffer
 
     VkCommandBufferBeginInfo beginInfo;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+    vkBeginCommandBuffer(offScreenCmdBuffer, &beginInfo);
 
     VkRenderPassBeginInfo renderPassInfo;
     renderPassInfo.renderPass = offscreenFramebuffer.renderPass;
@@ -1813,15 +1814,15 @@ void render(ref World world, ref Camera camera)
     renderPassInfo.clearValueCount = clearColors.length32;
     renderPassInfo.pClearValues = clearColors.ptr;
 
-    vkCmdBeginRenderPass(commandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(offScreenCmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
     updateUniformBuffer(camera);
 
     {
         VkBuffer[2] vertexBuffers = [ sbspVertexBuffer, lightmapVertexBuffer ];
         VkDeviceSize[2] offsets = [ 0, 0 ];
-        vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
-        vkCmdBindIndexBuffer(commandBuffer, sbspIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindVertexBuffers(offScreenCmdBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
+        vkCmdBindIndexBuffer(offScreenCmdBuffer, sbspIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
     }
 
     auto sbsp = world.getCurrentSbsp;
@@ -1830,12 +1831,12 @@ void render(ref World world, ref Camera camera)
     {
         if(lightmap.bitmap != indexNone)
         {
-            renderOpaqueStructureBsp(commandBuffer, camera, sbsp, i);
+            renderOpaqueStructureBsp(offScreenCmdBuffer, camera, sbsp, i);
         }
     }
 
-    vkCmdEndRenderPass(commandBuffer);
-    vkCheck(vkEndCommandBuffer(commandBuffer));
+    vkCmdEndRenderPass(offScreenCmdBuffer);
+    vkCheck(vkEndCommandBuffer(offScreenCmdBuffer));
 
     VkSubmitInfo submitInfo;
 
@@ -1850,7 +1851,7 @@ void render(ref World world, ref Camera camera)
     submitInfo.pSignalSemaphores = signalSemaphores.ptr;
 
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffer;
+    submitInfo.pCommandBuffers = &offScreenCmdBuffer;
 
     if(VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE))
     {
@@ -1859,6 +1860,8 @@ void render(ref World world, ref Camera camera)
     }
 
     // Render offscreen framebuffer to swapchain framebuffer
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
 
     renderPassInfo.renderPass = renderPass;
     renderPassInfo.framebuffer = frameBuffer;
@@ -1880,15 +1883,18 @@ void render(ref World world, ref Camera camera)
     ];
 
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-        sbspEnvPipelineLayout, 0, decriptorSets.length32, decriptorSets.ptr, 0, null);
+        debugFrameBufferPipelineLayout, 0, decriptorSets.length32, decriptorSets.ptr, 0, null);
 
-    vkCmdDraw(commandBuffer, 4, 0, 0, 0);
+    vkCmdDraw(commandBuffer, 4, 1, 0, 0);
 
     vkCmdEndRenderPass(commandBuffer);
     vkCheck(vkEndCommandBuffer(commandBuffer));
 
     waitSemaphores[0] = offscreenFinishedSemaphore;
     signalSemaphores[0] = renderFinishedSemaphore;
+
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
 
     if(VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE))
     {
@@ -2048,7 +2054,7 @@ void renderOpaqueStructureBsp(VkCommandBuffer commandBuffer, ref Camera camera, 
 
             pushConstants.perpendicularColor = ColorArgb(1.0f, shader.perpendicularColor) * shader.perpendicularBrightness;
             pushConstants.parallelColor      = ColorArgb(1.0f, shader.parallelColor)      * shader.parallelBrightness;
-            pushConstants.lightmapIndex      = lightmapIndex;
+            pushConstants.lightmapIndex      = lightmap.bitmap;
 
             if(shader.reflectionType == TagEnums.ShaderEnvironmentReflectionType.bumpedCubeMap
                 && shader.reflectionCubeMap)
@@ -2152,7 +2158,6 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
     default:
         return false;
     case TagEnums.BitmapType.texture2d:
-
         VkBuffer stagingBuffer;
         VkDeviceMemory stagingBufferMemory;
         createBuffer(buffer.length32, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
@@ -2166,7 +2171,6 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
         vkMapMemory(device, stagingBufferMemory, 0, buffer.length32, 0, &data);
         data[0 .. buffer.length32] = buffer[];
         vkUnmapMemory(device, stagingBufferMemory);
-
 
         VkImageCreateInfo imageInfo;
 
@@ -2204,7 +2208,7 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
             // TODO optimize, too many command buffers being used here
             //      each transition uses it's own one time buffer, entire process can use one command buffer
 
-            transitionImageLayout(texture.image, i, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+            transitionImageLayout(texture.image, i, 1, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
             VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
@@ -2219,7 +2223,7 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
             endSingleTimeCommands(commandBuffer);
 
-            transitionImageLayout(texture.image, i, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            transitionImageLayout(texture.image, i, 1, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
             offset += pixelFormatSize(bitmap.format, width, height);
         }
@@ -2251,6 +2255,121 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
         samplerInfo.unnormalizedCoordinates = VK_FALSE;
         samplerInfo.compareEnable = VK_FALSE;
         samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.mipLodBias = 0.0f;
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = 0.0f;
+
+        vkCheck(vkCreateSampler(device, &samplerInfo, null, &texture.sampler));
+
+        return true;
+    case TagEnums.BitmapType.cubeMap:
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingBufferMemory;
+        createBuffer(buffer.length32, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+        scope(exit)
+        {
+            vkDestroyBuffer(device, stagingBuffer, null);
+            vkFreeMemory(device, stagingBufferMemory, null);
+        }
+
+        VkImageCreateInfo imageInfo;
+
+        imageInfo.imageType     = VK_IMAGE_TYPE_2D;
+        imageInfo.extent.width  = bitmap.width;
+        imageInfo.extent.height = bitmap.height;
+        imageInfo.extent.depth  = 1;
+        imageInfo.mipLevels     = bitmap.mipmapCount + 1;
+        imageInfo.arrayLayers   = 6;
+        imageInfo.format        = getPixelFormat(bitmap.format);
+        imageInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
+        imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+        imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+        imageInfo.samples       = VK_SAMPLE_COUNT_1_BIT;
+        imageInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
+        imageInfo.flags         = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+
+        vkCreateImage(device, &imageInfo, null, &texture.image);
+
+        VkMemoryRequirements memRequirements;
+        vkGetImageMemoryRequirements(device, texture.image, &memRequirements);
+
+        VkMemoryAllocateInfo allocInfo;
+        allocInfo.allocationSize  = memRequirements.size;
+        allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+        vkAllocateMemory(device, &allocInfo, null, &texture.imageMemory);
+        vkBindImageMemory(device, texture.image, texture.imageMemory, 0);
+
+        uint offset = 0;
+        foreach(i ; 0 .. bitmap.mipmapCount + 1)
+        {
+            uint width  = max(1, bitmap.width  >> i);
+            uint height = max(1, bitmap.height >> i);
+
+            static immutable sides = [ 0, 2, 1, 3, 4, 5 ];
+
+            // TODO optimize, too many command buffers being used here
+            //      each transition uses it's own one time buffer, entire process can use one command buffer
+
+            transitionImageLayout(texture.image, i, 6, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+            foreach(face ; 0 .. 6)
+            {
+                uint size = pixelFormatSize(bitmap.format, width, height);
+
+                void* data;
+                vkMapMemory(device, stagingBufferMemory, 0, size, 0, &data);
+                data[offset .. offset + size] = buffer[offset .. offset + size];
+                vkUnmapMemory(device, stagingBufferMemory);
+
+                VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+                VkBufferImageCopy region;
+                region.bufferOffset                = 0;
+                region.imageExtent                 = VkExtent3D(width, height, 1);
+                region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                region.imageSubresource.mipLevel   = i;
+                region.imageSubresource.layerCount = 1;
+                region.imageSubresource.baseArrayLayer = sides[face];
+
+                vkCmdCopyBufferToImage(commandBuffer, stagingBuffer, texture.image,
+                    VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+                endSingleTimeCommands(commandBuffer);
+
+                offset += size;
+            }
+
+            transitionImageLayout(texture.image, i, 6, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        }
+
+        VkImageViewCreateInfo viewCreateInfo;
+
+        viewCreateInfo.image = texture.image;
+        viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
+        viewCreateInfo.format = getPixelFormat(bitmap.format);
+        viewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        viewCreateInfo.subresourceRange.baseMipLevel = 0;
+        viewCreateInfo.subresourceRange.levelCount = bitmap.mipmapCount + 1;
+        viewCreateInfo.subresourceRange.baseArrayLayer = 0;
+        viewCreateInfo.subresourceRange.layerCount = 6;
+
+        vkCheck(vkCreateImageView(device, &viewCreateInfo, null, &texture.imageView));
+
+        // TODO don't create a new sampler for each texture, they can be reused.
+        VkSamplerCreateInfo samplerInfo;
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+        samplerInfo.anisotropyEnable = VK_TRUE;
+        samplerInfo.maxAnisotropy = 16;
+
+        samplerInfo.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_NEVER;
         samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
         samplerInfo.mipLodBias = 0.0f;
         samplerInfo.minLod = 0.0f;
