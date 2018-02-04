@@ -35,6 +35,52 @@ static void vkCheck(VkResult result, uint line = __LINE__)
     }
 }
 
+struct ImguiVertex
+{
+    Vec2 position;
+    Vec2 coord;
+    uint color;
+
+    static VkVertexInputBindingDescription getBindingDescription()
+    {
+        VkVertexInputBindingDescription binding;
+
+        binding.binding = 0;
+        binding.stride = this.sizeof;
+        binding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+        return binding;
+    }
+
+    static VkVertexInputAttributeDescription[3] getAttributeDescriptions()
+    {
+        VkVertexInputAttributeDescription[3] descs;
+
+        descs[0].binding = 0;
+        descs[0].location = 0;
+        descs[0].format = VK_FORMAT_R32G32_SFLOAT;
+        descs[0].offset = position.offsetof;
+
+        descs[1].binding = 0;
+        descs[1].location = 1;
+        descs[1].format = VK_FORMAT_R32G32_SFLOAT;
+        descs[1].offset = coord.offsetof;
+
+        descs[2].binding = 0;
+        descs[2].location = 2;
+        descs[2].format = VK_FORMAT_R8G8B8A8_UNORM;
+        descs[2].offset = color.offsetof;
+
+        return descs;
+    }
+}
+
+struct ImguiPushConstants
+{
+    Vec2 scale;
+    Vec2 translate;
+}
+
 struct TexVertex
 {
     Vec3 pos;
@@ -195,6 +241,23 @@ VkDescriptorSet          lightmapDescriptorSet;
 VkDescriptorSetLayout    sbspEnvDescriptorSetLayout;
 VkPipelineLayout         sbspEnvPipelineLayout;
 VkPipeline[3][3][3]      sbspEnvPipelines;
+
+VkImage                  imguiImage;
+VkDeviceMemory           imguiImageMemory;
+VkImageView              imguiImageView;
+
+VkDescriptorSetLayout    imguiDescriptorSetLayout;
+VkDescriptorSet          imguiDescriptorSet;
+VkPipelineLayout         imguiPipelineLayout;
+VkPipeline               imguiPipeline;
+
+VkBuffer                 imguiVertexBuffer;
+VkDeviceMemory           imguiVertexBufferMemory;
+uint                     imguiVertexBufferSize;
+
+VkBuffer                 imguiIndexBuffer;
+VkDeviceMemory           imguiIndexBufferMemory;
+uint                     imguiIndexBufferSize;
 
 VkDescriptorSetLayout    debugFrameBufferDescriptorSetLayout;
 VkDescriptorSet          debugFrameBufferDescriptorSet;
@@ -1330,6 +1393,7 @@ void createBaseSbspEnvPipeline()
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pDynamicState = &dynamicState;
     pipelineInfo.layout = sbspEnvPipelineLayout;
 
     pipelineInfo.renderPass = offscreenFramebuffer.renderPass;
@@ -1530,6 +1594,347 @@ void createSbspVertexBuffer()
 
 }
 
+void createImguiTexture()
+{
+    auto io = igGetIO();
+
+    ubyte* pixels;
+    int width;
+    int height;
+    io.Fonts.GetTexDataAsRGBA32(&pixels, &width, &height);
+
+    uint bufferSize = width * height * 4;
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    scope(exit)
+    {
+        vkDestroyBuffer(device, stagingBuffer, null);
+        vkFreeMemory(device, stagingBufferMemory, null);
+    }
+
+    void* data;
+    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    data[0 .. bufferSize] = pixels[0 .. bufferSize];
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    VkImageCreateInfo imageInfo;
+
+    imageInfo.imageType     = VK_IMAGE_TYPE_2D;
+    imageInfo.extent.width  = width;
+    imageInfo.extent.height = height;
+    imageInfo.extent.depth  = 1;
+    imageInfo.mipLevels     = 1;
+    imageInfo.arrayLayers   = 1;
+    imageInfo.format        = VK_FORMAT_R8G8B8A8_UNORM;
+    imageInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
+    imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    imageInfo.samples       = VK_SAMPLE_COUNT_1_BIT;
+    imageInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
+
+    vkCheck(vkCreateImage(device, &imageInfo, null, &imguiImage));
+
+    VkMemoryRequirements memRequirements;
+    vkGetImageMemoryRequirements(device, imguiImage, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo;
+    allocInfo.allocationSize  = memRequirements.size;
+    allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    vkAllocateMemory(device, &allocInfo, null, &imguiImageMemory);
+    vkBindImageMemory(device, imguiImage, imguiImageMemory, 0);
+
+
+    // TODO optimize, too many command buffers being used here
+    //      each transition uses it's own one time buffer, entire process can use one command buffer
+
+    transitionImageLayout(imguiImage, 0, 1, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+    VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+
+    VkBufferImageCopy region;
+    region.bufferOffset                = 0;
+    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.imageSubresource.mipLevel   = 0;
+    region.imageSubresource.layerCount = 1;
+    region.imageExtent                 = VkExtent3D(width, height, 1);
+
+    vkCmdCopyBufferToImage(commandBuffer, stagingBuffer, imguiImage,
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+    endSingleTimeCommands(commandBuffer);
+
+    transitionImageLayout(imguiImage, 0, 1, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    VkImageViewCreateInfo viewCreateInfo;
+
+    viewCreateInfo.image = imguiImage;
+    viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    viewCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+    viewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    viewCreateInfo.subresourceRange.baseMipLevel = 0;
+    viewCreateInfo.subresourceRange.levelCount = 1;
+    viewCreateInfo.subresourceRange.baseArrayLayer = 0;
+    viewCreateInfo.subresourceRange.layerCount = 1;
+
+    vkCheck(vkCreateImageView(device, &viewCreateInfo, null, &imguiImageView));
+}
+
+void createImguiDescriptorSet()
+{
+    VkDescriptorSetLayoutBinding[1] setLayoutBindings =
+    [
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+    ];
+
+    VkDescriptorSetLayoutCreateInfo descriptorLayout;
+    descriptorLayout.bindingCount = setLayoutBindings.length32;
+    descriptorLayout.pBindings = setLayoutBindings.ptr;
+
+    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &imguiDescriptorSetLayout));
+
+    VkDescriptorSetLayout[1] layouts =
+    [
+        imguiDescriptorSetLayout,
+    ];
+
+    VkDescriptorSetAllocateInfo allocInfo;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.descriptorSetCount = layouts.length32;
+    allocInfo.pSetLayouts = layouts.ptr;
+
+    vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &imguiDescriptorSet));
+
+    FixedArray!(VkDescriptorImageInfo, 1) imageInfos;
+    FixedArray!(VkWriteDescriptorSet, 1)  descriptorWrites;
+
+    VkDescriptorImageInfo imageInfo;
+    imageInfo.imageView = imguiImageView;
+    imageInfo.sampler = colorSampler;
+    imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+    imageInfos.add(imageInfo);
+
+    VkWriteDescriptorSet desc;
+    desc.dstSet = imguiDescriptorSet;
+    desc.dstBinding = 0;
+    desc.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    desc.descriptorCount = 1;
+    desc.pImageInfo = imageInfos.ptr;
+
+    descriptorWrites.add(desc);
+
+    vkUpdateDescriptorSets(device, descriptorWrites.length, descriptorWrites.ptr, 0, null);
+}
+
+void createImguiPipeline()
+{
+    VkShaderModule vertShaderModule = createShaderModule(import("Imgui-vert.spv"));
+    scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
+
+    VkShaderModule fragShaderModule = createShaderModule(import("Imgui-frag.spv"));
+    scope(exit) vkDestroyShaderModule(device, fragShaderModule, null);
+
+    VkPipelineShaderStageCreateInfo[2] shaderStages;
+    shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+    shaderStages[0].module_ = vertShaderModule;
+    shaderStages[0].pName = "main";
+
+    shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    shaderStages[1].module_ = fragShaderModule;
+    shaderStages[1].pName = "main";
+
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+
+    VkVertexInputBindingDescription[1] bindingDesc = [ ImguiVertex.getBindingDescription() ];
+    VkVertexInputAttributeDescription[3] attributeDescs = ImguiVertex.getAttributeDescriptions();
+
+    vertexInputInfo.vertexBindingDescriptionCount   = bindingDesc.length32;
+    vertexInputInfo.pVertexBindingDescriptions      = bindingDesc.ptr;
+    vertexInputInfo.vertexAttributeDescriptionCount = attributeDescs.length32;
+    vertexInputInfo.pVertexAttributeDescriptions    = attributeDescs.ptr;
+
+    VkPipelineInputAssemblyStateCreateInfo inputAssembly;
+
+    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    inputAssembly.primitiveRestartEnable = VK_FALSE;
+
+    VkViewport viewport;
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = float(swapchainExtent.width);
+    viewport.height = float(swapchainExtent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    VkRect2D scissor;
+    scissor.extent = swapchainExtent;
+
+    VkPipelineViewportStateCreateInfo viewportState;
+    viewportState.viewportCount = 1;
+    viewportState.pViewports = &viewport;
+    viewportState.scissorCount = 1;
+    viewportState.pScissors = &scissor;
+
+    VkPipelineRasterizationStateCreateInfo rasterizer;
+    rasterizer.depthClampEnable = VK_FALSE;
+    rasterizer.rasterizerDiscardEnable = VK_FALSE;
+    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    rasterizer.lineWidth = 1.0f;
+    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+
+    VkPipelineMultisampleStateCreateInfo multisampling;
+    multisampling.sampleShadingEnable = VK_FALSE;
+
+    VkPipelineColorBlendAttachmentState[1] colorBlendAttachments;
+
+    foreach(ref colorBlendAttachment ; colorBlendAttachments)
+    {
+        colorBlendAttachment.blendEnable = VK_TRUE;
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+        colorBlendAttachment.colorWriteMask =
+            VK_COLOR_COMPONENT_R_BIT |
+            VK_COLOR_COMPONENT_G_BIT |
+            VK_COLOR_COMPONENT_B_BIT |
+            VK_COLOR_COMPONENT_A_BIT;
+    }
+
+    VkPipelineColorBlendStateCreateInfo colorBlending;
+    colorBlending.logicOpEnable = VK_FALSE;
+    colorBlending.attachmentCount = colorBlendAttachments.length32;
+    colorBlending.pAttachments = colorBlendAttachments.ptr;
+
+    VkDynamicState[3] dynamicStates =
+    [
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_SCISSOR,
+        VK_DYNAMIC_STATE_LINE_WIDTH,
+    ];
+
+    VkPipelineDynamicStateCreateInfo dynamicState;
+    dynamicState.dynamicStateCount = dynamicStates.length;
+    dynamicState.pDynamicStates = dynamicStates.ptr;
+
+    VkPipelineDepthStencilStateCreateInfo depthStencilState;
+
+    VkDescriptorSetLayout[1] descriptorSetLayouts =
+    [
+        imguiDescriptorSetLayout,
+    ];
+
+    VkPushConstantRange[1] pushConstantRanges =
+    [
+        VkPushConstantRange(VK_SHADER_STAGE_VERTEX_BIT, 0, ImguiPushConstants.sizeof),
+    ];
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+    pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.length32;
+    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.ptr;
+    pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.length32;
+    pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.ptr;
+
+    vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &imguiPipelineLayout));
+
+    VkGraphicsPipelineCreateInfo pipelineInfo;
+    pipelineInfo.stageCount = shaderStages.length32;
+    pipelineInfo.pStages = shaderStages.ptr;
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pDepthStencilState = &depthStencilState;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pDynamicState = &dynamicState;
+    pipelineInfo.layout = imguiPipelineLayout;
+
+    pipelineInfo.renderPass = renderPass; // TODO renderpass?
+    pipelineInfo.subpass = 0;
+
+    vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &imguiPipeline));
+}
+
+void updateImguiBuffers(ImDrawData* drawData)
+{
+    auto io = igGetIO();
+
+    uint vertexSize = drawData.TotalVtxCount * cast(uint)ImguiVertex.sizeof;
+    uint indexSize = drawData.TotalIdxCount  * cast(uint)ImDrawIdx.sizeof;
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(max(vertexSize, indexSize), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
+    scope(exit)
+    {
+        vkDestroyBuffer(device, stagingBuffer, null);
+        vkFreeMemory(device, stagingBufferMemory, null);
+    }
+
+    if(!imguiVertexBuffer || imguiVertexBufferSize < vertexSize)
+    {
+        if(imguiVertexBuffer)       vkDestroyBuffer(device, imguiVertexBuffer, null);
+        if(imguiVertexBufferMemory) vkFreeMemory(device, imguiVertexBufferMemory, null);
+
+        createBuffer(vertexSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, imguiVertexBuffer, imguiVertexBufferMemory);
+
+        imguiVertexBufferSize = vertexSize;
+    }
+
+    {
+        void* data;
+        vkMapMemory(device, stagingBufferMemory, 0, vertexSize, 0, &data);
+
+        foreach(ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
+        {
+            uint size = cmdList.VtxBuffer.Size * cast(uint)ImguiVertex.sizeof;
+            data[0 .. size] = cmdList.VtxBuffer[];
+
+            data += size;
+        }
+
+        vkUnmapMemory(device, stagingBufferMemory);
+        copyBuffer(stagingBuffer, imguiVertexBuffer, vertexSize);
+    }
+
+    if(!imguiIndexBuffer || imguiIndexBufferSize < indexSize)
+    {
+        if(imguiIndexBuffer)       vkDestroyBuffer(device, imguiIndexBuffer, null);
+        if(imguiIndexBufferMemory) vkFreeMemory(device, imguiIndexBufferMemory, null);
+
+        createBuffer(indexSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, imguiIndexBuffer, imguiIndexBufferMemory);
+
+        imguiIndexBufferSize = indexSize;
+    }
+
+    {
+        void* data;
+        vkMapMemory(device, stagingBufferMemory, 0, indexSize, 0, &data);
+
+        foreach(ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
+        {
+            uint size = cmdList.IdxBuffer.Size * cast(uint)ImDrawIdx.sizeof;
+            data[0 .. size] = cmdList.IdxBuffer[];
+
+            data += size;
+        }
+
+        vkUnmapMemory(device, stagingBufferMemory);
+        copyBuffer(stagingBuffer, imguiIndexBuffer, indexSize);
+    }
+}
+
 void createDebugFrameBufferPipeline()
 {
     VkShaderModule vertShaderModule = createShaderModule(import("DebugFrameBuffer-vert.spv"));
@@ -1647,6 +2052,7 @@ void createDebugFrameBufferPipeline()
     pipelineInfo.pRasterizationState = &rasterizer;
     pipelineInfo.pMultisampleState = &multisampling;
     pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pDynamicState = &dynamicState;
     pipelineInfo.layout = debugFrameBufferPipelineLayout;
 
     pipelineInfo.renderPass = renderPass; // TODO renderpass?
@@ -1761,6 +2167,10 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
     createUniformDescriptorSet();
     createLightmapDescriptorSet(sbsp);
 
+    createImguiTexture();
+    createImguiDescriptorSet();
+    createImguiPipeline();
+
     createDebugFrameBufferDescriptorSet();
     createDebugFrameBufferPipeline();
     createQuad();
@@ -1827,6 +2237,16 @@ void render(ref World world, ref Camera camera)
         vkCmdBindIndexBuffer(offScreenCmdBuffer, sbspIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
     }
 
+    VkViewport viewport;
+    viewport.x = 0;
+    viewport.y = 0;
+    viewport.width = windowWidth;
+    viewport.height = windowHeight;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+
+    vkCmdSetViewport(offScreenCmdBuffer, 0, 1, &viewport);
+
     auto sbsp = world.getCurrentSbsp;
 
     foreach(int i, ref lightmap ; sbsp.lightmaps)
@@ -1887,7 +2307,11 @@ void render(ref World world, ref Camera camera)
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
         debugFrameBufferPipelineLayout, 0, decriptorSets.length32, decriptorSets.ptr, 0, null);
 
+    vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
+
     vkCmdDraw(commandBuffer, 4, 1, 0, 0);
+
+    renderImGui(commandBuffer);
 
     vkCmdEndRenderPass(commandBuffer);
     vkCheck(vkEndCommandBuffer(commandBuffer));
@@ -2385,9 +2809,57 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
     return false;
 }
 
-void renderImGui()
+void renderImGui(VkCommandBuffer commandBuffer)
 {
-    assert(0);
+    auto io = igGetIO();
+    ImDrawData* drawData = igGetDrawData();
+
+    updateImguiBuffers(drawData);
+
+    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, imguiPipeline);
+
+    VkDescriptorSet[1] decriptorSets =
+    [
+        imguiDescriptorSet
+    ];
+
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+        imguiPipelineLayout, 0, decriptorSets.length32, decriptorSets.ptr, 0, null);
+
+    VkBuffer[1] vertexBuffers = [ imguiVertexBuffer ];
+    VkDeviceSize[1] offsets = [ 0 ];
+
+    vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
+    vkCmdBindIndexBuffer(commandBuffer, imguiIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+    ImguiPushConstants pushConstants;
+
+    pushConstants.scale = 2.0f / io.DisplaySize;
+    pushConstants.translate  = Vec2(-1.0f);
+
+    vkCmdPushConstants(commandBuffer, imguiPipelineLayout,
+        VK_SHADER_STAGE_VERTEX_BIT, 0, ImguiPushConstants.sizeof, &pushConstants);
+
+    uint vertexOffset;
+    uint indexOffset;
+    foreach(ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
+    {
+        foreach(ref ImDrawCmd cmd ; cmdList.CmdBuffer)
+        {
+            VkRect2D scissor;
+            scissor.offset.x = cast(int)max(cmd.ClipRect.x, 0.0f);
+            scissor.offset.y = cast(int)max(cmd.ClipRect.y, 0.0f);
+            scissor.extent.width = cast(uint)(cmd.ClipRect.z - cmd.ClipRect.x);
+            scissor.extent.height = cast(uint)(cmd.ClipRect.w - cmd.ClipRect.y);
+
+            vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
+            vkCmdDrawIndexed(commandBuffer, cmd.ElemCount, 1, indexOffset, vertexOffset, 0);
+
+            indexOffset += cmd.ElemCount;
+        }
+
+        vertexOffset += cmdList.VtxBuffer.Size;
+    }
 }
 }
 

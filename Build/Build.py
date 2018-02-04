@@ -77,6 +77,9 @@ def doBuild(buildTarget):
                 subprocess.check_output(args).decode('ascii', errors='surrogateescape')
 
             def buildShaders():
+                buildBinary('../Shaders/Imgui.vert', './Data/Imgui-vert.spv')
+                buildBinary('../Shaders/Imgui.frag', './Data/Imgui-frag.spv')
+
                 buildBinary('../Shaders/DebugFrameBuffer.vert', './Data/DebugFrameBuffer-vert.spv')
                 buildBinary('../Shaders/DebugFrameBuffer.frag', './Data/DebugFrameBuffer-frag.spv')
 
