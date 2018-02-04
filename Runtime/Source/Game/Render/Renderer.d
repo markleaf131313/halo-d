@@ -2684,7 +2684,7 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
         samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
         samplerInfo.mipLodBias = 0.0f;
         samplerInfo.minLod = 0.0f;
-        samplerInfo.maxLod = 0.0f;
+        samplerInfo.maxLod = 10.0f;
 
         vkCheck(vkCreateSampler(device, &samplerInfo, null, &texture.sampler));
 
