@@ -186,8 +186,6 @@ void main(string[] args)
                     default:
                     }
                 }
-
-                SDL_GL_SwapWindow(window);
             }
         }
 
