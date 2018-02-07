@@ -1,5 +1,6 @@
 package org.libsdl.app;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -119,7 +120,9 @@ public class SDLActivity extends Activity {
      * @return arguments for the native application.
      */
     protected String[] getArguments() {
-        return new String[0];
+        return new String[]{
+            getContext().getExternalFilesDir(null).getAbsolutePath()
+        };
     }
 
     public static void initialize() {

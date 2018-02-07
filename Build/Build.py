@@ -28,10 +28,43 @@ def genMultiLoop(*args):
             values[i - 1] += 1
             i -= 1
 
+def buildBinary(src, dst, defines=[]):
+    prog = 'glslangValidator'
 
+    args = [
+        prog,
+        '-V', src,
+        '-o', dst,
+        *defines,
+    ]
 
-def doBuild(buildTarget):
+    # TODO fix ordering of print
+    # print('Running: ', ' '.join(args))
+    subprocess.check_output(args).decode('ascii', errors='surrogateescape')
 
+def buildShaders():
+    buildBinary('../Shaders/Imgui.vert', './Data/Imgui-vert.spv')
+    buildBinary('../Shaders/Imgui.frag', './Data/Imgui-frag.spv')
+
+    buildBinary('../Shaders/DebugFrameBuffer.vert', './Data/DebugFrameBuffer-vert.spv')
+    buildBinary('../Shaders/DebugFrameBuffer.frag', './Data/DebugFrameBuffer-frag.spv')
+
+    buildBinary('../Shaders/Env.vert', './Data/Env-vert.spv')
+
+    for t, detail, micro in genMultiLoop(2, 2, 2):
+        buildBinary(
+            '../Shaders/Env.frag', './Data/Env-frag-{}-{}-{}.spv'.format(t, detail, micro),
+            [
+                '-DTYPE={}'.format(t),
+                '-DFUNCT_DETAIL={}'.format(detail),
+                '-DFUNCT_MICRO={}'.format(micro),
+            ]
+        )
+
+def doBuild(buildTarget, output):
+
+    compiler = 'dmd'
+    arch = '-m64'
     dflags = []
     lflags = []
     libs = []
@@ -48,7 +81,19 @@ def doBuild(buildTarget):
             '-JData/',
         ]
 
-    if platform.system() == 'Windows':
+    if buildTarget == 'Android':
+        prebuild = buildShaders
+
+        compiler = 'ldc2'
+        arch = '-mtriple=armv7-none-linux-android'
+        dflags = [
+            '-I../Build/Imports/',
+            '-JData/',
+            '-c',
+            '-of' + output,
+        ]
+
+    elif platform.system() == 'Windows':
         dflags += [ '-mscrtlib=msvcrt', ]
         lflags += [ '-L/LIBPATH:../Build/Lib/Windows/x64', ]
 
@@ -62,40 +107,6 @@ def doBuild(buildTarget):
             libs += [ 'OpenAL32.lib', 'vulkan-1.lib', 'SDL2.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
         elif buildTarget == 'Runtime':
-            def buildBinary(src, dst, defines=[]):
-                prog = 'glslangValidator'
-
-                args = [
-                    prog,
-                    '-V', src,
-                    '-o', dst,
-                    *defines,
-                ]
-
-                # TODO fix ordering of print
-                # print('Running: ', ' '.join(args))
-                subprocess.check_output(args).decode('ascii', errors='surrogateescape')
-
-            def buildShaders():
-                buildBinary('../Shaders/Imgui.vert', './Data/Imgui-vert.spv')
-                buildBinary('../Shaders/Imgui.frag', './Data/Imgui-frag.spv')
-
-                buildBinary('../Shaders/DebugFrameBuffer.vert', './Data/DebugFrameBuffer-vert.spv')
-                buildBinary('../Shaders/DebugFrameBuffer.frag', './Data/DebugFrameBuffer-frag.spv')
-
-                buildBinary('../Shaders/Env.vert', './Data/Env-vert.spv')
-
-                for t, detail, micro in genMultiLoop(2, 2, 2):
-                    buildBinary(
-                        '../Shaders/Env.frag', './Data/Env-frag-{}-{}-{}.spv'.format(t, detail, micro),
-                        [
-                            '-DTYPE={}'.format(t),
-                            '-DFUNCT_DETAIL={}'.format(detail),
-                            '-DFUNCT_MICRO={}'.format(micro),
-                        ]
-                    )
-
-
             prebuild = buildShaders
 
             uniqueIdentifer = datetime.today().strftime('%Y%m%d-%H%M%S')
@@ -145,12 +156,11 @@ def doBuild(buildTarget):
         return
 
     args = [
-        'dmd',
-        '-m64',
+        compiler,
+        arch,
         # '-w',           # warnings
         # '-de',          # treat deprecation as errors
         '-g',           # debug symbols (C format)
-        '-debug',
         #'-inline',
         *dflags,
         *dsrcs,
@@ -175,7 +185,8 @@ def doBuild(buildTarget):
 startTime = datetime.now()
 
 parser = argparse.ArgumentParser()
-parser.add_argument('build', action='append', choices = ['Impl', 'Runtime', 'all'])
+parser.add_argument('build', action='append', choices = ['Impl', 'Runtime', 'all', 'Android'])
+parser.add_argument('--output', action='store', default='', required=False)
 args = parser.parse_args()
 
 
@@ -183,8 +194,13 @@ if args.build[0] == 'all':
     args.build = [ 'Impl', 'Runtime' ] # order matters!
 
 for b in args.build:
-    os.chdir(b)
-    doBuild(b)
+
+    if b == 'Android':
+        os.chdir(os.path.dirname(os.path.realpath(__file__)) + '\\..\\Runtime')
+    else:
+        os.chdir(b)
+
+    doBuild(b, args.output)
     os.chdir('..')
 
 
