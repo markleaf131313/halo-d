@@ -275,7 +275,7 @@ VkSemaphore              imageAvailableSemaphore;
 VkSemaphore              offscreenFinishedSemaphore;
 VkSemaphore              renderFinishedSemaphore;
 
-ShaderInstance[DatumIndex] shaderInstances;
+static ShaderInstance[DatumIndex] shaderInstances; // TODO is static as hack to fix crashing.
 FixedArray!(Texture, 1024) textureInstances; // TODO increase limit?
 
 uint windowWidth = 1920;
