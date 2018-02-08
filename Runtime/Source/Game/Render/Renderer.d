@@ -170,6 +170,11 @@ struct FrameBuffer
     FrameBufferAttachment albedo, specular, position, normal;
     FrameBufferAttachment depth;
     VkRenderPass renderPass;
+
+    VkExtent2D extent()
+    {
+        return VkExtent2D(width, height);
+    }
 }
 
 version(Android)
@@ -2208,7 +2213,7 @@ void render(ref World world, ref Camera camera)
     VkRenderPassBeginInfo renderPassInfo;
     renderPassInfo.renderPass = offscreenFramebuffer.renderPass;
     renderPassInfo.framebuffer = offscreenFramebuffer.frameBuffer;
-    renderPassInfo.renderArea.extent = swapchainExtent;
+    renderPassInfo.renderArea.extent = offscreenFramebuffer.extent;
 
     VkClearValue[5] clearColors =
     [
