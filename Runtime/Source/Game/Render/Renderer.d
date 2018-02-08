@@ -1194,11 +1194,14 @@ void createEnvDescriptorSetLayout()
     vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &sbspEnvDescriptorSetLayout));
 }
 
-void createLightmapDescriptorSetLayout()
+void createLightmapDescriptorSetLayout(TagScenarioStructureBsp* sbsp)
 {
+    auto tagBitmap = Cache.get!TagBitmap(sbsp.lightmapsBitmap.index);
+
     VkDescriptorSetLayoutBinding[1] setLayoutBindings =
     [
-        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 64, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+            tagBitmap.bitmaps.size, VK_SHADER_STAGE_FRAGMENT_BIT),
     ];
 
     VkDescriptorSetLayoutCreateInfo descriptorLayout;
@@ -1222,7 +1225,7 @@ void createLightmapDescriptorSet(TagScenarioStructureBsp* sbsp)
 
     vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &lightmapDescriptorSet));
 
-    FixedArray!(VkDescriptorImageInfo, 96) imageInfos;
+    FixedArray!(VkDescriptorImageInfo, 64) imageInfos;
 
     auto tagBitmap = Cache.get!TagBitmap(sbsp.lightmapsBitmap.index);
 
@@ -2164,7 +2167,7 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
     createDescriptorPool();
 
     createSceneGlobalsDescriptorSetLayout();
-    createLightmapDescriptorSetLayout();
+    createLightmapDescriptorSetLayout(sbsp);
     createEnvDescriptorSetLayout();
 
     createSbspEnvPipelines();
