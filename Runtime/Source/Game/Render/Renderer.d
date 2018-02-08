@@ -37,6 +37,8 @@ static void vkCheck(VkResult result, uint line = __LINE__)
 
 struct ImguiVertex
 {
+    static assert(this.sizeof == 0x14);
+
     Vec2 position;
     Vec2 coord;
     uint color;
@@ -912,8 +914,8 @@ VkExtent2D chooseSwapExtent(ref const(VkSurfaceCapabilitiesKHR) capabilities)
     {
         VkExtent2D actualExtent = { windowWidth, windowHeight };
 
-        actualExtent.width = max(capabilities.minImageExtent.width, min(capabilities.maxImageExtent.width, actualExtent.width));
-        actualExtent.height = max(capabilities.minImageExtent.height, min(capabilities.maxImageExtent.height, actualExtent.height));
+        actualExtent.width  = clamp(actualExtent.width,  capabilities.minImageExtent.width,  capabilities.maxImageExtent.width);
+        actualExtent.height = clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
         return actualExtent;
     }
@@ -927,13 +929,10 @@ void createSwapChain()
     VkPresentModeKHR   presentMode   = chooseSwapPresentMode(swapChainSupport.presentModes);
     VkExtent2D         extent        = chooseSwapExtent(swapChainSupport.capabilities);
 
-    assert(extent.width == windowWidth && extent.height == windowHeight);
+    windowWidth  = extent.width;
+    windowHeight = extent.height;
 
-    uint imageCount = swapChainSupport.capabilities.minImageCount + 1;
-    if(swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
-    {
-        imageCount = swapChainSupport.capabilities.maxImageCount;
-    }
+    uint imageCount = min(swapChainSupport.capabilities.minImageCount + 1, swapChainSupport.capabilities.maxImageCount);
 
     VkSwapchainCreateInfoKHR info;
     info.surface = surface;
@@ -2850,9 +2849,9 @@ void renderImGui(VkCommandBuffer commandBuffer)
         foreach(ref ImDrawCmd cmd ; cmdList.CmdBuffer)
         {
             VkRect2D scissor;
-            scissor.offset.x = cast(int)max(cmd.ClipRect.x, 0.0f);
-            scissor.offset.y = cast(int)max(cmd.ClipRect.y, 0.0f);
-            scissor.extent.width = cast(uint)(cmd.ClipRect.z - cmd.ClipRect.x);
+            scissor.offset.x      = cast(int)max(cmd.ClipRect.x, 0.0f);
+            scissor.offset.y      = cast(int)max(cmd.ClipRect.y, 0.0f);
+            scissor.extent.width  = cast(uint)(cmd.ClipRect.z - cmd.ClipRect.x);
             scissor.extent.height = cast(uint)(cmd.ClipRect.w - cmd.ClipRect.y);
 
             vkCmdSetScissor(commandBuffer, 0, 1, &scissor);
