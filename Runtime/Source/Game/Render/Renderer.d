@@ -807,8 +807,11 @@ void createLogicalDevice()
         queueInfo.pQueuePriorities = &priority;
     }
 
+    VkPhysicalDeviceFeatures capabilities;
+    vkGetPhysicalDeviceFeatures(physicalDevice, &capabilities);
+
     VkPhysicalDeviceFeatures features;
-    features.textureCompressionBC = true;
+    features.textureCompressionBC = capabilities.textureCompressionBC;
     features.samplerAnisotropy = true;
 
     VkDeviceCreateInfo info;
