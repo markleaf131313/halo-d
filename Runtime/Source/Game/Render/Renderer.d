@@ -212,13 +212,13 @@ VkQueue                  presentQueue;
 VkSwapchainKHR                swapchain;
 VkFormat                      swapchainImageFormat;
 VkExtent2D                    swapchainExtent;
-FixedArray!(VkImage, 3)       swapchainImages;
-FixedArray!(VkImageView, 3)   swapchainImageViews;
-FixedArray!(VkFramebuffer, 3) swapchainFramebuffers;
+FixedArray!(VkImage, 5)       swapchainImages;
+FixedArray!(VkImageView, 5)   swapchainImageViews;
+FixedArray!(VkFramebuffer, 5) swapchainFramebuffers;
 VkRenderPass                  renderPass;
 
 VkCommandPool                   commandPool;
-FixedArray!(VkCommandBuffer, 3) commandBuffers;
+FixedArray!(VkCommandBuffer, 5) commandBuffers;
 
 VkBuffer                 sbspVertexBuffer;
 VkDeviceMemory           sbspVertexBufferMemory;
