@@ -92,11 +92,6 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         Cache.inst = &gameState.cache;
         gameState.cache.load("maps/moj.map");
 
-        gameState.camera.near = 0.0065f;
-        gameState.camera.far  = 1024.0f;
-        gameState.camera.fieldOfView = toRadians(50.0f);
-        gameState.camera.aspect = 1920.0f / 810.0f;
-
         gameState.world.setCurrentSbsp();
         gameState.world.initialize();
 
@@ -104,6 +99,11 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         gameState.hsRuntime.initializeScenario(gameState.cache.scenario);
 
         gameState.renderer.initialize(window, gameState.world.getCurrentSbsp);
+
+        gameState.camera.near = 0.0065f;
+        gameState.camera.far  = 1024.0f;
+        gameState.camera.fieldOfView = toRadians(50.0f);
+        gameState.camera.aspect = float(gameState.renderer.windowWidth) / float(gameState.renderer.windowHeight);
 
         {
             auto locs = &Cache.inst.scenario.playerStartingLocations;
