@@ -2203,6 +2203,8 @@ void render(ref World world, ref Camera camera)
     auto commandBuffer = commandBuffers[imageIndex];
     auto frameBuffer   = swapchainFramebuffers[imageIndex];
 
+    updateImguiBuffers(igGetDrawData());
+
     // Build Command Buffer
 
     VkCommandBufferBeginInfo beginInfo;
@@ -2816,8 +2818,6 @@ void renderImGui(VkCommandBuffer commandBuffer)
 {
     auto io = igGetIO();
     ImDrawData* drawData = igGetDrawData();
-
-    updateImguiBuffers(drawData);
 
     vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, imguiPipeline);
 
