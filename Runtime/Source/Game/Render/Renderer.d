@@ -1099,14 +1099,14 @@ void createDescriptorPool()
 {
     VkDescriptorPoolSize[2] poolSize =
     [
-        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 256),
+        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1024),
         VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 256),
     ];
 
     VkDescriptorPoolCreateInfo poolInfo;
     poolInfo.poolSizeCount = poolSize.length32;
     poolInfo.pPoolSizes = poolSize.ptr;
-    poolInfo.maxSets = 128;
+    poolInfo.maxSets = 512;
 
     vkCheck(vkCreateDescriptorPool(device, &poolInfo, null, &descriptorPool));
 
