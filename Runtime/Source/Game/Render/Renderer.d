@@ -544,8 +544,8 @@ void createOffscreenFramebuffer()
     offscreenFramebuffer.width  = windowWidth;
     offscreenFramebuffer.height = windowHeight;
 
-    createAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.albedo);
-    createAttachment(VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.specular);
+    createAttachment(swapchainImageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.albedo);
+    createAttachment(swapchainImageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.specular);
     createAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.position);
     createAttachment(VK_FORMAT_R16G16B16A16_SFLOAT, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.normal);
 
