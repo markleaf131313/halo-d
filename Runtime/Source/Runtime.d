@@ -28,6 +28,68 @@ version(Windows)
     mixin SimpleDllMain;
 }
 
+version(Android)
+{
+    void main()
+    {
+    }
+
+    extern(C) void rt_init();
+
+    extern(C) int SDL_main(int argc, char** argv)
+    {
+        import Game.SharedGameState;
+        import OpenAL;
+        import core.stdc.stdlib : malloc;
+        import std.file : chdir;
+        import std.string : toStringz;
+
+        SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
+
+        rt_init();
+
+        chdir(argv[1].fromStringz);
+
+        // Video ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        SDL_Init(SDL_INIT_VIDEO);
+        SDL_Window* window = SDL_CreateWindow(null, 0, 0, 1920, 1080, SDL_WINDOW_VULKAN | SDL_WINDOW_FULLSCREEN_DESKTOP);
+
+        // Audio ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        ALCdevice*  alDevice  = alcOpenDevice(null);
+        ALCcontext* alContext = alcCreateContext(alDevice, null);
+
+        alcMakeContextCurrent(alContext);
+
+        SharedGameState* sharedGameState = cast(SharedGameState*)malloc(SharedGameState.sizeof);
+        if(!createSharedGameState(sharedGameState, window))
+        {
+            return 1;
+        }
+
+        initSharedGameState(sharedGameState);
+
+        try
+        {
+            while(true)
+            {
+                if(!gameStep(sharedGameState))
+                {
+                    return 0;
+                }
+
+                stdout.flush();
+            }
+        }
+        catch(Throwable t)
+        {
+            SDL_Log(t.toString().toStringz());
+        }
+
+        return 0;
+    }
+}
+
 __gshared DebugUi debugUi; // todo temp debugging
 __gshared StopWatch frameStopWatch;
 __gshared Duration lastTime;
