@@ -792,18 +792,13 @@ void createLogicalDevice()
 {
     auto queues = findGraphicsQueueIndex(physicalDevice);
 
-    VkDeviceQueueCreateInfo[] queueInfos;
+    FixedArray!(VkDeviceQueueCreateInfo, 2) queueInfos;
 
     float priority = 1.0f;
 
-    if(queues.graphicsQueue == queues.presentQueue)
-    {
-        queueInfos = new VkDeviceQueueCreateInfo[1];
-    }
-    else
-    {
-        queueInfos = new VkDeviceQueueCreateInfo[2];
-    }
+    if(queues.graphicsQueue == queues.presentQueue) queueInfos.resize(1);
+    else                                            queueInfos.resize(2);
+
 
     foreach(i, ref queueInfo ; queueInfos)
     {
@@ -819,7 +814,7 @@ void createLogicalDevice()
     VkDeviceCreateInfo info;
 
     info.pQueueCreateInfos       = queueInfos.ptr;
-    info.queueCreateInfoCount    = queueInfos.length32;
+    info.queueCreateInfoCount    = queueInfos.length;
     info.pEnabledFeatures        = &features;
     info.enabledLayerCount       = validationLayers.length;
     info.ppEnabledLayerNames     = validationLayers.ptr;
