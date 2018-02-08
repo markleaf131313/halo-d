@@ -369,7 +369,8 @@ try
         static StopWatch stopWatch;
         auto io = igGetIO();
 
-        stopWatch.stop();
+        if(stopWatch.running)
+            stopWatch.stop();
 
         io.DisplaySize = Vec2(1920.0f, 810.0f);
 
