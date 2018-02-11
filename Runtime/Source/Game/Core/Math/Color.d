@@ -206,6 +206,14 @@ struct ColorArgb8
         b = argb;
     }
 
+    this(ubyte a, ubyte r, ubyte g, ubyte b)
+    {
+        this.a = a;
+        this.r = r;
+        this.g = g;
+        this.b = b;
+    }
+
     this(ColorRgb8 color)
     {
         a = ubyte.max;
