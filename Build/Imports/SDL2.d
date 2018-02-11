@@ -2817,6 +2817,11 @@ extern( C ) @nogc nothrow {
     SDL_bool SDL_Vulkan_GetInstanceExtensions(SDL_Window*, uint* count, const(char)** names);
     SDL_bool SDL_Vulkan_CreateSurface(SDL_Window*, VkInstance, VkSurfaceKHR*);
     void SDL_Vulkan_GetDrawableSize(SDL_Window*, int* width, int* height);
+
+    version(Android)
+    {
+        const(char)* SDL_AndroidGetExternalStoragePath();
+    }
 }
 
 @nogc nothrow {
