@@ -2255,8 +2255,8 @@ void render(ref World world, ref Camera camera)
     VkViewport viewport;
     viewport.x = 0;
     viewport.y = 0;
-    viewport.width = windowWidth;
-    viewport.height = windowHeight;
+    viewport.width  = offscreenFramebuffer.width;
+    viewport.height = offscreenFramebuffer.height;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
 
@@ -2322,6 +2322,8 @@ void render(ref World world, ref Camera camera)
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
         debugFrameBufferPipelineLayout, 0, decriptorSets.length32, decriptorSets.ptr, 0, null);
 
+    viewport.width  = windowWidth;
+    viewport.height = windowHeight;
     vkCmdSetViewport(commandBuffer, 0, 1, &viewport);
 
     vkCmdDraw(commandBuffer, 4, 1, 0, 0);
