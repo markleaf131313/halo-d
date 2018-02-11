@@ -48,6 +48,7 @@ version(Android)
 
         rt_init();
 
+        SDL_Log(SDL_AndroidGetExternalStoragePath());
         chdir(argv[1].fromStringz);
 
         // Video ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +153,7 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
         Audio.inst.initialize(&gameState.world);
 
         Cache.inst = &gameState.cache;
-        gameState.cache.load("maps/moj.map");
+        gameState.cache.load("maps/bloodgulch.map");
 
         gameState.world.setCurrentSbsp();
         gameState.world.initialize();
@@ -328,6 +329,8 @@ bool initSharedGameState(SharedGameState* gameState)
 
     ImGuiIO* io = igGetIO();
 
+    io.FontGlobalScale = 2.0f; // TODO DPI scaling
+
     ubyte* pixels;
     int width, height;
 
@@ -375,6 +378,16 @@ bool gameStep(SharedGameState* gameState)
 {
 try
 {
+    struct FingerAnalog
+    {
+        long fingerIndex = indexNone;
+        Vec2 center;
+        Vec2 delta = Vec2(0.0f);
+    }
+
+    static FingerAnalog movementFinger;
+    static FingerAnalog rotationFinger;
+
     static float mouseWheel;
     static int ticks;
 
@@ -424,6 +437,51 @@ try
 
         break;
     }
+    case SDL_FINGERDOWN:
+    {
+        if(igIsPosHoveringAnyWindow(Vec2(ev.tfinger.x, ev.tfinger.y) * igGetIO().DisplaySize)) // TODO unhardcode
+        {
+            break;
+        }
+
+        if(ev.tfinger.x < 0.25f)
+        {
+            if(movementFinger.fingerIndex == indexNone)
+            {
+                movementFinger.fingerIndex = ev.tfinger.fingerId;
+                movementFinger.center = Vec2(ev.tfinger.y, ev.tfinger.x);
+                movementFinger.delta = Vec2(0.0f);
+            }
+        }
+        else
+        {
+            if(rotationFinger.fingerIndex == indexNone)
+            {
+                rotationFinger.fingerIndex = ev.tfinger.fingerId;
+                rotationFinger.center = Vec2(ev.tfinger.x, ev.tfinger.y);
+                rotationFinger.delta = Vec2(0.0f);
+            }
+        }
+        break;
+    }
+    case SDL_FINGERMOTION:
+    {
+        if(ev.tfinger.fingerId == rotationFinger.fingerIndex)
+        {
+            gameState.camera.updateRotation(ev.tfinger.dx * 4.0f, ev.tfinger.dy * 2.0f);
+        }
+        if(ev.tfinger.fingerId == movementFinger.fingerIndex)
+        {
+            movementFinger.delta = Vec2(ev.tfinger.y, ev.tfinger.x) - movementFinger.center;
+        }
+        break;
+    }
+    case SDL_FINGERUP:
+    {
+        if(ev.tfinger.fingerId == rotationFinger.fingerIndex) rotationFinger.fingerIndex = indexNone;
+        if(ev.tfinger.fingerId == movementFinger.fingerIndex) movementFinger.fingerIndex = indexNone;
+        break;
+    }
     default:
     }
 
@@ -434,7 +492,7 @@ try
         if(stopWatch.running)
             stopWatch.stop();
 
-        io.DisplaySize = Vec2(1920.0f, 810.0f);
+        io.DisplaySize = Vec2(1920.0f, 1080.0f); // TODO unhardcode
 
         if(stopWatch.peek().hnsecs != 0)
         {
@@ -524,6 +582,11 @@ try
         if(toggleKeyPress!SDL_SCANCODE_LSHIFT)
         {
             fast = !fast;
+        }
+
+        if(movementFinger.fingerIndex != indexNone)
+        {
+            gameState.camera.position += gameState.camera.rotation * -Vec3(movementFinger.delta * 1.5f, 0.0f);
         }
 
         if(SDL_GetMouseState(null, null) & SDL_BUTTON_MMASK)
