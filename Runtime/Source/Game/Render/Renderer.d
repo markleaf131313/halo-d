@@ -206,6 +206,7 @@ static immutable const(char)*[] requiredDeviceExtensions =
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 ];
 
+bool hasTextureCompressionBc;
 
 VkInstance               instance;
 VkDebugReportCallbackEXT callback;
@@ -817,8 +818,10 @@ void createLogicalDevice()
     VkPhysicalDeviceFeatures capabilities;
     vkGetPhysicalDeviceFeatures(physicalDevice, &capabilities);
 
+    hasTextureCompressionBc = (capabilities.textureCompressionBC == VK_TRUE);
+
     VkPhysicalDeviceFeatures features;
-    features.textureCompressionBC = capabilities.textureCompressionBC;
+    features.textureCompressionBC = hasTextureCompressionBc;
     features.samplerAnisotropy = true;
 
     VkDeviceCreateInfo info;
@@ -2582,6 +2585,183 @@ Texture* findOrLoadTexture(DatumIndex tagIndex, int bitmapIndex, DatumIndex defa
     return null;
 }
 
+bool pixelFormatNeedsPreprocessing(TagEnums.BitmapPixelFormat format)
+{
+    switch(format) with(TagEnums)
+    {
+    case BitmapPixelFormat.dxt1:
+    case BitmapPixelFormat.dxt3:
+    case BitmapPixelFormat.dxt5:
+        return !hasTextureCompressionBc;
+    default:
+    }
+
+    return false;
+}
+
+static uint calculateProcessedSize(Tag.BitmapDataBlock* bitmap)
+{
+    uint result = 0;
+
+    foreach(i ; 0 .. bitmap.mipmapCount + 1)
+    {
+        result += max(1, bitmap.width >> i) * max(1, bitmap.height >> i);
+    }
+
+    return result * 4;
+}
+
+auto copyPixelsToBuffer(Tag.BitmapDataBlock* bitmap, byte[] buffer)
+{
+    import Game.Render.Dxt;
+
+    static struct Result
+    {
+        TagEnums.BitmapPixelFormat format;
+        VkDevice device;
+        VkBuffer buffer;
+        VkDeviceMemory bufferMemory;
+
+        @disable this(this);
+
+        ~this()
+        {
+            if(buffer)       vkDestroyBuffer(device, buffer, null);
+            if(bufferMemory) vkFreeMemory(device, bufferMemory, null);
+       }
+    }
+
+    Result result = Result(bitmap.format, device);
+
+    if(pixelFormatNeedsPreprocessing(bitmap.format))
+    {
+        result.format = TagEnums.BitmapPixelFormat.a8r8g8b8;
+        uint dstBufferSize = calculateProcessedSize(bitmap);
+
+        createBuffer(dstBufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            result.buffer, result.bufferMemory);
+
+        void* data;
+        vkMapMemory(device, result.bufferMemory, 0, dstBufferSize, 0, &data);
+
+        ColorArgb8[] pixels = cast(ColorArgb8[])data[0 .. dstBufferSize];
+
+        switch(bitmap.format) with(TagEnums)
+        {
+        case BitmapPixelFormat.dxt1:
+            Dxt1Block[] blocks = cast(Dxt1Block[])buffer;
+
+            foreach(m ; 0 .. bitmap.mipmapCount + 1)
+            {
+                uint width  = max(1, bitmap.width  >> m);
+                uint height = max(1, bitmap.height >> m);
+
+                uint xBlocks = max(1, width  / 4);
+                uint yBlocks = max(1, height / 4);
+
+                foreach(y ; 0 .. yBlocks)
+                foreach(x ; 0 .. xBlocks)
+                {
+                    ColorArgb8[4][4] colors = void;
+
+                    blocks[y * xBlocks + x].decode(colors);
+
+                    foreach(j ; 0 .. min(4, height))
+                    foreach(i ; 0 .. min(4, width))
+                    {
+                        auto c = colors[j][i];
+                        pixels[width * (y * 4 + j) + (x * 4 + i)] = ColorArgb8(c.r, c.g, c.b, c.a);
+                    }
+                }
+
+                blocks = blocks[xBlocks * yBlocks .. $];
+                pixels = pixels[width * height .. $];
+            }
+
+            break;
+        case BitmapPixelFormat.dxt3:
+            Dxt3Block[] blocks = cast(Dxt3Block[])buffer;
+
+            foreach(m ; 0 .. bitmap.mipmapCount + 1)
+            {
+                uint width  = max(1, bitmap.width  >> m);
+                uint height = max(1, bitmap.height >> m);
+
+                uint xBlocks = max(1, width  / 4);
+                uint yBlocks = max(1, height / 4);
+
+                foreach(y ; 0 .. yBlocks)
+                foreach(x ; 0 .. xBlocks)
+                {
+                    ColorArgb8[4][4] colors = void;
+
+                    blocks[y * xBlocks + x].decode(colors);
+
+                    foreach(j ; 0 .. min(4, height))
+                    foreach(i ; 0 .. min(4, width))
+                    {
+                        auto c = colors[j][i];
+                        pixels[width * (y * 4 + j) + (x * 4 + i)] = ColorArgb8(c.r, c.g, c.b, c.a);
+                    }
+                }
+
+                blocks = blocks[xBlocks * yBlocks .. $];
+                pixels = pixels[width * height .. $];
+            }
+            break;
+        case BitmapPixelFormat.dxt5:
+            Dxt5Block[] blocks = cast(Dxt5Block[])buffer;
+
+            foreach(m ; 0 .. bitmap.mipmapCount + 1)
+            {
+                uint width  = max(1, bitmap.width  >> m);
+                uint height = max(1, bitmap.height >> m);
+
+                uint xBlocks = max(1, width  / 4);
+                uint yBlocks = max(1, height / 4);
+
+                foreach(y ; 0 .. yBlocks)
+                foreach(x ; 0 .. xBlocks)
+                {
+                    ColorArgb8[4][4] colors = void;
+
+                    blocks[y * xBlocks + x].decode(colors);
+
+                    foreach(j ; 0 .. min(4, height))
+                    foreach(i ; 0 .. min(4, width))
+                    {
+                        auto c = colors[j][i];
+                        pixels[width * (y * 4 + j) + (x * 4 + i)] = ColorArgb8(c.r, c.g, c.b, c.a);
+                    }
+                }
+
+                blocks = blocks[xBlocks * yBlocks .. $];
+                pixels = pixels[width * height .. $];
+            }
+            break;
+        default:
+            assert(0);
+        }
+
+        vkUnmapMemory(device, result.bufferMemory);
+    }
+    else
+    {
+        createBuffer(buffer.length32, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            result.buffer, result.bufferMemory);
+
+        void* data;
+        vkMapMemory(device, result.bufferMemory, 0, buffer.length32, 0, &data);
+        data[0 .. buffer.length32] = buffer[];
+        vkUnmapMemory(device, result.bufferMemory);
+    }
+
+
+    return result;
+}
+
 bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture texture)
 {
     import Game.Render.Private.Pixels;
@@ -2596,19 +2776,9 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
     default:
         return false;
     case TagEnums.BitmapType.texture2d:
-        VkBuffer stagingBuffer;
-        VkDeviceMemory stagingBufferMemory;
-        createBuffer(buffer.length32, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-        scope(exit)
-        {
-            vkDestroyBuffer(device, stagingBuffer, null);
-            vkFreeMemory(device, stagingBufferMemory, null);
-        }
 
-        void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, buffer.length32, 0, &data);
-        data[0 .. buffer.length32] = buffer[];
-        vkUnmapMemory(device, stagingBufferMemory);
+        auto staging = copyPixelsToBuffer(bitmap, buffer);
+
 
         VkImageCreateInfo imageInfo;
 
@@ -2618,7 +2788,7 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
         imageInfo.extent.depth  = 1;
         imageInfo.mipLevels     = bitmap.mipmapCount + 1;
         imageInfo.arrayLayers   = 1;
-        imageInfo.format        = getPixelFormat(bitmap.format);
+        imageInfo.format        = getPixelFormat(staging.format);
         imageInfo.tiling        = VK_IMAGE_TILING_OPTIMAL;
         imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
         imageInfo.usage         = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
@@ -2657,20 +2827,20 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
             region.imageSubresource.layerCount = 1;
             region.imageExtent                 = VkExtent3D(width, height, 1);
 
-            vkCmdCopyBufferToImage(commandBuffer, stagingBuffer, texture.image,
+            vkCmdCopyBufferToImage(commandBuffer, staging.buffer, texture.image,
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
             endSingleTimeCommands(commandBuffer);
 
             transitionImageLayout(texture.image, i, 1, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-            offset += pixelFormatSize(bitmap.format, width, height);
+            offset += pixelFormatSize(staging.format, width, height);
         }
 
         VkImageViewCreateInfo viewCreateInfo;
 
         viewCreateInfo.image = texture.image;
         viewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        viewCreateInfo.format = getPixelFormat(bitmap.format);
+        viewCreateInfo.format = getPixelFormat(staging.format);
         viewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         viewCreateInfo.subresourceRange.baseMipLevel = 0;
         viewCreateInfo.subresourceRange.levelCount = bitmap.mipmapCount + 1;
