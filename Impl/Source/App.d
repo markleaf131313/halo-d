@@ -136,7 +136,7 @@ void main(string[] args)
         // Video ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
-        SDL_Window* window = SDL_CreateWindow(null, 100, 100, 1920, 810, SDL_WINDOW_VULKAN);
+        SDL_Window* window = SDL_CreateWindow(null, 100, 100, 1920, 1080, SDL_WINDOW_VULKAN);
 
         // Audio ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
