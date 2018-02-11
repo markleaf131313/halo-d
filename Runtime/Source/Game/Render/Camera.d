@@ -15,6 +15,11 @@ Vec3 position = 0.0f;
 Vec3 forward  = Vec3(1, 0, 0);
 Vec3 up       = Vec3(0, 0, 1);
 
+Mat3 rotation()
+{
+    return Mat3.fromPerpUnitVectors(forward, up);
+}
+
 float aspect;
 float fieldOfView;
 
