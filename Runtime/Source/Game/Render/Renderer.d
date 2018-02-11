@@ -287,7 +287,7 @@ static ShaderInstance[DatumIndex] shaderInstances; // TODO is static as hack to 
 FixedArray!(Texture, 1024) textureInstances; // TODO increase limit?
 
 uint windowWidth = 1920;
-uint windowHeight = 810;
+uint windowHeight = 1080;
 
 struct Queues
 {
