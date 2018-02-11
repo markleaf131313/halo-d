@@ -48,8 +48,7 @@ version(Android)
 
         rt_init();
 
-        SDL_Log(SDL_AndroidGetExternalStoragePath());
-        chdir(argv[1].fromStringz);
+        chdir(SDL_AndroidGetExternalStoragePath().fromStringz);
 
         // Video ////////////////////////////////////////////////////////////////////////////////////////////////////////////
         SDL_Init(SDL_INIT_VIDEO);
