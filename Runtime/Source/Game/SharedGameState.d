@@ -1,7 +1,7 @@
 
 module Game.SharedGameState;
 
-import SDL2;
+import SDL2 : SDL_Window;
 
 import Game.Audio;
 import Game.Cache;
@@ -17,7 +17,6 @@ struct SharedGameState
     uint initializedSizeof = this.sizeof;
 
     SDL_Window* window;
-    SDL_GLContext context;
 
     uint imguiTexture;
 

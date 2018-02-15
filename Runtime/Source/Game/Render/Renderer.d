@@ -235,6 +235,11 @@ VkDeviceMemory           lightmapVertexBufferMemory;
 VkBuffer                 sbspIndexBuffer;
 VkDeviceMemory           sbspIndexBufferMemory;
 
+VkBuffer                 modelVertexBuffer;
+VkDeviceMemory           modelVertexBufferMemory;
+VkBuffer                 modelIndexBuffer;
+VkDeviceMemory           modelIndexBufferMemory;
+
 VkDescriptorPool         descriptorPool;
 
 VkBuffer                 envUnifomBuffer;
@@ -249,6 +254,10 @@ VkDescriptorSet          lightmapDescriptorSet;
 VkDescriptorSetLayout    sbspEnvDescriptorSetLayout;
 VkPipelineLayout         sbspEnvPipelineLayout;
 VkPipeline[3][3][3]      sbspEnvPipelines;
+
+VkDescriptorSetLayout    chicagoModelDescriptorSetLayout;
+VkPipelineLayout         chicagoModelPipelineLayout;
+VkPipeline               chicagoModelPipeline;
 
 VkImage                  imguiImage;
 VkDeviceMemory           imguiImageMemory;
@@ -1430,6 +1439,65 @@ void createSbspEnvPipelines()
 
 }
 
+void createChicagoModelDescriptorSetLayout()
+{
+    VkDescriptorSetLayoutBinding[4] setLayoutBindings =
+    [
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+    ];
+
+    VkDescriptorSetLayoutCreateInfo descriptorLayout;
+    descriptorLayout.bindingCount = setLayoutBindings.length32;
+    descriptorLayout.pBindings = setLayoutBindings.ptr;
+
+    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &chicagoModelDescriptorSetLayout));
+}
+
+void createChicagoModelPipeline()
+{
+    static immutable void[] fragBinary = import("Chicago-frag.spv");
+    static immutable void[] vertBinary = import("Chicago-vert.spv");
+
+    VkShaderModule vertShaderModule = createShaderModule(vertBinary);
+    scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
+
+    VkShaderModule fragShaderModule = createShaderModule(fragBinary);
+    scope(exit) vkDestroyShaderModule(device, fragShaderModule, null);
+
+    VkPipelineShaderStageCreateInfo[2] shaderStages;
+    shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+    shaderStages[0].module_ = vertShaderModule;
+    shaderStages[0].pName = "main";
+
+    shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    shaderStages[1].module_ = fragShaderModule;
+    shaderStages[1].pName = "main";
+
+    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+
+    VkVertexInputBindingDescription[1] bindingDesc =
+    [
+        VkVertexInputBindingDescription(0, TagModelVertex.sizeof, VK_VERTEX_INPUT_RATE_VERTEX),
+    ];
+
+    VkVertexInputAttributeDescription[5] attributeDescs =
+    [
+        VkVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.position.offsetof),
+        VkVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.normal.offsetof),
+        VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.coord.offsetof),
+        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32_UINT,      TagModelVertex.node0.offsetof),
+        VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT, TagModelVertex.weight.offsetof),
+    ];
+
+    vertexInputInfo.vertexBindingDescriptionCount   = bindingDesc.length32;
+    vertexInputInfo.pVertexBindingDescriptions      = bindingDesc.ptr;
+    vertexInputInfo.vertexAttributeDescriptionCount = attributeDescs.length32;
+    vertexInputInfo.pVertexAttributeDescriptions    = attributeDescs.ptr;
+}
+
 void createFramebuffers()
 {
     swapchainFramebuffers.resize(swapchainImageViews.length);
@@ -1548,6 +1616,43 @@ uint findMemoryType(uint typeFilter, VkMemoryPropertyFlags properties)
 
     SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "No supported memory type.");
     assert(0);
+}
+
+void createModelVertexBuffer()
+{
+    ubyte[] vertexData;
+    ubyte[] indexData;
+
+    Cache.inst.readModelVertexData(vertexData, indexData);
+
+    createVertexBuffer(cast(TagModelVertex[])vertexData, modelVertexBuffer, modelVertexBufferMemory);
+
+    // index
+
+    uint bufferSize = indexData.length32;
+
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        stagingBuffer, stagingBufferMemory);
+
+    scope(exit)
+    {
+        vkDestroyBuffer(device, stagingBuffer, null);
+        vkFreeMemory(device, stagingBufferMemory, null);
+    }
+
+    void* data;
+    vkMapMemory(device, stagingBufferMemory, 0, bufferSize, 0, &data);
+    data[0 .. bufferSize] = indexData;
+    vkUnmapMemory(device, stagingBufferMemory);
+
+    createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, modelIndexBuffer, modelIndexBufferMemory);
+
+    copyBuffer(stagingBuffer, modelIndexBuffer, bufferSize);
+
 }
 
 void createSbspVertexBuffer()
@@ -2179,6 +2284,8 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
     createEnvUniformBuffer();
     createUniformDescriptorSet();
     createLightmapDescriptorSet(sbsp);
+
+    createModelVertexBuffer();
 
     createImguiTexture();
     createImguiDescriptorSet();

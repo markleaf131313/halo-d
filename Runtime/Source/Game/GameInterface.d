@@ -1,7 +1,7 @@
 
 module Game.GameInterface;
 
-import SDL2;
+import SDL2 : SDL_Window;
 
 struct GameInterface
 {

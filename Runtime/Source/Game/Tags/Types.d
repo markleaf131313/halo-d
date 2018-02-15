@@ -201,7 +201,7 @@ struct TagModelVertex
     Vec3 binormal;
     Vec3 tangent;
 
-    Vec2 uv;
+    Vec2 coord;
 
     short node0, node1;
     Vec2 weight;

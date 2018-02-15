@@ -46,6 +46,9 @@ def buildShaders():
     buildBinary('../Shaders/Imgui.vert', './Data/Imgui-vert.spv')
     buildBinary('../Shaders/Imgui.frag', './Data/Imgui-frag.spv')
 
+    buildBinary('../Shaders/Chicago.vert', './Data/Chicago-vert.spv')
+    buildBinary('../Shaders/Chicago.frag', './Data/Chicago-frag.spv')
+
     buildBinary('../Shaders/DebugFrameBuffer.vert', './Data/DebugFrameBuffer-vert.spv')
     buildBinary('../Shaders/DebugFrameBuffer.frag', './Data/DebugFrameBuffer-frag.spv')
 
@@ -87,6 +90,7 @@ def doBuild(buildTarget, output):
         compiler = 'ldc2'
         arch = '-mtriple=armv7-none-linux-android'
         dflags = [
+            '-mcpu=cortex-a8',
             '-I../Build/Imports/',
             '-JData/',
             '-c',
