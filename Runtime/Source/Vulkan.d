@@ -2223,12 +2223,12 @@ struct VkPipelineTessellationStateCreateInfo
 
 struct VkViewport
 {
-    float x;
-    float y;
+    float x = 0.0f;
+    float y = 0.0f;
     float width;
     float height;
-    float minDepth;
-    float maxDepth;
+    float minDepth = 0.0f;
+    float maxDepth = 1.0f;
 }
 
 struct VkOffset2D
@@ -2272,9 +2272,9 @@ struct VkPipelineRasterizationStateCreateInfo
     VkFrontFace frontFace;
     VkBool32 depthBiasEnable;
     float depthBiasConstantFactor = 0.0f;
-    float depthBiasClamp = 0.0f;
-    float depthBiasSlopeFactor = 0.0f;
-    float lineWidth = 0.0f;
+    float depthBiasClamp          = 0.0f;
+    float depthBiasSlopeFactor    = 0.0f;
+    float lineWidth               = 1.0f;
 }
 
 struct VkPipelineMultisampleStateCreateInfo
@@ -2339,6 +2339,13 @@ struct VkPipelineColorBlendStateCreateInfo
     uint attachmentCount;
     const(VkPipelineColorBlendAttachmentState)* pAttachments;
     float[4] blendConstants;
+
+    @nogc nothrow
+    void attachments(const(VkPipelineColorBlendAttachmentState)[] attachments)
+    {
+        attachmentCount = attachments.length32;
+        pAttachments    = attachments.ptr;
+    }
 }
 
 struct VkPipelineDynamicStateCreateInfo
@@ -2377,6 +2384,13 @@ struct VkGraphicsPipelineCreateInfo
     uint subpass;
     VkPipeline basePipelineHandle;
     int basePipelineIndex = -1;
+
+    @nogc nothrow
+    void shaderStages(const(VkPipelineShaderStageCreateInfo)[] stages)
+    {
+        stageCount = stages.length32;
+        pStages    = stages.ptr;
+    }
 }
 
 struct VkComputePipelineCreateInfo
@@ -2406,6 +2420,21 @@ struct VkPipelineLayoutCreateInfo
     const(VkDescriptorSetLayout)* pSetLayouts;
     uint pushConstantRangeCount;
     const(VkPushConstantRange)* pPushConstantRanges;
+
+    @nogc nothrow
+    void setLayouts(const(VkDescriptorSetLayout)[] layouts)
+    {
+        setLayoutCount = layouts.length32;
+        pSetLayouts    = layouts.ptr;
+    }
+
+    @nogc nothrow
+    void pushConstantRanges(const(VkPushConstantRange)[] pushConstants)
+    {
+        pushConstantRangeCount = pushConstants.length32;
+        pPushConstantRanges    = pushConstants.ptr;
+    }
+
 }
 
 struct VkSamplerCreateInfo

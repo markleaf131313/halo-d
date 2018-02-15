@@ -1048,14 +1048,30 @@ void createImageViews()
     }
 }
 
-VkShaderModule createShaderModule(const(void)[] code)
+auto createShaderModule(const(void)[] code)
 {
+    static struct Result
+    {
+        VkDevice device;
+        VkShaderModule shader;
+
+        @disable this(this);
+
+        ~this()
+        {
+            if(shader)
+            {
+                vkDestroyShaderModule(device, shader, null);
+            }
+        }
+    }
+
     VkShaderModuleCreateInfo info;
     info.codeSize = code.length;
     info.pCode = cast(const(uint)*)code.ptr;
 
-    VkShaderModule result;
-    if(VkResult res = vkCreateShaderModule(device, &info, null, &result))
+    Result result = Result(device);
+    if(VkResult res = vkCreateShaderModule(device, &info, null, &result.shader))
     {
         SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateShaderModule(): %s", res.to!string.ptr);
         assert(0);
@@ -1285,12 +1301,11 @@ void createBaseSbspEnvPipeline()
     static immutable void[][3][3][3] fragBinaries = createEnvFragBinaries();
     static immutable void[] vertBinary = import("Env-vert.spv");
 
-    VkShaderModule vertShaderModule = createShaderModule(vertBinary);
-    scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
+    auto vertShader = createShaderModule(vertBinary);
 
     VkPipelineShaderStageCreateInfo[2] shaderStages;
     shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-    shaderStages[0].module_ = vertShaderModule;
+    shaderStages[0].module_ = vertShader.shader;
     shaderStages[0].pName = "main";
 
     shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
@@ -1326,12 +1341,8 @@ void createBaseSbspEnvPipeline()
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
     VkViewport viewport;
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
     viewport.width = float(swapchainExtent.width);
     viewport.height = float(swapchainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
 
     VkRect2D scissor;
     scissor.extent = swapchainExtent;
@@ -1343,15 +1354,11 @@ void createBaseSbspEnvPipeline()
     viewportState.pScissors = &scissor;
 
     VkPipelineRasterizationStateCreateInfo rasterizer;
-    rasterizer.depthClampEnable = VK_FALSE;
-    rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
     VkPipelineMultisampleStateCreateInfo multisampling;
-    multisampling.sampleShadingEnable = VK_FALSE;
 
     VkPipelineColorBlendAttachmentState[4] colorBlendAttachments;
 
@@ -1365,9 +1372,7 @@ void createBaseSbspEnvPipeline()
     }
 
     VkPipelineColorBlendStateCreateInfo colorBlending;
-    colorBlending.logicOpEnable = VK_FALSE;
-    colorBlending.attachmentCount = colorBlendAttachments.length32;
-    colorBlending.pAttachments = colorBlendAttachments.ptr;
+    colorBlending.attachments = colorBlendAttachments;
 
     VkDynamicState[2] dynamicStates =
     [
@@ -1396,17 +1401,14 @@ void createBaseSbspEnvPipeline()
     ];
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo;
-    pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.length32;
-    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.ptr;
-    pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.length32;
-    pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.ptr;
+    pipelineLayoutInfo.setLayouts = descriptorSetLayouts;
+    pipelineLayoutInfo.pushConstantRanges = pushConstantRanges;
 
     vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &sbspEnvPipelineLayout));
 
     VkGraphicsPipelineCreateInfo pipelineInfo;
     pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
-    pipelineInfo.stageCount = shaderStages.length32;
-    pipelineInfo.pStages = shaderStages.ptr;
+    pipelineInfo.shaderStages = shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
     pipelineInfo.pDepthStencilState = &depthStencilState;
@@ -1423,12 +1425,11 @@ void createBaseSbspEnvPipeline()
     foreach(detail ; 0 .. 2)
     foreach(micro  ; 0 .. 2)
     {
-        VkShaderModule fragShaderModule = createShaderModule(fragBinaries[type][detail][micro]);
-        scope(exit) vkDestroyShaderModule(device, fragShaderModule, null);
+        auto fragShader = createShaderModule(fragBinaries[type][detail][micro]);
+        shaderStages[1].module_ = fragShader.shader;
 
-        shaderStages[1].module_ = fragShaderModule;
-
-        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &sbspEnvPipelines[type][detail][micro]));
+        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo,
+            null, &sbspEnvPipelines[type][detail][micro]));
     }
 }
 
@@ -1463,16 +1464,16 @@ void createChicagoModelPipeline()
     VkShaderModule vertShaderModule = createShaderModule(vertBinary);
     scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
 
-    VkShaderModule fragShaderModule = createShaderModule(fragBinary);
-    scope(exit) vkDestroyShaderModule(device, fragShaderModule, null);
+    auto vertShader = createShaderModule(vertBinary);
+    auto fragShader = createShaderModule(fragBinary);
 
     VkPipelineShaderStageCreateInfo[2] shaderStages;
     shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-    shaderStages[0].module_ = vertShaderModule;
+    shaderStages[0].module_ = vertShader.shader;
     shaderStages[0].pName = "main";
 
     shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    shaderStages[1].module_ = fragShaderModule;
+    shaderStages[1].module_ = fragShader.shader;
     shaderStages[1].pName = "main";
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
@@ -1847,19 +1848,16 @@ void createImguiDescriptorSet()
 
 void createImguiPipeline()
 {
-    VkShaderModule vertShaderModule = createShaderModule(import("Imgui-vert.spv"));
-    scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
-
-    VkShaderModule fragShaderModule = createShaderModule(import("Imgui-frag.spv"));
-    scope(exit) vkDestroyShaderModule(device, fragShaderModule, null);
+    auto vertShader = createShaderModule(import("Imgui-vert.spv"));
+    auto fragShader = createShaderModule(import("Imgui-frag.spv"));
 
     VkPipelineShaderStageCreateInfo[2] shaderStages;
     shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-    shaderStages[0].module_ = vertShaderModule;
+    shaderStages[0].module_ = vertShader.shader;
     shaderStages[0].pName = "main";
 
     shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    shaderStages[1].module_ = fragShaderModule;
+    shaderStages[1].module_ = fragShader.shader;
     shaderStages[1].pName = "main";
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
@@ -1878,12 +1876,8 @@ void createImguiPipeline()
     inputAssembly.primitiveRestartEnable = VK_FALSE;
 
     VkViewport viewport;
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
     viewport.width = float(swapchainExtent.width);
     viewport.height = float(swapchainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
 
     VkRect2D scissor;
     scissor.extent = swapchainExtent;
@@ -1899,7 +1893,7 @@ void createImguiPipeline()
     rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
     rasterizer.lineWidth = 1.0f;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizer.cullMode = VK_CULL_MODE_NONE;
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 
     VkPipelineMultisampleStateCreateInfo multisampling;
@@ -1962,8 +1956,7 @@ void createImguiPipeline()
     vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &imguiPipelineLayout));
 
     VkGraphicsPipelineCreateInfo pipelineInfo;
-    pipelineInfo.stageCount = shaderStages.length32;
-    pipelineInfo.pStages = shaderStages.ptr;
+    pipelineInfo.shaderStages = shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
     pipelineInfo.pDepthStencilState = &depthStencilState;
@@ -2054,19 +2047,16 @@ void updateImguiBuffers(ImDrawData* drawData)
 
 void createDebugFrameBufferPipeline()
 {
-    VkShaderModule vertShaderModule = createShaderModule(import("DebugFrameBuffer-vert.spv"));
-    scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
-
-    VkShaderModule fragShaderModule = createShaderModule(import("DebugFrameBuffer-frag.spv"));
-    scope(exit) vkDestroyShaderModule(device, fragShaderModule, null);
+    auto vertShader = createShaderModule(import("DebugFrameBuffer-vert.spv"));
+    auto fragShader = createShaderModule(import("DebugFrameBuffer-frag.spv"));
 
     VkPipelineShaderStageCreateInfo[2] shaderStages;
     shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
-    shaderStages[0].module_ = vertShaderModule;
+    shaderStages[0].module_ = vertShader.shader;
     shaderStages[0].pName = "main";
 
     shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    shaderStages[1].module_ = fragShaderModule;
+    shaderStages[1].module_ = fragShader.shader;
     shaderStages[1].pName = "main";
 
     VkPipelineVertexInputStateCreateInfo vertexInputInfo;
@@ -2080,17 +2070,11 @@ void createDebugFrameBufferPipeline()
     vertexInputInfo.pVertexAttributeDescriptions    = attributeDescs.ptr;
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly;
-
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-    inputAssembly.primitiveRestartEnable = VK_FALSE;
 
     VkViewport viewport;
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
     viewport.width = float(swapchainExtent.width);
     viewport.height = float(swapchainExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
 
     VkRect2D scissor;
     scissor.extent = swapchainExtent;
@@ -2102,15 +2086,11 @@ void createDebugFrameBufferPipeline()
     viewportState.pScissors = &scissor;
 
     VkPipelineRasterizationStateCreateInfo rasterizer;
-    rasterizer.depthClampEnable = VK_FALSE;
-    rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 
     VkPipelineMultisampleStateCreateInfo multisampling;
-    multisampling.sampleShadingEnable = VK_FALSE;
 
     VkPipelineColorBlendAttachmentState[1] colorBlendAttachments;
 
@@ -2135,8 +2115,7 @@ void createDebugFrameBufferPipeline()
     ];
 
     VkPipelineDynamicStateCreateInfo dynamicState;
-    dynamicState.dynamicStateCount = dynamicStates.length;
-    dynamicState.pDynamicStates = dynamicStates.ptr;
+    dynamicState.dynamicStates = dynamicStates;
 
     VkPipelineDepthStencilStateCreateInfo depthStencilState;
 
@@ -2151,10 +2130,8 @@ void createDebugFrameBufferPipeline()
     ];
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo;
-    pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.length32;
-    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.ptr;
-    pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.length32;
-    pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.ptr;
+    pipelineLayoutInfo.setLayouts = descriptorSetLayouts;
+    pipelineLayoutInfo.pushConstantRanges = pushConstantRanges;
 
     vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &debugFrameBufferPipelineLayout));
 
