@@ -1376,8 +1376,7 @@ void createBaseSbspEnvPipeline()
     ];
 
     VkPipelineDynamicStateCreateInfo dynamicState;
-    dynamicState.dynamicStateCount = dynamicStates.length;
-    dynamicState.pDynamicStates = dynamicStates.ptr;
+    dynamicState.dynamicStates = dynamicStates;
 
     VkPipelineDepthStencilStateCreateInfo depthStencilState;
     depthStencilState.depthTestEnable = true;

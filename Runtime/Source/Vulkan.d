@@ -3,6 +3,8 @@ module Vulkan;
 
 import core.stdc.config;
 
+import Game.Core.Misc : length32;
+
 extern (C):
 
 /*
@@ -2346,6 +2348,12 @@ struct VkPipelineDynamicStateCreateInfo
     VkPipelineDynamicStateCreateFlags flags;
     uint dynamicStateCount;
     const(VkDynamicState)* pDynamicStates;
+
+    void dynamicStates(const(VkDynamicState)[] states)
+    {
+        dynamicStateCount = states.length32;
+        pDynamicStates    = states.ptr;
+    }
 }
 
 struct VkGraphicsPipelineCreateInfo
