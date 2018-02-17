@@ -2195,6 +2195,8 @@ struct VkVertexInputAttributeDescription
 
 struct VkPipelineVertexInputStateCreateInfo
 {
+@nogc nothrow:
+
     VkStructureType sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     const(void)* pNext;
     VkPipelineVertexInputStateCreateFlags flags;
@@ -2202,6 +2204,19 @@ struct VkPipelineVertexInputStateCreateInfo
     const(VkVertexInputBindingDescription)* pVertexBindingDescriptions;
     uint vertexAttributeDescriptionCount;
     const(VkVertexInputAttributeDescription)* pVertexAttributeDescriptions;
+
+
+    void vertexBindingDescriptions(const(VkVertexInputBindingDescription)[] bindings)
+    {
+        vertexBindingDescriptionCount = bindings.length32;
+        pVertexBindingDescriptions = bindings.ptr;
+    }
+
+    void vertexAttributeDescriptions(const(VkVertexInputAttributeDescription)[] attrs)
+    {
+        vertexAttributeDescriptionCount = attrs.length32;
+        pVertexAttributeDescriptions = attrs.ptr;
+    }
 }
 
 struct VkPipelineInputAssemblyStateCreateInfo
