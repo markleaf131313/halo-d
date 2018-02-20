@@ -18,7 +18,7 @@ layout(push_constant) uniform PushConstant
 
 layout(set = 2, binding = 0) uniform Ubo
 {
-    mat4x3 nodes[32];
+    mat4 nodes[32];
 } ubo;
 
 layout(location = 0) in vec3 position;
@@ -40,7 +40,7 @@ void main(void)
     coords[2] = reg.uvs[2].xy + coord * reg.uvs[2].zw;
     coords[3] = reg.uvs[3].xy + coord * reg.uvs[3].zw;
 
-    vec3 p = ubo.nodes[node.x] * vec4(position, 1.0);
-    gl_Position = scene.viewproj * vec4(p, 1.0);
+    vec4 p = ubo.nodes[0] * vec4(position, 1.0);
+    gl_Position = scene.viewproj * vec4(p.xyz, 1.0);
 
 }

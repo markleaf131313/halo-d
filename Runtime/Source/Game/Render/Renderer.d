@@ -79,6 +79,8 @@ struct ImguiVertex
 
 struct ImguiPushConstants
 {
+    static assert(this.sizeof <= 128);
+
     Vec2 scale;
     Vec2 translate;
 }
@@ -134,6 +136,20 @@ struct EnvUnifomBuffer
 {
     Mat4 projview;
     Vec3 eyePos;
+}
+
+struct ModelUniformBuffer
+{
+    Mat4[32] matrices; // TODO make Mat4x3
+}
+
+struct ChicagoPushConstants
+{
+    static assert(this.sizeof <= 128);
+
+    Vec4[4] uvTransforms;
+    Vec4i   colorBlendFunc;
+    Vec4i   alphaBlendFunc;
 }
 
 struct ShaderInstance
@@ -248,6 +264,8 @@ VkDeviceMemory           envUnifomBufferMemory;
 VkDescriptorSetLayout    sceneGlobalsDescriptorSetLayout;
 VkDescriptorSet          sceneGlobalsDescriptorSet;
 
+VkDescriptorSetLayout    modelDescriptorSetLayout;
+
 VkDescriptorSetLayout    lightmapDescriptorSetLayout;
 VkDescriptorSet          lightmapDescriptorSet;
 
@@ -291,6 +309,10 @@ VkDeviceMemory           quadVertexBufferMemory;
 VkSemaphore              imageAvailableSemaphore;
 VkSemaphore              offscreenFinishedSemaphore;
 VkSemaphore              renderFinishedSemaphore;
+
+VkBuffer                 skyModelUnifomBuffer;
+VkDeviceMemory           skyModelUnifomBufferMemory;
+VkDescriptorSet          skyModelDescriptorSet;
 
 static ShaderInstance[DatumIndex] shaderInstances; // TODO is static as hack to fix crashing.
 FixedArray!(Texture, 1024) textureInstances; // TODO increase limit?
@@ -551,8 +573,8 @@ VkFormat findDepthFormat()
 
 void createOffscreenFramebuffer()
 {
-    offscreenFramebuffer.width  = windowWidth;
-    offscreenFramebuffer.height = windowHeight;
+    offscreenFramebuffer.width  = windowWidth / 2; // TODO unhardcode
+    offscreenFramebuffer.height = windowHeight / 2;
 
     createAttachment(swapchainImageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.albedo);
     createAttachment(swapchainImageFormat, VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, &offscreenFramebuffer.specular);
@@ -1168,8 +1190,7 @@ void createUniformDescriptorSet()
 
     VkDescriptorSetAllocateInfo allocInfo;
     allocInfo.descriptorPool = descriptorPool;
-    allocInfo.descriptorSetCount = layouts.length32;
-    allocInfo.pSetLayouts = layouts.ptr;
+    allocInfo.setLayouts = layouts;
 
     vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &sceneGlobalsDescriptorSet));
 
@@ -1181,6 +1202,52 @@ void createUniformDescriptorSet()
     VkWriteDescriptorSet descriptorWrite;
 
     descriptorWrite.dstSet = sceneGlobalsDescriptorSet;
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrite.descriptorCount = 1;
+    descriptorWrite.pBufferInfo = &bufferInfo;
+
+    vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, null);
+}
+
+void createSkyModelUniformBuffer()
+{
+    createBuffer(ModelUniformBuffer.sizeof, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        skyModelUnifomBuffer, skyModelUnifomBufferMemory);
+}
+
+void updateSkyModelUniformBuffer(ref Camera camera)
+{
+    ModelUniformBuffer* uniform;
+    vkMapMemory(device, envUnifomBufferMemory, 0, EnvUnifomBuffer.sizeof, 0, cast(void**)&uniform);
+
+    uniform.matrices = Mat4(1.0f / 1024.0f);
+    uniform.matrices[0][3] = Vec4(camera.position, 1.0f);
+
+    vkUnmapMemory(device, envUnifomBufferMemory);
+}
+
+void createSkyModelUniformDescriptorSet()
+{
+    VkDescriptorSetLayout[1] layouts =
+    [
+        modelDescriptorSetLayout,
+    ];
+
+    VkDescriptorSetAllocateInfo allocInfo;
+    allocInfo.descriptorPool = descriptorPool;
+    allocInfo.setLayouts = layouts;
+
+    vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &skyModelDescriptorSet));
+
+    VkDescriptorBufferInfo bufferInfo;
+    bufferInfo.buffer = skyModelUnifomBuffer;
+    bufferInfo.offset = 0;
+    bufferInfo.range = ModelUniformBuffer.sizeof;
+
+    VkWriteDescriptorSet descriptorWrite;
+
+    descriptorWrite.dstSet = skyModelDescriptorSet;
     descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     descriptorWrite.descriptorCount = 1;
     descriptorWrite.pBufferInfo = &bufferInfo;
@@ -1200,6 +1267,19 @@ void createSceneGlobalsDescriptorSetLayout()
     descriptorLayout.pBindings = setLayoutBindings.ptr;
 
     vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &sceneGlobalsDescriptorSetLayout));
+}
+
+void createModelDescriptorSetLayout()
+{
+    VkDescriptorSetLayoutBinding[1] setLayoutBindings =
+    [
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS),
+    ];
+
+    VkDescriptorSetLayoutCreateInfo descriptorLayout;
+    descriptorLayout.bindings = setLayoutBindings;
+
+    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &modelDescriptorSetLayout));
 }
 
 void createEnvDescriptorSetLayout()
@@ -1336,9 +1416,7 @@ void createBaseSbspEnvPipeline()
     vertexInputInfo.pVertexAttributeDescriptions    = attributeDescs.ptr;
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly;
-
     inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-    inputAssembly.primitiveRestartEnable = VK_FALSE;
 
     VkViewport viewport;
     viewport.width = float(swapchainExtent.width);
@@ -1436,7 +1514,6 @@ void createBaseSbspEnvPipeline()
 void createSbspEnvPipelines()
 {
     createBaseSbspEnvPipeline();
-
 }
 
 void createChicagoModelDescriptorSetLayout()
@@ -1458,11 +1535,29 @@ void createChicagoModelDescriptorSetLayout()
 
 void createChicagoModelPipeline()
 {
+    import Game.Render.Pipeline;
+
     static immutable void[] fragBinary = import("Chicago-frag.spv");
     static immutable void[] vertBinary = import("Chicago-vert.spv");
 
-    VkShaderModule vertShaderModule = createShaderModule(vertBinary);
-    scope(exit) vkDestroyShaderModule(device, vertShaderModule, null);
+    Pipeline pipeline;
+
+    pipeline.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    pipeline.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    pipeline.rasterizer.cullMode  = VK_CULL_MODE_NONE; // TODO make not none
+    pipeline.rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+
+    VkViewport viewport;
+    viewport.width = float(swapchainExtent.width);
+    viewport.height = float(swapchainExtent.height);
+
+    VkRect2D scissor;
+    scissor.extent = swapchainExtent;
+
+    pipeline.viewportState.viewportCount = 1;
+    pipeline.viewportState.pViewports = &viewport;
+    pipeline.viewportState.scissorCount = 1;
+    pipeline.viewportState.pScissors = &scissor;
 
     auto vertShader = createShaderModule(vertBinary);
     auto fragShader = createShaderModule(fragBinary);
@@ -1476,7 +1571,27 @@ void createChicagoModelPipeline()
     shaderStages[1].module_ = fragShader.shader;
     shaderStages[1].pName = "main";
 
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
+    VkPipelineColorBlendAttachmentState[4] colorBlendAttachments;
+
+    foreach(ref colorBlendAttachment ; colorBlendAttachments)
+    {
+        // colorBlendAttachment.blendEnable = VK_TRUE;
+        // colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+        // colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        // colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+
+        // colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        // colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        // colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+        colorBlendAttachment.colorWriteMask =
+            VK_COLOR_COMPONENT_R_BIT |
+            VK_COLOR_COMPONENT_G_BIT |
+            VK_COLOR_COMPONENT_B_BIT |
+            VK_COLOR_COMPONENT_A_BIT;
+    }
+
+    pipeline.colorBlending.attachments = colorBlendAttachments;
 
     VkVertexInputBindingDescription[1] bindingDesc =
     [
@@ -1488,14 +1603,50 @@ void createChicagoModelPipeline()
         VkVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.position.offsetof),
         VkVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.normal.offsetof),
         VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.coord.offsetof),
-        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32_UINT,      TagModelVertex.node0.offsetof),
-        VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT, TagModelVertex.weight.offsetof),
+        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32_SINT,      TagModelVertex.node0.offsetof),
+        VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.weight.offsetof),
     ];
 
-    vertexInputInfo.vertexBindingDescriptionCount   = bindingDesc.length32;
-    vertexInputInfo.pVertexBindingDescriptions      = bindingDesc.ptr;
-    vertexInputInfo.vertexAttributeDescriptionCount = attributeDescs.length32;
-    vertexInputInfo.pVertexAttributeDescriptions    = attributeDescs.ptr;
+    pipeline.vertexInputInfo.vertexBindingDescriptions   = bindingDesc;
+    pipeline.vertexInputInfo.vertexAttributeDescriptions = attributeDescs;
+
+    VkDynamicState[2] dynamicStates =
+    [
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_LINE_WIDTH,
+    ];
+
+    pipeline.dynamicState.dynamicStates = dynamicStates;
+
+    // Pipeline Layout
+
+    VkDescriptorSetLayout[3] descriptorSetLayouts =
+    [
+        sceneGlobalsDescriptorSetLayout,
+        chicagoModelDescriptorSetLayout,
+        modelDescriptorSetLayout,
+    ];
+
+    VkPushConstantRange[1] pushConstantRanges =
+    [
+        VkPushConstantRange(VK_SHADER_STAGE_ALL_GRAPHICS, 0, ChicagoPushConstants.sizeof),
+    ];
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+    pipelineLayoutInfo.setLayouts = descriptorSetLayouts;
+    pipelineLayoutInfo.pushConstantRanges = pushConstantRanges;
+
+    vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &chicagoModelPipelineLayout));
+
+    // Create Pipeline
+
+    VkGraphicsPipelineCreateInfo info = pipeline.makeCreateInfo();
+
+    info.shaderStages = shaderStages;
+    info.layout = chicagoModelPipelineLayout;
+    info.renderPass = offscreenFramebuffer.renderPass;
+
+    vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &info, null, &chicagoModelPipeline));
 }
 
 void createFramebuffers()
@@ -1948,10 +2099,8 @@ void createImguiPipeline()
     ];
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo;
-    pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.length32;
-    pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.ptr;
-    pipelineLayoutInfo.pushConstantRangeCount = pushConstantRanges.length32;
-    pipelineLayoutInfo.pPushConstantRanges = pushConstantRanges.ptr;
+    pipelineLayoutInfo.setLayouts = descriptorSetLayouts;
+    pipelineLayoutInfo.pushConstantRanges = pushConstantRanges;
 
     vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &imguiPipelineLayout));
 
@@ -2250,6 +2399,8 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
 
     createDescriptorPool();
 
+    createModelDescriptorSetLayout();
+
     createSceneGlobalsDescriptorSetLayout();
     createLightmapDescriptorSetLayout(sbsp);
     createEnvDescriptorSetLayout();
@@ -2262,6 +2413,12 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
     createLightmapDescriptorSet(sbsp);
 
     createModelVertexBuffer();
+
+    createChicagoModelDescriptorSetLayout();
+    createChicagoModelPipeline();
+
+    createSkyModelUniformBuffer();
+    createSkyModelUniformDescriptorSet();
 
     createImguiTexture();
     createImguiDescriptorSet();
@@ -2328,13 +2485,6 @@ void render(ref World world, ref Camera camera)
 
     updateUniformBuffer(camera);
 
-    {
-        VkBuffer[2] vertexBuffers = [ sbspVertexBuffer, lightmapVertexBuffer ];
-        VkDeviceSize[2] offsets = [ 0, 0 ];
-        vkCmdBindVertexBuffers(offScreenCmdBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
-        vkCmdBindIndexBuffer(offScreenCmdBuffer, sbspIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
-    }
-
     VkViewport viewport;
     viewport.x = 0;
     viewport.y = 0;
@@ -2345,7 +2495,39 @@ void render(ref World world, ref Camera camera)
 
     vkCmdSetViewport(offScreenCmdBuffer, 0, 1, &viewport);
 
-    auto sbsp = world.getCurrentSbsp;
+    TagScenario* scenario = Cache.inst.scenario();
+    TagScenarioStructureBsp* sbsp = world.getCurrentSbsp;
+
+    // Render sky
+
+    if(scenario.skies)
+    {
+        updateSkyModelUniformBuffer(camera);
+
+        VkBuffer[1] vertexBuffers = [ modelVertexBuffer ];
+        VkDeviceSize[1] offsets = [ 0 ];
+        vkCmdBindVertexBuffers(offScreenCmdBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
+        vkCmdBindIndexBuffer(offScreenCmdBuffer, modelIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+        GObject.Lighting lighting; // TODO(HACK, REFACTOR) need to fill default color, most sky don't use this tho so..
+
+        auto tagSky   = Cache.get!TagSky(scenario.skies[0].sky);
+        auto tagModel = Cache.get!TagGbxmodel(tagSky.model);
+
+        int[TagConstants.Model.maxRegions] permutations;
+
+        renderObject(offScreenCmdBuffer, skyModelDescriptorSet, permutations, &lighting, tagModel);
+
+    }
+
+    // Render Structure Bsp
+
+    {
+        VkBuffer[2] vertexBuffers = [ sbspVertexBuffer, lightmapVertexBuffer ];
+        VkDeviceSize[2] offsets = [ 0, 0 ];
+        vkCmdBindVertexBuffers(offScreenCmdBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
+        vkCmdBindIndexBuffer(offScreenCmdBuffer, sbspIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+    }
 
     foreach(int i, ref lightmap ; sbsp.lightmaps)
     {
@@ -2508,8 +2690,7 @@ void renderOpaqueStructureBsp(VkCommandBuffer commandBuffer, ref Camera camera, 
 
                 VkDescriptorSetAllocateInfo allocInfo;
                 allocInfo.descriptorPool = descriptorPool;
-                allocInfo.descriptorSetCount = layouts.length32;
-                allocInfo.pSetLayouts = layouts.ptr;
+                allocInfo.setLayouts = layouts;
 
                 vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &instance.descriptorSet));
 
@@ -2605,9 +2786,130 @@ void renderOpaqueStructureBsp(VkCommandBuffer commandBuffer, ref Camera camera, 
 
 }
 
-void renderObject(ref Camera camera, int[] permutations, GObject.Lighting* lighting, TagGbxmodel* tagModel, Mat4x3[] matrices)
+void renderObject(
+    VkCommandBuffer   commandBuffer,
+    VkDescriptorSet   modelDescriptorSet,
+    int[]             permutations,
+    GObject.Lighting* lighting,
+    TagGbxmodel*      tagModel)
 {
-    assert(0);
+    foreach(i, ref region ; tagModel.regions)
+    {
+        // todo pixel cutoff
+
+        int geometryIndex = region.permutations[permutations[i]].superHigh;
+        auto geometry = &tagModel.geometries[geometryIndex];
+
+        foreach(ref part ; geometry.parts)
+        {
+            auto tagShaderIndex = tagModel.shaders[part.shaderIndex].shader.index;
+            auto baseShader = Cache.get!TagShader(tagShaderIndex);
+
+            ShaderInstance* shaderInstance = tagShaderIndex in shaderInstances;
+
+            switch(baseShader.shaderType)
+            {
+            case TagEnums.ShaderType.chicago:
+            case TagEnums.ShaderType.chicagoExtended:
+
+                auto shader = cast(TagShaderTransparentChicagoExtended*)baseShader;
+
+                if(shader.firstMapType != 0)
+                {
+                    // todo implement other types
+                    // only support 2d texture for now
+                    continue;
+                }
+
+                if(shaderInstance is null)
+                {
+                    ShaderInstance instance;
+
+                    VkDescriptorSetLayout[1] layouts =
+                    [
+                        chicagoModelDescriptorSetLayout,
+                    ];
+
+                    VkDescriptorSetAllocateInfo allocInfo;
+                    allocInfo.descriptorPool = descriptorPool;
+                    allocInfo.setLayouts = layouts;
+
+                    vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &instance.descriptorSet));
+
+                    FixedArray!(VkDescriptorImageInfo, 4) imageInfos;
+                    FixedArray!(VkWriteDescriptorSet, 4) descriptorWrites;
+
+                    Texture*[4] textures;
+
+                    foreach(int stageIndex ; 0 .. 4)
+                    {
+                        DatumIndex mapIndex = stageIndex < shader.fourStageMaps.size
+                            ? shader.fourStageMaps[stageIndex].map.index
+                            : DatumIndex();
+
+                        Texture** texture = &textures[stageIndex];
+                        *texture = findOrLoadTexture2D(mapIndex, 0, DefaultTexture.additive);
+
+                        VkDescriptorImageInfo imageInfo;
+                        imageInfo.imageView = (*texture).imageView;
+                        imageInfo.sampler = (*texture).sampler;
+                        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+                        imageInfos.add(imageInfo);
+
+                        VkWriteDescriptorSet desc;
+                        desc.dstSet = instance.descriptorSet;
+                        desc.dstBinding = stageIndex;
+                        desc.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                        desc.descriptorCount = 1;
+                        desc.pImageInfo = &imageInfos[stageIndex];
+
+                        descriptorWrites.add(desc);
+                    }
+
+                    vkUpdateDescriptorSets(device, descriptorWrites.length, descriptorWrites.ptr, 0, null);
+
+                    shaderInstances[tagShaderIndex] = instance;
+                    shaderInstance = &shaderInstances[tagShaderIndex];
+                }
+
+
+                ChicagoPushConstants pushConstants;
+
+                foreach(int s, ref stage ; shader.fourStageMaps)
+                {
+                    if(s != shader.fourStageMaps.size - 1)
+                    {
+                        pushConstants.colorBlendFunc[s] = stage.colorFunction;
+                        pushConstants.alphaBlendFunc[s] = stage.alphaFunction;
+                    }
+
+                    pushConstants.uvTransforms[s].zw = Vec2(stage.mapUScale, stage.mapVScale);
+                }
+
+                vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, chicagoModelPipeline);
+
+                VkDescriptorSet[3] decriptorSets =
+                [
+                    sceneGlobalsDescriptorSet,
+                    shaderInstance.descriptorSet,
+                    modelDescriptorSet,
+                ];
+
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    chicagoModelPipelineLayout, 0, decriptorSets.length32, decriptorSets.ptr, 0, null);
+
+                vkCmdPushConstants(commandBuffer, chicagoModelPipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
+                    0, ChicagoPushConstants.sizeof, &pushConstants);
+
+                vkCmdDrawIndexed(commandBuffer, part.indexCount + 2, 1,
+                    part.indexOffset / 2, part.vertexOffset / cast(uint)TagModelVertex.sizeof, 0);
+
+                break;
+            default:
+            }
+        }
+    }
 
 }
 

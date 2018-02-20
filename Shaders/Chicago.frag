@@ -17,8 +17,10 @@ layout(push_constant) uniform PushConstant
 
 layout(location = 0) in vec2 coords[4];
 
-layout(location = 0) out vec4 colorOut;
-
+layout(location = 0) out vec4 outAlbedo;
+layout(location = 1) out vec4 outSpecular;
+layout(location = 2) out vec4 outPosition;
+layout(location = 3) out vec4 outNormal;
 
 void main(void)
 {
@@ -67,6 +69,8 @@ void main(void)
         c[i + 1] = o;
     }
 
-
-    colorOut = c[3];
+    outAlbedo = c[3];
+    outSpecular = c[3];
+    outPosition = c[3];
+    outNormal = c[3];
 }

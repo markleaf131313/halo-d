@@ -2485,11 +2485,19 @@ struct VkDescriptorSetLayoutBinding
 
 struct VkDescriptorSetLayoutCreateInfo
 {
+@nogc nothrow:
+
     VkStructureType sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     const(void)* pNext;
     VkDescriptorSetLayoutCreateFlags flags;
     uint bindingCount;
     const(VkDescriptorSetLayoutBinding)* pBindings;
+
+    void bindings(const(VkDescriptorSetLayoutBinding)[] bindings)
+    {
+        bindingCount = bindings.length32;
+        pBindings = bindings.ptr;
+    }
 }
 
 struct VkDescriptorPoolSize
@@ -2510,11 +2518,19 @@ struct VkDescriptorPoolCreateInfo
 
 struct VkDescriptorSetAllocateInfo
 {
+@nogc nothrow:
+
     VkStructureType sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     const(void)* pNext;
     VkDescriptorPool descriptorPool;
     uint descriptorSetCount;
     const(VkDescriptorSetLayout)* pSetLayouts;
+
+    void setLayouts(const(VkDescriptorSetLayout)[] layouts)
+    {
+        descriptorSetCount = layouts.length32;
+        pSetLayouts = layouts.ptr;
+    }
 }
 
 struct VkDescriptorImageInfo
