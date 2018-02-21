@@ -63,7 +63,7 @@ void resize(int newSize)
 
     if(newSize > size)
     {
-        foreach(ref element ; ptr[size .. newSize - 1])
+        foreach(ref element ; ptr[size .. newSize])
         {
             emplace(&element);
         }
