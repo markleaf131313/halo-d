@@ -1219,12 +1219,12 @@ void createSkyModelUniformBuffer()
 void updateSkyModelUniformBuffer(ref Camera camera)
 {
     ModelUniformBuffer* uniform;
-    vkMapMemory(device, envUnifomBufferMemory, 0, EnvUnifomBuffer.sizeof, 0, cast(void**)&uniform);
+    vkMapMemory(device, skyModelUnifomBufferMemory, 0, ModelUniformBuffer.sizeof, 0, cast(void**)&uniform);
 
     uniform.matrices = Mat4(1.0f / 1024.0f);
     uniform.matrices[0][3] = Vec4(camera.position, 1.0f);
 
-    vkUnmapMemory(device, envUnifomBufferMemory);
+    vkUnmapMemory(device, skyModelUnifomBufferMemory);
 }
 
 void createSkyModelUniformDescriptorSet()
