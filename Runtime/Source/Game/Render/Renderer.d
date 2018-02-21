@@ -2486,12 +2486,8 @@ void render(ref World world, ref Camera camera)
     updateUniformBuffer(camera);
 
     VkViewport viewport;
-    viewport.x = 0;
-    viewport.y = 0;
     viewport.width  = offscreenFramebuffer.width;
     viewport.height = offscreenFramebuffer.height;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
 
     vkCmdSetViewport(offScreenCmdBuffer, 0, 1, &viewport);
 
