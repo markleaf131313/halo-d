@@ -147,7 +147,7 @@ struct ChicagoPushConstants
 {
     static assert(this.sizeof <= 128);
 
-    Vec4[4] uvTransforms;
+    Vec4[4] uvTransforms = Vec4(0.0f);
     Vec4i   colorBlendFunc;
     Vec4i   alphaBlendFunc;
 }
@@ -1575,14 +1575,14 @@ void createChicagoModelPipeline()
 
     foreach(ref colorBlendAttachment ; colorBlendAttachments)
     {
-        // colorBlendAttachment.blendEnable = VK_TRUE;
-        // colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
-        // colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        // colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+        colorBlendAttachment.blendEnable = VK_TRUE;
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
 
-        // colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        // colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-        // colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
         colorBlendAttachment.colorWriteMask =
             VK_COLOR_COMPONENT_R_BIT |
