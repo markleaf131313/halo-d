@@ -1,5 +1,6 @@
 
-#version 450 core
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
 
 uniform sampler2D diffusemap;
 uniform sampler2D multimap;
