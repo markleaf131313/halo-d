@@ -1545,11 +1545,11 @@ void createChicagoModelPipeline()
 
     pipeline.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
     pipeline.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    pipeline.rasterizer.cullMode  = VK_CULL_MODE_NONE; // TODO make not none
+    pipeline.rasterizer.cullMode  = VK_CULL_MODE_BACK_BIT;
     pipeline.rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 
     VkViewport viewport;
-    viewport.width = float(swapchainExtent.width);
+    viewport.width  = float(swapchainExtent.width);
     viewport.height = float(swapchainExtent.height);
 
     VkRect2D scissor;
