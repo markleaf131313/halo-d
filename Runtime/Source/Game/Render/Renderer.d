@@ -23,6 +23,8 @@ import Game.World;
 struct Renderer
 {
 
+enum vkMinSupportedPushConstantSize = 128;
+
 @disable this(this);
 
 static void vkCheck(VkResult result, uint line = __LINE__)
@@ -79,7 +81,7 @@ struct ImguiVertex
 
 struct ImguiPushConstants
 {
-    static assert(this.sizeof <= 128);
+    static assert(this.sizeof <= vkMinSupportedPushConstantSize);
 
     Vec2 scale;
     Vec2 translate;
@@ -122,8 +124,7 @@ struct TexVertex
 
 struct EnvPushConstants
 {
-    // 128 bytes is minimal support of Vulkan Push Constants
-    static assert(this.sizeof <= 128);
+    static assert(this.sizeof <= vkMinSupportedPushConstantSize);
 
     ColorArgb perpendicularColor;
     ColorArgb parallelColor;
@@ -145,7 +146,7 @@ struct ModelUniformBuffer
 
 struct ChicagoPushConstants
 {
-    static assert(this.sizeof <= 128);
+    static assert(this.sizeof <= vkMinSupportedPushConstantSize);
 
     Vec4[4] uvTransforms = Vec4(0.0f);
     Vec4i   colorBlendFunc;
