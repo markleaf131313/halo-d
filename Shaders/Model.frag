@@ -2,19 +2,21 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
-uniform sampler2D diffusemap;
-uniform sampler2D multimap;
-uniform sampler2D detailmap;
-uniform samplerCube cubemap;
+layout(set = 1, binding = 0) uniform sampler2D diffusemap;
+layout(set = 1, binding = 1) uniform sampler2D multimap;
+layout(set = 1, binding = 2) uniform sampler2D detailmap;
+layout(set = 1, binding = 3) uniform samplerCube cubemap;
 
-in vec3 reflection;
-in vec2 coords[2];
-in vec4 d0in;
-in vec4 d1;
-in vec3 aNormal;
+layout(location = 0) in vec3 reflection;
+layout(location = 1) in vec2 coords[2];
+layout(location = 3) in vec4 d0in;
+layout(location = 4) in vec4 d1;
+layout(location = 5) in vec3 aNormal;
 
-out vec4 outColors[3];
-
+layout(location = 0) out vec4 outAlbedo;
+layout(location = 1) out vec4 outSpecular;
+layout(location = 2) out vec4 outPosition;
+layout(location = 3) out vec4 outNormal;
 
 #ifndef MASK
     #error Missing MASK macro
@@ -113,9 +115,9 @@ void main()
         spec.rgb = (cube.rgb * multi.b * d1.a);
     }
 
-    outColors[0] = vec4(diffuse.rgb, diffuse.a);
-    outColors[1] = vec4(spec.rgb, 1.0);
-    outColors[2].xyz = normalize(aNormal);
+    outAlbedo = vec4(diffuse.rgb, diffuse.a);
+    outSpecular = vec4(spec.rgb, 1.0);
+    outNormal.xyz = normalize(aNormal);
 
 }
 

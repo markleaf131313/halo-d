@@ -64,6 +64,19 @@ def buildShaders():
             ]
         )
 
+    buildBinary('../Shaders/Model.vert', './Data/Model-vert.spv')
+
+    for mask, invert, detail, after in genMultiLoop(4, 1, 2, 1):
+        buildBinary(
+            '../Shaders/Model.frag', './Data/Model-frag-{}-{}-{}-{}.spv'.format(mask, invert, detail, after),
+            [
+                '-DMASK={}'.format(mask),
+                '-DMASK_INVERT={}'.format('true' if invert == 1 else 'false'),
+                '-DDETAIL_FUNCTION={}'.format(detail),
+                '-DDETAIL_AFTER_REFLECTION={}'.format('true' if after == 1 else 'false'),
+            ]
+        )
+
 def doBuild(buildTarget, output):
 
     compiler = 'dmd'
