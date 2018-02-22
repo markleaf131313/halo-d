@@ -2041,10 +2041,7 @@ void createImguiPipeline()
     viewportState.pScissors = &scissor;
 
     VkPipelineRasterizationStateCreateInfo rasterizer;
-    rasterizer.depthClampEnable = VK_FALSE;
-    rasterizer.rasterizerDiscardEnable = VK_FALSE;
     rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizer.lineWidth = 1.0f;
     rasterizer.cullMode = VK_CULL_MODE_NONE;
     rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
 
