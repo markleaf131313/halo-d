@@ -3054,7 +3054,7 @@ auto copyPixelsToBuffer(Tag.BitmapDataBlock* bitmap, byte[] buffer)
                     foreach(i ; 0 .. min(4, width))
                     {
                         auto c = colors[j][i];
-                        pixels[width * (y * 4 + j) + (x * 4 + i)] = ColorArgb8(c.r, c.g, c.b, c.a);
+                        pixels[width * (y * 4 + j) + (x * 4 + i)] = ColorArgb8(c.b, c.g, c.r, c.a);
                     }
                 }
 
@@ -3085,7 +3085,7 @@ auto copyPixelsToBuffer(Tag.BitmapDataBlock* bitmap, byte[] buffer)
                     foreach(i ; 0 .. min(4, width))
                     {
                         auto c = colors[j][i];
-                        pixels[width * (y * 4 + j) + (x * 4 + i)] = ColorArgb8(c.r, c.g, c.b, c.a);
+                        pixels[width * (y * 4 + j) + (x * 4 + i)] = ColorArgb8(c.b, c.g, c.r, c.a);
                     }
                 }
 
@@ -3115,7 +3115,7 @@ auto copyPixelsToBuffer(Tag.BitmapDataBlock* bitmap, byte[] buffer)
                     foreach(i ; 0 .. min(4, width))
                     {
                         auto c = colors[j][i];
-                        pixels[width * (y * 4 + j) + (x * 4 + i)] = ColorArgb8(c.r, c.g, c.b, c.a);
+                        pixels[width * (y * 4 + j) + (x * 4 + i)] = ColorArgb8(c.b, c.g, c.r, c.a);
                     }
                 }
 
