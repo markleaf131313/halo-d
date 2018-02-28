@@ -2,11 +2,18 @@
 module Game.Core.Containers.CircularArray;
 
 import std.math : nextPow2, isPowerOf2;
+import std.conv : emplace;
+import std.traits : hasElaborateDestructor;
+
+import Game.Core.Containers.ArrayAllocators;
+
+alias FixedCircularArray(T, int num) = CircularArray!(T, FixedArrayAllocator!num);
 
 struct CircularArray(Element, Allocator)
 {
 
 static assert(isPowerOf2(Allocator.inlinedSize));
+static assert(!hasElaborateDestructor!Element, "Do not use complicated types for this array.");
 
 private uint headIndex;
 private uint tailIndex;
@@ -32,6 +39,15 @@ void addFront()(auto ref Element element)
     {
         headIndex = prevIndex(headIndex);
         ptr[headIndex] = element;
+    }
+}
+
+void addFrontEmplace()
+{
+    if(!full())
+    {
+        headIndex = prevIndex(headIndex);
+        emplace(ptr + headIndex);
     }
 }
 
@@ -64,6 +80,15 @@ void addBack()
 {
     if(!full())
     {
+        tailIndex = nextIndex(tailIndex);
+    }
+}
+
+void addBackEmplace()
+{
+    if(!full())
+    {
+        emplace(ptr + tailIndex);
         tailIndex = nextIndex(tailIndex);
     }
 }
