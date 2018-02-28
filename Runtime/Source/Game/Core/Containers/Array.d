@@ -13,6 +13,8 @@ alias FixedArray(T, int num) = Array!(T, FixedArrayAllocator!num);
 struct Array(Element, Allocator)
 {
 
+static assert(!hasElaborateDestructor!Element, "Do not use complicated types for this array.");
+
 private int size = 0;
 private int max  = (Allocator.hasInlinedElements ? Allocator.inlinedSize : 0);
 private Allocator.Def!Element allocator;
@@ -30,11 +32,6 @@ uint length() const
 uint opDollar() const
 {
     return size;
-}
-
-static if(hasElaborateDestructor!Element)
-{
-    static assert(false, "Do not use complicated types for this array.");
 }
 
 ref Element opIndex(size_t i)
