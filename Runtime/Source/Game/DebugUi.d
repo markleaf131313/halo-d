@@ -19,7 +19,7 @@ struct DebugUi
 {
     SharedGameState* gameState;
 
-    int[][TagId] cacheTagPaths;
+    __gshared int[][TagId] cacheTagPaths;
 
     size_t gcHead = 0;
     size_t gcCount = 0;
@@ -79,33 +79,34 @@ struct DebugUi
 
         igEnd();
 
-        igBegin("Main Window");
-
-        foreach(tagId ; [EnumMembers!TagId])
-        if(auto group = tagId in cacheTagPaths)
+        if(igBegin("Main Window"))
         {
-            string name = enumName(tagId);
-
-            if(igTreeNode(name.ptr))
+            foreach(tagId ; [EnumMembers!TagId])
+            if(auto group = tagId in cacheTagPaths)
             {
-                foreach(index ; *group)
+                string name = enumName(tagId);
+
+                if(igTreeNode(name.ptr))
                 {
-                    if(igSelectable(Cache.inst.metaAt(index).path))
+                    foreach(index ; *group)
                     {
-                        if(!canFind(openedTags, index))
+                        if(igSelectable(Cache.inst.metaAt(index).path))
                         {
-                            openedTags ~= index;
-                        }
-                        else
-                        {
-                            char[256] windowName = void;
-                            snprintf(windowName, "%s##%d", Cache.inst.metaAt(index).path, index);
-                            igSetWindowFocus(windowName.ptr);
+                            if(!canFind(openedTags, index))
+                            {
+                                openedTags ~= index;
+                            }
+                            else
+                            {
+                                char[256] windowName = void;
+                                snprintf(windowName, "%s##%d", Cache.inst.metaAt(index).path, index);
+                                igSetWindowFocus(windowName.ptr);
+                            }
                         }
                     }
-                }
 
-                igTreePop();
+                    igTreePop();
+                }
             }
         }
 
