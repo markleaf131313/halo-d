@@ -16,6 +16,7 @@ import Game.Cache;
 import Game.Core;
 import Game.DebugUi;
 import Game.GameInterface;
+import Game.Profiler;
 import Game.SharedGameState;
 import Game.Tags;
 import Game.World;
@@ -377,6 +378,8 @@ bool gameStep(SharedGameState* gameState)
 {
 try
 {
+    mixin ProfilerObject.BeginScopedFrame;
+
     struct FingerAnalog
     {
         long fingerIndex = indexNone;

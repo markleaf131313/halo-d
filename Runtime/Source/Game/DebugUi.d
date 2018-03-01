@@ -11,6 +11,7 @@ import Game.World : GObject;
 import Game.Cache;
 import Game.Console;
 import Game.Core;
+import Game.Profiler;
 import Game.Tags;
 
 
@@ -180,6 +181,27 @@ struct DebugUi
         }
 
         Console.doUi(gameState.hsRuntime);
+
+        if(igBegin("Profiler") && Profiler.frames.length > 1)
+        {
+            extern(C) static float getValue(void*, int i)
+            {
+                return Profiler.frames[i].totalTimeMs;
+            }
+
+            if(igButton("Stop"))
+            {
+                Profiler.recording = false;
+            }
+
+            igPushItemWidth(-1.0f);
+            igPlotHistogram("##frames_graph", &getValue,
+                null, Profiler.frames.empty ? 0 : cast(uint)Profiler.frames.length - 1,
+                0, null, float.max, float.max, ImVec2(0, 400.0f));
+            igPopItemWidth();
+        }
+
+        igEnd();
 
         igShowMetricsWindow();
     }
