@@ -17,77 +17,77 @@ struct ProfilerObject
 {
 @nogc nothrow:
 
-    mixin template BeginScopedFrame(int line = __LINE__)
+mixin template BeginScopedFrame(int line = __LINE__)
+{
+    mixin("auto _beginScopedFrame_" ~ line.to!string ~ " = Profiler.beginScopedFrame();");
+}
+
+struct Marker
+{
+    Marker*  parent;
+    string   name;
+    Duration startTime;
+    Duration endTime;
+    int      level;
+}
+
+struct Frame
+{
+    MonoTime startTime;
+    MonoTime endTime;
+
+    FixedArray!(Marker, 1024) markers;
+
+    float totalTimeMs()
     {
-        mixin("auto _beginScopedFrame_" ~ line.to!string ~ " = Profiler.beginScopedFrame();");
+        return float((endTime - startTime).total!"hnsecs") / dur!"msecs"(1).total!"hnsecs";
     }
+}
 
-    struct Marker
+bool recording = true;
+bool stopRecordingWhenFull = true;
+FixedCircularArray!(Frame, 128) frames;
+
+auto beginScopedFrame()
+{
+    static struct Result
     {
-        Marker*  parent;
-        string   name;
-        Duration startTime;
-        Duration endTime;
-        int      level;
-    }
+        @disable this(this);
 
-    struct Frame
-    {
-        MonoTime startTime;
-        MonoTime endTime;
-
-        FixedArray!(Marker, 1024) markers;
-
-        float totalTimeMs()
+        ~this()
         {
-            return float((endTime - startTime).total!"hnsecs") / dur!"msecs"(1).total!"hnsecs";
+            Profiler.endScopedFrame();
         }
     }
 
-    bool recording = true;
-    bool stopRecordingWhenFull = true;
-    FixedCircularArray!(Frame, 128) frames;
-
-    auto beginScopedFrame()
+    if(recording)
     {
-        static struct Result
+        if(frames.full)
         {
-            @disable this(this);
-
-            ~this()
+            if(stopRecordingWhenFull)
             {
-                Profiler.endScopedFrame();
-            }
-        }
-
-        if(recording)
-        {
-            if(frames.full)
-            {
-                if(stopRecordingWhenFull)
-                {
-                    recording = false;
-                    return Result();
-                }
-
-                frames.popFront();
+                recording = false;
+                return Result();
             }
 
-            frames.addBackEmplace();
-            frames.back.startTime = MonoTime.currTime;
+            frames.popFront();
         }
 
-        return Result();
+        frames.addBackEmplace();
+        frames.back.startTime = MonoTime.currTime;
     }
 
-    void endScopedFrame()
+    return Result();
+}
+
+void endScopedFrame()
+{
+    if(!recording)
     {
-        if(!recording)
-        {
-            return;
-        }
-
-        frames.back.endTime = MonoTime.currTime;
+        return;
     }
+
+    frames.back.endTime = MonoTime.currTime;
+}
 
 }
