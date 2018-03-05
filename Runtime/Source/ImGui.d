@@ -31,8 +31,21 @@ alias ImVec4 = Vec4;
 //     float w = 0.0f;
 // }
 
+struct ImRect
+{
+    ImVec2 Min;
+    ImVec2 Max;
+}
+
 @nogc nothrow
 {
+    ImVec2 igGetCursorScreenPos()
+    {
+        ImVec2 result;
+        igGetCursorScreenPos(result);
+        return result;
+    }
+
     bool igInputShort(const(char)* label, short* v, short step = 1, short step_fast = 100, ImGuiInputTextFlags extra_flags = ImGuiInputTextFlags.Default)
     {
         int value = *v;
@@ -501,6 +514,16 @@ extern(C) @nogc nothrow
     void             ImDrawList_UpdateClipRect(ImDrawList* list);
     void             ImDrawList_UpdateTextureID(ImDrawList* list);
 
+    // Internal Functions
+
+    ImGuiWindow* igGetCurrentWindowRead();
+    ImGuiWindow* igGetCurrentWindow();
+    ImGuiWindow* igGetParentWindow();
+
+                                  void igItemSize(ImVec2, float text_offset_y = 0.0f);
+    pragma(mangle, "igItemSize2") void igItemSize(ImRect, float text_offset_y = 0.0f);
+
+    bool igAddItem(ImRect, ImGuiID*);
 }
 
 enum ImGuiWindowFlags
@@ -1184,6 +1207,8 @@ struct ImDrawChannel
 // All positions are in screen coordinates (0,0=top-left, 1 pixel per unit). Primitives are always added to the list and not culled (culling is done at render time and at a higher-level by ImGui:: functions).
 struct ImDrawList
 {
+@nogc nothrow:
+
     // This is what you have to render
     ImVector!ImDrawCmd      CmdBuffer;          // Commands. Typically 1 command = 1 gpu draw call.
     ImVector!ImDrawIdx      IdxBuffer;          // Index buffer. Each command consume ImDrawCmd::ElemCount of those
@@ -1403,4 +1428,151 @@ version(none)
     void              GrowIndex(int new_size);
     void              AddRemapChar(ImWchar dst, ImWchar src, bool overwrite_dst = true); // Makes 'dst' character/glyph points to 'src' character/glyph. Currently needs to be called AFTER fonts have been built.
 }
+}
+
+// Transient per-window data, reset at the beginning of the frame
+// FIXME: That's theory, in practice the delimitation between ImGuiWindow and ImGuiDrawContext is quite tenuous and could be reconsidered.
+struct ImGuiDrawContext
+{
+    ImVec2                  CursorPos;
+    ImVec2                  CursorPosPrevLine;
+    ImVec2                  CursorStartPos;
+    ImVec2                  CursorMaxPos;           // Implicitly calculate the size of our contents, always extending. Saved into window->SizeContents at the end of the frame
+    float                   CurrentLineHeight;
+    float                   CurrentLineTextBaseOffset;
+    float                   PrevLineHeight;
+    float                   PrevLineTextBaseOffset;
+    float                   LogLinePosY;
+    int                     TreeDepth;
+    ImGuiID                 LastItemID;
+    ImRect                  LastItemRect;
+    bool                    LastItemHoveredAndUsable;  // Item rectangle is hovered, and its window is currently interactable with (not blocked by a popup preventing access to the window)
+    bool                    LastItemHoveredRect;       // Item rectangle is hovered, but its window may or not be currently interactable with (might be blocked by a popup preventing access to the window)
+    bool                    MenuBarAppending;
+    float                   MenuBarOffsetX;
+    ImVector!(ImGuiWindow*) ChildWindows;
+    ImGuiStorage*           StateStorage;
+    ImGuiLayoutType         LayoutType;
+
+    // We store the current settings outside of the vectors to increase memory locality (reduce cache misses). The vectors are rarely modified. Also it allows us to not heap allocate for short-lived windows which are not using those settings.
+    float                   ItemWidth;              // == ItemWidthStack.back(). 0.0: default, >0.0: width in pixels, <0.0: align xx pixels to the right of window
+    float                   TextWrapPos;            // == TextWrapPosStack.back() [empty == -1.0f]
+    bool                    AllowKeyboardFocus;     // == AllowKeyboardFocusStack.back() [empty == true]
+    bool                    ButtonRepeat;           // == ButtonRepeatStack.back() [empty == false]
+    ImVector!float          ItemWidthStack;
+    ImVector!float          TextWrapPosStack;
+    ImVector!bool           AllowKeyboardFocusStack;
+    ImVector!bool           ButtonRepeatStack;
+    ImVector!ImGuiGroupData GroupStack;
+    ImGuiColorEditMode      ColorEditMode;
+    int[6]                  StackSizesBackup;       // Store size of various stacks for asserting
+
+    float                   IndentX;                // Indentation / start position from left of window (increased by TreePush/TreePop, etc.)
+    float                   ColumnsOffsetX;         // Offset to the current column (if ColumnsCurrent > 0). FIXME: This and the above should be a stack to allow use cases like Tree->Column->Tree. Need revamp columns API.
+    int                     ColumnsCurrent;
+    int                     ColumnsCount;
+    float                   ColumnsMinX;
+    float                   ColumnsMaxX;
+    float                   ColumnsStartPosY;
+    float                   ColumnsCellMinY;
+    float                   ColumnsCellMaxY;
+    bool                    ColumnsShowBorders;
+    ImGuiID                 ColumnsSetID;
+    ImVector!ImGuiColumnData ColumnsData;
+}
+
+// FIXME: this is in development, not exposed/functional as a generic feature yet.
+enum ImGuiLayoutType
+{
+    Vertical,
+    Horizontal,
+}
+
+struct ImGuiGroupData
+{
+    ImVec2      BackupCursorPos;
+    ImVec2      BackupCursorMaxPos;
+    float       BackupIndentX;
+    float       BackupCurrentLineHeight;
+    float       BackupCurrentLineTextBaseOffset;
+    float       BackupLogLinePosY;
+    bool        AdvanceCursor;
+}
+
+// Per column data for Columns()
+struct ImGuiColumnData
+{
+    float       OffsetNorm;     // Column start offset, normalized 0.0 (far left) -> 1.0 (far right)
+    //float     IndentX;
+}
+
+// Simple column measurement currently used for MenuItem() only. This is very short-sighted/throw-away code and NOT a generic helper.
+struct ImGuiSimpleColumns
+{
+    int         Count;
+    float       Spacing;
+    float       Width, NextWidth;
+    float[8]    Pos;
+    float[8]    NextWidths;
+}
+
+// Windows data
+struct ImGuiWindow
+{
+    char*                   Name;
+    ImGuiID                 ID;                                 // == ImHash(Name)
+    ImGuiWindowFlags        Flags;                              // See enum ImGuiWindowFlags_
+    int                     IndexWithinParent;                  // Order within immediate parent window, if we are a child window. Otherwise 0.
+    ImVec2                  PosFloat;
+    ImVec2                  Pos;                                // Position rounded-up to nearest pixel
+    ImVec2                  Size;                               // Current size (==SizeFull or collapsed title bar size)
+    ImVec2                  SizeFull;                           // Size when non collapsed
+    ImVec2                  SizeContents;                       // Size of contents (== extents reach of the drawing cursor) from previous frame
+    ImVec2                  SizeContentsExplicit;               // Size of contents explicitly set by the user via SetNextWindowContentSize()
+    ImRect                  ContentsRegionRect;                 // Maximum visible content position in window coordinates. ~~ (SizeContentsExplicit ? SizeContentsExplicit : Size - ScrollbarSizes) - CursorStartPos, per axis
+    ImVec2                  WindowPadding;                      // Window padding at the time of begin. We need to lock it, in particular manipulation of the ShowBorder would have an effect
+    ImGuiID                 MoveID;                             // == window->GetID("#MOVE")
+    ImVec2                  Scroll;
+    ImVec2                  ScrollTarget;                       // target scroll position. stored as cursor position with scrolling canceled out, so the highest point is always 0.0f. (FLT_MAX for no change)
+    ImVec2                  ScrollTargetCenterRatio;            // 0.0f = scroll so that target position is at top, 0.5f = scroll so that target position is centered
+    bool                    ScrollbarX, ScrollbarY;
+    ImVec2                  ScrollbarSizes;
+    float                   BorderSize;
+    bool                    Active;                             // Set to true on Begin()
+    bool                    WasActive;
+    bool                    Accessed;                           // Set to true when any widget access the current window
+    bool                    Collapsed;                          // Set when collapsing window to become only title-bar
+    bool                    SkipItems;                          // == Visible && !Collapsed
+    int                     BeginCount;                         // Number of Begin() during the current frame (generally 0 or 1, 1+ if appending via multiple Begin/End pairs)
+    ImGuiID                 PopupID;                            // ID in the popup stack when this window is used as a popup/menu (because we use generic Name/ID for recycling)
+    int                     AutoFitFramesX, AutoFitFramesY;
+    bool                    AutoFitOnlyGrows;
+    int                     AutoPosLastDirection;
+    int                     HiddenFrames;
+    int                     SetWindowPosAllowFlags;             // bit ImGuiSetCond_*** specify if SetWindowPos() call will succeed with this particular flag.
+    int                     SetWindowSizeAllowFlags;            // bit ImGuiSetCond_*** specify if SetWindowSize() call will succeed with this particular flag.
+    int                     SetWindowCollapsedAllowFlags;       // bit ImGuiSetCond_*** specify if SetWindowCollapsed() call will succeed with this particular flag.
+    bool                    SetWindowPosCenterWanted;
+
+    ImGuiDrawContext        DC;                                 // Temporary per-window data, reset at the beginning of the frame
+    ImVector!ImGuiID        IDStack;                            // ID stack. ID are hashes seeded with the value at the top of the stack
+    ImRect                  ClipRect;                           // = DrawList->clip_rect_stack.back(). Scissoring / clipping rectangle. x1, y1, x2, y2.
+    ImRect                  WindowRectClipped;                  // = WindowRect just after setup in Begin(). == window->Rect() for root window.
+    int                     LastFrameActive;
+    float                   ItemWidthDefault;
+    ImGuiSimpleColumns      MenuColumns;                        // Simplified columns storage for menu items
+    ImGuiStorage            StateStorage;
+    float                   FontWindowScale;                    // Scale multiplier per-window
+    ImDrawList*             DrawList;
+    ImGuiWindow*            RootWindow;                         // If we are a child window, this is pointing to the first non-child parent window. Else point to ourself.
+    ImGuiWindow*            RootNonPopupWindow;                 // If we are a child window, this is pointing to the first non-child non-popup parent window. Else point to ourself.
+    ImGuiWindow*            ParentWindow;                       // If we are a child window, this is pointing to our parent window. Else point to NULL.
+
+    // Focus
+    int                     FocusIdxAllCounter;                 // Start at -1 and increase as assigned via FocusItemRegister()
+    int                     FocusIdxTabCounter;                 // (same, but only count widgets which you can Tab through)
+    int                     FocusIdxAllRequestCurrent;          // Item being requested for focus
+    int                     FocusIdxTabRequestCurrent;          // Tab-able item being requested for focus
+    int                     FocusIdxAllRequestNext;             // Item being requested for focus, for next update (relies on layout to be stable between the frame pressing TAB and the next frame)
+    int                     FocusIdxTabRequestNext;             // "
 }
