@@ -27,6 +27,7 @@ uint nextIndex(uint index) const             { return (index + 1) & mask; }
 uint prevIndex(uint index) const             { return (index - 1) & mask; }
 bool empty() const                           { return headIndex == tailIndex; }
 bool full() const                            { return headIndex == nextIndex(tailIndex); }
+void clear()                                 { headIndex = tailIndex = 0; }
 
 size_t length() const { return (headIndex <= tailIndex) ? tailIndex - headIndex : mask - headIndex + tailIndex + 1; }
 

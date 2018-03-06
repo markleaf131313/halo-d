@@ -19,30 +19,19 @@ private int size = 0;
 private int max  = (Allocator.hasInlinedElements ? Allocator.inlinedSize : 0);
 private Allocator.Def!Element allocator;
 
-Element* ptr()
-{
-    return allocator.allocation();
-}
-
-uint length() const
-{
-    return size;
-}
-
-uint opDollar() const
-{
-    return size;
-}
+Element*  ptr()            { return allocator.allocation(); }
+void      clear()          { size = 0; }
+uint      length() const   { return size; }
+void      resizeToMax()    { resize(max); }
+bool      empty() const    { return size == 0; }
+bool      capcityReached() const { return size >= max; }
+uint      opDollar() const { return size; }
+Element[] opSlice()        { return ptr[0 .. size]; }
 
 ref Element opIndex(size_t i)
 {
     assert(i >= 0 && i < size);
     return ptr[i];
-}
-
-Element[] opSlice()
-{
-    return ptr[0 .. size];
 }
 
 static if(is(Element E : E*))
@@ -67,21 +56,6 @@ void resize(int newSize)
     }
 
     size = newSize;
-}
-
-void resizeToMax()
-{
-    resize(max);
-}
-
-bool empty() const
-{
-    return size == 0;
-}
-
-bool capcityReached() const
-{
-    return size >= max;
 }
 
 uint add()(auto ref Element element)
