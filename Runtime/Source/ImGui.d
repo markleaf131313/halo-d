@@ -46,6 +46,13 @@ struct ImRect
         return result;
     }
 
+    ImVec2 igGetMouseDragDelta(int button = 0, float lock_threshold = -1.0f)
+    {
+        ImVec2 result;
+        igGetMouseDragDelta(&result, button, lock_threshold);
+        return result;
+    }
+
     bool igInputShort(const(char)* label, short* v, short step = 1, short step_fast = 100, ImGuiInputTextFlags extra_flags = ImGuiInputTextFlags.Default)
     {
         int value = *v;
@@ -406,7 +413,7 @@ extern(C) @nogc nothrow
     bool          igIsMouseDragging(int button = 0, float lock_threshold = -1.0f);      // is mouse dragging. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
     ImVec2        igGetMousePos();                                                      // shortcut to ImGui::GetIO().MousePos provided by user, to be consistent with other calls
     ImVec2        igGetMousePosOnOpeningCurrentPopup();                                 // retrieve backup of mouse positioning at the time of opening popup we have BeginPopup() into
-    ImVec2        igGetMouseDragDelta(int button = 0, float lock_threshold = -1.0f);    // dragging amount since clicking. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
+    void          igGetMouseDragDelta(ImVec2* pOut, int button = 0, float lock_threshold = -1.0f);    // dragging amount since clicking. if lock_threshold < -1.0f uses io.MouseDraggingThreshold
     void          igResetMouseDragDelta(int button = 0);                                //
     ImGuiMouseCursor igGetMouseCursor();                                                // get desired cursor type, reset in ImGui::NewFrame(), this updated during the frame. valid before Render(). If you use software rendering by setting io.MouseDrawCursor ImGui will render those for you
     void          igSetMouseCursor(ImGuiMouseCursor type);                              // set desired cursor type
