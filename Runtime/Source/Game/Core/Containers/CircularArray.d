@@ -1,7 +1,7 @@
 
 module Game.Core.Containers.CircularArray;
 
-import std.math : nextPow2, isPowerOf2;
+import std.math : isPowerOf2;
 import std.conv : emplace;
 import std.traits : hasElaborateDestructor;
 
@@ -17,7 +17,7 @@ static assert(!hasElaborateDestructor!Element, "Do not use complicated types for
 
 private uint headIndex;
 private uint tailIndex;
-private uint mask = nextPow2(Allocator.inlinedSize) - 1;
+private uint mask = Allocator.inlinedSize - 1;
 private Allocator.Def!Element allocator;
 
 private inout(Element)* ptr() inout          { return allocator.allocation(); }
