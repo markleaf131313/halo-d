@@ -24,6 +24,7 @@ void      clear()          { size = 0; }
 uint      length() const   { return size; }
 void      resizeToMax()    { resize(max); }
 bool      empty() const    { return size == 0; }
+bool      full() const     { return size >= max; }
 bool      capcityReached() const { return size >= max; }
 uint      opDollar() const { return size; }
 Element[] opSlice()        { return ptr[0 .. size]; }
@@ -61,6 +62,13 @@ void resize(int newSize)
 uint add()(auto ref Element element)
 {
     ptr[size] = element;
+    size += 1;
+    return size - 1;
+}
+
+uint add()
+{
+    ptr[size] = Element.init;
     size += 1;
     return size - 1;
 }
