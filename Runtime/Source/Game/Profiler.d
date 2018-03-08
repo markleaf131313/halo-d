@@ -31,12 +31,32 @@ mixin template ScopedMarker(int line = __LINE__)
 
 struct Marker
 {
-    Marker*  parent;
-    Marker*  sibling;
+    uint parentIndex = indexNone;
+    uint siblingIndex = indexNone;
     string   name;
     Duration startTime;
     Duration endTime;
     int      level;
+
+    float totalTimeMs()
+    {
+        return float((endTime - startTime).total!"hnsecs") / dur!"msecs"(1).total!"hnsecs";
+    }
+
+    float startTimeMs(ref Frame frame)
+    {
+        return float((startTime - frame.startTime).total!"hnsecs") / dur!"msecs"(1).total!"hnsecs";
+    }
+
+    float percentStartOffset(ref Frame frame)
+    {
+        return startTimeMs(frame) / frame.totalTimeMs;
+    }
+
+    float percentTotal(ref Frame frame)
+    {
+        return totalTimeMs / frame.totalTimeMs;
+    }
 }
 
 struct Frame
@@ -45,8 +65,9 @@ struct Frame
     Duration endTime;
 
     FixedArray!(Marker, 1024) markers;
-    Marker* currentMarker;
-    Marker* lastMarker;
+
+    uint currentMarkerIndex = indexNone;
+    uint lastMarkerIndex    = indexNone;
 
     float totalTimeMs()
     {
@@ -81,9 +102,9 @@ auto beginScopedFrame()
         timer.start();
 
     currentFrame.markers.clear();
-    currentFrame.currentMarker = null;
-    currentFrame.lastMarker = null;
-    currentFrame.startTime = timer.peek();
+    currentFrame.currentMarkerIndex = indexNone;
+    currentFrame.lastMarkerIndex    = indexNone;
+    currentFrame.startTime          = timer.peek();
 
     return Result();
 }
@@ -130,18 +151,18 @@ auto beginScopedMarker(string name = __FUNCTION__)
         if(frame.markers.full)
             assert(0);
 
-        frame.markers.add();
+        uint markerIndex = frame.markers.add();
 
         Marker* marker = &frame.markers[$ - 1];
-        marker.parent = frame.currentMarker;
-        marker.level = frame.currentMarker ? frame.currentMarker.level + 1 : 0;
+        marker.parentIndex = frame.currentMarkerIndex;
+        marker.level = frame.currentMarkerIndex != indexNone ? frame.markers[frame.currentMarkerIndex].level + 1 : 0;
         marker.name = name;
         marker.startTime = timer.peek();
 
-        if(frame.lastMarker)
-            frame.lastMarker.sibling = marker;
+        if(frame.lastMarkerIndex != indexNone)
+            frame.markers[frame.lastMarkerIndex].siblingIndex = markerIndex;
 
-        frame.currentMarker = marker;
+        frame.currentMarkerIndex = markerIndex;
     }
 
     return Result();
@@ -154,10 +175,10 @@ void endScopedMarker()
 
     Frame* frame = &Profiler.currentFrame;
 
-    frame.currentMarker.endTime = timer.peek();
+    frame.markers[frame.currentMarkerIndex].endTime = timer.peek();
 
-    frame.lastMarker    = frame.currentMarker;
-    frame.currentMarker = frame.currentMarker.parent;
+    frame.lastMarkerIndex    = frame.currentMarkerIndex;
+    frame.currentMarkerIndex = frame.markers[frame.currentMarkerIndex].parentIndex;
 }
 
 void plotGraph()
@@ -223,15 +244,25 @@ void plotGraph()
 
     igEndChild();
 
+    float width = igCalcItemWidth();
     igBeginChild("##timeline");
+    frameMin = igGetCursorScreenPos();
 
     if(selectionStart != indexNone)
     {
         Frame* frame = &frames[selectionStart];
 
-        for(Marker* marker = frame.markers.ptr; marker; marker = marker.sibling)
+        for(uint markerIndex = 0; markerIndex != indexNone; markerIndex = frame.markers[markerIndex].siblingIndex)
         {
-            igButton(marker.name.ptr);
+            Marker* marker = &frame.markers[markerIndex];
+
+            Vec2 start = frameMin;
+            Vec2 size = Vec2(width * marker.percentTotal(*frame), 25);
+
+            start.x += width * marker.percentStartOffset(*frame);
+            igText("%s: %f", marker.name.ptr, marker.totalTimeMs);
+
+            igGetWindowDrawList.AddRectFilled(start, start + size, uint.max);
         }
     }
 
