@@ -378,7 +378,7 @@ bool gameStep(SharedGameState* gameState)
 {
 try
 {
-    mixin ProfilerObject.BeginScopedFrame;
+    mixin ProfilerObject.ScopedFrame;
 
     struct FingerAnalog
     {

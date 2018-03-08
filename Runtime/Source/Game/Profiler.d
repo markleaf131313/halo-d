@@ -3,6 +3,7 @@ module Game.Profiler;
 
 import std.conv : to;
 import std.datetime : dur, Duration, MonoTime;
+import std.datetime.stopwatch : StopWatch;
 
 import ImGui;
 
@@ -18,14 +19,20 @@ ref ProfilerObject Profiler()
 struct ProfilerObject
 {
 
-mixin template BeginScopedFrame(int line = __LINE__)
+mixin template ScopedFrame(int line = __LINE__)
 {
     mixin("auto _beginScopedFrame_" ~ line.to!string ~ " = Profiler.beginScopedFrame();");
+}
+
+mixin template ScopedMarker(int line = __LINE__)
+{
+    mixin("auto _beginScopedMarker_" ~ line.to!string ~ " = Profiler.beginScopedMarker();");
 }
 
 struct Marker
 {
     Marker*  parent;
+    Marker*  sibling;
     string   name;
     Duration startTime;
     Duration endTime;
@@ -34,10 +41,12 @@ struct Marker
 
 struct Frame
 {
-    MonoTime startTime;
-    MonoTime endTime;
+    Duration startTime;
+    Duration endTime;
 
     FixedArray!(Marker, 1024) markers;
+    Marker* currentMarker;
+    Marker* lastMarker;
 
     float totalTimeMs()
     {
@@ -50,6 +59,8 @@ bool stopRecordingWhenFull = true;
 
 int selectionStart = indexNone;
 int selectionEnd   = indexNone;
+
+StopWatch timer;
 
 FixedCircularArray!(Frame, 128) frames;
 Frame currentFrame;
@@ -66,8 +77,13 @@ auto beginScopedFrame()
         }
     }
 
+    if(!timer.running)
+        timer.start();
+
     currentFrame.markers.clear();
-    currentFrame.startTime = MonoTime.currTime;
+    currentFrame.currentMarker = null;
+    currentFrame.lastMarker = null;
+    currentFrame.startTime = timer.peek();
 
     return Result();
 }
@@ -79,7 +95,7 @@ void endScopedFrame()
         return;
     }
 
-    currentFrame.endTime = MonoTime.currTime;
+    currentFrame.endTime = timer.peek();
 
     if(frames.full)
     {
@@ -93,6 +109,55 @@ void endScopedFrame()
     }
 
     frames.addBack(currentFrame);
+}
+
+auto beginScopedMarker(string name = __FUNCTION__)
+{
+    static struct Result
+    {
+        @disable this(this);
+
+        ~this()
+        {
+            Profiler.endScopedMarker();
+        }
+    }
+
+    if(recording)
+    {
+        Frame* frame = &Profiler.currentFrame;
+
+        if(frame.markers.full)
+            assert(0);
+
+        frame.markers.add();
+
+        Marker* marker = &frame.markers[$ - 1];
+        marker.parent = frame.currentMarker;
+        marker.level = frame.currentMarker ? frame.currentMarker.level + 1 : 0;
+        marker.name = name;
+        marker.startTime = timer.peek();
+
+        if(frame.lastMarker)
+            frame.lastMarker.sibling = marker;
+
+        frame.currentMarker = marker;
+    }
+
+    return Result();
+}
+
+void endScopedMarker()
+{
+    if(!recording)
+        return;
+
+    Frame* frame = &Profiler.currentFrame;
+
+    frame.currentMarker.endTime = timer.peek();
+
+    frame.lastMarker    = frame.currentMarker;
+    frame.currentMarker = frame.currentMarker.parent;
 }
 
 void plotGraph()
@@ -157,19 +222,28 @@ void plotGraph()
     }
 
     igEndChild();
+
+    igBeginChild("##timeline");
+
+    if(selectionStart != indexNone)
+    {
+        Frame* frame = &frames[selectionStart];
+
+        for(Marker* marker = frame.markers.ptr; marker; marker = marker.sibling)
+        {
+            igButton(marker.name.ptr);
+        }
+    }
+
+    igEndChild();
 }
 
 void doUi()
 {
-    extern(C) static float getValue(void*, int i)
-    {
-        return Profiler.frames[i].totalTimeMs;
-    }
-
     scope(exit)
         igEnd();
 
-    if(!igBegin("Profiler") || Profiler.frames.length == 0)
+    if(!igBegin("Profiler"))
         return;
 
     if(igButton("Stop"))

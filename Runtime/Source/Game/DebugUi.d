@@ -14,7 +14,6 @@ import Game.Core;
 import Game.Profiler;
 import Game.Tags;
 
-
 struct DebugUi
 {
     SharedGameState* gameState;
@@ -60,6 +59,8 @@ struct DebugUi
     {
         import core.memory : GC;
         import std.algorithm.searching : canFind;
+
+        mixin ProfilerObject.ScopedMarker;
 
         auto io = igGetIO();
 

@@ -15,10 +15,9 @@ import Game.Render.Camera;
 import Game.Cache;
 import Game.Core;
 import Game.Debug;
+import Game.Profiler;
 import Game.Tags;
 import Game.World;
-
-
 
 struct Renderer
 {
@@ -2431,6 +2430,8 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
 
 void render(ref World world, ref Camera camera)
 {
+    mixin ProfilerObject.ScopedMarker;
+
     vkQueueWaitIdle(presentQueue);
     vkQueueWaitIdle(graphicsQueue);
 
