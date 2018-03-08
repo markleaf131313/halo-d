@@ -565,6 +565,8 @@ try
 
     for( ; accumulator >= frameDelta; accumulator -= frameDelta)
     {
+        mixin ProfilerObject.ScopedMarker;
+
         ticks += 1;
 
         const(ubyte)* state = SDL_GetKeyboardState(null);
