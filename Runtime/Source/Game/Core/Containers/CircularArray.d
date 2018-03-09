@@ -117,9 +117,9 @@ int opApply(scope int delegate(ref Element) dg)
 
 int opApply(scope int delegate(uint, ref Element) dg)
 {
-    for(uint i = headIndex; i != tailIndex; i = nextIndex(i))
+    for(uint i = 0; i < length; ++i)
     {
-        if(int result = dg(i, ptr[i]))
+        if(int result = dg(i, this[i]))
         {
             return result;
         }
