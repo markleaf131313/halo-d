@@ -604,6 +604,9 @@ void createAttachments()
 
 void updateLogic()
 {
+    import Game.Profiler;
+    mixin ProfilerObject.ScopedMarker;
+
     const tagObject = Cache.get!TagObject(tagIndex);
 
     if(interpolateCount)
