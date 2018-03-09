@@ -31,7 +31,7 @@ mixin template ScopedMarker(int line = __LINE__)
 
 struct Marker
 {
-    uint parentIndex = indexNone;
+    uint parentIndex  = indexNone;
     uint siblingIndex = indexNone;
     string   name;
     Duration startTime;
@@ -76,6 +76,7 @@ struct Frame
 }
 
 bool recording = true;
+bool desiredRecordingState = true;
 bool stopRecordingWhenFull = true;
 
 int selectionStart = indexNone;
@@ -123,6 +124,7 @@ void endScopedFrame()
         if(stopRecordingWhenFull)
         {
             recording = false;
+            desiredRecordingState = false;
             return;
         }
 
@@ -132,10 +134,13 @@ void endScopedFrame()
     frames.addBack(currentFrame);
 }
 
+@nogc nothrow
 auto beginScopedMarker(string name = __FUNCTION__)
 {
     static struct Result
     {
+    @nogc nothrow:
+
         @disable this(this);
 
         ~this()
@@ -143,6 +148,8 @@ auto beginScopedMarker(string name = __FUNCTION__)
             Profiler.endScopedMarker();
         }
     }
+
+    recording = desiredRecordingState;
 
     if(recording)
     {
@@ -168,6 +175,7 @@ auto beginScopedMarker(string name = __FUNCTION__)
     return Result();
 }
 
+@nogc nothrow
 void endScopedMarker()
 {
     if(!recording)
@@ -252,17 +260,31 @@ void plotGraph()
     {
         Frame* frame = &frames[selectionStart];
 
-        for(uint markerIndex = 0; markerIndex != indexNone; markerIndex = frame.markers[markerIndex].siblingIndex)
+        foreach(uint i, ref marker ; frame.markers)
         {
-            Marker* marker = &frame.markers[markerIndex];
+            const float height = igGetFontSize() + 6;
 
             Vec2 start = frameMin;
-            Vec2 size = Vec2(width * marker.percentTotal(*frame), 25);
+            Vec2 size = Vec2(width * marker.percentTotal(*frame), height);
 
-            start.x += width * marker.percentStartOffset(*frame);
-            igText("%s: %f", marker.name.ptr, marker.totalTimeMs);
+            start += Vec2(width * marker.percentStartOffset(*frame), marker.level * (height + 2));
 
-            igGetWindowDrawList.AddRectFilled(start, start + size, uint.max);
+            Vec4 clip = Vec4(start.x, start.y, start.x + size.x, start.y + size.y);
+
+            igGetWindowDrawList.AddRectFilled(start, start + size, 0xFF444444);
+            igGetWindowDrawList.AddRect(start, start + size, 0xFF222222);
+
+            igGetWindowDrawList.AddText(igGetFont, igGetFontSize, start + Vec2(3, 3),
+                igGetColorU32(ImGuiCol.Text), marker.name.ptr, null, 0.0f, &clip);
+
+            igPushID(i);
+            igSetCursorScreenPos(start);
+            igInvisibleButton("##marker", size);
+            if(igIsItemHovered())
+            {
+                igSetTooltip("%s\nTotal Time (ms): %f", marker.name.ptr, marker.totalTimeMs);
+            }
+            igPopID();
         }
     }
 
@@ -277,8 +299,12 @@ void doUi()
     if(!igBegin("Profiler"))
         return;
 
-    if(igButton("Stop"))
-        Profiler.recording = false;
+    if(igButton(Profiler.recording ? "Stop##recording" : "Resume##recording"))
+        Profiler.desiredRecordingState = !Profiler.recording;
+
+    igSameLine();
+
+    igCheckbox("Stop When Full", &stopRecordingWhenFull);
 
     igPushItemWidth(-1.0f);
     plotGraph();
