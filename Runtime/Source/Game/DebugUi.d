@@ -18,7 +18,7 @@ struct DebugUi
 {
     SharedGameState* gameState;
 
-    __gshared int[][TagId] cacheTagPaths;
+    int[][TagId] cacheTagPaths;
 
     size_t gcHead = 0;
     size_t gcCount = 0;
