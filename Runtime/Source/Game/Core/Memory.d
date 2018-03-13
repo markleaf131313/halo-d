@@ -60,11 +60,6 @@ else
 
         @nogc nothrow
         void ptr(const(T)* p)
-        in
-        {
-            assert(cast(size_t)p <= 0xFFFF_FFFF); // assert(GC.addrOf(cast(void*)p) is null &&  TODO, too many problems right with it
-        }
-        body
         {
             ptrValue = cast(uint)p;
         }
