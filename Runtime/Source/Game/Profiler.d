@@ -29,6 +29,11 @@ mixin template ScopedMarker(int line = __LINE__)
     mixin("auto _beginScopedMarker_" ~ line.to!string ~ " = Profiler.beginScopedMarker();");
 }
 
+mixin template ScopedMarker(string name, int line = __LINE__)
+{
+    mixin("auto _beginScopedMarker_" ~ line.to!string ~ " = Profiler.beginScopedMarker(\"" ~ name ~ "\");");
+}
+
 struct Marker
 {
     uint parentIndex  = indexNone;
@@ -156,20 +161,24 @@ auto beginScopedMarker(string name = __FUNCTION__)
         Frame* frame = &Profiler.currentFrame;
 
         if(frame.markers.full)
-            assert(0);
+        {
+            frame.currentMarkerIndex = indexNone;
+        }
+        else
+        {
+            uint markerIndex = frame.markers.add();
 
-        uint markerIndex = frame.markers.add();
+            Marker* marker = &frame.markers[$ - 1];
+            marker.parentIndex = frame.currentMarkerIndex;
+            marker.level = frame.currentMarkerIndex != indexNone ? frame.markers[frame.currentMarkerIndex].level + 1 : 0;
+            marker.name = name;
+            marker.startTime = timer.peek();
 
-        Marker* marker = &frame.markers[$ - 1];
-        marker.parentIndex = frame.currentMarkerIndex;
-        marker.level = frame.currentMarkerIndex != indexNone ? frame.markers[frame.currentMarkerIndex].level + 1 : 0;
-        marker.name = name;
-        marker.startTime = timer.peek();
+            if(frame.lastMarkerIndex != indexNone)
+                frame.markers[frame.lastMarkerIndex].siblingIndex = markerIndex;
 
-        if(frame.lastMarkerIndex != indexNone)
-            frame.markers[frame.lastMarkerIndex].siblingIndex = markerIndex;
-
-        frame.currentMarkerIndex = markerIndex;
+            frame.currentMarkerIndex = markerIndex;
+        }
     }
 
     return Result();
@@ -183,10 +192,13 @@ void endScopedMarker()
 
     Frame* frame = &Profiler.currentFrame;
 
-    frame.markers[frame.currentMarkerIndex].endTime = timer.peek();
+    if(frame.currentMarkerIndex != indexNone)
+    {
+        frame.markers[frame.currentMarkerIndex].endTime = timer.peek();
 
-    frame.lastMarkerIndex    = frame.currentMarkerIndex;
-    frame.currentMarkerIndex = frame.markers[frame.currentMarkerIndex].parentIndex;
+        frame.lastMarkerIndex    = frame.currentMarkerIndex;
+        frame.currentMarkerIndex = frame.markers[frame.currentMarkerIndex].parentIndex;
+    }
 }
 
 void plotGraph()
