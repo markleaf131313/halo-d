@@ -222,6 +222,8 @@ static immutable const(char)*[] requiredDeviceExtensions =
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 ];
 
+enum maxSwapFrames = 5;
+
 bool hasTextureCompressionBc;
 
 VkInstance               instance;
@@ -233,16 +235,16 @@ VkSurfaceKHR             surface;
 VkQueue                  graphicsQueue;
 VkQueue                  presentQueue;
 
-VkSwapchainKHR                swapchain;
-VkFormat                      swapchainImageFormat;
-VkExtent2D                    swapchainExtent;
-FixedArray!(VkImage, 5)       swapchainImages;
-FixedArray!(VkImageView, 5)   swapchainImageViews;
-FixedArray!(VkFramebuffer, 5) swapchainFramebuffers;
-VkRenderPass                  renderPass;
+VkSwapchainKHR           swapchain;
+VkFormat                 swapchainImageFormat;
+VkExtent2D               swapchainExtent;
+VkRenderPass             renderPass;
+FixedArray!(VkImage, maxSwapFrames)       swapchainImages;
+FixedArray!(VkImageView, maxSwapFrames)   swapchainImageViews;
+FixedArray!(VkFramebuffer, maxSwapFrames) swapchainFramebuffers;
 
-VkCommandPool                   commandPool;
-FixedArray!(VkCommandBuffer, 5) commandBuffers;
+VkCommandPool            commandPool;
+FixedArray!(VkCommandBuffer, maxSwapFrames) commandBuffers;
 
 VkBuffer                 sbspVertexBuffer;
 VkDeviceMemory           sbspVertexBufferMemory;
@@ -299,7 +301,7 @@ VkDescriptorSet          debugFrameBufferDescriptorSet;
 VkPipelineLayout         debugFrameBufferPipelineLayout;
 VkPipeline               debugFrameBufferPipeline;
 
-VkCommandBuffer          offScreenCmdBuffer;
+FixedArray!(VkCommandBuffer, maxSwapFrames) offScreenCmdBuffers;
 FrameBuffer              offscreenFramebuffer;
 VkSampler                colorSampler;
 
@@ -1694,6 +1696,7 @@ void createCommandPool()
 void createCommandBuffers()
 {
     commandBuffers.resize(swapchainFramebuffers.length);
+    offScreenCmdBuffers.resize(swapchainFramebuffers.length);
 
     VkCommandBufferAllocateInfo allocInfo;
     allocInfo.commandPool = commandPool;
@@ -1704,9 +1707,9 @@ void createCommandBuffers()
 
     allocInfo.commandPool = commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = 1;
+    allocInfo.commandBufferCount = offScreenCmdBuffers.length;
 
-    vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &offScreenCmdBuffer));
+    vkCheck(vkAllocateCommandBuffers(device, &allocInfo, offScreenCmdBuffers.ptr));
 }
 
 void createSemaphores()
@@ -2126,30 +2129,20 @@ void updateImguiBuffers(ImDrawData* drawData)
     uint vertexSize = drawData.TotalVtxCount * cast(uint)ImguiVertex.sizeof;
     uint indexSize = drawData.TotalIdxCount  * cast(uint)ImDrawIdx.sizeof;
 
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    createBuffer(max(vertexSize, indexSize), VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer, stagingBufferMemory);
-    scope(exit)
-    {
-        vkDestroyBuffer(device, stagingBuffer, null);
-        vkFreeMemory(device, stagingBufferMemory, null);
-    }
-
     if(!imguiVertexBuffer || imguiVertexBufferSize < vertexSize)
     {
         if(imguiVertexBuffer)       vkDestroyBuffer(device, imguiVertexBuffer, null);
         if(imguiVertexBufferMemory) vkFreeMemory(device, imguiVertexBufferMemory, null);
 
-        createBuffer(vertexSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, imguiVertexBuffer, imguiVertexBufferMemory);
+        createBuffer(vertexSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, imguiVertexBuffer, imguiVertexBufferMemory);
 
         imguiVertexBufferSize = vertexSize;
     }
 
     {
         void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, vertexSize, 0, &data);
+        vkMapMemory(device, imguiVertexBufferMemory, 0, vertexSize, 0, &data);
 
         foreach(ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
         {
@@ -2159,8 +2152,7 @@ void updateImguiBuffers(ImDrawData* drawData)
             data += size;
         }
 
-        vkUnmapMemory(device, stagingBufferMemory);
-        copyBuffer(stagingBuffer, imguiVertexBuffer, vertexSize);
+        vkUnmapMemory(device, imguiVertexBufferMemory);
     }
 
     if(!imguiIndexBuffer || imguiIndexBufferSize < indexSize)
@@ -2168,15 +2160,15 @@ void updateImguiBuffers(ImDrawData* drawData)
         if(imguiIndexBuffer)       vkDestroyBuffer(device, imguiIndexBuffer, null);
         if(imguiIndexBufferMemory) vkFreeMemory(device, imguiIndexBufferMemory, null);
 
-        createBuffer(indexSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, imguiIndexBuffer, imguiIndexBufferMemory);
+        createBuffer(indexSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, imguiIndexBuffer, imguiIndexBufferMemory);
 
         imguiIndexBufferSize = indexSize;
     }
 
     {
         void* data;
-        vkMapMemory(device, stagingBufferMemory, 0, indexSize, 0, &data);
+        vkMapMemory(device, imguiIndexBufferMemory, 0, indexSize, 0, &data);
 
         foreach(ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
         {
@@ -2186,8 +2178,7 @@ void updateImguiBuffers(ImDrawData* drawData)
             data += size;
         }
 
-        vkUnmapMemory(device, stagingBufferMemory);
-        copyBuffer(stagingBuffer, imguiIndexBuffer, indexSize);
+        vkUnmapMemory(device, imguiIndexBufferMemory);
     }
 }
 
@@ -2432,9 +2423,6 @@ void render(ref World world, ref Camera camera)
 {
     mixin ProfilerObject.ScopedMarker;
 
-    vkQueueWaitIdle(presentQueue);
-    vkQueueWaitIdle(graphicsQueue);
-
     uint imageIndex;
     switch(vkAcquireNextImageKHR(device, swapchain, ulong.max, imageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex))
     {
@@ -2451,6 +2439,7 @@ void render(ref World world, ref Camera camera)
 
     auto commandBuffer = commandBuffers[imageIndex];
     auto frameBuffer   = swapchainFramebuffers[imageIndex];
+    auto offScreenCmdBuffer = offScreenCmdBuffers[imageIndex];
 
     updateImguiBuffers(igGetDrawData());
 
