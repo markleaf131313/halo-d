@@ -8,6 +8,11 @@ uint length32(T)(T[] array)
     return cast(uint)array.length;
 }
 
+template sizeof32(T)
+{
+    enum uint sizeof32 = cast(uint)T.sizeof;
+}
+
 template multichar(string op)
 {
     static if(op.length == 2)
