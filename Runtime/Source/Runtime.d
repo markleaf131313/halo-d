@@ -330,7 +330,7 @@ bool initSharedGameState(SharedGameState* gameState)
     ImGuiIO* io = igGetIO();
 
     float dpi;
-    SDL_GetDisplayDPI(0, &dpi, null, null);
+    SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(gameState.window), &dpi, null, null);
 
     if(dpi > 100.0f)
         io.FontGlobalScale = 2.0f;
