@@ -2541,7 +2541,7 @@ void render(ref World world, ref Camera camera)
 
     if(VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE))
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkQueueSubmit(): %s", result);
+        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkQueueSubmit(): %s", result.to!string.ptr);
         assert(0);
     }
 
@@ -2590,7 +2590,7 @@ void render(ref World world, ref Camera camera)
 
     if(VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE))
     {
-        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkQueueSubmit(): %s", result);
+        SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkQueueSubmit(): %s", result.to!string.ptr);
         assert(0);
     }
 
