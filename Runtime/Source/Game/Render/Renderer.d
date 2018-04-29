@@ -286,6 +286,7 @@ VkDeviceMemory           envUnifomBufferMemory;
 
 VkDescriptorSetLayout    sceneGlobalsDescriptorSetLayout;
 VkDescriptorSet          sceneGlobalsDescriptorSet;
+uint                     sceneGlobalsDescriptorSetOffset;
 
 VkDescriptorSetLayout    modelDescriptorSetLayout;
 
@@ -327,6 +328,7 @@ VkPipelineLayout         debugFrameBufferPipelineLayout;
 VkPipeline               debugFrameBufferPipeline;
 
 FixedArray!(VkCommandBuffer, maxSwapFrames) offScreenCmdBuffers;
+FixedArray!(VkFence, maxSwapFrames)         offScreenFences;
 FrameBuffer              offscreenFramebuffer;
 VkSampler                colorSampler;
 
@@ -340,6 +342,7 @@ VkSemaphore              renderFinishedSemaphore;
 VkBuffer                 skyModelUnifomBuffer;
 VkDeviceMemory           skyModelUnifomBufferMemory;
 VkDescriptorSet          skyModelDescriptorSet;
+uint                     skyModelBufferOffset;
 
 static ShaderInstance[DatumIndex] shaderInstances; // TODO is static as hack to fix crashing.
 FixedArray!(Texture, 1024) textureInstances; // TODO increase limit?
@@ -704,6 +707,16 @@ void createOffscreenFramebuffer()
     fbufCreateInfo.height = offscreenFramebuffer.height;
     fbufCreateInfo.layers = 1;
     vkCreateFramebuffer(device, &fbufCreateInfo, null, &offscreenFramebuffer.frameBuffer);
+
+    VkFenceCreateInfo fenceCreateInfo;
+    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    offScreenFences.resize(swapchainImages.length);
+
+    foreach(ref fence ; offScreenFences)
+    {
+        vkCreateFence(device, &fenceCreateInfo, null, &fence);
+    }
 
     VkSamplerCreateInfo sampler;
     sampler.magFilter = VK_FILTER_NEAREST;
@@ -1174,16 +1187,17 @@ void createRenderPass()
 
 void createDescriptorPool()
 {
-    VkDescriptorPoolSize[2] poolSize =
+    VkDescriptorPoolSize[3] poolSize =
     [
         VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1024),
         VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 256),
+        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 256),
     ];
 
     VkDescriptorPoolCreateInfo poolInfo;
     poolInfo.poolSizeCount = poolSize.length32;
     poolInfo.pPoolSizes = poolSize.ptr;
-    poolInfo.maxSets = 512;
+    poolInfo.maxSets = 1024;
 
     vkCheck(vkCreateDescriptorPool(device, &poolInfo, null, &descriptorPool));
 
@@ -1191,11 +1205,12 @@ void createDescriptorPool()
 
 void createEnvUniformBuffer()
 {
-    createBuffer(EnvUnifomBuffer.sizeof, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    // TODO use min uniform buffer alignment here, unhardcode 0x100
+    createBuffer(0x100 * maxSwapFrames, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, envUnifomBuffer, envUnifomBufferMemory);
 }
 
-void updateUniformBuffer(ref Camera camera)
+void updateUniformBuffer(ref Camera camera, int index)
 {
     EnvUnifomBuffer uniform;
 
@@ -1203,7 +1218,7 @@ void updateUniformBuffer(ref Camera camera)
     uniform.eyePos = camera.position;
 
     void* data;
-    vkMapMemory(device, envUnifomBufferMemory, 0, EnvUnifomBuffer.sizeof, 0, &data);
+    vkMapMemory(device, envUnifomBufferMemory, 0x100 * index, EnvUnifomBuffer.sizeof, 0, &data);
     data[0 .. EnvUnifomBuffer.sizeof] = (&uniform)[0 .. 1];
     vkUnmapMemory(device, envUnifomBufferMemory);
 }
@@ -1229,7 +1244,7 @@ void createUniformDescriptorSet()
     VkWriteDescriptorSet descriptorWrite;
 
     descriptorWrite.dstSet = sceneGlobalsDescriptorSet;
-    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
     descriptorWrite.descriptorCount = 1;
     descriptorWrite.pBufferInfo = &bufferInfo;
 
@@ -1238,15 +1253,17 @@ void createUniformDescriptorSet()
 
 void createSkyModelUniformBuffer()
 {
-    createBuffer(ModelUniformBuffer.sizeof, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    // TODO unhardcode size
+    createBuffer(0x500 * maxSwapFrames, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         skyModelUnifomBuffer, skyModelUnifomBufferMemory);
 }
 
-void updateSkyModelUniformBuffer(ref Camera camera)
+void updateSkyModelUniformBuffer(ref Camera camera, uint frameIndex)
 {
+    // TODO unhardcode size offset
     ModelUniformBuffer* uniform;
-    vkMapMemory(device, skyModelUnifomBufferMemory, 0, ModelUniformBuffer.sizeof, 0, cast(void**)&uniform);
+    vkMapMemory(device, skyModelUnifomBufferMemory, 0x500 * frameIndex, ModelUniformBuffer.sizeof, 0, cast(void**)&uniform);
 
     uniform.matrices = Mat4(1.0f / 1024.0f);
     uniform.matrices[0][3] = Vec4(camera.position, 1.0f);
@@ -1275,7 +1292,7 @@ void createSkyModelUniformDescriptorSet()
     VkWriteDescriptorSet descriptorWrite;
 
     descriptorWrite.dstSet = skyModelDescriptorSet;
-    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
     descriptorWrite.descriptorCount = 1;
     descriptorWrite.pBufferInfo = &bufferInfo;
 
@@ -1286,7 +1303,7 @@ void createSceneGlobalsDescriptorSetLayout()
 {
     VkDescriptorSetLayoutBinding[1] setLayoutBindings =
     [
-        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS),
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1, VK_SHADER_STAGE_ALL_GRAPHICS),
     ];
 
     VkDescriptorSetLayoutCreateInfo descriptorLayout;
@@ -1300,7 +1317,7 @@ void createModelDescriptorSetLayout()
 {
     VkDescriptorSetLayoutBinding[1] setLayoutBindings =
     [
-        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_ALL_GRAPHICS),
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1, VK_SHADER_STAGE_ALL_GRAPHICS),
     ];
 
     VkDescriptorSetLayoutCreateInfo descriptorLayout;
@@ -2622,6 +2639,23 @@ void render(ref World world, ref Camera camera)
     auto commandBuffer = commandBuffers[imageIndex];
     auto frameBuffer   = swapchainFramebuffers[imageIndex];
     auto offScreenCmdBuffer = offScreenCmdBuffers[imageIndex];
+    auto fence = offScreenFences[imageIndex];
+
+    sceneGlobalsDescriptorSetOffset = imageIndex * 0x100;
+    skyModelBufferOffset = imageIndex * 0x500;
+
+    {
+        mixin ProfilerObject.ScopedMarker!"Fence";
+        VkResult result = vkWaitForFences(device, 1, &fence, true, 1000000000);
+        switch(result)
+        {
+        default:
+            SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkWaitForFences(): %s", result.to!string.ptr);
+            break;
+        case VK_SUCCESS:
+        }
+        vkResetFences(device, 1, &fence);
+    }
 
     updateImguiBuffers(igGetDrawData());
 
@@ -2653,7 +2687,8 @@ void render(ref World world, ref Camera camera)
 
     vkCmdBeginRenderPass(offScreenCmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    updateUniformBuffer(camera);
+    updateUniformBuffer(camera, imageIndex);
+    updateSkyModelUniformBuffer(camera, imageIndex);
 
     VkViewport viewport;
     viewport.width  = offscreenFramebuffer.width;
@@ -2668,8 +2703,6 @@ void render(ref World world, ref Camera camera)
 
     if(scenario.skies)
     {
-        updateSkyModelUniformBuffer(camera);
-
         VkBuffer[1] vertexBuffers = [ modelVertexBuffer ];
         VkDeviceSize[1] offsets = [ 0 ];
         vkCmdBindVertexBuffers(offScreenCmdBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
@@ -2770,7 +2803,7 @@ void render(ref World world, ref Camera camera)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    if(VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE))
+    if(VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, fence))
     {
         SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkQueueSubmit(): %s", result.to!string.ptr);
         assert(0);
@@ -2911,8 +2944,14 @@ void renderOpaqueStructureBsp(VkCommandBuffer commandBuffer, ref Camera camera, 
                 lightmapDescriptorSet,
             ];
 
-            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                sbspEnvPipelineLayout, 0, decriptorSets.length32, decriptorSets.ptr, 0, null);
+            uint[1] descriptorOffsets =
+            [
+                sceneGlobalsDescriptorSetOffset,
+            ];
+
+            vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sbspEnvPipelineLayout, 0,
+                decriptorSets.length32, decriptorSets.ptr,
+                descriptorOffsets.length32, descriptorOffsets.ptr);
 
             EnvPushConstants pushConstants;
 
@@ -3062,8 +3101,14 @@ void renderObject(
                     modelDescriptorSet,
                 ];
 
-                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    chicagoModelPipelineLayout, 0, decriptorSets.length32, decriptorSets.ptr, 0, null);
+                uint[2] descriptorOffsets =
+                [
+                    sceneGlobalsDescriptorSetOffset,
+                    skyModelBufferOffset, // TODO unhardcode
+                ];
+
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, chicagoModelPipelineLayout, 0,
+                    decriptorSets.length32, decriptorSets.ptr, descriptorOffsets.length32, descriptorOffsets.ptr);
 
                 vkCmdPushConstants(commandBuffer, chicagoModelPipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                     0, ChicagoPushConstants.sizeof, &pushConstants);
@@ -3163,8 +3208,8 @@ void renderObject(
 
                 uint[2] descriptorOffsets =
                 [
-                    0,
-                    0,
+                    sceneGlobalsDescriptorSetOffset,
+                    skyModelBufferOffset, // TODO unhardcode
                 ];
 
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelShaderPipelineLayout, 0,
