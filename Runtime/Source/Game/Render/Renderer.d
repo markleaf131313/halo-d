@@ -1006,7 +1006,7 @@ void createSwapChain()
     windowWidth  = extent.width;
     windowHeight = extent.height;
 
-    uint imageCount = min(swapChainSupport.capabilities.minImageCount + 1, swapChainSupport.capabilities.maxImageCount);
+    uint imageCount = swapChainSupport.capabilities.minImageCount;
 
     VkSwapchainCreateInfoKHR info;
     info.surface = surface;
