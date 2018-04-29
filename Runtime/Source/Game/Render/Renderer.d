@@ -138,6 +138,27 @@ struct EnvUnifomBuffer
     Vec3 eyePos;
 }
 
+struct ModelPushConstants
+{
+    static assert(this.sizeof <= vkMinSupportedPushConstantSize);
+
+    struct DistantLight
+    {
+    align(16):
+        ColorRgb color;
+        Vec3 direction;
+    }
+
+align(16):
+    Vec2[2] uvScales;
+    ColorRgb perpendicularColor;
+    ColorRgb parallelColor;
+
+    ColorRgb ambientColor;
+
+    DistantLight[2] distantLights;
+}
+
 struct ModelUniformBuffer
 {
     Mat4[32] matrices; // TODO make Mat4x3
@@ -278,6 +299,10 @@ VkPipeline[3][3][3]      sbspEnvPipelines;
 VkDescriptorSetLayout    chicagoModelDescriptorSetLayout;
 VkPipelineLayout         chicagoModelPipelineLayout;
 VkPipeline               chicagoModelPipeline;
+
+VkDescriptorSetLayout    modelShaderDescriptorSetLayout;
+VkPipelineLayout         modelShaderPipelineLayout;
+VkPipeline[5][2][3][2]   modelShaderPipelines;
 
 VkImage                  imguiImage;
 VkDeviceMemory           imguiImageMemory;
@@ -1284,26 +1309,6 @@ void createModelDescriptorSetLayout()
     vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &modelDescriptorSetLayout));
 }
 
-void createEnvDescriptorSetLayout()
-{
-    VkDescriptorSetLayoutBinding[7] setLayoutBindings =
-    [
-        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
-        VkDescriptorSetLayoutBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
-    ];
-
-    VkDescriptorSetLayoutCreateInfo descriptorLayout;
-    descriptorLayout.bindingCount = setLayoutBindings.length32;
-    descriptorLayout.pBindings = setLayoutBindings.ptr;
-
-    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &sbspEnvDescriptorSetLayout));
-}
-
 void createLightmapDescriptorSetLayout(TagScenarioStructureBsp* sbsp)
 {
     auto tagBitmap = Cache.get!TagBitmap(sbsp.lightmapsBitmap.index);
@@ -1359,6 +1364,26 @@ void createLightmapDescriptorSet(TagScenarioStructureBsp* sbsp)
     desc.pImageInfo = imageInfos.ptr;
 
     vkUpdateDescriptorSets(device, 1, &desc, 0, null);
+}
+
+void createEnvDescriptorSetLayout()
+{
+    VkDescriptorSetLayoutBinding[7] setLayoutBindings =
+    [
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+    ];
+
+    VkDescriptorSetLayoutCreateInfo descriptorLayout;
+    descriptorLayout.bindingCount = setLayoutBindings.length32;
+    descriptorLayout.pBindings = setLayoutBindings.ptr;
+
+    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &sbspEnvDescriptorSetLayout));
 }
 
 void createBaseSbspEnvPipeline()
@@ -1516,6 +1541,161 @@ void createBaseSbspEnvPipeline()
 void createSbspEnvPipelines()
 {
     createBaseSbspEnvPipeline();
+}
+
+void createModelShaderDescriptorSetLayout()
+{
+    VkDescriptorSetLayoutBinding[4] setLayoutBindings =
+    [
+        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(2, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+        VkDescriptorSetLayoutBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT),
+    ];
+
+    VkDescriptorSetLayoutCreateInfo descriptorLayout;
+    descriptorLayout.bindingCount = setLayoutBindings.length32;
+    descriptorLayout.pBindings = setLayoutBindings.ptr;
+
+    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &modelShaderDescriptorSetLayout));
+}
+
+void createModelShaderPipelines()
+{
+    import Game.Render.Pipeline;
+
+    static auto createModelFragBinaries()
+    {
+        import std.conv : to;
+
+        const(void)[][5][2][3][2] result;
+
+        static foreach(mask    ; 0 .. 5)
+        static foreach(invert  ; 0 .. 2)
+        static foreach(detail  ; 0 .. 3)
+        static foreach(reflect ; 0 .. 2)
+        {
+            result[reflect][detail][invert][mask] = mixin("import(\"Model-frag-" ~ mask.to!string ~ "-"
+                ~ invert.to!string ~ "-" ~ detail.to!string ~ "-" ~ reflect.to!string ~ ".spv\")");
+        }
+
+        return result;
+    }
+
+    static immutable fragBinaries = createModelFragBinaries();
+    static immutable void[] vertBinary = import("Model-vert.spv");
+
+    Pipeline pipeline;
+
+    pipeline.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    pipeline.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
+    pipeline.rasterizer.cullMode  = VK_CULL_MODE_BACK_BIT;
+    pipeline.rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+
+    VkViewport viewport;
+    viewport.width  = float(swapchainExtent.width);
+    viewport.height = float(swapchainExtent.height);
+
+    VkRect2D scissor;
+    scissor.extent = swapchainExtent;
+
+    pipeline.viewportState.viewportCount = 1;
+    pipeline.viewportState.pViewports = &viewport;
+    pipeline.viewportState.scissorCount = 1;
+    pipeline.viewportState.pScissors = &scissor;
+
+    auto vertShader = createShaderModule(vertBinary);
+
+    VkPipelineShaderStageCreateInfo[2] shaderStages;
+    shaderStages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+    shaderStages[0].module_ = vertShader.shader;
+    shaderStages[0].pName = "main";
+
+    VkPipelineColorBlendAttachmentState[4] colorBlendAttachments;
+
+    foreach(ref colorBlendAttachment ; colorBlendAttachments)
+    {
+        colorBlendAttachment.colorWriteMask =
+            VK_COLOR_COMPONENT_R_BIT |
+            VK_COLOR_COMPONENT_G_BIT |
+            VK_COLOR_COMPONENT_B_BIT |
+            VK_COLOR_COMPONENT_A_BIT;
+    }
+
+    pipeline.colorBlending.attachments = colorBlendAttachments;
+
+    VkVertexInputBindingDescription[1] bindingDesc =
+    [
+        VkVertexInputBindingDescription(0, TagModelVertex.sizeof, VK_VERTEX_INPUT_RATE_VERTEX),
+    ];
+
+    VkVertexInputAttributeDescription[5] attributeDescs =
+    [
+        VkVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.position.offsetof),
+        VkVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.normal.offsetof),
+        VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.coord.offsetof),
+        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32_SINT,      TagModelVertex.node0.offsetof),
+        VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.weight.offsetof),
+    ];
+
+    pipeline.vertexInputInfo.vertexBindingDescriptions   = bindingDesc;
+    pipeline.vertexInputInfo.vertexAttributeDescriptions = attributeDescs;
+
+    VkDynamicState[2] dynamicStates =
+    [
+        VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_LINE_WIDTH,
+    ];
+
+    pipeline.dynamicState.dynamicStates = dynamicStates;
+
+    pipeline.depthStencilState.depthTestEnable = true;
+    pipeline.depthStencilState.depthWriteEnable = true;
+    pipeline.depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+
+    // Pipeline Layout
+
+    VkDescriptorSetLayout[3] descriptorSetLayouts =
+    [
+        sceneGlobalsDescriptorSetLayout,
+        modelShaderDescriptorSetLayout,
+        modelDescriptorSetLayout,
+    ];
+
+    VkPushConstantRange[1] pushConstantRanges =
+    [
+        VkPushConstantRange(VK_SHADER_STAGE_ALL_GRAPHICS, 0, ModelPushConstants.sizeof),
+    ];
+
+    VkPipelineLayoutCreateInfo pipelineLayoutInfo;
+    pipelineLayoutInfo.setLayouts = descriptorSetLayouts;
+    pipelineLayoutInfo.pushConstantRanges = pushConstantRanges;
+
+    vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &modelShaderPipelineLayout));
+
+    // Create Pipeline
+
+    VkGraphicsPipelineCreateInfo info = pipeline.makeCreateInfo();
+
+    info.shaderStages = shaderStages;
+    info.layout = modelShaderPipelineLayout;
+    info.renderPass = offscreenFramebuffer.renderPass;
+
+    foreach(mask    ; 0 .. 5)
+    foreach(invert  ; 0 .. 2)
+    foreach(detail  ; 0 .. 3)
+    foreach(reflect ; 0 .. 2)
+    {
+        auto fragShader = createShaderModule(fragBinaries[reflect][detail][invert][mask]);
+
+        shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+        shaderStages[1].module_ = fragShader.shader;
+        shaderStages[1].pName = "main";
+
+        vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &info,
+            null, &modelShaderPipelines[reflect][detail][invert][mask]));
+    }
+
 }
 
 void createChicagoModelDescriptorSetLayout()
@@ -2388,12 +2568,14 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
     createDescriptorPool();
 
     createModelDescriptorSetLayout();
-
     createSceneGlobalsDescriptorSetLayout();
     createLightmapDescriptorSetLayout(sbsp);
-    createEnvDescriptorSetLayout();
 
+    createEnvDescriptorSetLayout();
     createSbspEnvPipelines();
+
+    createModelShaderDescriptorSetLayout();
+    createModelShaderPipelines();
 
     createSbspVertexBuffer();
     createEnvUniformBuffer();
@@ -2885,6 +3067,111 @@ void renderObject(
 
                 vkCmdPushConstants(commandBuffer, chicagoModelPipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
                     0, ChicagoPushConstants.sizeof, &pushConstants);
+
+                vkCmdDrawIndexed(commandBuffer, part.indexCount + 2, 1,
+                    part.indexOffset / 2, part.vertexOffset / cast(uint)TagModelVertex.sizeof, 0);
+
+                break;
+            case TagEnums.ShaderType.model:
+                auto shader = cast(TagShaderModel*)baseShader;
+
+                if(shaderInstance is null)
+                {
+                    ShaderInstance instance;
+
+                    VkDescriptorSetLayout[1] layouts =
+                    [
+                        modelShaderDescriptorSetLayout,
+                    ];
+
+                    VkDescriptorSetAllocateInfo allocInfo;
+                    allocInfo.descriptorPool = descriptorPool;
+                    allocInfo.setLayouts = layouts;
+
+                    vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &instance.descriptorSet));
+
+                    FixedArray!(VkDescriptorImageInfo, 4) imageInfos;
+                    FixedArray!(VkWriteDescriptorSet, 4) descriptorWrites;
+
+                    Tuple!(DatumIndex, DefaultTexture)[4] textures =
+                    [
+                        tuple(shader.baseMap.index,           DefaultTexture.multiplicative),
+                        tuple(shader.multipurposeMap.index,   DefaultTexture.additive),
+                        tuple(shader.detailMap.index,         DefaultTexture.detail),
+                        tuple(shader.reflectionCubeMap.index, DefaultTexture.vector),
+                    ];
+
+                    foreach(uint j, ref tex ; textures)
+                    {
+                        Texture* texture =
+                            (j == 3)
+                            ? findOrLoadTextureCubemap(tex[0], 0, tex[1])
+                            : findOrLoadTexture2D(tex[0], 0, tex[1]);
+
+                        VkDescriptorImageInfo imageInfo;
+                        imageInfo.imageView = texture.imageView;
+                        imageInfo.sampler = texture.sampler;
+                        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+                        imageInfos.add(imageInfo);
+
+                        VkWriteDescriptorSet desc;
+                        desc.dstSet = instance.descriptorSet;
+                        desc.dstBinding = j;
+                        desc.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+                        desc.descriptorCount = 1;
+                        desc.pImageInfo = &imageInfos[j];
+
+                        descriptorWrites.add(desc);
+                    }
+
+                    vkUpdateDescriptorSets(device, descriptorWrites.length, descriptorWrites.ptr, 0, null);
+
+                    shaderInstances[tagShaderIndex] = instance;
+                    shaderInstance = &shaderInstances[tagShaderIndex];
+                }
+
+                int maskIndex = (shader.detailMask + 1) / 2;
+                int invert    = ((shader.detailMask + 1) % 2) == 0;
+
+                ModelPushConstants pushConstants;
+
+                pushConstants.uvScales[0]
+                    = Vec2(shader.mapUScale * tagModel.baseMapUScale,shader.mapVScale * tagModel.baseMapVScale);
+                pushConstants.uvScales[1] = Vec2(shader.detailMapScale);
+
+                pushConstants.perpendicularColor = shader.perpendicularTintColor * shader.perpendicularBrightness;
+                pushConstants.parallelColor      = shader.parallelTintColor      * shader.parallelBrightness;
+
+                pushConstants.ambientColor = lighting.ambientColor;
+
+                foreach(int j, ref light ; pushConstants.distantLights)
+                {
+                    light.color     = lighting.distantLight[j].color;
+                    light.direction = lighting.distantLight[j].direction;
+                }
+
+                vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    modelShaderPipelines[shader.flags.detailAfterReflection][invert][shader.detailFunction][maskIndex]);
+
+                VkDescriptorSet[3] decriptorSets =
+                [
+                    sceneGlobalsDescriptorSet,
+                    shaderInstance.descriptorSet,
+                    modelDescriptorSet,
+                ];
+
+                uint[2] descriptorOffsets =
+                [
+                    0,
+                    0,
+                ];
+
+                vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelShaderPipelineLayout, 0,
+                    decriptorSets.length32, decriptorSets.ptr, descriptorOffsets.length32, descriptorOffsets.ptr);
+
+                vkCmdPushConstants(commandBuffer, modelShaderPipelineLayout, VK_SHADER_STAGE_ALL_GRAPHICS,
+                    0, pushConstants.sizeof, &pushConstants);
 
                 vkCmdDrawIndexed(commandBuffer, part.indexCount + 2, 1,
                     part.indexOffset / 2, part.vertexOffset / cast(uint)TagModelVertex.sizeof, 0);
