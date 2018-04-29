@@ -332,8 +332,18 @@ bool initSharedGameState(SharedGameState* gameState)
     float dpi;
     SDL_GetDisplayDPI(SDL_GetWindowDisplayIndex(gameState.window), &dpi, null, null);
 
-    if(dpi > 100.0f)
+    // TODO need to update to SDL 2.0.8 for GetDisplayDPI to work on Android
+    version(Android)
+    {
         io.FontGlobalScale = 2.0f;
+    }
+    else
+    {
+        if(dpi > 100.0f)
+        {
+            io.FontGlobalScale = 2.0f;
+        }
+    }
 
     ubyte* pixels;
     int width, height;
