@@ -1254,7 +1254,7 @@ void createUniformDescriptorSet()
 void createSkyModelUniformBuffer()
 {
     // TODO unhardcode size
-    createBuffer(0x500 * maxSwapFrames, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+    createBuffer(0x1000 * maxSwapFrames, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         skyModelUnifomBuffer, skyModelUnifomBufferMemory);
 }
@@ -1263,7 +1263,7 @@ void updateSkyModelUniformBuffer(ref Camera camera, uint frameIndex)
 {
     // TODO unhardcode size offset
     ModelUniformBuffer* uniform;
-    vkMapMemory(device, skyModelUnifomBufferMemory, 0x500 * frameIndex, ModelUniformBuffer.sizeof, 0, cast(void**)&uniform);
+    vkMapMemory(device, skyModelUnifomBufferMemory, 0x1000 * frameIndex, ModelUniformBuffer.sizeof, 0, cast(void**)&uniform);
 
     uniform.matrices = Mat4(1.0f / 1024.0f);
     uniform.matrices[0][3] = Vec4(camera.position, 1.0f);
@@ -2642,7 +2642,7 @@ void render(ref World world, ref Camera camera)
     auto fence = offScreenFences[imageIndex];
 
     sceneGlobalsDescriptorSetOffset = imageIndex * 0x100;
-    skyModelBufferOffset = imageIndex * 0x500;
+    skyModelBufferOffset = imageIndex * 0x1000;
 
     {
         mixin ProfilerObject.ScopedMarker!"Fence";
