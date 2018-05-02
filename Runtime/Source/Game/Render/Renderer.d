@@ -216,6 +216,51 @@ struct FrameBuffer
     }
 }
 
+struct FrameData
+{
+    struct UniformBuffer
+    {
+        VkBuffer buffer;
+        VkDeviceMemory bufferMemory;
+        VkDescriptorSet descriptorSet;
+    }
+
+    struct Buffer
+    {
+        VkDevice device;
+        VkBuffer buffer;
+        VkDeviceMemory bufferMemory;
+        uint used;
+
+        uint append(T)(T[] data)
+        {
+            uint result = used;
+            T* value;
+
+            vkMapMemory(device, bufferMemory, used, data.length * sizeof32!T, 0, cast(void**)&value);
+            value[0 .. data.length] = data[];
+            vkUnmapMemory(device, bufferMemory);
+
+            used += data.length * sizeof32!T;
+
+            return result;
+        }
+    }
+
+    VkImage       swapchainImage;
+    VkImageView   swapchainImageView;
+    VkFramebuffer swapchainFramebuffer;
+
+    VkCommandBuffer commandBuffer;
+    VkCommandBuffer offscreenCommandBuffer;
+    VkFence         fence;
+
+    UniformBuffer uniform;
+
+    Buffer vertex;
+    Buffer index;
+}
+
 version(Android)
 {
     static immutable const(char)*[] validationLayers =
@@ -260,12 +305,10 @@ VkSwapchainKHR           swapchain;
 VkFormat                 swapchainImageFormat;
 VkExtent2D               swapchainExtent;
 VkRenderPass             renderPass;
-FixedArray!(VkImage, maxSwapFrames)       swapchainImages;
-FixedArray!(VkImageView, maxSwapFrames)   swapchainImageViews;
-FixedArray!(VkFramebuffer, maxSwapFrames) swapchainFramebuffers;
+FixedArray!(FrameData, maxSwapFrames) frames;
 
 VkCommandPool            commandPool;
-FixedArray!(VkCommandBuffer, maxSwapFrames) commandBuffers;
+VkDescriptorPool         descriptorPool;
 
 VkBuffer                 sbspVertexBuffer;
 VkDeviceMemory           sbspVertexBufferMemory;
@@ -279,16 +322,10 @@ VkDeviceMemory           modelVertexBufferMemory;
 VkBuffer                 modelIndexBuffer;
 VkDeviceMemory           modelIndexBufferMemory;
 
-VkDescriptorPool         descriptorPool;
-
 VkBuffer                 envUnifomBuffer;
 VkDeviceMemory           envUnifomBufferMemory;
 
-VkDescriptorSetLayout    sceneGlobalsDescriptorSetLayout;
-VkDescriptorSet          sceneGlobalsDescriptorSet;
-uint                     sceneGlobalsDescriptorSetOffset;
-
-VkDescriptorSetLayout    modelDescriptorSetLayout;
+VkDescriptorSetLayout    frameBufferDescriptorSetLayout;
 
 VkDescriptorSetLayout    lightmapDescriptorSetLayout;
 VkDescriptorSet          lightmapDescriptorSet;
@@ -314,21 +351,14 @@ VkDescriptorSet          imguiDescriptorSet;
 VkPipelineLayout         imguiPipelineLayout;
 VkPipeline               imguiPipeline;
 
-VkBuffer                 imguiVertexBuffer;
-VkDeviceMemory           imguiVertexBufferMemory;
-uint                     imguiVertexBufferSize;
-
-VkBuffer                 imguiIndexBuffer;
-VkDeviceMemory           imguiIndexBufferMemory;
-uint                     imguiIndexBufferSize;
+uint                     imguiVertexBufferOffset;
+uint                     imguiIndexBufferOffset;
 
 VkDescriptorSetLayout    debugFrameBufferDescriptorSetLayout;
 VkDescriptorSet          debugFrameBufferDescriptorSet;
 VkPipelineLayout         debugFrameBufferPipelineLayout;
 VkPipeline               debugFrameBufferPipeline;
 
-FixedArray!(VkCommandBuffer, maxSwapFrames) offScreenCmdBuffers;
-FixedArray!(VkFence, maxSwapFrames)         offScreenFences;
 FrameBuffer              offscreenFramebuffer;
 VkSampler                colorSampler;
 
@@ -342,7 +372,6 @@ VkSemaphore              renderFinishedSemaphore;
 VkBuffer                 skyModelUnifomBuffer;
 VkDeviceMemory           skyModelUnifomBufferMemory;
 VkDescriptorSet          skyModelDescriptorSet;
-uint                     skyModelBufferOffset;
 
 static ShaderInstance[DatumIndex] shaderInstances; // TODO is static as hack to fix crashing.
 FixedArray!(Texture, 1024) textureInstances; // TODO increase limit?
@@ -708,16 +737,6 @@ void createOffscreenFramebuffer()
     fbufCreateInfo.layers = 1;
     vkCreateFramebuffer(device, &fbufCreateInfo, null, &offscreenFramebuffer.frameBuffer);
 
-    VkFenceCreateInfo fenceCreateInfo;
-    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-    offScreenFences.resize(swapchainImages.length);
-
-    foreach(ref fence ; offScreenFences)
-    {
-        vkCreateFence(device, &fenceCreateInfo, null, &fence);
-    }
-
     VkSamplerCreateInfo sampler;
     sampler.magFilter = VK_FILTER_NEAREST;
     sampler.minFilter = VK_FILTER_NEAREST;
@@ -1038,31 +1057,36 @@ void createSwapChain()
     swapchainImageFormat = surfaceFormat.format;
     swapchainExtent = extent;
 
-    vkGetSwapchainImagesKHR(device, swapchain, &imageCount, null);
+    VkImage[maxSwapFrames] images;
+    vkGetSwapchainImagesKHR(device, swapchain, &imageCount, images.ptr);
 
-    swapchainImages.resize(imageCount);
-    vkGetSwapchainImagesKHR(device, swapchain, &imageCount, swapchainImages.ptr);
+    frames.resize(imageCount);
+
+    foreach(int i, ref frame ; frames)
+    {
+        frame.swapchainImage = images[i];
+    }
 }
 
 void cleanupSwapchain()
 {
-    foreach(swapchainFramebuffer; swapchainFramebuffers)
-    {
-        vkDestroyFramebuffer(device, swapchainFramebuffer, null);
-    }
+    // foreach(swapchainFramebuffer; swapchainFramebuffers)
+    // {
+    //     vkDestroyFramebuffer(device, swapchainFramebuffer, null);
+    // }
 
-    vkFreeCommandBuffers(device, commandPool, commandBuffers.length, commandBuffers.ptr);
+    // vkFreeCommandBuffers(device, commandPool, commandBuffers.length, commandBuffers.ptr);
 
-    // vkDestroyPipeline(device, graphicsPipeline, null);
-    // vkDestroyPipelineLayout(device, pipelineLayout, null);
-    // vkDestroyRenderPass(device, renderPass, null);
+    // // vkDestroyPipeline(device, graphicsPipeline, null);
+    // // vkDestroyPipelineLayout(device, pipelineLayout, null);
+    // // vkDestroyRenderPass(device, renderPass, null);
 
-    foreach(swapchainImageView ; swapchainImageViews)
-    {
-        vkDestroyImageView(device, swapchainImageView, null);
-    }
+    // foreach(swapchainImageView ; swapchainImageViews)
+    // {
+    //     vkDestroyImageView(device, swapchainImageView, null);
+    // }
 
-    vkDestroySwapchainKHR(device, swapchain, null);
+    // vkDestroySwapchainKHR(device, swapchain, null);
 }
 
 void recreateSwapchain()
@@ -1081,13 +1105,11 @@ void recreateSwapchain()
 
 void createImageViews()
 {
-    swapchainImageViews.resize(swapchainImages.length);
-
-    foreach(i, image ; swapchainImages)
+    foreach(ref frame ; frames)
     {
         VkImageViewCreateInfo info;
 
-        info.image = image;
+        info.image = frame.swapchainImage;
         info.viewType = VK_IMAGE_VIEW_TYPE_2D;
         info.format = swapchainImageFormat;
 
@@ -1102,7 +1124,7 @@ void createImageViews()
         info.subresourceRange.baseArrayLayer = 0;
         info.subresourceRange.layerCount = 1;
 
-        if(VkResult result = vkCreateImageView(device, &info, null, &swapchainImageViews[i]))
+        if(VkResult result = vkCreateImageView(device, &info, null, &frame.swapchainImageView))
         {
             SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateImageView(): %s", result.to!string.ptr);
             assert(0);
@@ -1185,135 +1207,89 @@ void createRenderPass()
 
 }
 
-void createDescriptorPool()
+void createFrameData()
 {
-    VkDescriptorPoolSize[3] poolSize =
-    [
-        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1024),
-        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 256),
-        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 256),
-    ];
+    foreach(ref frame ; frames)
+    {
+        const uint bufferSize = 0x10_0000;
 
-    VkDescriptorPoolCreateInfo poolInfo;
-    poolInfo.poolSizeCount = poolSize.length32;
-    poolInfo.pPoolSizes = poolSize.ptr;
-    poolInfo.maxSets = 1024;
+        createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            frame.uniform.buffer, frame.uniform.bufferMemory);
 
-    vkCheck(vkCreateDescriptorPool(device, &poolInfo, null, &descriptorPool));
+        VkDescriptorSetLayout[1] layouts =
+        [
+            frameBufferDescriptorSetLayout,
+        ];
 
-}
+        VkDescriptorSetAllocateInfo allocInfo;
+        allocInfo.descriptorPool = descriptorPool;
+        allocInfo.setLayouts = layouts;
 
-void createEnvUniformBuffer()
-{
-    // TODO use min uniform buffer alignment here, unhardcode 0x100
-    createBuffer(0x100 * maxSwapFrames, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, envUnifomBuffer, envUnifomBufferMemory);
+        vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &frame.uniform.descriptorSet));
+
+        VkDescriptorBufferInfo bufferInfo;
+        bufferInfo.buffer = frame.uniform.buffer;
+        bufferInfo.offset = 0;
+        bufferInfo.range = bufferSize;
+
+        VkWriteDescriptorSet descriptorWrite;
+
+        descriptorWrite.dstSet = frame.uniform.descriptorSet;
+        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+        descriptorWrite.descriptorCount = 1;
+        descriptorWrite.pBufferInfo = &bufferInfo;
+
+        vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, null);
+
+        // vertex buffer
+
+        frame.vertex.device = device;
+        createBuffer(0x20_000, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, frame.vertex.buffer, frame.vertex.bufferMemory);
+
+        // index buffer
+
+        frame.vertex.device = device;
+        createBuffer(0x5_000, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, frame.index.buffer, frame.index.bufferMemory);
+
+        // fence
+
+        VkFenceCreateInfo fenceCreateInfo;
+        fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+        vkCreateFence(device, &fenceCreateInfo, null, &frame.fence);
+    }
 }
 
 void updateUniformBuffer(ref Camera camera, int index)
 {
-    EnvUnifomBuffer uniform;
+    assert(0);
+    // EnvUnifomBuffer uniform;
 
-    uniform.projview = camera.viewproj;
-    uniform.eyePos = camera.position;
+    // uniform.projview = camera.viewproj;
+    // uniform.eyePos = camera.position;
 
-    void* data;
-    vkMapMemory(device, envUnifomBufferMemory, 0x100 * index, EnvUnifomBuffer.sizeof, 0, &data);
-    data[0 .. EnvUnifomBuffer.sizeof] = (&uniform)[0 .. 1];
-    vkUnmapMemory(device, envUnifomBufferMemory);
-}
-
-void createUniformDescriptorSet()
-{
-    VkDescriptorSetLayout[1] layouts =
-    [
-        sceneGlobalsDescriptorSetLayout,
-    ];
-
-    VkDescriptorSetAllocateInfo allocInfo;
-    allocInfo.descriptorPool = descriptorPool;
-    allocInfo.setLayouts = layouts;
-
-    vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &sceneGlobalsDescriptorSet));
-
-    VkDescriptorBufferInfo bufferInfo;
-    bufferInfo.buffer = envUnifomBuffer;
-    bufferInfo.offset = 0;
-    bufferInfo.range = EnvUnifomBuffer.sizeof;
-
-    VkWriteDescriptorSet descriptorWrite;
-
-    descriptorWrite.dstSet = sceneGlobalsDescriptorSet;
-    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-    descriptorWrite.descriptorCount = 1;
-    descriptorWrite.pBufferInfo = &bufferInfo;
-
-    vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, null);
-}
-
-void createSkyModelUniformBuffer()
-{
-    // TODO unhardcode size
-    createBuffer(0x1000 * maxSwapFrames, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        skyModelUnifomBuffer, skyModelUnifomBufferMemory);
+    // void* data;
+    // vkMapMemory(device, envUnifomBufferMemory, 0x100 * index, EnvUnifomBuffer.sizeof, 0, &data);
+    // data[0 .. EnvUnifomBuffer.sizeof] = (&uniform)[0 .. 1];
+    // vkUnmapMemory(device, envUnifomBufferMemory);
 }
 
 void updateSkyModelUniformBuffer(ref Camera camera, uint frameIndex)
 {
+    assert(0);
     // TODO unhardcode size offset
-    ModelUniformBuffer* uniform;
-    vkMapMemory(device, skyModelUnifomBufferMemory, 0x1000 * frameIndex, ModelUniformBuffer.sizeof, 0, cast(void**)&uniform);
+    // ModelUniformBuffer* uniform;
+    // vkMapMemory(device, skyModelUnifomBufferMemory, 0x1000 * frameIndex, ModelUniformBuffer.sizeof, 0, cast(void**)&uniform);
 
-    uniform.matrices = Mat4(1.0f / 1024.0f);
-    uniform.matrices[0][3] = Vec4(camera.position, 1.0f);
+    // uniform.matrices = Mat4(1.0f / 1024.0f);
+    // uniform.matrices[0][3] = Vec4(camera.position, 1.0f);
 
-    vkUnmapMemory(device, skyModelUnifomBufferMemory);
+    // vkUnmapMemory(device, skyModelUnifomBufferMemory);
 }
 
-void createSkyModelUniformDescriptorSet()
-{
-    VkDescriptorSetLayout[1] layouts =
-    [
-        modelDescriptorSetLayout,
-    ];
-
-    VkDescriptorSetAllocateInfo allocInfo;
-    allocInfo.descriptorPool = descriptorPool;
-    allocInfo.setLayouts = layouts;
-
-    vkCheck(vkAllocateDescriptorSets(device, &allocInfo, &skyModelDescriptorSet));
-
-    VkDescriptorBufferInfo bufferInfo;
-    bufferInfo.buffer = skyModelUnifomBuffer;
-    bufferInfo.offset = 0;
-    bufferInfo.range = ModelUniformBuffer.sizeof;
-
-    VkWriteDescriptorSet descriptorWrite;
-
-    descriptorWrite.dstSet = skyModelDescriptorSet;
-    descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-    descriptorWrite.descriptorCount = 1;
-    descriptorWrite.pBufferInfo = &bufferInfo;
-
-    vkUpdateDescriptorSets(device, 1, &descriptorWrite, 0, null);
-}
-
-void createSceneGlobalsDescriptorSetLayout()
-{
-    VkDescriptorSetLayoutBinding[1] setLayoutBindings =
-    [
-        VkDescriptorSetLayoutBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1, VK_SHADER_STAGE_ALL_GRAPHICS),
-    ];
-
-    VkDescriptorSetLayoutCreateInfo descriptorLayout;
-    descriptorLayout.bindingCount = setLayoutBindings.length32;
-    descriptorLayout.pBindings = setLayoutBindings.ptr;
-
-    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &sceneGlobalsDescriptorSetLayout));
-}
-
-void createModelDescriptorSetLayout()
+void createFrameBufferDescriptorSetLayout()
 {
     VkDescriptorSetLayoutBinding[1] setLayoutBindings =
     [
@@ -1323,7 +1299,7 @@ void createModelDescriptorSetLayout()
     VkDescriptorSetLayoutCreateInfo descriptorLayout;
     descriptorLayout.bindings = setLayoutBindings;
 
-    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &modelDescriptorSetLayout));
+    vkCheck(vkCreateDescriptorSetLayout(device, &descriptorLayout, null, &frameBufferDescriptorSetLayout));
 }
 
 void createLightmapDescriptorSetLayout(TagScenarioStructureBsp* sbsp)
@@ -1512,7 +1488,7 @@ void createBaseSbspEnvPipeline()
 
     VkDescriptorSetLayout[3] descriptorSetLayouts =
     [
-        sceneGlobalsDescriptorSetLayout,
+        frameBufferDescriptorSetLayout,
         sbspEnvDescriptorSetLayout,
         lightmapDescriptorSetLayout,
     ];
@@ -1674,9 +1650,9 @@ void createModelShaderPipelines()
 
     VkDescriptorSetLayout[3] descriptorSetLayouts =
     [
-        sceneGlobalsDescriptorSetLayout,
+        frameBufferDescriptorSetLayout,
         modelShaderDescriptorSetLayout,
-        modelDescriptorSetLayout,
+        frameBufferDescriptorSetLayout,
     ];
 
     VkPushConstantRange[1] pushConstantRanges =
@@ -1821,9 +1797,9 @@ void createChicagoModelPipeline()
 
     VkDescriptorSetLayout[3] descriptorSetLayouts =
     [
-        sceneGlobalsDescriptorSetLayout,
+        frameBufferDescriptorSetLayout,
         chicagoModelDescriptorSetLayout,
-        modelDescriptorSetLayout,
+        frameBufferDescriptorSetLayout,
     ];
 
     VkPushConstantRange[1] pushConstantRanges =
@@ -1850,13 +1826,11 @@ void createChicagoModelPipeline()
 
 void createFramebuffers()
 {
-    swapchainFramebuffers.resize(swapchainImageViews.length);
-
-    foreach(i, imageView ; swapchainImageViews)
+    foreach(ref frame ; frames)
     {
         VkImageView[1] attachments =
         [
-            imageView,
+            frame.swapchainImageView,
         ];
 
         VkFramebufferCreateInfo info;
@@ -1867,7 +1841,7 @@ void createFramebuffers()
         info.height = swapchainExtent.height;
         info.layers = 1;
 
-        if(VkResult result = vkCreateFramebuffer(device, &info, null, &swapchainFramebuffers[i]))
+        if(VkResult result = vkCreateFramebuffer(device, &info, null, &frame.swapchainFramebuffer))
         {
             SDL_LogDebug(SDL_LOG_CATEGORY_ERROR, "vkCreateFramebuffer(): %s", result.to!string.ptr);
             assert(0);
@@ -1890,23 +1864,35 @@ void createCommandPool()
     }
 }
 
+void createDescriptorPool()
+{
+    VkDescriptorPoolSize[3] poolSize =
+    [
+        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1024),
+        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 256),
+        VkDescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 256),
+    ];
+
+    VkDescriptorPoolCreateInfo poolInfo;
+    poolInfo.poolSizeCount = poolSize.length32;
+    poolInfo.pPoolSizes = poolSize.ptr;
+    poolInfo.maxSets = 1024;
+
+    vkCheck(vkCreateDescriptorPool(device, &poolInfo, null, &descriptorPool));
+}
+
 void createCommandBuffers()
 {
-    commandBuffers.resize(swapchainFramebuffers.length);
-    offScreenCmdBuffers.resize(swapchainFramebuffers.length);
-
     VkCommandBufferAllocateInfo allocInfo;
     allocInfo.commandPool = commandPool;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = commandBuffers.length;
+    allocInfo.commandBufferCount = 1;
 
-    vkCheck(vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.ptr));
-
-    allocInfo.commandPool = commandPool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = offScreenCmdBuffers.length;
-
-    vkCheck(vkAllocateCommandBuffers(device, &allocInfo, offScreenCmdBuffers.ptr));
+    foreach(ref frame ; frames)
+    {
+        vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &frame.commandBuffer));
+        vkCheck(vkAllocateCommandBuffers(device, &allocInfo, &frame.offscreenCommandBuffer));
+    }
 }
 
 void createSemaphores()
@@ -2319,63 +2305,32 @@ void createImguiPipeline()
     vkCheck(vkCreateGraphicsPipelines(device, VK_NULL_HANDLE, 1, &pipelineInfo, null, &imguiPipeline));
 }
 
-void updateImguiBuffers(ImDrawData* drawData)
+void updateImguiBuffers(ref FrameData frame, ImDrawData* drawData)
 {
     auto io = igGetIO();
 
-    uint vertexSize = drawData.TotalVtxCount * cast(uint)ImguiVertex.sizeof;
-    uint indexSize = drawData.TotalIdxCount  * cast(uint)ImDrawIdx.sizeof;
+    uint vertexSize = drawData.TotalVtxCount * sizeof32!ImguiVertex;
+    uint indexSize = drawData.TotalIdxCount  * sizeof32!ImDrawIdx;
 
-    if(!imguiVertexBuffer || imguiVertexBufferSize < vertexSize)
+
+    foreach(int i, ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
     {
-        if(imguiVertexBuffer)       vkDestroyBuffer(device, imguiVertexBuffer, null);
-        if(imguiVertexBufferMemory) vkFreeMemory(device, imguiVertexBufferMemory, null);
+        uint offset = frame.vertex.append(cmdList.VtxBuffer[]);
 
-        createBuffer(vertexSize, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, imguiVertexBuffer, imguiVertexBufferMemory);
-
-        imguiVertexBufferSize = vertexSize;
-    }
-
-    {
-        void* data;
-        vkMapMemory(device, imguiVertexBufferMemory, 0, vertexSize, 0, &data);
-
-        foreach(ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
+        if(i == 0)
         {
-            uint size = cmdList.VtxBuffer.Size * cast(uint)ImguiVertex.sizeof;
-            data[0 .. size] = cmdList.VtxBuffer[];
-
-            data += size;
+            imguiVertexBufferOffset = offset;
         }
-
-        vkUnmapMemory(device, imguiVertexBufferMemory);
     }
 
-    if(!imguiIndexBuffer || imguiIndexBufferSize < indexSize)
+    foreach(int i, ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
     {
-        if(imguiIndexBuffer)       vkDestroyBuffer(device, imguiIndexBuffer, null);
-        if(imguiIndexBufferMemory) vkFreeMemory(device, imguiIndexBufferMemory, null);
+        uint offset = frame.index.append(cmdList.IdxBuffer[]);
 
-        createBuffer(indexSize, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, imguiIndexBuffer, imguiIndexBufferMemory);
-
-        imguiIndexBufferSize = indexSize;
-    }
-
-    {
-        void* data;
-        vkMapMemory(device, imguiIndexBufferMemory, 0, indexSize, 0, &data);
-
-        foreach(ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
+        if(i == 0)
         {
-            uint size = cmdList.IdxBuffer.Size * cast(uint)ImDrawIdx.sizeof;
-            data[0 .. size] = cmdList.IdxBuffer[];
-
-            data += size;
+            imguiIndexBufferOffset = offset;
         }
-
-        vkUnmapMemory(device, imguiIndexBufferMemory);
     }
 }
 
@@ -2574,18 +2529,20 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
     createLogicalDevice();
 
     createCommandPool();
-
-    createSwapChain();
-    createImageViews();
-    createRenderPass();
-    createFramebuffers();
-    createCommandBuffers();
-    createOffscreenFramebuffer();
-
     createDescriptorPool();
 
-    createModelDescriptorSetLayout();
-    createSceneGlobalsDescriptorSetLayout();
+    // TODO These should be one function, and/or allow for separate
+    //      number of command buffers from swapchain images
+    createSwapChain();
+    createImageViews();
+    createFrameData();
+    createFramebuffers();
+    createCommandBuffers();
+
+    createRenderPass();
+    createOffscreenFramebuffer();
+
+    createFrameBufferDescriptorSetLayout();
     createLightmapDescriptorSetLayout(sbsp);
 
     createEnvDescriptorSetLayout();
@@ -2595,17 +2552,12 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
     createModelShaderPipelines();
 
     createSbspVertexBuffer();
-    createEnvUniformBuffer();
-    createUniformDescriptorSet();
     createLightmapDescriptorSet(sbsp);
 
     createModelVertexBuffer();
 
     createChicagoModelDescriptorSetLayout();
     createChicagoModelPipeline();
-
-    createSkyModelUniformBuffer();
-    createSkyModelUniformDescriptorSet();
 
     createImguiTexture();
     createImguiDescriptorSet();
@@ -2636,13 +2588,11 @@ void render(ref World world, ref Camera camera)
     }
 
 
-    auto commandBuffer = commandBuffers[imageIndex];
-    auto frameBuffer   = swapchainFramebuffers[imageIndex];
-    auto offScreenCmdBuffer = offScreenCmdBuffers[imageIndex];
-    auto fence = offScreenFences[imageIndex];
-
-    sceneGlobalsDescriptorSetOffset = imageIndex * 0x100;
-    skyModelBufferOffset = imageIndex * 0x1000;
+    auto frame = &frames[imageIndex];
+    auto commandBuffer = frame.commandBuffer;
+    auto frameBuffer   = frame.swapchainFramebuffer;
+    auto offScreenCmdBuffer = frame.offScreenCommandBuffer;
+    auto fence = frame.fence;
 
     {
         mixin ProfilerObject.ScopedMarker!"Fence";
@@ -2657,7 +2607,7 @@ void render(ref World world, ref Camera camera)
         vkResetFences(device, 1, &fence);
     }
 
-    updateImguiBuffers(igGetDrawData());
+    updateImguiBuffers(*frame, igGetDrawData());
 
     // Build Command Buffer
 
