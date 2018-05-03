@@ -220,9 +220,25 @@ struct FrameData
 {
     struct UniformBuffer
     {
+        VkDevice device;
         VkBuffer buffer;
         VkDeviceMemory bufferMemory;
         VkDescriptorSet descriptorSet;
+        uint used;
+
+        uint appendAligned(T)(ref T data, uint aligned = 0x100)
+        {
+            uint offset = (used + aligned - 1) & ~(aligned - 1);
+            T* value;
+
+            vkMapMemory(device, bufferMemory, offset, sizeof32!T, 0, cast(void**)&value);
+            *value = data;
+            vkUnmapMemory(device, bufferMemory);
+
+            used = offset + sizeof32!T;
+
+            return offset;
+        }
     }
 
     struct Buffer
@@ -259,6 +275,13 @@ struct FrameData
 
     Buffer vertex;
     Buffer index;
+
+    void clearDataBuffers()
+    {
+        uniform.used = 0;
+        vertex.used = 0;
+        index.used = 0;
+    }
 }
 
 version(Android)
@@ -326,6 +349,7 @@ VkBuffer                 envUnifomBuffer;
 VkDeviceMemory           envUnifomBufferMemory;
 
 VkDescriptorSetLayout    frameBufferDescriptorSetLayout;
+uint                     sceneGlobalUniformOffset;
 
 VkDescriptorSetLayout    lightmapDescriptorSetLayout;
 VkDescriptorSet          lightmapDescriptorSet;
@@ -1213,6 +1237,7 @@ void createFrameData()
     {
         const uint bufferSize = 0x10_0000;
 
+        frame.uniform.device = device;
         createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
             frame.uniform.buffer, frame.uniform.bufferMemory);
@@ -1231,7 +1256,7 @@ void createFrameData()
         VkDescriptorBufferInfo bufferInfo;
         bufferInfo.buffer = frame.uniform.buffer;
         bufferInfo.offset = 0;
-        bufferInfo.range = bufferSize;
+        bufferInfo.range = 0x500; // TODO max size, make less static
 
         VkWriteDescriptorSet descriptorWrite;
 
@@ -1245,13 +1270,13 @@ void createFrameData()
         // vertex buffer
 
         frame.vertex.device = device;
-        createBuffer(0x20_000, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        createBuffer(0x10_0000, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, frame.vertex.buffer, frame.vertex.bufferMemory);
 
         // index buffer
 
-        frame.vertex.device = device;
-        createBuffer(0x5_000, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        frame.index.device = device;
+        createBuffer(0x5_0000, VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT, frame.index.buffer, frame.index.bufferMemory);
 
         // fence
@@ -1262,31 +1287,24 @@ void createFrameData()
     }
 }
 
-void updateUniformBuffer(ref Camera camera, int index)
+void updateUniformBuffer(ref FrameData frame, ref Camera camera)
 {
-    assert(0);
-    // EnvUnifomBuffer uniform;
+    EnvUnifomBuffer uniform;
 
-    // uniform.projview = camera.viewproj;
-    // uniform.eyePos = camera.position;
+    uniform.projview = camera.viewproj;
+    uniform.eyePos = camera.position;
 
-    // void* data;
-    // vkMapMemory(device, envUnifomBufferMemory, 0x100 * index, EnvUnifomBuffer.sizeof, 0, &data);
-    // data[0 .. EnvUnifomBuffer.sizeof] = (&uniform)[0 .. 1];
-    // vkUnmapMemory(device, envUnifomBufferMemory);
+    sceneGlobalUniformOffset = frame.uniform.appendAligned(uniform);
 }
 
-void updateSkyModelUniformBuffer(ref Camera camera, uint frameIndex)
+uint updateSkyModelUniformBuffer(ref FrameData frame, ref Camera camera)
 {
-    assert(0);
-    // TODO unhardcode size offset
-    // ModelUniformBuffer* uniform;
-    // vkMapMemory(device, skyModelUnifomBufferMemory, 0x1000 * frameIndex, ModelUniformBuffer.sizeof, 0, cast(void**)&uniform);
+    ModelUniformBuffer uniform;
 
-    // uniform.matrices = Mat4(1.0f / 1024.0f);
-    // uniform.matrices[0][3] = Vec4(camera.position, 1.0f);
+    uniform.matrices = Mat4(1.0f / 1024.0f);
+    uniform.matrices[0][3] = Vec4(camera.position, 1.0f);
 
-    // vkUnmapMemory(device, skyModelUnifomBufferMemory);
+    return frame.uniform.appendAligned(uniform);
 }
 
 void createFrameBufferDescriptorSetLayout()
@@ -2533,16 +2551,16 @@ void initialize(SDL_Window* window, TagScenarioStructureBsp* sbsp)
 
     // TODO These should be one function, and/or allow for separate
     //      number of command buffers from swapchain images
+    createFrameBufferDescriptorSetLayout();
     createSwapChain();
     createImageViews();
     createFrameData();
+    createRenderPass();
     createFramebuffers();
     createCommandBuffers();
 
-    createRenderPass();
     createOffscreenFramebuffer();
 
-    createFrameBufferDescriptorSetLayout();
     createLightmapDescriptorSetLayout(sbsp);
 
     createEnvDescriptorSetLayout();
@@ -2591,8 +2609,10 @@ void render(ref World world, ref Camera camera)
     auto frame = &frames[imageIndex];
     auto commandBuffer = frame.commandBuffer;
     auto frameBuffer   = frame.swapchainFramebuffer;
-    auto offScreenCmdBuffer = frame.offScreenCommandBuffer;
+    auto offscreenCommandBuffer = frame.offscreenCommandBuffer;
     auto fence = frame.fence;
+
+    frame.clearDataBuffers();
 
     {
         mixin ProfilerObject.ScopedMarker!"Fence";
@@ -2614,7 +2634,7 @@ void render(ref World world, ref Camera camera)
     VkCommandBufferBeginInfo beginInfo;
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT;
 
-    vkBeginCommandBuffer(offScreenCmdBuffer, &beginInfo);
+    vkBeginCommandBuffer(offscreenCommandBuffer, &beginInfo);
 
     VkRenderPassBeginInfo renderPassInfo;
     renderPassInfo.renderPass = offscreenFramebuffer.renderPass;
@@ -2635,16 +2655,15 @@ void render(ref World world, ref Camera camera)
     renderPassInfo.clearValueCount = clearColors.length32;
     renderPassInfo.pClearValues = clearColors.ptr;
 
-    vkCmdBeginRenderPass(offScreenCmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    vkCmdBeginRenderPass(offscreenCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-    updateUniformBuffer(camera, imageIndex);
-    updateSkyModelUniformBuffer(camera, imageIndex);
+    updateUniformBuffer(*frame, camera);
 
     VkViewport viewport;
     viewport.width  = offscreenFramebuffer.width;
     viewport.height = offscreenFramebuffer.height;
 
-    vkCmdSetViewport(offScreenCmdBuffer, 0, 1, &viewport);
+    vkCmdSetViewport(offscreenCommandBuffer, 0, 1, &viewport);
 
     TagScenario* scenario = Cache.inst.scenario();
     TagScenarioStructureBsp* sbsp = world.getCurrentSbsp;
@@ -2653,10 +2672,12 @@ void render(ref World world, ref Camera camera)
 
     if(scenario.skies)
     {
+        uint skyUniformBufferOffset = updateSkyModelUniformBuffer(*frame, camera);
+
         VkBuffer[1] vertexBuffers = [ modelVertexBuffer ];
         VkDeviceSize[1] offsets = [ 0 ];
-        vkCmdBindVertexBuffers(offScreenCmdBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
-        vkCmdBindIndexBuffer(offScreenCmdBuffer, modelIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindVertexBuffers(offscreenCommandBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
+        vkCmdBindIndexBuffer(offscreenCommandBuffer, modelIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
         GObject.Lighting lighting; // TODO(HACK, REFACTOR) need to fill default color, most sky don't use this tho so..
 
@@ -2665,7 +2686,8 @@ void render(ref World world, ref Camera camera)
 
         int[TagConstants.Model.maxRegions] permutations;
 
-        renderObject(offScreenCmdBuffer, skyModelDescriptorSet, permutations, &lighting, tagModel);
+        renderObject(*frame, skyUniformBufferOffset, offscreenCommandBuffer,
+            skyModelDescriptorSet, permutations, &lighting, tagModel);
 
     }
 
@@ -2674,20 +2696,20 @@ void render(ref World world, ref Camera camera)
     {
         VkBuffer[2] vertexBuffers = [ sbspVertexBuffer, lightmapVertexBuffer ];
         VkDeviceSize[2] offsets = [ 0, 0 ];
-        vkCmdBindVertexBuffers(offScreenCmdBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
-        vkCmdBindIndexBuffer(offScreenCmdBuffer, sbspIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+        vkCmdBindVertexBuffers(offscreenCommandBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
+        vkCmdBindIndexBuffer(offscreenCommandBuffer, sbspIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
     }
 
     foreach(int i, ref lightmap ; sbsp.lightmaps)
     {
         if(lightmap.bitmap != indexNone)
         {
-            renderOpaqueStructureBsp(offScreenCmdBuffer, camera, sbsp, i);
+            renderOpaqueStructureBsp(*frame, offscreenCommandBuffer, camera, sbsp, i);
         }
     }
 
-    vkCmdEndRenderPass(offScreenCmdBuffer);
-    vkCheck(vkEndCommandBuffer(offScreenCmdBuffer));
+    vkCmdEndRenderPass(offscreenCommandBuffer);
+    vkCheck(vkEndCommandBuffer(offscreenCommandBuffer));
 
     VkSubmitInfo submitInfo;
 
@@ -2702,7 +2724,7 @@ void render(ref World world, ref Camera camera)
     submitInfo.pSignalSemaphores = signalSemaphores.ptr;
 
     submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &offScreenCmdBuffer;
+    submitInfo.pCommandBuffers = &offscreenCommandBuffer;
 
     if(VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE))
     {
@@ -2742,7 +2764,7 @@ void render(ref World world, ref Camera camera)
 
     vkCmdDraw(commandBuffer, 4, 1, 0, 0);
 
-    renderImGui(commandBuffer);
+    renderImGui(*frame, commandBuffer);
 
     vkCmdEndRenderPass(commandBuffer);
     vkCheck(vkEndCommandBuffer(commandBuffer));
@@ -2800,7 +2822,12 @@ struct SimpleWorldVertex
 
 Array!(Array!uint) structureVertexIndexOffsets;
 
-void renderOpaqueStructureBsp(VkCommandBuffer commandBuffer, ref Camera camera, TagScenarioStructureBsp* sbsp, int lightmapIndex)
+void renderOpaqueStructureBsp(
+    ref FrameData            frame,
+    VkCommandBuffer          commandBuffer,
+    ref Camera               camera,
+    TagScenarioStructureBsp* sbsp,
+    int                      lightmapIndex)
 {
     import std.typecons : Tuple, tuple;
 
@@ -2889,14 +2916,14 @@ void renderOpaqueStructureBsp(VkCommandBuffer commandBuffer, ref Camera camera, 
 
             VkDescriptorSet[3] decriptorSets =
             [
-                sceneGlobalsDescriptorSet,
+                frame.uniform.descriptorSet,
                 shaderInstance.descriptorSet,
                 lightmapDescriptorSet,
             ];
 
             uint[1] descriptorOffsets =
             [
-                sceneGlobalsDescriptorSetOffset,
+                sceneGlobalUniformOffset,
             ];
 
             vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, sbspEnvPipelineLayout, 0,
@@ -2942,8 +2969,10 @@ void renderOpaqueStructureBsp(VkCommandBuffer commandBuffer, ref Camera camera, 
 }
 
 void renderObject(
+    ref FrameData     frame,
+    uint              uniformBufferOffset,
     VkCommandBuffer   commandBuffer,
-    VkDescriptorSet   modelDescriptorSet,
+    VkDescriptorSet   modelDescriptorSet, // TODO remove
     int[]             permutations,
     GObject.Lighting* lighting,
     TagGbxmodel*      tagModel)
@@ -3046,15 +3075,15 @@ void renderObject(
 
                 VkDescriptorSet[3] decriptorSets =
                 [
-                    sceneGlobalsDescriptorSet,
+                    frame.uniform.descriptorSet,
                     shaderInstance.descriptorSet,
-                    modelDescriptorSet,
+                    frame.uniform.descriptorSet,
                 ];
 
                 uint[2] descriptorOffsets =
                 [
-                    sceneGlobalsDescriptorSetOffset,
-                    skyModelBufferOffset, // TODO unhardcode
+                    sceneGlobalUniformOffset,
+                    uniformBufferOffset,
                 ];
 
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, chicagoModelPipelineLayout, 0,
@@ -3151,15 +3180,15 @@ void renderObject(
 
                 VkDescriptorSet[3] decriptorSets =
                 [
-                    sceneGlobalsDescriptorSet,
+                    frame.uniform.descriptorSet,
                     shaderInstance.descriptorSet,
-                    modelDescriptorSet,
+                    frame.uniform.descriptorSet,
                 ];
 
                 uint[2] descriptorOffsets =
                 [
-                    sceneGlobalsDescriptorSetOffset,
-                    skyModelBufferOffset, // TODO unhardcode
+                    sceneGlobalUniformOffset,
+                    uniformBufferOffset,
                 ];
 
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, modelShaderPipelineLayout, 0,
@@ -3644,7 +3673,7 @@ bool loadPixelData(Tag.BitmapDataBlock* bitmap, byte[] buffer, ref Texture textu
     return false;
 }
 
-void renderImGui(VkCommandBuffer commandBuffer)
+void renderImGui(ref FrameData frame, VkCommandBuffer commandBuffer)
 {
     auto io = igGetIO();
     ImDrawData* drawData = igGetDrawData();
@@ -3659,11 +3688,11 @@ void renderImGui(VkCommandBuffer commandBuffer)
     vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
         imguiPipelineLayout, 0, decriptorSets.length32, decriptorSets.ptr, 0, null);
 
-    VkBuffer[1] vertexBuffers = [ imguiVertexBuffer ];
-    VkDeviceSize[1] offsets = [ 0 ];
+    VkBuffer[1] vertexBuffers = [ frame.vertex.buffer ];
+    VkDeviceSize[1] offsets = [ imguiVertexBufferOffset ];
 
     vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
-    vkCmdBindIndexBuffer(commandBuffer, imguiIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+    vkCmdBindIndexBuffer(commandBuffer, frame.index.buffer, imguiIndexBufferOffset, VK_INDEX_TYPE_UINT16);
 
     ImguiPushConstants pushConstants;
 
