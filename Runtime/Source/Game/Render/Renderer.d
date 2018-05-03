@@ -393,10 +393,6 @@ VkSemaphore              imageAvailableSemaphore;
 VkSemaphore              offscreenFinishedSemaphore;
 VkSemaphore              renderFinishedSemaphore;
 
-VkBuffer                 skyModelUnifomBuffer;
-VkDeviceMemory           skyModelUnifomBufferMemory;
-VkDescriptorSet          skyModelDescriptorSet;
-
 static ShaderInstance[DatumIndex] shaderInstances; // TODO is static as hack to fix crashing.
 FixedArray!(Texture, 1024) textureInstances; // TODO increase limit?
 
@@ -2687,8 +2683,7 @@ void render(ref World world, ref Camera camera)
 
         int[TagConstants.Model.maxRegions] permutations;
 
-        renderObject(*frame, skyUniformBufferOffset, offscreenCommandBuffer,
-            skyModelDescriptorSet, permutations, &lighting, tagModel);
+        renderObject(*frame, skyUniformBufferOffset, offscreenCommandBuffer, permutations, &lighting, tagModel);
 
     }
 
@@ -2973,7 +2968,6 @@ void renderObject(
     ref FrameData     frame,
     uint              uniformBufferOffset,
     VkCommandBuffer   commandBuffer,
-    VkDescriptorSet   modelDescriptorSet, // TODO remove
     int[]             permutations,
     GObject.Lighting* lighting,
     TagGbxmodel*      tagModel)
