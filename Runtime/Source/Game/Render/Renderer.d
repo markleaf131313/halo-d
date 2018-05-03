@@ -1082,6 +1082,7 @@ void createSwapChain()
     swapchainExtent = extent;
 
     VkImage[maxSwapFrames] images;
+    vkGetSwapchainImagesKHR(device, swapchain, &imageCount, null);
     vkGetSwapchainImagesKHR(device, swapchain, &imageCount, images.ptr);
 
     frames.resize(imageCount);
