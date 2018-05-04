@@ -2718,6 +2718,48 @@ void render(ref World world, ref Camera camera)
         }
     }
 
+    // Render Objects
+
+    {
+        mixin ProfilerObject.ScopedMarker!"Objects";
+
+        VkBuffer[1] vertexBuffers = [ modelVertexBuffer ];
+        VkDeviceSize[1] offsets = [ 0 ];
+        vkCmdBindVertexBuffers(offscreenCommandBuffer, 0, vertexBuffers.length32, vertexBuffers.ptr, offsets.ptr);
+        vkCmdBindIndexBuffer(offscreenCommandBuffer, modelIndexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+        foreach(ref object ; world.objects)
+        {
+            ModelUniformBuffer buffer = void;
+
+            if(!object.flags.hidden)
+            {
+                auto tagObject = Cache.get!TagObject(object.tagIndex);
+                auto tagModel  = Cache.get!TagGbxmodel(tagObject.model);
+
+                if(tagModel is null)
+                {
+                    continue;
+                }
+
+                updateObjectLighting(world, object.bound.center /* is this position or bound? */,
+                    object.cachedLighting.desired, ObjectLightingOptions(false, false)); // todo implement flags
+
+                foreach(i, ref node ; tagModel.nodes)
+                {
+                    // todo remove cast, make actual type
+                    Transform transform = object.transforms[i] * *cast(Transform*)&node.inverseScale;
+                    buffer.matrices[i] = Mat4(transform.toMat4x3WithScale());
+                }
+
+                uint bufferOffset = frame.uniform.appendAligned(buffer);
+
+                renderObject(*frame, bufferOffset, offscreenCommandBuffer, object.regionPermutationIndices,
+                    &object.cachedLighting.desired, tagModel);
+            }
+        }
+    }
+
     frame.uniform.unmapMemory();
 
     vkCmdEndRenderPass(offscreenCommandBuffer);
@@ -3000,6 +3042,11 @@ void renderObject(
             auto tagShaderIndex = tagModel.shaders[part.shaderIndex].shader.index;
             auto baseShader = Cache.get!TagShader(tagShaderIndex);
 
+            if(part.flags.zoner)
+            {
+                continue; // TODO support local nodes
+            }
+
             ShaderInstance* shaderInstance = tagShaderIndex in shaderInstances;
 
             switch(baseShader.shaderType)
@@ -3187,7 +3234,7 @@ void renderObject(
                 }
 
                 vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    modelShaderPipelines[shader.flags.detailAfterReflection][invert][shader.detailFunction][maskIndex]);
+                    modelShaderPipelines[shader.flags.detailAfterReflection][shader.detailFunction][invert][maskIndex]);
 
                 VkDescriptorSet[3] decriptorSets =
                 [
@@ -3231,7 +3278,205 @@ bool updateObjectLighting(ref World world, Vec3 position, ref GObject.Lighting l
     //                      at the very least Distant Light 1 doesn't seem to be 100% correct
     //                      reflection tint as well hasn't been checked
 
-    assert(0);
+    auto sbsp = world.getCurrentSbsp();
+
+    lighting.pointLightCount = 0;
+
+    if(sbsp.defaultAmbientColor == ColorRgb(0.0f))
+    {
+        lighting.ambientColor = ColorRgb(0.2f);
+
+        lighting.distantLightCount = 2;
+
+        lighting.distantLight[0].color     = ColorRgb(1.0f);
+        lighting.distantLight[0].direction = Vec3(-1.0f / sqrt(3.0f));
+
+        lighting.distantLight[1].color     = ColorRgb(0.4f, 0.4f, 0.5f);
+        lighting.distantLight[1].direction = Vec3(0, 0, 1);
+
+        lighting.reflectionTint = ColorArgb(0.5f, 1.0f, 1.0f, 1.0f);
+        lighting.shadowVector   = Vec3(0, 0, -1);
+        lighting.shadowColor    = ColorRgb(0);
+    }
+    else
+    {
+        lighting.ambientColor = sbsp.defaultAmbientColor;
+
+        lighting.distantLightCount = 2;
+
+        lighting.distantLight[0].color     = sbsp.defaultDistantLight0Color;
+        lighting.distantLight[0].direction = sbsp.defaultDistantLight0Direction;
+
+        lighting.distantLight[1].color     = sbsp.defaultDistantLight1Color;
+        lighting.distantLight[1].direction = sbsp.defaultDistantLight1Direction;
+
+        lighting.reflectionTint = sbsp.defaultReflectionTint;
+        lighting.shadowVector   = sbsp.defaultShadowVector;
+        lighting.shadowColor    = sbsp.defaultShadowColor;
+
+    }
+
+    const(Vec3)* segments;
+    int          segmentCount;
+
+    if(options.calculateColorFromSides)
+    {
+        immutable Vec3[4] directions =
+        [
+            Vec3(-10, 0, 0),
+            Vec3( 10, 0, 0),
+            Vec3(0, -10, 0),
+            Vec3(0,  10, 0),
+        ];
+
+        segments     = directions.ptr;
+        segmentCount = directions.length;
+    }
+    else
+    {
+        immutable Vec3[1] directions = [ Vec3(0, 0, -10) ];
+
+        segments     = directions.ptr;
+        segmentCount = directions.length;
+    }
+
+    bool result = false;
+
+    foreach(ref const(Vec3) segment ; segments[0 .. segmentCount])
+    {
+        World.RenderSurfaceResult renderResult;
+
+        if(!world.collideRenderLine(position, segment, renderResult))
+        {
+            continue;
+        }
+
+        auto lightmap = &sbsp.lightmaps[renderResult.lightmapIndex];
+        auto material = &lightmap.materials[renderResult.materialIndex];
+
+        auto shader = Cache.get!TagShaderEnvironment(material.shader);
+
+        if(shader.shaderType != TagEnums.ShaderType.environment
+            || sbsp.lightmapsBitmap.isIndexNone()
+            || lightmap.bitmap == indexNone
+            || shader.baseMap.isIndexNone())
+        {
+            return false;
+        }
+
+        auto lightmapBitmap = Cache.get!TagBitmap(sbsp.lightmapsBitmap).bitmapAt(lightmap.bitmap);
+        auto baseMap = Cache.get!TagBitmap(shader.baseMap);
+
+        int baseBitmapIndex = material.shaderPermutation % baseMap.bitmaps.size;
+        auto baseBitmap = baseMap.bitmapAt(baseBitmapIndex);
+
+        if(!lightmapBitmap || !baseBitmap)
+        {
+            return false;
+        }
+
+        ubyte[] lightmapPixels = grabPixelDataFromBitmap(sbsp.lightmapsBitmap.index, lightmap.bitmap);
+        ubyte[] baseMapPixels  = grabPixelDataFromBitmap(shader.baseMap.index, baseBitmapIndex);
+
+        TagBspVertex*[3] vert;
+        TagBspLightmapVertex*[3] lmVert;
+
+        if(!renderResult.getSurfaceVertices(sbsp, vert) || !renderResult.getLightmapVertices(sbsp, lmVert))
+        {
+            return false;
+        }
+
+        Vec2 uv   = barycentricInterpolate(vert[0].coord, vert[1].coord, vert[2].coord, renderResult.coord);
+        Vec2 lmUv = barycentricInterpolate(lmVert[0].coord, lmVert[1].coord, lmVert[2].coord, renderResult.coord);
+
+        Vec3 normal = barycentricInterpolate(vert[0].normal, vert[1].normal, vert[2].normal, renderResult.coord);
+        Vec3 lmNormal;
+        float lmNormalLength;
+
+        {
+            Vec3 a = lmVert[0].normal; float aLength = normalize(a);
+            Vec3 b = lmVert[1].normal; float bLength = normalize(b);
+            Vec3 c = lmVert[2].normal; float cLength = normalize(c);
+
+            lmNormal = barycentricInterpolate(a, b, c, renderResult.coord);
+            lmNormalLength = barycentricInterpolate(aLength, bLength, cLength, renderResult.coord);
+        }
+
+        normalize(normal);
+        normalize(lmNormal);
+
+        ColorRgb diffuseColor  = baseBitmap.pixelColorAt(baseMapPixels, uv, 0.7f);
+        ColorRgb lightmapColor = lightmapBitmap.pixelColorAt(lightmapPixels, lmUv, 0.0f);
+
+        float c0 = dot(lightmapColor.asVector, Vec3(0.299f, 0.587f, 0.114f));
+
+        lighting.ambientColor = ColorRgb(0.4f) * lightmapColor + ColorRgb(0.03f);
+
+        lighting.distantLight[0].color     = lightmapColor;
+        lighting.distantLight[0].direction = -lmNormal;
+        lighting.distantLight[1].color     = diffuseColor * c0;
+        lighting.distantLight[1].direction = normal;
+        lighting.distantLightCount = 2;
+
+        lighting.reflectionTint.a   = saturate(c0 * 1.5f + 0.25f);
+        lighting.reflectionTint.rgb = saturate(lightmapColor * 2 + 0.25f) * saturate(diffuseColor * 3 + 0.5f);
+
+        enum float littleSqrt1_2 = SQRT1_2 - 0.0001f;
+
+        Vec2  flatNormal = (lmNormalLength ^^ 0.25f) * lighting.distantLight[0].direction.xy;
+        float flatLength = length(flatNormal);
+
+        if(flatLength >= littleSqrt1_2)
+        {
+            lighting.shadowVector.xy = flatNormal * (littleSqrt1_2 / flatLength);
+            lighting.shadowVector.z  = -littleSqrt1_2;
+        }
+        else
+        {
+            lighting.shadowVector.xy = flatNormal;
+            lighting.shadowVector.z  = -sqrt(1.0f - sqr(flatLength));
+        }
+
+        float additive = (1.0f - lmNormalLength) * 0.5f;
+        lighting.shadowColor = clamp((additive + 1.0f) - lighting.distantLight[0].color, 0.03f, 1.0f);
+
+        if(options.brighterThanItShouldBe)
+        {
+            static ColorRgb brighten(ColorRgb color, float adjustment)
+            {
+                float maximum = max(color.r, max(color.g, color.b));
+
+                if(maximum == 0.0f)
+                {
+                    return color;
+                }
+
+                float adjustedMaximum = maximum * (1.0f + adjustment);
+
+                if(adjustedMaximum <= 1.0f)
+                {
+                    if(adjustedMaximum >= adjustment)
+                    {
+                        return color * (1.0f + adjustment);
+                    }
+
+                    return color * (adjustment / maximum);
+                }
+
+                return color * (1.0f / maximum);
+            }
+
+            lighting.ambientColor          = brighten(lighting.ambientColor,          0.2f);
+            lighting.distantLight[0].color = brighten(lighting.distantLight[0].color, 0.3f);
+            lighting.distantLight[1].color = brighten(lighting.distantLight[1].color, 0.2f);
+            lighting.reflectionTint.rgb    = brighten(lighting.reflectionTint.rgb,    0.5f);
+            lighting.reflectionTint.a      = 1.0f;
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 Texture* findOrLoadTexture2D(DatumIndex tagIndex, int bitmapIndex, DefaultTexture defaultType)
@@ -3742,6 +3987,38 @@ private ubyte[][uint] gBitmapLoadedPixels;
 
 private ubyte[] grabPixelDataFromBitmap(DatumIndex index, int bitmapIndex)
 {
-    assert(0);
+    union Hash
+    {
+        uint value;
+        struct
+        {
+            short tagIndex;
+            short bitmapIndex;
+        }
+    }
+
+    Hash hash;
+
+    hash.tagIndex    = index.i;
+    hash.bitmapIndex = cast(short)bitmapIndex;
+
+    if(auto pixels = hash.value in gBitmapLoadedPixels)
+    {
+        return *pixels;
+    }
+    else
+    {
+        TagBitmap* tagBitmap = Cache.get!TagBitmap(index);
+        auto       bitmap    = &tagBitmap.bitmaps[bitmapIndex];
+
+        ubyte[] buffer = new ubyte[](bitmap.pixelsSize);
+
+        if(bitmap.flags.externalPixelData) Cache.inst.bitmapCache.read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
+        else                               Cache.inst            .read(bitmap.pixelsOffset, buffer.ptr, bitmap.pixelsSize);
+
+        gBitmapLoadedPixels[hash.value] = buffer;
+
+        return buffer;
+    }
 }
 
