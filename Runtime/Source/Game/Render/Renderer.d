@@ -225,16 +225,28 @@ struct FrameData
         VkDeviceMemory bufferMemory;
         VkDescriptorSet descriptorSet;
         uint used;
+        uint size;
+
+        void* mapped;
+
+        void mapMemory()
+        {
+            assert(mapped is null);
+            vkMapMemory(device, bufferMemory, 0, size, 0, &mapped);
+        }
+
+        void unmapMemory()
+        {
+            // TODO flush memory, since it isn't coherent ?
+            vkUnmapMemory(device, bufferMemory);
+            mapped = null;
+        }
 
         uint appendAligned(T)(ref T data, uint aligned = 0x100)
         {
             uint offset = (used + aligned - 1) & ~(aligned - 1);
-            T* value;
 
-            vkMapMemory(device, bufferMemory, offset, sizeof32!T, 0, cast(void**)&value);
-            *value = data;
-            vkUnmapMemory(device, bufferMemory);
-
+            mapped[offset .. offset + sizeof32!T] = (&data)[0 .. 1];
             used = offset + sizeof32!T;
 
             return offset;
@@ -1234,9 +1246,10 @@ void createFrameData()
     {
         const uint bufferSize = 0x10_0000;
 
+        frame.uniform.size = bufferSize;
         frame.uniform.device = device;
         createBuffer(bufferSize, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
             frame.uniform.buffer, frame.uniform.bufferMemory);
 
         VkDescriptorSetLayout[1] layouts =
@@ -2609,8 +2622,6 @@ void render(ref World world, ref Camera camera)
     auto offscreenCommandBuffer = frame.offscreenCommandBuffer;
     auto fence = frame.fence;
 
-    frame.clearDataBuffers();
-
     {
         mixin ProfilerObject.ScopedMarker!"Fence";
         VkResult result = vkWaitForFences(device, 1, &fence, true, 1000000000);
@@ -2623,6 +2634,9 @@ void render(ref World world, ref Camera camera)
         }
         vkResetFences(device, 1, &fence);
     }
+
+    frame.clearDataBuffers();
+    frame.uniform.mapMemory();
 
     updateImguiBuffers(*frame, igGetDrawData());
 
@@ -2703,6 +2717,8 @@ void render(ref World world, ref Camera camera)
             renderOpaqueStructureBsp(*frame, offscreenCommandBuffer, camera, sbsp, i);
         }
     }
+
+    frame.uniform.unmapMemory();
 
     vkCmdEndRenderPass(offscreenCommandBuffer);
     vkCheck(vkEndCommandBuffer(offscreenCommandBuffer));
