@@ -1655,7 +1655,7 @@ void createModelShaderPipelines()
         VkVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.position.offsetof),
         VkVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.normal.offsetof),
         VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.coord.offsetof),
-        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32_SINT,      TagModelVertex.node0.offsetof),
+        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R16G16_UINT,      TagModelVertex.node0.offsetof),
         VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.weight.offsetof),
     ];
 
@@ -1806,7 +1806,7 @@ void createChicagoModelPipeline()
         VkVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.position.offsetof),
         VkVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.normal.offsetof),
         VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.coord.offsetof),
-        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32_SINT,      TagModelVertex.node0.offsetof),
+        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R16G16_UINT,      TagModelVertex.node0.offsetof),
         VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.weight.offsetof),
     ];
 
@@ -3151,7 +3151,7 @@ void renderObject(
                     0, ChicagoPushConstants.sizeof, &pushConstants);
 
                 vkCmdDrawIndexed(commandBuffer, part.indexCount + 2, 1,
-                    part.indexOffset / 2, part.vertexOffset / cast(uint)TagModelVertex.sizeof, 0);
+                    part.indexOffset / 2, part.vertexOffset / sizeof32!TagModelVertex, 0);
 
                 break;
             case TagEnums.ShaderType.model:
@@ -3256,7 +3256,7 @@ void renderObject(
                     0, pushConstants.sizeof, &pushConstants);
 
                 vkCmdDrawIndexed(commandBuffer, part.indexCount + 2, 1,
-                    part.indexOffset / 2, part.vertexOffset / cast(uint)TagModelVertex.sizeof, 0);
+                    part.indexOffset / 2, part.vertexOffset / sizeof32!TagModelVertex, 0);
 
                 break;
             default:
