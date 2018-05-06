@@ -66,7 +66,7 @@ void main()
 
     float p = abs(dot(normalize(eyeVector), rNormal));
     d1.rgb = (p * reg.perpendicularColor) + (1.0 - p) * reg.parallelColor;
-
+    d1.a = 1.0;
 
     coords[0] = reg.uvscales[0] * coord;
     coords[1] = reg.uvscales[1] * coords[0];
