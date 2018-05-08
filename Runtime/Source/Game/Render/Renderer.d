@@ -1409,6 +1409,8 @@ void createEnvDescriptorSetLayout()
 
 void createBaseSbspEnvPipeline()
 {
+    import Game.Render.Pipeline;
+
     static const(void)[][3][3][3] createEnvFragBinaries()
     {
         import std.conv : to;
@@ -1429,6 +1431,8 @@ void createBaseSbspEnvPipeline()
     static immutable void[][3][3][3] fragBinaries = createEnvFragBinaries();
     static immutable void[] vertBinary = import("Env-vert.spv");
 
+    Pipeline pipeline;
+
     auto vertShader = createShaderModule(vertBinary);
 
     VkPipelineShaderStageCreateInfo[2] shaderStages;
@@ -1439,52 +1443,8 @@ void createBaseSbspEnvPipeline()
     shaderStages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     shaderStages[1].pName = "main";
 
-    VkPipelineVertexInputStateCreateInfo vertexInputInfo;
-
-    VkVertexInputBindingDescription[2] bindingDesc =
-    [
-        VkVertexInputBindingDescription(0, TagBspVertex.sizeof,         VK_VERTEX_INPUT_RATE_VERTEX),
-        VkVertexInputBindingDescription(1, TagBspLightmapVertex.sizeof, VK_VERTEX_INPUT_RATE_VERTEX),
-    ];
-
-    VkVertexInputAttributeDescription[7] attributeDescs =
-    [
-        VkVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, TagBspVertex.position.offsetof),
-        VkVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32_SFLOAT, TagBspVertex.normal.offsetof),
-        VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32B32_SFLOAT, TagBspVertex.binormal.offsetof),
-        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R32G32B32_SFLOAT, TagBspVertex.tangent.offsetof),
-        VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT,    TagBspVertex.coord.offsetof),
-        VkVertexInputAttributeDescription(5, 1, VK_FORMAT_R32G32B32_SFLOAT, TagBspLightmapVertex.normal.offsetof),
-        VkVertexInputAttributeDescription(6, 1, VK_FORMAT_R32G32_SFLOAT,    TagBspLightmapVertex.coord.offsetof),
-    ];
-
-    vertexInputInfo.vertexBindingDescriptionCount   = bindingDesc.length32;
-    vertexInputInfo.pVertexBindingDescriptions      = bindingDesc.ptr;
-    vertexInputInfo.vertexAttributeDescriptionCount = attributeDescs.length32;
-    vertexInputInfo.pVertexAttributeDescriptions    = attributeDescs.ptr;
-
-    VkPipelineInputAssemblyStateCreateInfo inputAssembly;
-    inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
-    VkViewport viewport;
-    viewport.width = float(swapchainExtent.width);
-    viewport.height = float(swapchainExtent.height);
-
-    VkRect2D scissor;
-    scissor.extent = swapchainExtent;
-
-    VkPipelineViewportStateCreateInfo viewportState;
-    viewportState.viewportCount = 1;
-    viewportState.pViewports = &viewport;
-    viewportState.scissorCount = 1;
-    viewportState.pScissors = &scissor;
-
-    VkPipelineRasterizationStateCreateInfo rasterizer;
-    rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
-
-    VkPipelineMultisampleStateCreateInfo multisampling;
+    pipeline.setVertexInputInfo(Pipeline.VertexInputType.sbspVertex);
+    pipeline.setRasterizer(Pipeline.VertexInputType.sbspVertex);
 
     VkPipelineColorBlendAttachmentState[4] colorBlendAttachments;
 
@@ -1497,22 +1457,20 @@ void createBaseSbspEnvPipeline()
             VK_COLOR_COMPONENT_A_BIT;
     }
 
-    VkPipelineColorBlendStateCreateInfo colorBlending;
-    colorBlending.attachments = colorBlendAttachments;
+    pipeline.colorBlending.attachments = colorBlendAttachments;
 
-    VkDynamicState[2] dynamicStates =
+    VkDynamicState[3] dynamicStates =
     [
         VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_SCISSOR,
         VK_DYNAMIC_STATE_LINE_WIDTH,
     ];
 
-    VkPipelineDynamicStateCreateInfo dynamicState;
-    dynamicState.dynamicStates = dynamicStates;
+    pipeline.dynamicState.dynamicStates = dynamicStates;
 
-    VkPipelineDepthStencilStateCreateInfo depthStencilState;
-    depthStencilState.depthTestEnable = true;
-    depthStencilState.depthWriteEnable = true;
-    depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+    pipeline.depthStencilState.depthTestEnable = true;
+    pipeline.depthStencilState.depthWriteEnable = true;
+    pipeline.depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
 
     VkDescriptorSetLayout[3] descriptorSetLayouts =
     [
@@ -1532,19 +1490,10 @@ void createBaseSbspEnvPipeline()
 
     vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &sbspEnvPipelineLayout));
 
-    VkGraphicsPipelineCreateInfo pipelineInfo;
-    pipelineInfo.flags = VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
-    pipelineInfo.shaderStages = shaderStages;
-    pipelineInfo.pVertexInputState = &vertexInputInfo;
-    pipelineInfo.pInputAssemblyState = &inputAssembly;
-    pipelineInfo.pDepthStencilState = &depthStencilState;
-    pipelineInfo.pViewportState = &viewportState;
-    pipelineInfo.pRasterizationState = &rasterizer;
-    pipelineInfo.pMultisampleState = &multisampling;
-    pipelineInfo.pColorBlendState = &colorBlending;
-    pipelineInfo.pDynamicState = &dynamicState;
-    pipelineInfo.layout = sbspEnvPipelineLayout;
+    VkGraphicsPipelineCreateInfo pipelineInfo = pipeline.makeCreateInfo();
 
+    pipelineInfo.shaderStages = shaderStages;
+    pipelineInfo.layout = sbspEnvPipelineLayout;
     pipelineInfo.renderPass = offscreenFramebuffer.renderPass;
 
     foreach(type   ; 0 .. 2)
@@ -1589,6 +1538,11 @@ void createModelShaderPipelines()
     {
         import std.conv : to;
 
+        if(!__ctfe)
+        {
+            assert(0);
+        }
+
         const(void)[][5][2][3][2] result;
 
         static foreach(mask    ; 0 .. 5)
@@ -1608,10 +1562,8 @@ void createModelShaderPipelines()
 
     Pipeline pipeline;
 
-    pipeline.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-    pipeline.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    pipeline.rasterizer.cullMode  = VK_CULL_MODE_BACK_BIT;
-    pipeline.rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    pipeline.setRasterizer(Pipeline.VertexInputType.modelVertex);
+    pipeline.setVertexInputInfo(Pipeline.VertexInputType.modelVertex);
 
     VkViewport viewport;
     viewport.width  = float(swapchainExtent.width);
@@ -1645,26 +1597,10 @@ void createModelShaderPipelines()
 
     pipeline.colorBlending.attachments = colorBlendAttachments;
 
-    VkVertexInputBindingDescription[1] bindingDesc =
-    [
-        VkVertexInputBindingDescription(0, TagModelVertex.sizeof, VK_VERTEX_INPUT_RATE_VERTEX),
-    ];
-
-    VkVertexInputAttributeDescription[5] attributeDescs =
-    [
-        VkVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.position.offsetof),
-        VkVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.normal.offsetof),
-        VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.coord.offsetof),
-        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R16G16_UINT,      TagModelVertex.node0.offsetof),
-        VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.weight.offsetof),
-    ];
-
-    pipeline.vertexInputInfo.vertexBindingDescriptions   = bindingDesc;
-    pipeline.vertexInputInfo.vertexAttributeDescriptions = attributeDescs;
-
-    VkDynamicState[2] dynamicStates =
+    VkDynamicState[3] dynamicStates =
     [
         VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_SCISSOR,
         VK_DYNAMIC_STATE_LINE_WIDTH,
     ];
 
@@ -1745,10 +1681,8 @@ void createChicagoModelPipeline()
 
     Pipeline pipeline;
 
-    pipeline.inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-    pipeline.rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-    pipeline.rasterizer.cullMode  = VK_CULL_MODE_BACK_BIT;
-    pipeline.rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    pipeline.setRasterizer(Pipeline.VertexInputType.modelVertex);
+    pipeline.setVertexInputInfo(Pipeline.VertexInputType.modelVertex);
 
     VkViewport viewport;
     viewport.width  = float(swapchainExtent.width);
@@ -1796,26 +1730,10 @@ void createChicagoModelPipeline()
 
     pipeline.colorBlending.attachments = colorBlendAttachments;
 
-    VkVertexInputBindingDescription[1] bindingDesc =
-    [
-        VkVertexInputBindingDescription(0, TagModelVertex.sizeof, VK_VERTEX_INPUT_RATE_VERTEX),
-    ];
-
-    VkVertexInputAttributeDescription[5] attributeDescs =
-    [
-        VkVertexInputAttributeDescription(0, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.position.offsetof),
-        VkVertexInputAttributeDescription(1, 0, VK_FORMAT_R32G32B32_SFLOAT, TagModelVertex.normal.offsetof),
-        VkVertexInputAttributeDescription(2, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.coord.offsetof),
-        VkVertexInputAttributeDescription(3, 0, VK_FORMAT_R16G16_UINT,      TagModelVertex.node0.offsetof),
-        VkVertexInputAttributeDescription(4, 0, VK_FORMAT_R32G32_SFLOAT,    TagModelVertex.weight.offsetof),
-    ];
-
-    pipeline.vertexInputInfo.vertexBindingDescriptions   = bindingDesc;
-    pipeline.vertexInputInfo.vertexAttributeDescriptions = attributeDescs;
-
-    VkDynamicState[2] dynamicStates =
+    VkDynamicState[3] dynamicStates =
     [
         VK_DYNAMIC_STATE_VIEWPORT,
+        VK_DYNAMIC_STATE_SCISSOR,
         VK_DYNAMIC_STATE_LINE_WIDTH,
     ];
 
@@ -1991,8 +1909,6 @@ void createModelVertexBuffer()
     Cache.inst.readModelVertexData(vertexData, indexData);
 
     createVertexBuffer(cast(TagModelVertex[])vertexData, modelVertexBuffer, modelVertexBufferMemory);
-
-    // index
 
     uint bufferSize = indexData.length32;
 
@@ -2674,7 +2590,11 @@ void render(ref World world, ref Camera camera)
     viewport.width  = offscreenFramebuffer.width;
     viewport.height = offscreenFramebuffer.height;
 
+    VkRect2D scissor;
+    scissor.extent = swapchainExtent;
+
     vkCmdSetViewport(offscreenCommandBuffer, 0, 1, &viewport);
+    vkCmdSetScissor(offscreenCommandBuffer, 0, 1, &scissor);
 
     TagScenario* scenario = Cache.inst.scenario();
     TagScenarioStructureBsp* sbsp = world.getCurrentSbsp;
