@@ -70,7 +70,7 @@ void main(void)
     }
 
     outAlbedo = c[3];
-    outSpecular = c[3];
+    outSpecular = vec4(0.0f);
     outPosition = c[3];
     outNormal = c[3];
 }
