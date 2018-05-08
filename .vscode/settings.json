@@ -1,0 +1,10 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "d.dcd.imports": [
+        "Runtime/Source/",
+        "Build/Imports/"
+    ],
+    "search.exclude": {
+        "**/SDL2": true
+    }
+}

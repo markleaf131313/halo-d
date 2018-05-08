@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C++ Launch (Windows)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/Build/Bin/Windows/impl.exe",
+            "args": [ "--DRT-gcopt=profile:1" ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}/Build/Bin/",
+            "environment": [],
+            "externalConsole": true
+        }
+    ]
+}
