@@ -1,7 +1,7 @@
 
 module Game.DebugUi;
 
-import ImGui;
+import ImGuiC;
 
 import Game.Audio;
 import Game.Script;
@@ -121,8 +121,8 @@ struct DebugUi
             char[1024] buffer = void;
             snprintf(buffer, "%s##%d", meta.path, i);
 
-            igSetNextWindowPosCenter(ImGuiSetCond.FirstUseEver);
-            if(igBegin(buffer.ptr, &opened, ImVec2(600, 500), -1.0f, ImGuiWindowFlags.NoSavedSettings))
+            igSetNextWindowPos(Vec2(0,0), ImGuiCond_FirstUseEver, Vec2(0.5f, 0.5f));
+            if(igBegin(buffer.ptr, &opened, ImGuiWindowFlags_NoSavedSettings))
             {
                 InvokeByTag!setView(meta.type, meta.index, meta.data, openedTags, null);
             }
@@ -149,8 +149,8 @@ struct DebugUi
         {
             bool opened = true;
 
-            igSetNextWindowPosCenter(ImGuiSetCond.FirstUseEver);
-            igSetNextWindowSize(ImVec2(600, 500), ImGuiSetCond.FirstUseEver);
+            igSetNextWindowPos(Vec2(0,0), ImGuiCond_FirstUseEver, Vec2(0.5f, 0.5f));
+            igSetNextWindowSize(Vec2(600, 500), ImGuiCond_FirstUseEver);
 
             if(igBegin("Selected Object Info", &opened))
             {
@@ -207,7 +207,7 @@ private void popupFindTag(ref TagRef tagRef, bool initialize)
         selectedIndex = tagRef.index.i;
     }
 
-    igSetNextWindowSize(ImVec2(600, 500), ImGuiSetCond.FirstUseEver);
+    igSetNextWindowSize(ImVec2(600, 500), ImGuiCond_FirstUseEver);
     if(igBeginPopupModal("Find Tag"))
     {
         if(igButton("Select"))
@@ -237,7 +237,7 @@ private void popupFindTag(ref TagRef tagRef, bool initialize)
         {
             igPushID(j);
 
-            const auto flags = ImGuiSelectableFlags.SpanAllColumns | ImGuiSelectableFlags.DontClosePopups;
+            const auto flags = ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_DontClosePopups;
             if(igSelectable(meta.path, selectedIndex == j, flags))
             {
                 selectedIndex = j;
@@ -336,12 +336,12 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         else static if(is(Field == short))     igInputShort(identifier, &field);
         else static if(is(Field == float))     igInputFloat(identifier, &field);
         else static if(is(Field == TagString)) igInputText(identifier, field.ptr, 32);
-        else static if(is(Field == Vec3))      igInputFloat3(identifier, field[]);
+        else static if(is(Field == Vec3))      igInputFloat3(identifier, &field.x);
         else static if(is(Field == TagData))   igInputInt(identifier, &field.size);
         else static if(is(Field == ColorRgb))
         {
             float[3] value = [ field.r, field.g, field.b ];
-            if(igColorEdit3(identifier, value))
+            if(igColorEdit3(identifier, value.ptr))
             {
                 field.r = value[0];
                 field.g = value[1];
@@ -351,7 +351,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         else static if(is(Field == ColorArgb))
         {
             float[4] value = [ field.r, field.g, field.b, field.a ];
-            if(igColorEdit4(identifier, value))
+            if(igColorEdit4(identifier, value.ptr))
             {
                 field.a = value[3];
                 field.r = value[0];
@@ -413,7 +413,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
 
                 igSameLine();
                 igInputText(identifier, field.path ? cast(char*)field.path : nullBuffer.ptr,
-                    len, ImGuiInputTextFlags.ReadOnly);
+                    len, ImGuiInputTextFlags_ReadOnly);
             }
 
             popupFindTag(field, initialize);
@@ -423,7 +423,7 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
         {
             if(field.ptr && field.size)
             {
-                igSetNextTreeNodeOpen(true, ImGuiSetCond.FirstUseEver);
+                igSetNextTreeNodeOpen(true, ImGuiCond_FirstUseEver);
             }
 
             if(igTreeNode(identifier))

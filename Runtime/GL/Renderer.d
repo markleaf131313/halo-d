@@ -8,7 +8,7 @@ import std.meta : AliasSeq;
 
 import OpenGL;
 import SDL2;
-import ImGui;
+import ImGuiC;
 
 import Game.Render.Camera;
 import Game.Render.Framebuffer;

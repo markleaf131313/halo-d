@@ -1,7 +1,7 @@
 
 module Game.Console;
 
-import ImGui;
+import ImGuiC;
 
 import Game.Script;
 import Game.Core;
@@ -47,11 +47,12 @@ private struct ConsoleImpl
         import std.string : fromStringz;
         import core.stdc.string : strncpy;
 
-        if(igBegin("Console")) with (ImGuiInputTextFlags)
+        if(igBegin("Console"))
         {
-            enum inputTextFlags = EnterReturnsTrue | CallbackCompletion | CallbackHistory;
+            enum inputTextFlags = ImGuiInputTextFlags_EnterReturnsTrue
+                | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
 
-            igBeginChild("TextRegion", Vec2(0, -igGetItemsLineHeightWithSpacing));
+            igBeginChild("TextRegion", Vec2(0, -igGetFrameHeightWithSpacing));
             foreach(ref line ; lines)
             {
                 igTextUnformatted(line.buffer.ptr);
@@ -59,8 +60,8 @@ private struct ConsoleImpl
             igEndChild();
 
             igPushItemWidth(-1.0f);
-            if(igInputText("##ConsoleInput", inputBuffer.ptr, inputBuffer.length, inputTextFlags,
-                (ImGuiTextEditCallbackData* data) => (cast(ConsoleImpl*)data.UserData).inputCallback(data), &this))
+            if(igInputText("##ConsoleInput", inputBuffer.ptr, inputBuffer.length,
+                inputTextFlags, &inputCallbackProxy, &this))
             {
                 igSetKeyboardFocusHere();
 
@@ -86,7 +87,12 @@ private struct ConsoleImpl
         igEnd();
     }
 
-    private int inputCallback(ImGuiTextEditCallbackData* data)
+    extern(C++) static int inputCallbackProxy(ImGuiTextEditCallbackData* data) @nogc nothrow
+    {
+        return (cast(ConsoleImpl*)data.UserData).inputCallback(data);
+    }
+
+    private int inputCallback(ImGuiTextEditCallbackData* data) @nogc nothrow
     {
         import std.algorithm : startsWith;
         import core.stdc.stdio : printf;
@@ -94,7 +100,7 @@ private struct ConsoleImpl
 
         switch(data.EventFlag)
         {
-        case ImGuiInputTextFlags.CallbackCompletion:
+        case ImGuiInputTextFlags_CallbackCompletion:
 
             char[] text = data.Buf[0 .. data.BufTextLen];
             size_t startIndex = 0;
@@ -136,11 +142,11 @@ private struct ConsoleImpl
             }
 
             break;
-        case ImGuiInputTextFlags.CallbackHistory:
+        case ImGuiInputTextFlags_CallbackHistory:
             if(!history.empty)
             {
-                if     (data.EventKey == ImGuiKey.UpArrow)   historyIndex += 1;
-                else if(data.EventKey == ImGuiKey.DownArrow) historyIndex -= 1;
+                if     (data.EventKey == ImGuiKey_UpArrow)   historyIndex += 1;
+                else if(data.EventKey == ImGuiKey_DownArrow) historyIndex -= 1;
 
                 historyIndex = clamp(historyIndex, 0, cast(int)history.length - 1);
 

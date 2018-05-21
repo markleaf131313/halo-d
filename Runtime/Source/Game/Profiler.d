@@ -5,7 +5,7 @@ import std.conv : to;
 import std.datetime : dur, Duration, MonoTime;
 import std.datetime.stopwatch : StopWatch;
 
-import ImGui;
+import ImGuiC;
 
 import Game.Core;
 
@@ -209,7 +209,8 @@ void plotGraph()
     Vec2 frameSize = Vec2(max(igCalcItemWidth(), frames.length * 10), 100.0f);
     Vec2 childSize = Vec2(igCalcItemWidth(), frameSize.y);
 
-    igBeginChild("graph", childSize + Vec2(0, style.ScrollbarSize + style.ItemSpacing.y), false, ImGuiWindowFlags.HorizontalScrollbar);
+    igBeginChild("graph", childSize + Vec2(0, style.ScrollbarSize + style.ItemSpacing.y), false, ImGuiWindowFlags_HorizontalScrollbar);
+
     Vec2 frameMin = igGetCursorScreenPos();
 
     igInvisibleButton("##graphSelection", frameSize);
@@ -242,7 +243,7 @@ void plotGraph()
     }
 
     igGetWindowDrawList.AddRectFilled(frameMin, frameMin + frameSize,
-        igGetColorU32(ImGuiCol.FrameBg), style.FrameRounding);
+        igGetColorU32(ImGuiCol_FrameBg), style.FrameRounding);
 
     foreach(uint i, ref frame ; frames)
     {
@@ -259,7 +260,7 @@ void plotGraph()
 
         start.x += selectionStart * 10 - 1;
 
-        igGetWindowDrawList.AddRectFilled(start, start + size, igGetColorU32(ImGuiCol.TextSelectedBg));
+        igGetWindowDrawList.AddRectFilled(start, start + size, igGetColorU32(ImGuiCol_TextSelectedBg));
     }
 
     igEndChild();
@@ -287,7 +288,7 @@ void plotGraph()
             igGetWindowDrawList.AddRect(start, start + size, 0xFF222222);
 
             igGetWindowDrawList.AddText(igGetFont, igGetFontSize, start + Vec2(3, 3),
-                igGetColorU32(ImGuiCol.Text), marker.name.ptr, null, 0.0f, &clip);
+                igGetColorU32(ImGuiCol_Text), marker.name.ptr, null, 0.0f, &clip);
 
             igPushID(i);
             igSetCursorScreenPos(start);
@@ -320,9 +321,6 @@ void doUi()
 
     igPushItemWidth(-1.0f);
     plotGraph();
-    // igPlotHistogram("##frames_graph", &getValue,
-    //     null, Profiler.frames.empty ? 0 : cast(uint)Profiler.frames.length - 1,
-    //     0, null, float.max, float.max, ImVec2(0, 400.0f));
     igPopItemWidth();
 }
 

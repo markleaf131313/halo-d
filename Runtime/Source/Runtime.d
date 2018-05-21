@@ -8,7 +8,7 @@ import std.string    : fromStringz;
 import std.traits    : EnumMembers;
 
 import SDL2;
-import ImGui;
+import ImGuiC;
 
 import Game.Ai;
 import Game.Audio;
@@ -96,13 +96,12 @@ __gshared StopWatch frameStopWatch;
 __gshared Duration lastTime;
 __gshared Duration accumulator;
 
-
-extern(C) void imguiSetClipboardText(const(char)* text) nothrow @nogc
+extern(C++) void imguiSetClipboardText(void* userData, const(char)* text)
 {
     SDL_SetClipboardText(text);
 }
 
-extern(C) auto imguiGetClipboardText() nothrow @nogc
+extern(C++) const(char)* imguiGetClipboardText(void* userData)
 {
     return SDL_GetClipboardText();
 }
@@ -147,6 +146,7 @@ bool createSharedGameState(SharedGameState* gameState, SDL_Window* window)
     {
         emplace(gameState);
 
+        igCreateContext();
         gameState.window = window;
 
         Audio.inst = &gameState.audio;
@@ -354,25 +354,25 @@ bool initSharedGameState(SharedGameState* gameState)
 
     io.Fonts.SetTexID(cast(ImTextureID)gameState.imguiTexture);
 
-    io.KeyMap[ImGuiKey.Tab]       = SDLK_TAB;
-    io.KeyMap[ImGuiKey.LeftArrow] = SDL_SCANCODE_LEFT;
-    io.KeyMap[ImGuiKey.RightArrow] = SDL_SCANCODE_RIGHT;
-    io.KeyMap[ImGuiKey.UpArrow]   = SDL_SCANCODE_UP;
-    io.KeyMap[ImGuiKey.DownArrow] = SDL_SCANCODE_DOWN;
-    io.KeyMap[ImGuiKey.PageUp]    = SDL_SCANCODE_PAGEUP;
-    io.KeyMap[ImGuiKey.PageDown]  = SDL_SCANCODE_PAGEDOWN;
-    io.KeyMap[ImGuiKey.Home]      = SDL_SCANCODE_HOME;
-    io.KeyMap[ImGuiKey.End]       = SDL_SCANCODE_END;
-    io.KeyMap[ImGuiKey.Delete]    = SDLK_DELETE;
-    io.KeyMap[ImGuiKey.Backspace] = SDLK_BACKSPACE;
-    io.KeyMap[ImGuiKey.Enter]     = SDLK_RETURN;
-    io.KeyMap[ImGuiKey.Escape]    = SDLK_ESCAPE;
-    io.KeyMap[ImGuiKey.A] = SDLK_a;
-    io.KeyMap[ImGuiKey.C] = SDLK_c;
-    io.KeyMap[ImGuiKey.V] = SDLK_v;
-    io.KeyMap[ImGuiKey.X] = SDLK_x;
-    io.KeyMap[ImGuiKey.Y] = SDLK_y;
-    io.KeyMap[ImGuiKey.Z] = SDLK_z;
+    io.KeyMap[ImGuiKey_Tab]       = SDLK_TAB;
+    io.KeyMap[ImGuiKey_LeftArrow] = SDL_SCANCODE_LEFT;
+    io.KeyMap[ImGuiKey_RightArrow] = SDL_SCANCODE_RIGHT;
+    io.KeyMap[ImGuiKey_UpArrow]   = SDL_SCANCODE_UP;
+    io.KeyMap[ImGuiKey_DownArrow] = SDL_SCANCODE_DOWN;
+    io.KeyMap[ImGuiKey_PageUp]    = SDL_SCANCODE_PAGEUP;
+    io.KeyMap[ImGuiKey_PageDown]  = SDL_SCANCODE_PAGEDOWN;
+    io.KeyMap[ImGuiKey_Home]      = SDL_SCANCODE_HOME;
+    io.KeyMap[ImGuiKey_End]       = SDL_SCANCODE_END;
+    io.KeyMap[ImGuiKey_Delete]    = SDLK_DELETE;
+    io.KeyMap[ImGuiKey_Backspace] = SDLK_BACKSPACE;
+    io.KeyMap[ImGuiKey_Enter]     = SDLK_RETURN;
+    io.KeyMap[ImGuiKey_Escape]    = SDLK_ESCAPE;
+    io.KeyMap[ImGuiKey_A] = SDLK_a;
+    io.KeyMap[ImGuiKey_C] = SDLK_c;
+    io.KeyMap[ImGuiKey_V] = SDLK_v;
+    io.KeyMap[ImGuiKey_X] = SDLK_x;
+    io.KeyMap[ImGuiKey_Y] = SDLK_y;
+    io.KeyMap[ImGuiKey_Z] = SDLK_z;
 
     io.SetClipboardTextFn = &imguiSetClipboardText;
     io.GetClipboardTextFn = &imguiGetClipboardText;
@@ -455,7 +455,7 @@ try
     }
     case SDL_FINGERDOWN:
     {
-        if(igIsPosHoveringAnyWindow(Vec2(ev.tfinger.x, ev.tfinger.y) * igGetIO().DisplaySize)) // TODO unhardcode
+        if(igIsWindowHovered(ImGuiHoveredFlags_AnyWindow))
         {
             break;
         }
@@ -549,7 +549,7 @@ try
         AliasSeq!(start, end) = gameState.camera.calculateRayFromMouse(Vec2(mx, my), Vec2(1920, 810));
 
         if(io.MouseDown[0]
-            && !igIsMouseHoveringAnyWindow()
+            && !igIsWindowHovered(ImGuiHoveredFlags_AnyWindow)
             && gameState.world.collideLine(null, start, end - start, options, line))
         {
             if(line.collisionType == World.CollisionType.object)

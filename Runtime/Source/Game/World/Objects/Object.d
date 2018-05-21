@@ -7,7 +7,7 @@ import std.meta     : allSatisfy, anySatisfy, Filter;
 import std.traits   : Parameters, ReturnType, hasMember;
 import std.typecons : Tuple;
 
-import ImGui;
+import ImGuiC;
 
 import Game.World.Objects;
 import Game.World.World : World;
@@ -73,6 +73,76 @@ struct GObjectTypeMask
 // TODO(REFACTOR) use GameObject, WorldObject, or Entity instead of GObject
 struct GObject
 {
+// these two functions can't be @nogc because of va_list/va_start not being @nogc in ImGui
+bool byTypeDebugUi()
+{
+    return makeCallByType!"implDebugUi"(this);
+}
+
+bool implDebugUi()
+{
+    igSetNextTreeNodeOpen(true, ImGuiCond_FirstUseEver);
+    if(igCollapsingHeader("Object"))
+    {
+        igText("%p", &this);
+
+        igListBoxHeader("occupied clusters");
+        foreach(ref node ; occupiedClusters[0 .. occupiedClustersCount])
+        {
+            igText("%d", node.cluster);
+        }
+        igListBoxFooter();
+
+        igText(Cache.inst.metaAt(tagIndex).path);
+        igText(enumName(type).ptr);
+
+        igInputFloat("scale", &scale);
+        igInputFloat3("position", &position[0]);
+
+        if(igInputFloat3("rotation.forward", &rotation.forward[0]))
+        {
+            if(normalize(rotation.forward) == 0.0f)
+            {
+                rotation.forward = Vec3(1, 0, 0);
+            }
+        }
+
+        if(igInputFloat3("rotation.up", &rotation.up[0]))
+        {
+            if(normalize(rotation.up) == 0.0f)
+            {
+                rotation.up = Vec3(1, 0, 0);
+            }
+        }
+
+        igSeparator();
+        igText("Lighting (desired)");
+        igColorEdit3("ambient color", &cachedLighting.desired.ambientColor.r);
+        igColorEdit3("distant light 0 color", &cachedLighting.desired.distantLight[0].color.r);
+        igInputFloat3("distant light 0 vector", &cachedLighting.desired.distantLight[0].direction[0]);
+        igColorEdit3("distant light 1 color", &cachedLighting.desired.distantLight[1].color.r);
+        igInputFloat3("distant light 1 vector", &cachedLighting.desired.distantLight[1].direction[0]);
+        igColorEdit3("shadow color", &cachedLighting.desired.shadowColor.r);
+        igInputFloat3("shadow vector", &cachedLighting.desired.shadowVector[0]);
+        igColorEdit3("reflection tint", &cachedLighting.desired.reflectionTint.rgb.r);
+
+        igSeparator();
+        igDragFloat("health", &damage.health);
+        igDragFloat("shield", &damage.shield);
+
+        igSeparator();
+        foreach(int i, float value ; exportFunctionValues)
+        {
+            const(char)* cond =  exportFunctionValidities[i] ? "true" : "false";
+            igText("Export Value %d (%s): %f", i, cond, value);
+        }
+
+    }
+
+
+    return true;
+}
+
 @nogc nothrow:
 
 @disable this(this);
@@ -330,14 +400,14 @@ struct Lighting
 {
     struct DistantLight
     {
-        ColorRgb color;
-        Vec3     direction;
+        ColorRgb color = ColorRgb(0, 0, 0);
+        Vec3     direction = Vec3(0);
     }
 
-    ColorRgb ambientColor;
+    ColorRgb ambientColor = ColorRgb(1, 1, 1);
 
     int             distantLightCount;
-    DistantLight[2] distantLight;
+    DistantLight[2] distantLight; // TODO rename with "s"
 
     int pointLightCount;
     // todo point light, use defered rending instead ?
@@ -485,10 +555,7 @@ void byTypeDestruct()
     makeCallByType!("__xdtor", ByType.doDerived)(this);
 }
 
-bool byTypeDebugUi()
-{
-    return makeCallByType!"implDebugUi"(this);
-}
+
 
 static auto byTypeInit(TagEnums.ObjectType type)
 {
@@ -2280,70 +2347,6 @@ bool collideObjectLine(Vec3 position, Vec3 segment, World.SurfaceOptions options
     }
 
     return collision;
-}
-
-bool implDebugUi()
-{
-    igSetNextTreeNodeOpen(true, ImGuiSetCond.FirstUseEver);
-    if(igCollapsingHeader("Object"))
-    {
-        igText("%p", &this);
-
-        igListBoxHeader("occupied clusters");
-        foreach(ref node ; occupiedClusters[0 .. occupiedClustersCount])
-        {
-            igText("%d", node.cluster);
-        }
-        igListBoxFooter();
-
-        igText(Cache.inst.metaAt(tagIndex).path);
-        igText(enumName(type).ptr);
-
-        igInputFloat("scale", &scale);
-        igInputFloat3("position", position[]);
-
-        if(igInputFloat3("rotation.forward", rotation.forward[]))
-        {
-            if(normalize(rotation.forward) == 0.0f)
-            {
-                rotation.forward = Vec3(1, 0, 0);
-            }
-        }
-
-        if(igInputFloat3("rotation.up", rotation.up[]))
-        {
-            if(normalize(rotation.up) == 0.0f)
-            {
-                rotation.up = Vec3(1, 0, 0);
-            }
-        }
-
-        igSeparator();
-        igText("Lighting (desired)");
-        igColorEdit3("ambient color", cachedLighting.desired.ambientColor[]);
-        igColorEdit3("distant light 0 color", cachedLighting.desired.distantLight[0].color[]);
-        igInputFloat3("distant light 0 vector", cachedLighting.desired.distantLight[0].direction[]);
-        igColorEdit3("distant light 1 color", cachedLighting.desired.distantLight[1].color[]);
-        igInputFloat3("distant light 1 vector", cachedLighting.desired.distantLight[1].direction[]);
-        igColorEdit3("shadow color", cachedLighting.desired.shadowColor[]);
-        igInputFloat3("shadow vector", cachedLighting.desired.shadowVector[]);
-        igColorEdit3("reflection tint", cachedLighting.desired.reflectionTint.rgb[]);
-
-        igSeparator();
-        igDragFloat("health", &damage.health);
-        igDragFloat("shield", &damage.shield);
-
-        igSeparator();
-        foreach(int i, float value ; exportFunctionValues)
-        {
-            const(char)* cond =  exportFunctionValidities[i] ? "true" : "false";
-            igText("Export Value %d (%s): %f", i, cond, value);
-        }
-
-    }
-
-
-    return true;
 }
 
 }

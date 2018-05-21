@@ -7,7 +7,7 @@ import std.file : readText;
 import std.meta : AliasSeq;
 
 import SDL2;
-import ImGui;
+import ImGuiC;
 import Vulkan;
 
 import Game.Render.Camera;
