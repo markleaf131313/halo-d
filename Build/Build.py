@@ -130,7 +130,7 @@ def doBuild(buildTarget, output):
 
             dflags += [ '-of../Build/Bin/Windows/runtime_out.dll' ]
             lflags += [ '-L/PDB:../Build/Obj/runtime-' + uniqueIdentifer + '.pdb' ]
-            libs += [ 'OpenAL32.lib', 'vulkan-1.lib', 'SDL2.lib', 'cimgui.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
+            libs += [ 'OpenAL32.lib', 'vulkan-1.lib', 'SDL2.lib', 'imgui.lib', 'libvorbis.lib', 'libvorbisfile.lib' ]
 
             # possible .dll is created before .pdb, thus dll is loaded without symbols
             # so store it else where and copy it after everything is linked and ready
@@ -166,7 +166,7 @@ def doBuild(buildTarget, output):
         #     ]
 
         #     lflags = [ '-L-L../Build/Bin/Linux/' ]
-        #     libs = [ '-L-lopenal', '-L-lopengl', '-L-lSDL2', '-L-lcimgui', '-L-lvorbis', '-L-lvorbisfile' ]
+        #     libs = [ '-L-lopenal', '-L-lopengl', '-L-lSDL2', '-L-limgui', '-L-lvorbis', '-L-lvorbisfile' ]
 
     else:
         print('Error: Unknown platform ' + platform.system() + '.')
