@@ -1416,7 +1416,7 @@ extern(C++) struct ImDrawList
     // [Internal, used while building lists]
     const ImDrawListSharedData* _Data;          // Pointer to shared draw data (you can use ImGui::GetDrawListSharedData() to get the one from current ImGui context)
     const(char)*             _OwnerName;         // Pointer to owner window's name for debugging
-    uint            _VtxCurrentIdx;     // [Internal] == VtxBuffer.Size
+    uint                    _VtxCurrentIdx;     // [Internal] == VtxBuffer.Size
     ImDrawVert*             _VtxWritePtr;       // [Internal] point within VtxBuffer.Data after each add command (to avoid using the ImVector<> operators too much)
     ImDrawIdx*              _IdxWritePtr;       // [Internal] point within IdxBuffer.Data after each add command (to avoid using the ImVector<> operators too much)
     ImVector!ImVec4         _ClipRectStack;     // [Internal]
