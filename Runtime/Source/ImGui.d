@@ -1465,10 +1465,10 @@ extern(C++) struct ImDrawList
     void  AddQuadFilled(const ImVec2 a, const ImVec2 b, const ImVec2 c, const ImVec2 d, ImU32 col)                                                  { AddQuadFilled(a, b, c, d, col); }
     void  AddTriangle(const ImVec2 a, const ImVec2 b, const ImVec2 c, ImU32 col, float thickness = 1.0f)                                            { AddTriangle(a, b, c, col, thickness); }
     void  AddTriangleFilled(const ImVec2 a, const ImVec2 b, const ImVec2 c, ImU32 col)                                                              { AddTriangleFilled(a, b, c, col); }
-    void  AddCircle(const ImVec2 centre, float radius, ImU32 col, int num_segments = 12, float thickness = 1.0f)                              { AddCircle(centre, radius, col, num_segments, thickness); }
-    void  AddCircleFilled(const ImVec2 centre, float radius, ImU32 col, int num_segments = 12)                                                { AddCircleFilled(centre, radius, col, num_segments); }
-    void  AddText(const ImVec2 pos, ImU32 col, const(char)* text_begin, const(char)* text_end = null)                                         { AddText(pos, col, text_begin, text_end); }
-    void  AddText(const(ImFont)* font, float font_size, const ImVec2 pos, ImU32 col, const(char)* text_begin, const(char)* text_end = null, float wrap_width = 0.0f, const(ImVec4)* cpu_fine_clip_rect = null) { AddText(font, font_size, pos, col, text_begin, text_end); }
+    void  AddCircle(const ImVec2 centre, float radius, ImU32 col, int num_segments = 12, float thickness = 1.0f)                                    { AddCircle(centre, radius, col, num_segments, thickness); }
+    void  AddCircleFilled(const ImVec2 centre, float radius, ImU32 col, int num_segments = 12)                                                      { AddCircleFilled(centre, radius, col, num_segments); }
+    void  AddText(const ImVec2 pos, ImU32 col, const(char)* text_begin, const(char)* text_end = null)                                               { AddText(pos, col, text_begin, text_end); }
+    void  AddText(const(ImFont)* font, float font_size, const ImVec2 pos, ImU32 col, const(char)* text_begin, const(char)* text_end = null, float wrap_width = 0.0f, const(ImVec4)* cpu_fine_clip_rect = null) { AddText(font, font_size, pos, col, text_begin, text_end, wrap_width, cpu_fine_clip_rect); }
 
     // // Stateful path API, add points then finish with PathFillConvex() or PathStroke()
     // inline    void  PathClear()                                                 { _Path.resize(0); }

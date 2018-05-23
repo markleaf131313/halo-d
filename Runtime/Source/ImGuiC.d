@@ -181,12 +181,16 @@ ImGuiID       igGetID(const(void)* ptr_id)                                { retu
 
 // Widgets: Text
 void          igTextUnformatted(const(char)* text, const(char)* text_end = null) { TextUnformatted(text, text_end); }
+
+extern(C++)
+{
 void          igText(const(char)* fmt, ...)                          { va_list args; va_start(args, fmt); TextV(fmt, args); va_end(args); }
 void          igTextColored(ImVec4 col, const(char)* fmt, ...)       { va_list args; va_start(args, fmt); TextColoredV(col, fmt, args); va_end(args); }
 void          igTextDisabled(const(char)* fmt, ...)                  { va_list args; va_start(args, fmt); TextDisabledV(fmt, args); va_end(args); }
 void          igTextWrapped(const(char)* fmt, ...)                   { va_list args; va_start(args, fmt); TextWrappedV(fmt, args); va_end(args); }
 void          igLabelText(const(char)* label, const(char)* fmt, ...) { va_list args; va_start(args, fmt); LabelTextV(label, fmt, args); va_end(args); }
 void          igBulletText(const(char)* fmt, ...)                    { va_list args; va_start(args, fmt); BulletTextV(fmt, args); va_end(args); }
+}
 
 void          igTextV(const(char)* fmt, va_list args)                          { TextV(fmt, args); }
 void          igTextColoredV(ImVec4 col, const char* fmt, va_list args)        { TextColoredV(col, fmt, args); }
@@ -281,12 +285,17 @@ bool          igColorButton(const(char)* desc_id, ImVec4 col, ImGuiColorEditFlag
 void          igSetColorEditOptions(ImGuiColorEditFlags flags)                                                            { return SetColorEditOptions(flags); }
 
 // Widgets: Trees
-bool          igTreeNode(const(char)* label)                           { return TreeNode(label); }
+bool          igTreeNode(const(char)* label)                                 { return TreeNode(label); }
+bool          igTreeNodeEx(const(char)* label, ImGuiTreeNodeFlags flags = 0) { return TreeNodeEx(label, flags); }
+
+extern(C++)
+{
 bool          igTreeNode(const(char)* str_id, const(char)* fmt, ...)   { va_list args; va_start(args, fmt); scope(exit) va_end(args); return TreeNodeV(str_id, fmt, args); }
 bool          igTreeNode(const(void)* ptr_id, const(char)* fmt, ...)   { va_list args; va_start(args, fmt); scope(exit) va_end(args); return TreeNodeV(ptr_id, fmt, args); }
-bool          igTreeNodeEx(const(char)* label, ImGuiTreeNodeFlags flags = 0)                     { return TreeNodeEx(label, flags); }
 bool          igTreeNodeEx(const(char)* str_id, ImGuiTreeNodeFlags flags, const(char)* fmt, ...) { va_list args; va_start(args, fmt); scope(exit) va_end(args); return TreeNodeExV(str_id, flags, fmt, args); }
 bool          igTreeNodeEx(const(void)* ptr_id, ImGuiTreeNodeFlags flags, const(char)* fmt, ...) { va_list args; va_start(args, fmt); scope(exit) va_end(args); return TreeNodeExV(ptr_id, flags, fmt, args); }
+}
+
 bool          igTreeNodeV(const(char)* str_id, const(char)* fmt, va_list args) { return TreeNodeV(str_id, fmt, args); }
 bool          igTreeNodeV(const(void)* ptr_id, const(char)* fmt, va_list args) { return TreeNodeV(ptr_id, fmt, args); }
 bool          igTreeNodeExV(const(char)* str_id, ImGuiTreeNodeFlags flags, const(char)* fmt, va_list args) { return TreeNodeExV(str_id, flags, fmt, args); }
@@ -316,7 +325,7 @@ void          igValue(const(char)* prefix, uint v) { Value(prefix, v); }
 void          igValue(const(char)* prefix, float v, const(char)* float_format = null) { Value(prefix, v, float_format); }
 
 // Tooltips
-void          igSetTooltip(const(char)* fmt, ...)            { va_list args; va_start(args, fmt); SetTooltipV(fmt, args); va_end(args); }
+extern(C++) void          igSetTooltip(const(char)* fmt, ...)            { va_list args; va_start(args, fmt); SetTooltipV(fmt, args); va_end(args); }
 void          igSetTooltipV(const(char)* fmt, va_list args)  { SetTooltipV(fmt, args); }
 void          igBeginTooltip()                               { BeginTooltip(); }
 void          igEndTooltip()                                 { EndTooltip(); }
