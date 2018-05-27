@@ -39,11 +39,6 @@ enum  size = _S;
 
 private enum isTypeAssignable(U) = isAssignable!(Type, U);
 
-// workaround: there is no default constructor in D
-// but in C++ adding a default constructor means it is no longer POD which changes how it is passed in Windows
-this(this)
-{}
-
 union
 {
     private Type[size] values;

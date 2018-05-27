@@ -222,7 +222,7 @@ void          igBullet();                                                       
 // The old Combo() api are helpers over BeginCombo()/EndCombo() which are kept available for convenience purpose.
 bool          igBeginCombo(const(char)* label, const(char)* preview_value, ImGuiComboFlags flags = 0) { return BeginCombo(label, preview_value, flags); }
 void          igEndCombo() { EndCombo(); }
-bool          igCombo(const(char)* label, int* current_item, const(char**) items, int items_count, int popup_max_height_in_items = -1)  { return Combo(label, current_item, items, items_count, popup_max_height_in_items); }
+bool          igCombo(const(char)* label, int* current_item, const(char*)* items, int items_count, int popup_max_height_in_items = -1)  { return Combo(label, current_item, cast(const(char)**)items, items_count, popup_max_height_in_items); }
 bool          igCombo(const(char)* label, int* current_item, const(char)* items_separated_by_zeros, int popup_max_height_in_items = -1) { return Combo(label, current_item, items_separated_by_zeros, popup_max_height_in_items); }
 bool          igCombo(const(char)* label, int* current_item, ImComboGetterCallback items_getter, void* data, int items_count, int popup_max_height_in_items = -1) { return Combo(label, current_item, items_getter, data, items_count, popup_max_height_in_items); }
 
@@ -312,7 +312,7 @@ bool          igCollapsingHeader(const(char)* label, bool* p_open, ImGuiTreeNode
 // Widgets: Selectable / Lists
 bool          igSelectable(const(char)* label, bool selected = false, ImGuiSelectableFlags flags = 0, ImVec2 size = ImVec2(0,0))    { return Selectable(label, selected, flags, size); }
 bool          igSelectable(const(char)* label, bool* p_selected, ImGuiSelectableFlags flags = 0, ImVec2 size = ImVec2(0,0))         { return Selectable(label, p_selected, flags, size); }
-bool          igListBox(const(char)* label, int* current_item, const(char)** items, int items_count, int height_in_items = -1)      { return ListBox(label, current_item, items, items_count, height_in_items); }
+bool          igListBox(const(char)* label, int* current_item, const(char*)* items, int items_count, int height_in_items = -1)      { return ListBox(label, current_item, cast(const(char)**)items, items_count, height_in_items); }
 bool          igListBox(const(char)* label, int* current_item, ImListBoxGetterCallback items_getter, void* data, int items_count, int height_in_items = -1) { return ListBox(label, current_item, items_getter, data, items_count, height_in_items); }
 bool          igListBoxHeader(const(char)* label, ImVec2 size = ImVec2(0,0))                 { return ListBoxHeader(label, size); }
 bool          igListBoxHeader(const(char)* label, int items_count, int height_in_items = -1) { return ListBoxHeader(label, items_count, height_in_items); }

@@ -276,7 +276,7 @@ alias ImComboGetterCallback = bool function(void* data, int idx, const(char)** o
 // The old Combo() api are helpers over BeginCombo()/EndCombo() which are kept available for convenience purpose.
 bool          BeginCombo(const(char)* label, const(char)* preview_value, ImGuiComboFlags flags = 0);
 void          EndCombo(); // only call EndCombo() if BeginCombo() returns true!
-bool          Combo(const(char)* label, int* current_item, const(char**) items, int items_count, int popup_max_height_in_items = -1);
+bool          Combo(const(char)* label, int* current_item, const(char)** items, int items_count, int popup_max_height_in_items = -1);
 bool          Combo(const(char)* label, int* current_item, const(char)* items_separated_by_zeros, int popup_max_height_in_items = -1);      // Separate items with \0 within a string, end item-list with \0\0. e.g. "One\0Two\0Three\0"
 bool          Combo(const(char)* label, int* current_item, ImComboGetterCallback items_getter, void* data, int items_count, int popup_max_height_in_items = -1);
 
@@ -363,7 +363,7 @@ alias ImListBoxGetterCallback = bool function(void* data, int idx, const(char)**
 // Widgets: Selectable / Lists
 bool          Selectable(const(char)* label, bool selected, ImGuiSelectableFlags flags, ref const ImVec2 size);  // "bool selected" carry the selection state (read-only). Selectable() is clicked is returns true so you can modify your selection state. size.x==0.0: use remaining width, size.x>0.0: specify width. size.y==0.0: use label height, size.y>0.0: specify height
 bool          Selectable(const(char)* label, bool* p_selected, ImGuiSelectableFlags flags, ref const ImVec2 size);       // "bool* p_selected" point to the selection state (read-write), as a convenient helper.
-bool          ListBox(const(char)* label, int* current_item, const(char**) items, int items_count, int height_in_items = -1);
+bool          ListBox(const(char)* label, int* current_item, const(char)** items, int items_count, int height_in_items = -1);
 bool          ListBox(const(char)* label, int* current_item, ImListBoxGetterCallback items_getter, void* data, int items_count, int height_in_items = -1);
 bool          ListBoxHeader(const(char)* label, ref const ImVec2 size); // use if you want to reimplement ListBox() will custom data or interactions. if the function return true, you can output elements then call ListBoxFooter() afterwards.
 bool          ListBoxHeader(const(char)* label, int items_count, int height_in_items = -1); // "
