@@ -139,16 +139,16 @@ void load(in string filename)
         }
         else version(Posix)
         {
-            import core.sys.posix.sys.mman : mmap, PROT_READ, PROT_WRITE, MAP_PRIVATE, MAP_ANON;
+            import core.sys.posix.sys.mman : mmap, PROT_READ, PROT_WRITE, MAP_PRIVATE, MAP_ANON, MAP_FIXED;
             buffer = cast(byte*)mmap(cast(void*)0x4044_0000, maxBufferSize, PROT_READ | PROT_WRITE,
-                MAP_PRIVATE | MAP_ANON, -1, 0);
+                MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
         }
         else
         {
             static assert(0);
         }
 
-        assert(buffer !is null);
+        assert(buffer == cast(void*)0x4044_0000);
 
         table  = cast(TagTable*)buffer;
         metas  = cast(Meta*)(buffer + TagTable.sizeof);
@@ -392,7 +392,7 @@ void loadTagSound(ref Meta meta, ref SharedLoadData sharedLoadData)
     foreach(ref pitchRange ; tagSound.pitchRanges)
     foreach(ref permutation ; pitchRange.permutations)
     {
-        void* data = mallocCast!void(permutation.samples.size);
+        void* data = mallocCast!void(permutation.samples.size); // TODO free this buffer
         permutation.cacheBufferIndex = Audio.inst.addSampleData(data);
 
         cache.read(permutation.samples.offset, data, permutation.samples.size);
@@ -423,7 +423,9 @@ void loadBlockFields(T)(T* block)
             }
             else static if(is(Member == TagData))
             {
-                // member.data = fixPointer(member.data); // TODO, do we need this for data ?
+                // TODO, some field use this as an offset, while others use it as pointer
+                //       need to figure something out if we want to use an arbitrary pointer for data
+                // member.data = fixPointer(member.data);
             }
             else static if(is(Member : T[size], T, int size) && is(T == struct))
             {
