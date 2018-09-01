@@ -21,5 +21,5 @@ void main()
     colors[2] = texture(tex2, inCoord);
     colors[3] = texture(tex3, inCoord);
 
-    outColor = colors[0];
+    outColor = colors[0] + colors[1];
 }
