@@ -1,13 +1,18 @@
 apply plugin: 'com.android.application'
-
 android {
-    compileSdkVersion 24
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 27
+    buildToolsVersion '28.0.2'
 
     defaultConfig {
         applicationId "org.libsdl.app"
         minSdkVersion 24
-        targetSdkVersion 24
+        targetSdkVersion 27
+
+        // workaround for bug in NDK 17 due to deprecation of mips
+        packagingOptions {
+            doNotStrip '*/mips/*.so'
+            doNotStrip '*/mips64/*.so'
+        }
 
         ndk {
             abiFilters 'armeabi-v7a'
@@ -45,4 +50,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+}
+
+dependencies {
 }

@@ -3,6 +3,8 @@
 .externalNativeBuild/
 
 build/
+gradle/
+**/jni/libs/SDL2/
 !/Build/
 
 /Runtime/Source/Game/Tags/Generated/*
