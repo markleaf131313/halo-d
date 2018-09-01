@@ -265,7 +265,7 @@ GObject* createObject(ref GObject.Creation data)
 
     if(auto init = GObject.byTypeInit(tagObject.objectType))
     {
-        import std.c.string : memcpy;
+        import core.stdc.string : memcpy;
 
         GObject* object = mallocCast!GObject(init.length);
         memcpy(object, init.ptr, init.length);
