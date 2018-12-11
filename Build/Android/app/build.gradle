@@ -14,6 +14,12 @@ android {
             doNotStrip '*/mips64/*.so'
         }
 
+        // workaround for bug in NDK 17 due to deprecation of mips
+        packagingOptions {
+            doNotStrip '*/mips/*.so'
+            doNotStrip '*/mips64/*.so'
+        }
+
         ndk {
             abiFilters 'armeabi-v7a'
         }
