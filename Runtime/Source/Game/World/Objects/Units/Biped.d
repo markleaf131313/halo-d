@@ -74,6 +74,9 @@ bool implInitialize()
 
 bool implUpdateLogic()
 {
+    import Game.Profiler;
+    mixin ProfilerObject.ScopedMarker;
+
     const tagBiped      = Cache.get!TagBiped(tagIndex);
     const tagModel      = Cache.get!TagGbxmodel(tagBiped.model);
     const tagAnimations = Cache.get!TagModelAnimations(tagBiped.animationGraph);

@@ -128,6 +128,9 @@ bool implInitialize()
 
 bool implUpdateLogic()
 {
+    import Game.Profiler;
+    mixin ProfilerObject.ScopedMarker;
+
     static void calcVehicleSpeed(ref float speed, Vec2 maxSpeed, Vec2 acceleration, float throttle, float scale)
     {
         assert(scale > 0.0f); // untested with negatives, shouldnt happen though
