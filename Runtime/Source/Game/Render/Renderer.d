@@ -495,6 +495,29 @@ void createInstance(SDL_Window* window)
     }
 }
 
+void resetDeviceContextNoCleanup()
+{
+    uint width = windowWidth;
+    uint height = windowHeight;
+
+    this = this.init;
+    shaderInstances = null;
+
+    windowWidth = width;
+    windowHeight = height;
+
+    foreach(ref meta ; Cache.inst.getMetas())
+    {
+        if(meta.type == TagId.bitmap)
+        {
+            foreach(ref bitmap ; meta.tagData!TagBitmap.bitmaps)
+            {
+                bitmap.glTexture = indexNone;
+            }
+        }
+    }
+}
+
 VkCommandBuffer beginSingleTimeCommands()
 {
     VkCommandBufferAllocateInfo allocInfo;
@@ -2254,28 +2277,16 @@ void updateImguiBuffers(ref FrameData frame, ImDrawData* drawData)
 {
     auto io = igGetIO();
 
-    uint vertexSize = drawData.TotalVtxCount * sizeof32!ImguiVertex;
-    uint indexSize = drawData.TotalIdxCount  * sizeof32!ImDrawIdx;
-
-
+    imguiVertexBufferOffset = frame.vertex.used;
     foreach(int i, ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
     {
-        uint offset = frame.vertex.append(cmdList.VtxBuffer[]);
-
-        if(i == 0)
-        {
-            imguiVertexBufferOffset = offset;
-        }
+        frame.vertex.append(cmdList.VtxBuffer[]);
     }
 
+    imguiIndexBufferOffset = frame.index.used;
     foreach(int i, ImDrawList* cmdList ; drawData.CmdLists[0 .. drawData.CmdListsCount])
     {
-        uint offset = frame.index.append(cmdList.IdxBuffer[]);
-
-        if(i == 0)
-        {
-            imguiIndexBufferOffset = offset;
-        }
+        frame.index.append(cmdList.IdxBuffer[]);
     }
 }
 
@@ -2533,7 +2544,7 @@ void render(ref World world, ref Camera camera)
     }
 
 
-    auto frame = &frames[imageIndex];
+    FrameData* frame = &frames[imageIndex];
     auto commandBuffer = frame.commandBuffer;
     auto frameBuffer   = frame.swapchainFramebuffer;
     auto offscreenCommandBuffer = frame.offscreenCommandBuffer;

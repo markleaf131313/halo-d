@@ -412,6 +412,10 @@ try
     while(SDL_PollEvent(&ev))
     switch(ev.type)
     {
+    case SDL_RENDER_DEVICE_RESET:
+        gameState.renderer.resetDeviceContextNoCleanup();
+        gameState.renderer.initialize(gameState.window, gameState.world.getCurrentSbsp());
+        break;
     case SDL_QUIT: return false;
     case SDL_MOUSEWHEEL:
     {
