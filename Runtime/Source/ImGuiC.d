@@ -38,12 +38,13 @@ bool          igDebugCheckVersionAndDataLayout(const(char)* version_str, size_t 
 ImGuiIO*      igGetIO()         { return &GetIO(); }
 ImGuiStyle*   igGetStyle()      { return &GetStyle(); }
 void          igNewFrame()      { NewFrame(); }
+void          igEndFrame()      { EndFrame(); }
 void          igRender()        { Render(); }
 ImDrawData*   igGetDrawData()   { return GetDrawData(); }
-void          igEndFrame()      { EndFrame(); }
 
 // Demo, Debug, Information
 void          igShowDemoWindow(bool* p_open = null)      { ShowDemoWindow(p_open); }
+void          igShowAboutWindow(bool* p_open = null)     { ShowAboutWindow(p_open); }
 void          igShowMetricsWindow(bool* p_open = null)   { ShowMetricsWindow(p_open); }
 void          igShowStyleEditor(ImGuiStyle* ref_ = null) { ShowStyleEditor(ref_); }
 bool          igShowStyleSelector(const(char)* label)    { return ShowStyleSelector(label); }
@@ -108,7 +109,7 @@ float         igGetScrollMaxX()                                        { return 
 float         igGetScrollMaxY()                                        { return GetScrollMaxY(); }
 void          igSetScrollX(float scroll_x)                             { SetScrollX(scroll_x); }
 void          igSetScrollY(float scroll_y)                             { SetScrollY(scroll_y); }
-void          igSetScrollHere(float center_y_ratio = 0.5f)                  { SetScrollHere(center_y_ratio); }
+void          igSetScrollHereY(float center_y_ratio = 0.5f)                 { SetScrollHereY(center_y_ratio); }
 void          igSetScrollFromPosY(float pos_y, float center_y_ratio = 0.5f) { SetScrollFromPosY(pos_y, center_y_ratio); }
 
 // Parameters stacks (shared)
@@ -244,8 +245,8 @@ bool          igDragScalar(const(char)* label, ImGuiDataType data_type, void* v,
 bool          igDragScalarN(const(char)* label, ImGuiDataType data_type, void* v, int components, float v_speed, const(void)* v_min = null, const(void)* v_max = null, const(char)* format = null, float power = 1.0f) { return DragScalarN(label, data_type, v, components, v_speed, v_min, v_max, format, power); }
 
 // Widgets: Input with Keyboard
-bool          igInputText(const(char)* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = null, void* user_data = null)                                     { return InputText(label, buf, buf_size, flags, callback, user_data); }
-bool          igInputTextMultiline(const(char)* label, char* buf, size_t buf_size, ImVec2 size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiTextEditCallback callback = null, void* user_data = null) { return InputTextMultiline(label, buf, buf_size, size, flags, callback, user_data); }
+bool          igInputText(const(char)* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = null, void* user_data = null)                                     { return InputText(label, buf, buf_size, flags, callback, user_data); }
+bool          igInputTextMultiline(const(char)* label, char* buf, size_t buf_size, ImVec2 size = ImVec2(0,0), ImGuiInputTextFlags flags = 0, ImGuiInputTextCallback callback = null, void* user_data = null) { return InputTextMultiline(label, buf, buf_size, size, flags, callback, user_data); }
 bool          igInputFloat (const(char)* label, float* v, float step = 0.0f, float step_fast = 0.0f, const(char)* format = "%.3f", ImGuiInputTextFlags extra_flags = 0)                                     { return InputFloat(label, v, step, step_fast, format, extra_flags); }
 bool          igInputFloat2(const(char)* label, float* v, const(char)* format = "%.3f", ImGuiInputTextFlags extra_flags = 0) { return InputFloat2(label, v, format, extra_flags); }
 bool          igInputFloat3(const(char)* label, float* v, const(char)* format = "%.3f", ImGuiInputTextFlags extra_flags = 0) { return InputFloat3(label, v, format, extra_flags); }
@@ -264,7 +265,7 @@ bool          igSliderFloat (const(char)* label, float* v, float v_min, float v_
 bool          igSliderFloat2(const(char)* label, float* v, float v_min, float v_max, const(char)* format = "%.3f", float power = 1.0f) { return SliderFloat2(label, v, v_min, v_max, format, power); }
 bool          igSliderFloat3(const(char)* label, float* v, float v_min, float v_max, const(char)* format = "%.3f", float power = 1.0f) { return SliderFloat3(label, v, v_min, v_max, format, power); }
 bool          igSliderFloat4(const(char)* label, float* v, float v_min, float v_max, const(char)* format = "%.3f", float power = 1.0f) { return SliderFloat4(label, v, v_min, v_max, format, power); }
-bool          igSliderAngle(const(char)* label, float* v_rad, float v_degrees_min = -360.0f, float v_degrees_max = +360.0f) { return SliderAngle(label, v_rad, v_degrees_min, v_degrees_max); }
+bool          igSliderAngle(const(char)* label, float* v_rad, float v_degrees_min = -360.0f, float v_degrees_max = +360.0f, const(char)* format = "%.0f deg") { return SliderAngle(label, v_rad, v_degrees_min, v_degrees_max, format); }
 bool          igSliderInt (const(char)* label, int* v, int v_min, int v_max, const(char)* format = "%d") { return SliderInt (label, v, v_min, v_max, format); }
 bool          igSliderInt2(const(char)* label, int* v, int v_min, int v_max, const(char)* format = "%d") { return SliderInt2(label, v, v_min, v_max, format); }
 bool          igSliderInt3(const(char)* label, int* v, int v_min, int v_max, const(char)* format = "%d") { return SliderInt3(label, v, v_min, v_max, format); }
@@ -363,6 +364,13 @@ float         igGetColumnOffset(int column_index = -1)            { return GetCo
 void          igSetColumnOffset(int column_index, float offset_x) { SetColumnOffset(column_index, offset_x); }
 int           igGetColumnsCount()                                 { return GetColumnsCount(); }
 
+bool          igBeginTabBar(const(char)* str_id, ImGuiTabBarFlags flags = 0)                       { return BeginTabBar(str_id, flags); }
+void          igEndTabBar()                                                                        { EndTabBar(); }
+bool          igBeginTabItem(const(char)* label, bool* p_open = null, ImGuiTabItemFlags flags = 0) { return BeginTabItem(label, p_open, flags); }
+void          igEndTabItem()                                                                       { EndTabItem(); }
+void          igSetTabItemClosed(const(char)* tab_or_docked_window_label)                          { SetTabItemClosed(tab_or_docked_window_label); }
+
+
 // Logging/Capture: all text output from interface is captured to tty/file/clipboard. By default, tree nodes are automatically opened during logging.
 void          igLogToTTY(int max_depth = -1)                                { LogToTTY(max_depth); }
 void          igLogToFile(int max_depth = -1, const(char)* filename = null) { LogToFile(max_depth, filename); }
@@ -395,6 +403,9 @@ bool          igIsItemActive()                             { return IsItemActive
 bool          igIsItemFocused()                            { return IsItemFocused(); }
 bool          igIsItemClicked(int mouse_button = 0)        { return IsItemClicked(mouse_button); }
 bool          igIsItemVisible()                            { return IsItemVisible(); }
+bool          igIsItemEdited()                             { return IsItemEdited(); }
+bool          igIsItemDeactivated()                        { return IsItemDeactivated(); }
+bool          igIsItemDeactivatedAfterEdit()               { return IsItemDeactivatedAfterEdit(); }
 bool          igIsAnyItemHovered()                         { return IsAnyItemHovered(); }
 bool          igIsAnyItemActive()                          { return IsAnyItemActive(); }
 bool          igIsAnyItemFocused()                         { return IsAnyItemFocused(); }
@@ -404,7 +415,7 @@ ImVec2        igGetItemRectSize()                          { return GetItemRectS
 void          igSetItemAllowOverlap()                      { return SetItemAllowOverlap(); }
 bool          igIsRectVisible(ImVec2 size)                 { return IsRectVisible(size); }
 bool          igIsRectVisible(ImVec2 rect_min, ImVec2 rect_max) { return IsRectVisible(rect_min, rect_max); }
-float         igGetTime()                                  { return GetTime(); }
+double        igGetTime()                                  { return GetTime(); }
 int           igGetFrameCount()                            { return GetFrameCount(); }
 ImDrawList*   igGetOverlayDrawList()                       { return GetOverlayDrawList(); }
 ImDrawListSharedData* igGetDrawListSharedData()            { return GetDrawListSharedData(); }

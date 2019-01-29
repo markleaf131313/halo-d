@@ -87,12 +87,12 @@ private struct ConsoleImpl
         igEnd();
     }
 
-    extern(C++) static int inputCallbackProxy(ImGuiTextEditCallbackData* data) @nogc nothrow
+    extern(C++) static int inputCallbackProxy(ImGuiInputTextCallbackData* data) @nogc nothrow
     {
         return (cast(ConsoleImpl*)data.UserData).inputCallback(data);
     }
 
-    private int inputCallback(ImGuiTextEditCallbackData* data) @nogc nothrow
+    private int inputCallback(ImGuiInputTextCallbackData* data) @nogc nothrow
     {
         import std.algorithm : startsWith;
         import core.stdc.stdio : printf;
