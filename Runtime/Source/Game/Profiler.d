@@ -160,7 +160,7 @@ auto beginScopedMarker(string name = __FUNCTION__)
     {
         Frame* frame = &Profiler.currentFrame;
 
-        if(frame.markers.full)
+        if(frame.markers.isFull)
         {
             frame.currentMarkerIndex = indexNone;
         }
@@ -273,7 +273,7 @@ void plotGraph()
     {
         Frame* frame = &frames[selectionStart];
 
-        foreach(uint i, ref marker ; frame.markers)
+        foreach(int i, ref marker ; frame.markers)
         {
             const float height = igGetFontSize() + 6;
 

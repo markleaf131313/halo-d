@@ -87,7 +87,7 @@ struct WorldElement
                 sphere.center.z -= capsule.height;
                 spheres.addFalloff(sphere);
 
-                if(!cylinders.capcityReached())
+                if(!cylinders.isFull)
                 {
                     Cylinder cylinder = void;
 
@@ -164,7 +164,7 @@ struct WorldElement
 
             if(capsule.height > 0.0f)
             {
-                if(!cylinders.capcityReached())
+                if(!cylinders.isFull)
                 {
                     cylinder.position.z -= capsule.height;
                     cylinders.add(cylinder);
@@ -218,7 +218,7 @@ struct WorldElement
                 }
             }
 
-            if(!extrusions.capcityReached())
+            if(!extrusions.isFull)
             {
                 extrusions.add(extruded);
             }

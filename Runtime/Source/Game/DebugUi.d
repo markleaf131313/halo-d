@@ -25,7 +25,7 @@ struct DebugUi
     float[1000] gcUsedValues;
     float[1000] gcFreeValues;
 
-    int[] openedTags;
+    FixedArray!(int, 256) openedTags;
 
     GObject* selectedObject;
 
@@ -58,7 +58,6 @@ struct DebugUi
     void doUi()
     {
         import core.memory : GC;
-        import std.algorithm.searching : canFind;
 
         mixin ProfilerObject.ScopedMarker;
 
@@ -93,15 +92,15 @@ struct DebugUi
                     {
                         if(igSelectable(Cache.inst.metaAt(index).path))
                         {
-                            if(!canFind(openedTags, index))
-                            {
-                                openedTags ~= index;
-                            }
-                            else
+                            if(openedTags.contains(index))
                             {
                                 char[256] windowName = void;
                                 snprintf(windowName, "%s##%d", Cache.inst.metaAt(index).path, index);
                                 igSetWindowFocus(windowName.ptr);
+                            }
+                            else
+                            {
+                                openedTags.addFalloff(index);
                             }
                         }
                     }
@@ -140,8 +139,8 @@ struct DebugUi
             {
                 openedTags[i] = openedTags[$ - 1];
 
-                openedTags.length -= 1;
-                i                 -= 1;
+                openedTags.pop();
+                i -= 1;
             }
         }
 
@@ -158,15 +157,15 @@ struct DebugUi
                 {
                     int index = selectedObject.tagIndex.i;
 
-                    if(!canFind(openedTags, index))
-                    {
-                        openedTags ~= index;
-                    }
-                    else
+                    if(openedTags.contains(index))
                     {
                         char[256] name = void;
                         snprintf(name, "%s##%d", Cache.inst.metaAt(index).path, index);
                         igSetWindowFocus(name.ptr);
+                    }
+                    else
+                    {
+                        openedTags.addFalloff(index);
                     }
                 }
 
@@ -268,11 +267,10 @@ private void popupFindTag(ref TagRef tagRef, bool initialize)
     }
 }
 
-void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices = [])
+void setView(T)(DatumIndex tagIndex, void* f, ref FixedArray!(int, 256) tags, int[] blockIndices = [])
 {
     import std.meta   : Alias;
     import std.traits : getUDAs;
-    import std.algorithm.searching : canFind;
     import core.stdc.string : strlen;
 
     T* fields = cast(T*)f;
@@ -392,15 +390,15 @@ void setView(T)(DatumIndex tagIndex, void* f, ref int[] tags, int[] blockIndices
                 {
                     int index = field.index.i;
 
-                    if(!canFind(tags, index))
-                    {
-                        tags ~= index;
-                    }
-                    else
+                    if(tags.contains(index))
                     {
                         char[256] name = void;
                         snprintf(name, "%s##%d", Cache.inst.metaAt(index).path, index);
                         igSetWindowFocus(name.ptr);
+                    }
+                    else
+                    {
+                        tags.addFalloff(index);
                     }
                 }
             }

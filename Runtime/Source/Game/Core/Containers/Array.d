@@ -19,20 +19,50 @@ private int size = 0;
 private int max  = (Allocator.hasInlinedElements ? Allocator.inlinedSize : 0);
 private Allocator.Def!Element allocator;
 
-Element*  ptr()            { return allocator.allocation(); }
-void      clear()          { size = 0; }
-uint      length() const   { return size; }
-void      resizeToMax()    { resize(max); }
-bool      empty() const    { return size == 0; }
-bool      full() const     { return size >= max; }
-bool      capcityReached() const { return size >= max; }
-uint      opDollar() const { return size; }
-Element[] opSlice()        { return ptr[0 .. size]; }
+Element*  ptr()              { return allocator.allocation(); }
+uint      length() const     { return size; }
+void      clear()            { size = 0; }
+void      resizeToCapacity() { resize(max); }
+bool      isEmpty() const    { return size <= 0; }
+bool      isFull() const     { return size >= max; }
+uint      opDollar() const   { return size; }
+Element[] opSlice()          { return ptr[0 .. size]; }
 
 ref Element opIndex(size_t i)
 {
     assert(i >= 0 && i < size);
     return ptr[i];
+}
+
+int opApply(scope int delegate(ref Element) dg)                                  { return opApplyImpl(dg); }
+int opApply(scope int delegate(ref Element) @nogc nothrow dg) @nogc nothrow      { return opApplyImpl(dg); }
+int opApply(scope int delegate(int, ref Element) dg)                             { return opApplyImplWithIndex(dg); }
+int opApply(scope int delegate(int, ref Element) @nogc nothrow dg) @nogc nothrow { return opApplyImplWithIndex(dg); }
+
+int opApplyImpl(O)(O dg)
+{
+    for(int i = 0; i < size; ++i )
+    {
+        if(int result = dg(ptr[i]))
+        {
+            return result;
+        }
+    }
+
+    return 0;
+}
+
+int opApplyImplWithIndex(O)(O dg)
+{
+    for(int i = 0; i < size; ++i )
+    {
+        if(int result = dg(i, ptr[i]))
+        {
+            return result;
+        }
+    }
+
+    return 0;
 }
 
 static if(is(Element E : E*))
@@ -128,6 +158,20 @@ Element pop()
 {
     assert(size > 0);
     return ptr[size -= 1];
+}
+
+bool contains()(auto ref Element element)
+if(is(typeof(Element.init == Element.init)))
+{
+    foreach(ref Element e; this[])
+    {
+        if(element == e)
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 }
