@@ -842,6 +842,7 @@ void createBuffer(
     vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
 
+@nogc nothrow
 uint debugCallback(
     VkDebugReportFlagsEXT      flags,
     VkDebugReportObjectTypeEXT objectType,
@@ -870,7 +871,7 @@ void setupDebugCallback()
         int messageCode,
         const(char)* pLayerPrefix,
         const(char)* pMessage,
-        void* pUserData)
+        void* pUserData) @nogc nothrow
     {
         return (cast(typeof(this)*)pUserData)
             .debugCallback(flags, objectType, object, location, messageCode, pLayerPrefix, pMessage, pUserData);
@@ -1516,7 +1517,7 @@ void createBaseSbspEnvPipeline()
 
     VkGraphicsPipelineCreateInfo pipelineInfo = pipeline.makeCreateInfo();
 
-    pipelineInfo.shaderStages = shaderStages;
+    pipelineInfo.stages = shaderStages;
     pipelineInfo.layout = sbspEnvPipelineLayout;
     pipelineInfo.renderPass = offscreenFramebuffer.renderPass;
 
@@ -1658,7 +1659,7 @@ void createModelShaderPipelines()
 
     VkGraphicsPipelineCreateInfo info = pipeline.makeCreateInfo();
 
-    info.shaderStages = shaderStages;
+    info.stages = shaderStages;
     info.layout = modelShaderPipelineLayout;
     info.renderPass = offscreenFramebuffer.renderPass;
 
@@ -1787,7 +1788,7 @@ void createChicagoModelPipeline()
 
     VkGraphicsPipelineCreateInfo info = pipeline.makeCreateInfo();
 
-    info.shaderStages = shaderStages;
+    info.stages = shaderStages;
     info.layout = chicagoModelPipelineLayout;
     info.renderPass = offscreenFramebuffer.renderPass;
 
@@ -2256,7 +2257,7 @@ void createImguiPipeline()
     vkCheck(vkCreatePipelineLayout(device, &pipelineLayoutInfo, null, &imguiPipelineLayout));
 
     VkGraphicsPipelineCreateInfo pipelineInfo;
-    pipelineInfo.shaderStages = shaderStages;
+    pipelineInfo.stages = shaderStages;
     pipelineInfo.pVertexInputState = &vertexInputInfo;
     pipelineInfo.pInputAssemblyState = &inputAssembly;
     pipelineInfo.pDepthStencilState = &depthStencilState;
