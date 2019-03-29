@@ -187,9 +187,7 @@ private void updateLinearSound(int index)
 
     if(sourceState != AL_PLAYING)
     {
-        // TODO better way to determine done playing
-        //      ogg's readOffset can be "done" but still have data it needs to play
-        if(readOffset >= tagPermutation.samples.size)
+        if(readOffset >= tagPermutation.samples.size && unqueuedBufferCount == unqueuedBuffers.length32)
         {
             audio.deleteSound(soundIndex);
             reset();
@@ -319,7 +317,10 @@ private bool fillBuffers()
 
     foreach_reverse(uint buffer ; unqueuedBuffers[0 .. unqueuedBufferCount])
     {
-        byte[2048] data = void;
+        // TODO: need to adjust buffer size based on file and format
+        //       stereo input would need twice the buffer size compared to mono
+        //       to hold the same length of audio in the same size of buffer
+        byte[4128] data = void;
         ptrdiff_t length;
 
         int  numChannels = 2;
