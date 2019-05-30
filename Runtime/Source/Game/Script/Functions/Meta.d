@@ -9,7 +9,7 @@ import Game.Core;
 
 
 private enum numOfFunctions = 528;
-package immutable hsFunctionMetas = buildFunctionList();
+immutable hsFunctionMetas = buildFunctionList();
 
 private template ToHsType(Types...)
 {

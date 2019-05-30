@@ -1,7 +1,8 @@
 
 module Game.Core.Traits;
 
-import std.traits : AliasSeq, EnumMembers;
+import std.meta : AliasSeq;
+import std.traits : EnumMembers;
 
 template EnumNamesAliasSeq(T) if(is(T == enum))
 {

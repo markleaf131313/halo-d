@@ -63,5 +63,13 @@ else
         {
             ptrValue = cast(uint)p;
         }
+
+        @nogc nothrow
+        ref typeof(this) opAssign(const(T)* p)
+        {
+            ptr = p;
+            return this;
+        }
+
     }
 }
