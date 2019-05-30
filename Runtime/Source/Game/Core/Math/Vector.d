@@ -6,8 +6,8 @@ import std.meta   : AliasSeq, allSatisfy;
 import std.traits : isAssignable, isNumeric, isFloatingPoint, Unqual;
 import std.conv   : to;
 
-import Game.Core.Math.Algorithms;
-import Game.Core.Meta;
+import Game.Core.Math.Algorithms : clamp, saturate;
+import Game.Core.Meta : staticIota;
 
 
 pragma(inline, true) @nogc nothrow pure:
