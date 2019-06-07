@@ -120,7 +120,8 @@ struct DebugUi
             char[1024] buffer = void;
             snprintf(buffer, "%s##%d", meta.path, i);
 
-            igSetNextWindowPos(Vec2(0,0), ImGuiCond_FirstUseEver, Vec2(0.5f, 0.5f));
+            igSetNextWindowPos(igGetIO().DisplaySize * 0.5f, ImGuiCond_FirstUseEver, Vec2(0.5f, 0.5f));
+            igSetNextWindowSize(Vec2(600, 800),  ImGuiCond_FirstUseEver);
             if(igBegin(buffer.ptr, &opened, ImGuiWindowFlags_NoSavedSettings))
             {
                 InvokeByTag!setView(meta.type, meta.index, meta.data, openedTags, null);
