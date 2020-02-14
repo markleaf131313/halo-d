@@ -1,6 +1,8 @@
 
 module Game.DebugUi;
 
+import std.traits : EnumMembers;
+
 import ImGuiC;
 
 import Game.Audio;

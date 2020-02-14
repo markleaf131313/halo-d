@@ -1,6 +1,8 @@
 
 module Game.Script.Runtime;
 
+import std.string : fromStringz;
+
 import Game.Script.Functions.Meta;
 import Game.Script.Script;
 import Game.Script.Thread;

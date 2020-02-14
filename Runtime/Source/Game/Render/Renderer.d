@@ -5,6 +5,7 @@ import std.container.array;
 import std.conv : to;
 import std.file : readText;
 import std.meta : AliasSeq;
+import std.typecons : Tuple, tuple;
 
 import SDL2;
 import ImGuiC;
