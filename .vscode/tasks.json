@@ -1,44 +1,48 @@
 {
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
-    "version": "0.1.0",
-    "command": "python",
-    "isShellCommand": true,
-    "showOutput": "always",
+    "version": "2.0.0",
+    "type": "shell",
+
     "tasks":[
         {
-            "taskName": "impl",
-            "suppressTaskName": true,
+            "label": "impl",
+            "command": "python",
             "args": [
-                "${workspaceRoot}/build/build.py",
+                "./Build/Build.py",
                 "Impl"
             ]
         },
         {
-            "taskName": "runtime",
-            "suppressTaskName": true,
-            "isBuildCommand": true,
+            "label": "runtime",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+
+            "command": "python",
             "args": [
-                "${workspaceRoot}/build/build.py",
+                "./Build/Build.py",
                 "Runtime"
             ],
             "problemMatcher": {
                 "owner": "d",
                 "fileLocation": ["relative", "${workspaceRoot}/Runtime/"],
+                "severity": "info",
                 "pattern": {
-                    "regexp": "^(.*)\\(([0-9]+)\\): (Error|Warning): (.*)$",
+                    "regexp": "^(.*)\\(([0-9]+)\\): (Error|Warning|Deprecation): (.*)$",
                     "file": 1,
-                    "line": 2,
+                    "location": 2,
                     "severity": 3,
                     "message": 4
                 }
             }
         },
         {
-            "taskName": "all",
-            "suppressTaskName": true,
+            "label": "all",
+            "command": "python",
             "args": [
-                "${workspaceRoot}/build/build.py",
+                "./Build/Build.py",
                 "all"
             ]
         }
