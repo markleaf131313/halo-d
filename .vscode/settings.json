@@ -1,6 +1,7 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    "d.dcd.imports": [
+    "d.init.symbol.autoImports": false,
+    "d.dls.symbol.importPaths": [
         "Runtime/Source/",
         "Build/Imports/"
     ],
