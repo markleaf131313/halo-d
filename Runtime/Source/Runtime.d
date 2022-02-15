@@ -1,6 +1,8 @@
+module Runtime_;
 
 import std.conv      : emplace, to;
-import std.datetime  : StopWatch, Duration, dur;
+import std.datetime  : Duration, dur;
+import std.datetime.stopwatch : StopWatch;
 import std.exception : enforce;
 import std.meta;
 import std.stdio;
@@ -407,6 +409,8 @@ try
     static float mouseWheel;
     static int ticks;
 
+    Random_shared_static_this();
+
     SDL_Event ev = void;
 
     while(SDL_PollEvent(&ev))
@@ -514,9 +518,9 @@ try
 
         io.DisplaySize = Vec2(1920.0f, 1080.0f); // TODO unhardcode
 
-        if(stopWatch.peek().hnsecs != 0)
+        if(stopWatch.peek().total!"hnsecs" != 0)
         {
-            io.DeltaTime = clamp(stopWatch.peek().msecs / 1000.0f, 0.0001f, 500.0f);
+            io.DeltaTime = clamp(stopWatch.peek().total!"msecs" / 1000.0f, 0.0001f, 500.0f);
         }
 
         stopWatch.reset();
@@ -571,7 +575,7 @@ try
     }
 
 
-    Duration currentTime = dur!"hnsecs"(frameStopWatch.peek().hnsecs);
+    Duration currentTime = frameStopWatch.peek();
     accumulator += min(dur!"msecs"(200), currentTime - lastTime);
 
     lastTime = currentTime;
@@ -788,7 +792,7 @@ try
 
         gameState.audio.updateObjectLoopingSounds();
 
-        if(dur!"hnsecs"(stopWatch.peek().hnsecs) > frameDelta)
+        if(stopWatch.peek() > frameDelta)
         {
             accumulator = dur!"seconds"(0);
             break;

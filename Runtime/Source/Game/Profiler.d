@@ -26,6 +26,7 @@ mixin template ScopedFrame(int line = __LINE__)
 
 mixin template ScopedMarker(int line = __LINE__)
 {
+    import std.conv : to;
     mixin("auto _beginScopedMarker_" ~ line.to!string ~ " = Profiler.beginScopedMarker();");
 }
 

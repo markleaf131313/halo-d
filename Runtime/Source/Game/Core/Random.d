@@ -8,9 +8,21 @@ import Game.Tags.Types : TagBounds;
 
 private __gshared Xorshift engine;
 
+// work around for a linker bug for some reason won't find this symbol
+void Random_shared_static_this()
+{
+    __gshared bool initialized = false;
+    if(!initialized)
+    {
+        engine = Xorshift(unpredictableSeed);
+        initialized = true;
+    }
+}
+
 shared static this()
 {
-    engine = Xorshift(unpredictableSeed);
+    // See https://github.com/ldc-developers/ldc/issues/3916
+    // engine = Xorshift(unpredictableSeed);
 }
 
 @nogc nothrow
